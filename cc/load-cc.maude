@@ -1,0 +1,24 @@
+--- this file loads all of the dependencies for congruence closure, except FULL-MAUDE,
+--- which must be loaded externally first
+load eqset.maude
+load tuple.maude
+load nat-util.maude
+load prelude-ext.maude
+load position.maude
+load clause-info.maude
+load module-util.maude
+load term-util.maude
+load clause.maude
+load aacrpo.maude
+load set-memo.maude
+load marked-term.maude
+load marked-rule.maude
+load marked-rules.maude
+load simplify-marked-term-and-rule.maude
+load process.maude
+*** for free congr, closure should load:
+*** load free-congruence-closure.maude
+*** for AorC congr. closure one should instead load:
+load fi-and-IMR-tables-and-overlaps.maude
+load critical-pair.maude
+load AorC-congruence-closure.maude

@@ -1,0 +1,244 @@
+*** critical-pair.maude imports marked-rules.maude and fi-and-IMR-tables-and-overlaps.maude
+
+fmod FAXIOMSET is
+  pr QID .
+  sorts Axiom FAxiom FAxiomSet .
+  subsort FAxiom < FAxiomSet .
+  ops free A AC : -> Axiom [ctor] .
+  op [_,_] : Qid Axiom -> FAxiom [ctor] .
+  op mt-fax : -> FAxiomSet [ctor] .
+  op _@_ : FAxiomSet FAxiomSet -> FAxiomSet [ctor assoc comm id: mt-fax] .
+endfm
+
+--- this module exposes AC axioms for term equality at the meta-level
+--- and provides functions for computing the intersection or difference
+--- of/between two AC metaterms when they are viewed as sets
+fmod AC-TERM-REPR is
+  pr META-LEVEL .
+  pr FAXIOMSET .
+  sort    ACTerm ACTermList ACTermSet .
+  subsort ACTerm < ACTermList ACTermSet .
+  --- constructors
+  op noax : Qid ACTermList -> ACTerm [ctor] .
+  op ac   : Qid ACTermSet  -> ACTerm [ctor] .
+  op leaf : Constant -> ACTerm [ctor] .
+  op leaf : Variable -> ACTerm [ctor] .
+  op _,_  : ACTermList ACTermList -> ACTermList [ctor assoc id: mtACTermList] .
+  op _|_  : ACTermSet  ACTermSet  -> ACTermSet  [ctor assoc comm id: mtACTermSet] .
+  op mtACTermList : -> ACTermList [ctor] .
+  op mtACTermSet  : -> ACTermSet  [ctor] .
+  --- convert Term to ACTerm
+  op toACTerm  : Module FAxiomSet Term             -> ACTerm .
+  op toACTerm  : FAxiomSet Term                    -> ACTerm .
+  op toACTermL : FAxiomSet Qid TermList ACTermList -> ACTermList .
+  op acL2S     : ACTermList -> ACTermSet .
+  --- convert ACTerm to Term
+  op toTerm    : ACTerm -> Term .
+  op toTermL   : ACTermSet  TermList -> TermList .
+  op toTermL   : ACTermList TermList -> TermList .
+  --- inter/difference operations
+  op inter     : ACTerm ACTerm -> ACTerm .
+  op diff      : ACTerm ACTerm -> ACTerm .
+
+  var f : Qid . var T : Term . var L : NeTermList . var L? : TermList . var TQ : TermQid .
+  var ACL : ACTermList . var ACS AC1 AC2 : ACTermSet . var ACT ACT' : ACTerm . var FAS : FAxiomSet .
+
+  eq toACTerm (U:Module,FAS,T)    = toACTerm(FAS,getTerm(metaNormalize(U:Module,T))) .
+  eq toACTerm ([f,AC] @ FAS,f[L]) = ac(f,acL2S(toACTermL([f,AC] @ FAS,f,L,mtACTermList))) .
+  eq toACTerm (         FAS,f[L]) = noax(f,toACTermL(FAS,f,L,mtACTermList)) [owise] .
+  eq toACTerm (         FAS,TQ  ) = leaf(TQ) .
+  eq toACTermL(FAS,f,(T,L?),ACL ) = toACTermL(FAS,f,L?,(ACL,toACTerm(FAS,T))) .
+ ceq toACTermL(FAS,f,empty, ACL ) = ACL if ACL =/= mtACTermList .
+
+  eq acL2S((ACT,ACL))    = acL2S(ACL) | ACT .
+  eq acL2S(mtACTermList) = mtACTermSet .
+
+ ceq toTerm (ac  (f,ACS))     = f[toTermL(ACS,empty)] if ACS =/= mtACTermSet  .
+ ceq toTerm (noax(f,ACL))     = f[toTermL(ACL,empty)] if ACL =/= mtACTermList .
+  eq toTerm (leaf(TQ)   )     = TQ .
+  eq toTermL(ACT | ACS  , L?) = toTermL(ACS,(L?,toTerm(ACT))) .
+  eq toTermL(mtACTermSet, L?) = L? .
+  eq toTermL((ACT,ACL),   L?) = toTermL(ACT,(L?,toTerm(ACT))) .
+  eq toTermL(mtACTermList,L?) = L? .
+
+ ceq inter(ac(f,ACS | AC1),ac(f,ACS | AC2)) = ac(f,ACS | inter(ac(f,AC1),ac(f,AC2))) if ACS =/= mtACTermSet .
+  eq inter(ac(f,ACS | ACT),ACT            ) = ACT .
+  eq inter(ACT            ,ACT'           ) = leaf('mt-intersection.U) [owise] .
+
+ ceq diff (ac(f,ACS | AC1),ac(f,ACS | AC2)) = diff(ac(f,AC1),ac(f,AC2)) if ACS =/= mtACTermSet .
+  eq diff (ac(f,ACS | ACT),ACT            ) = if ACS == mtACTermSet then leaf('mt-intersection.U) else ac(f,ACS) fi .
+  eq diff (ACT            ,ACT'           ) = ACT [owise] .
+
+  --- keep our AC terms reduced
+  eq ac(f,ACT)                            = ACT .
+  eq ac(f,leaf('mt-intersection.U) | ACS) = ac(f,ACS) .
+  eq ac(f,mtACTermSet)                    = leaf('mt-intersection.U) .
+endfm
+
+view GroundTermPair from TRIV to MARKED-RULE is
+  sort Elt to GroundTermPair .
+endv
+
+fmod CRITICAL-PAIR is
+  pr LIST{GroundTermPair} .
+  pr MARKED-RULES .
+  pr OVERLAP-LIST&IMRULE-TABLE .
+  pr TERM-UTIL .
+  pr FAXIOMSET .
+  pr AC-TERM-REPR .
+
+  op p1 : UnificationPair -> Substitution .
+  op _in_ : Attr AttrSet -> Bool .
+  op ax_in_ : Qid FAxiomSet -> Axiom [memo] .
+
+  op init-faxset : Module -> FAxiomSet [memo] .
+  op init-imrtab : Module -> IMRuleTable [memo] .
+  op imrtab      : FAxiomSet -> IMRuleTable .
+  op faxset      : OpDeclSet -> FAxiomSet .
+
+  op make-rule-map : Module List{GroundTermPair}  -> List{MRule<} .
+
+  op CPS         : Module OInfo IMRuleTable FAxiomSet -> List{GroundTermPair} .
+  op ax-CPS      : Module FAxiomSet MRule MRule FAxiom -> List{GroundTermPair} . *** CPS of two rules with same top axiom
+  op ax-CPS-same : MRule FAxiom -> List{GroundTermPair} .                        *** CPS of a rule with itself
+  op CPS-A       : MRule MRule Qid -> List{GroundTermPair} .
+  op CPS-A-aux   : MRule MRule Qid Nat -> List{GroundTermPair} .
+  op CPS-AC      : Module FAxiomSet MRule MRule Qid -> List{GroundTermPair} .
+
+  vars f g : Qid .  var AX : Axiom .  var FAS : FAxiomSet . var TY : Type .
+  var TYL : TypeList . var AT : Attr . var ATS : AttrSet .  var ODS : OpDeclSet .
+  vars T T' T'' T''' : GroundTerm . var TPL : List{GroundTermPair} .  var NPS NPS' : NatPairSet .
+  vars i j n m k l : Nat .  var MR MR' : MRule .  var IMRS : Set{IMRule} .  var IMRT : IMRuleTable .
+  vars S S' S'' S''' : SetM{Qid} . var SUB : Substitution . var U : Module .
+  var L L' : NeTermList . var L1 L2 L1' L2' : TermList .
+
+  --- Miscellaneous equations
+  eq [f,AX] @ [f,AX] = [f,AX] .
+
+  eq p1({SUB,n}) = SUB .
+
+  eq AT in AT ATS = true .
+  eq AT in ATS = false [owise] .
+
+  eq ax f in [f,AX] @ FAS = AX .
+  eq ax f in FAS = free [owise] .
+
+  --- IMRuleTable
+  eq init-imrtab(U) = imrtab(init-faxset(U)) .
+
+  eq imrtab([f,A] @ FAS) =  [f,empty] @ imrtab(FAS) .
+  eq imrtab([f,AC] @ FAS) =  [f,empty] @ imrtab(FAS) .
+  eq imrtab(FAS)  = mt-imrtab [owise] .
+
+  --- AxiomSet
+  eq init-faxset(U) = faxset(getOps(U)) .
+
+  eq faxset((op f : TYL -> TY [assoc comm ATS] .) ODS) = [f,AC] @ faxset(ODS) .
+ ceq faxset((op f : TYL -> TY [assoc ATS] .) ODS) = [f,A] @ faxset(ODS)  if comm in ATS = false .
+  eq faxset(ODS) = mt-fax [owise] .
+
+  --- Rule Building
+  eq make-rule-map(U,nil) = nil .
+  eq make-rule-map(U,[T,T'] TPL) = make-rule(U,T,T') make-rule-map(U,TPL) .
+
+  --- Critical pair generation
+  eq CPS(U,[[i,f],[i,i] & NPS],[f,(([i] MR),IMRS)] @ IMRT,[f,AX] @ FAS) =
+    ax-CPS-same(MR,[f,AX]) CPS(U,[[i,f],NPS],[f,(([i] MR),IMRS)] @ IMRT,[f,AX] @ FAS) .
+  eq CPS(U,[[i,f],[i,j] & NPS],[f,(([i] MR),([j] MR'),IMRS)] @ IMRT,[f,AX] @ FAS) =
+    ax-CPS(U,[f,AX] @ FAS,MR,MR',[f,AX]) CPS(U,[[i,f],NPS],[f,(([i] MR),IMRS)] @ IMRT,[f,AX] @ FAS) .
+  eq CPS(U,[[i,f],NPS],IMRT,FAS) =
+    nil [owise] . *** takes care of both index-pairs where some rule was previously deleted and of mt-fax.
+
+  eq ax-CPS-same(T [n,S] => T' [m,S'],[f,A]) = CPS-A(T [n,S] => T' [m,S'],T [n,S] => T' [m,S'],f) .  *** critical pairs of A-rule with itself
+  eq ax-CPS-same(T [n,S] => T' [m,S'],[f,AC]) = nil .                                                *** no CPs needed of AC-rule with itself
+
+  eq ax-CPS(U,FAS,T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],[f,A])  =
+         CPS-A(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f) CPS-A(T'' [k,S''] => T''' [l,S'''],T [n,S] => T' [m,S'],f) .
+  eq ax-CPS(U,FAS,T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],[f,AC]) =
+         CPS-AC(U,FAS,T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f) .
+
+  eq CPS-A(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f) = CPS-A-aux(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f,0) .
+  eq CPS-A(MR,MR',f) = nil [owise] .  *** covers the case (impossible in actual use) where either MR or MR' is mt-mrule
+
+  eq CPS-A-aux(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f,i) =
+         if metaUnify(upModule('U,true),f['X1:U,'X2:U] =? T /\ f['X2:U,'X3:U] =? T'' ,0,i) == noUnifier
+            then nil
+            else [f[T',('X3:U << p1(metaUnify(upModule('U,true),f['X1:U,'X2:U] =? T /\ f['X2:U,'X3:U] =? T'' ,0,i)))],
+                  f[('X1:U << p1(metaUnify(upModule('U,true),f['X1:U,'X2:U] =? T /\ f['X2:U,'X3:U] =? T'' ,0,i))),T''']]
+                CPS-A-aux(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f,s(i))
+         fi .
+
+  eq CPS-AC(U,FAS,T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f) =
+         if inter(toACTerm(U,FAS,T),toACTerm(U,FAS,T'')) == leaf('mt-intersection.U)
+            then nil
+            else [
+                  f[T',toTerm(diff(toACTerm(U,FAS,T''),inter(toACTerm(U,FAS,T),toACTerm(U,FAS,T''))))     ],
+                  f[   toTerm(diff(toACTerm(U,FAS,T  ),inter(toACTerm(U,FAS,T),toACTerm(U,FAS,T'')))),T''']
+                 ]
+         fi .
+endfm
+
+*** Since the rules in IMRuleTable are always inter-reduced, for two different rules [i] T [n,S] => T' [m,S'] and [j] T'' [k,S''] => T''' [l,S'''] in
+***     IMRuleTable the invariant getTerm(metaReduce(upModule('U,true),T)) == getTerm(metaReduce(upModule('U,true),T'')) always holds,
+***     so that we do not need the more complex equation below, which would save effort in a case that will never arise and would takes longer to execute.
+
+*** eq ax-CPS(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],[f,A]) =
+***       if getTerm(metaReduce(upModule('U,true),T)) == getTerm(metaReduce(upModule('U,true),T''))
+***          then CPS-A(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f)
+*** 	 else CPS-A(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f) CPS-A(T'' [k,S''] => T''' [l,S'''],T [n,S] => T' [m,S'],f)
+***       fi .
+
+*** red ax-CPS('__['a.U,'a.U,'b.U] [4,'a.U] => 'b.U [1,'b.U], '__['a.U,'b.U,'b.U,'a.U,'a.U] [5,'a.U] => '__['a.U,'a.U] [3,'a.U],['__,A]) .
+
+*** result NeList{GroundTermPair}:
+*** ['__['b.U,'__['a.U,'b.U]],'__['__['a.U,'b.U],'__['a.U,'a.U]]]
+*** ['__['__['a.U,'a.U],'__['a.U,'a.U]],'__['__['a.U,'a.U],'b.U]]
+*** ['__['__['a.U,'a.U],'a.U],'__['a.U,'b.U]]
+***
+***
+***
+***
+*** [List{GroundTermPair}]:
+***
+*** ['__['b.U,'X2:U << p1(noUnifier)],'__['X2:U << p1(noUnifier),'__['a.U,'a.U]]]
+*** ['__['__['a.U,'a.U],'X2:U << p1(noUnifier)],'__['X2:U << p1(noUnifier),'b.U]]
+***
+*** red 'X2:U << ('X1:U <- 'a.U ; 'X2:U <- '__['a.U,'b.U] ; 'X3:U <- '__['b.U,'a.U,'a.U]) .
+
+*** result UnificationPair: {
+*** 	'X1:U <- 'a.U ;
+*** 	'X2:U <- '__['a.U,'b.U] ;
+*** 	'X3:U <- '__['b.U,'a.U,'a.U],0}
+***
+***
+*** red metaUnify(upModule('U,true),'__['X1:U,'X2:U] =? '__['a.U,'a.U,'b.U]  /\ '__['X2:U,'X3:U] =? '__['a.U,'b.U,'b.U,'a.U,'a.U],0,0) .
+
+*** fmod 'U is
+***   nil
+***   sorts 'U .
+***   none
+***   op '_+_ : 'U 'U -> 'U [assoc comm metadata("6")] .
+***   op '__ : 'U 'U -> 'U [assoc metadata("7")] .
+***   op '_|_ : 'U 'U -> 'U [comm metadata("5")] .
+***   op 'a : nil -> 'U [ctor metadata("1")] .
+***   op 'b : nil -> 'U [ctor metadata("2")] .
+***   op 's : 'U -> 'U [ctor metadata("4")] .
+***   op 'z : nil -> 'U [ctor metadata("3")] .
+***   none
+***   none
+*** endfm
+
+*** red metaUnify(fmod 'U is
+***   nil
+***   sorts 'U .
+***   none
+***   op '_+_ : 'U 'U -> 'U [assoc comm metadata("6")] .
+***   op '__ : 'U 'U -> 'U [assoc metadata("7")] .
+***   op '_|_ : 'U 'U -> 'U [comm metadata("5")] .
+***   op 'a : nil -> 'U [ctor metadata("1")] .
+***   op 'b : nil -> 'U [ctor metadata("2")] .
+***   op 's : 'U -> 'U [ctor metadata("4")] .
+***   op 'z : nil -> 'U [ctor metadata("3")] .
+***   none
+***   none
+*** endfm,'__['X1:U,'X2:U] =? T)

@@ -1,0 +1,31 @@
+***(-----------------------------------------------------------------
+
+Module      :  tracking
+Stability   :  stable
+Portability :  portable
+
+Clause information .
+
+---------------------------------------------------------------------)
+
+fmod CLAUSE-INFO is
+  pr NAT .
+  pr POSITION .
+
+  sort ClauseInfo .
+
+--- inference and simplification rules
+  op assumption : -> ClauseInfo [ctor] .
+  op conjecture : -> ClauseInfo [ctor] .
+  op lemma : -> ClauseInfo [ctor] .
+  op orderedResolution : Nat Nat -> ClauseInfo [ctor] . 
+  op equalityResolution : Nat -> ClauseInfo [ctor] . 
+  op equalityFactoring : Nat -> ClauseInfo [ctor] . 
+  op orderedFactoring : Nat -> ClauseInfo [ctor] . 
+  op superpositionR : Nat Nat Position -> ClauseInfo [ctor] . 
+  op superposition : Nat Nat Position -> ClauseInfo [ctor] . 
+  op rewritten : Nat -> ClauseInfo [ctor] . 
+  op simplified : Nat -> ClauseInfo [ctor] . 
+endfm
+
+view ClauseInfo from TRIV to CLAUSE-INFO is sort Elt to ClauseInfo .  endv

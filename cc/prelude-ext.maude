@@ -1,0 +1,18 @@
+***(-----------------------------------------------------------------
+
+Module      :  prelude-ext
+Stability   :  stable
+Portability :  portable
+
+Definition of equality theory for terms that are equal but not
+sintactically .
+
+---------------------------------------------------------------------)
+
+fth EQUALITY-RELATION is
+  protecting BOOL .
+  including TRIV .
+  op _===_ : Elt Elt -> Bool [comm] .
+  vars X Y : Elt .
+  eq (X === X) = true [nonexec label equality] .
+endfth

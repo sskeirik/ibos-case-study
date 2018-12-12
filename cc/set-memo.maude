@@ -1,0 +1,26 @@
+*** set-memo.maude
+*** version of SET{X} with memoization for some operations
+
+fmod SETM{X :: TRIV} is
+  protecting BOOL .
+  sorts NeSetM{X} SetM{X} .
+  subsort X$Elt < NeSetM{X} < SetM{X} .
+
+  op mt : -> SetM{X} [ctor] .
+  op _&_ : SetM{X} SetM{X} -> SetM{X} [ctor assoc comm id: mt prec 121] .
+  op _&_ : NeSetM{X} SetM{X} -> NeSetM{X} [ctor ditto] .
+
+  var E : X$Elt .
+  var N : NeSetM{X} .
+  vars A S S' : SetM{X} .
+
+  eq N & N = N .
+  
+  op _=<_ : SetM{X} SetM{X} -> [Bool] [memo] .
+  eq S =< (S & S') = true .
+endfm
+
+fmod SETM-QID is
+  pr SETM{Qid} .
+endfm
+

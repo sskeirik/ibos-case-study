@@ -1,0 +1,63 @@
+*** marked-rule.maude
+*** imports both marked-term.maude and all files needed by acrpo.maude
+
+*** Rules are marked, as terms, for efficiency reasons as explained in marked-term.maude.
+*** They come in two fashions: indexed by a number (sort IMRule), and unindexed (sort MRule).
+*** In the congruence closure algorithm, indexed rules will always be inter-reduced, whereas
+*** unindexed rules will be equations still to be processed.  An unindexed rule can be created
+*** and oriented as terminating by the function "make-rule(T,T')" which produces the mt-rule
+*** error when T and T' are equal modulo axioms and otherwise orients them by a simplification
+*** order total on ground terms modulo the given axioms.
+***
+*** Since congruence closure can be more efficient by first processing rules with small righthand
+*** sides, a lexicographic order based on the two sizes of an unindexed rule is defined.
+
+fmod MARKED-RULE is protecting AAC-RPO .
+                    protecting MARKED-TERM .
+                    protecting NAT .
+                    protecting META-LEVEL .
+
+  sorts MRule IMRule GroundTermPair .
+
+  op [_]_        : Nat   MRule -> IMRule [ctor] .
+  op _=>_        : MTerm MTerm -> MRule  [ctor] .
+  op [_,_]       : GroundTerm GroundTerm -> GroundTermPair [ctor] .
+  op mt-mrule    : -> MRule [ctor] .
+
+  op make-rule   : Module GroundTerm GroundTerm -> MRule .
+  ops left right : MRule -> [GroundTerm] .  *** undefined for mt-rule
+  op _<_         : MRule MRule -> Bool .
+
+  vars T T' T'' T''' : GroundTerm .
+  vars S S' S'' S''' : SetM{Qid} .
+  vars i j n m k l : Nat .
+  var MR : MRule .
+  var U : Module .
+
+  eq left(T [n,S] => T' [m,S']) = T .
+  eq right(T [n,S] => T' [m,S']) = T' .
+
+  eq make-rule(U,T,T') = if getTerm(metaReduce(U,T)) == getTerm(metaReduce(U,T'))
+                           then mt-mrule
+                           else if size(size&ops(T)) > size(size&ops(T'))
+                             then T size&ops(T) => T' size&ops(T')
+                             else if size(size&ops(T')) > size(size&ops(T))
+                               then  T' size&ops(T') =>  T size&ops(T)
+                               else if T >AAC{U} T'
+                                 then T size&ops(T) => T' size&ops(T')
+                                 else T' size&ops(T') =>  T size&ops(T) fi fi fi fi .
+
+  eq mt-mrule < T [n,S] => T' [m,S'] = true . *** smaller righthand sides first preferred, then smaller lefthands
+  eq MR < mt-mrule = false .
+  eq T [n,S] => T' [m,S'] < T'' [k,S''] => T''' [l,S'''] = if (m < l)
+                                                              then true
+                                                              else if m == l
+                                                                       then (n < k)
+                                                                       else false
+                                                                    fi
+                                                           fi .
+endfm
+
+*** red make-rule('_+_['z.U,'s['z.U],'_|_['z.U,'s['z.U]]], '_+_['s['z.U],'_|_['z.U,'s['z.U]]]) .
+*** red make-rule('_+_['z.U,'s['z.U],'_|_['z.U,'s['z.U]]], '_+_['z.U,'s['z.U],'_|_['z.U,'s['z.U]]]) .
+*** red make-rule('_+_['s['z.U],'_|_['z.U,'s['z.U]]], '_+_['z.U,'s['z.U],'_|_['z.U,'s['z.U]]]) .

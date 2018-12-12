@@ -1,0 +1,575 @@
+***(-----------------------------------------------------------------
+
+Module      :  acrpo
+Stability   :  unstable
+Portability :  portable
+
+AC-RPO for ordered rewriting. Based on [Rub99]
+
+---------------------------------------------------------------------)
+
+--- ----------------------------------------------------------------
+--- NOTES FOR USING THIS MODULE:
+
+--- In this module, if there is a symbol with different typings is
+--- consider one symbol from the point of view of the ordering. The
+--- reason is that [Rub99] does not consider sort information (and the
+--- extension is not trivial).
+
+--- This order can only be used to check positive answers. It means
+--- that if we want to check if a term t is greater than a term t' and
+--- t > t' = true we ensure that t > t' for all their possible
+--- instances, but if t > t' =/= true does not mean that t' > t. That
+--- is because we deal with terms with variables. The order can also
+--- return a constraint instead of true or false (for instance, X >v
+--- 0).
+--- ----------------------------------------------------------------
+
+fmod WRAP-TERM-CONSTRUCTION is
+  pr STRING-AUX .
+  pr META-LEVEL .
+  pr TERM-CONSTRUCTION .
+
+  var F Q Q1 Q2 : Qid .
+  vars N N1 N2 : Nat .
+  vars Tp Tp1 Tp2 Tp3 TpI1 TpI2 : Type .
+  var TpL TpL1 TpL2 TpL3 : TypeList .
+  var AtS AtS1 AtS2 : AttrSet .
+  var TL : TermList .
+  var T  : Term .
+
+--- constrWrapList - list arguments as a list of wrapped terms
+  op constrWrapList : TypeList Nat -> Term .
+  eq constrWrapList(nil, N)
+   = 'nil.OWrapList .
+  eq constrWrapList(Tp TpL, N)
+   = '__['`[`[_`]`][qid("V#" + string(N,10) + ":" + string(Tp))],constrWrapList(TpL, s N)] .
+
+--- constrWrapSet - list arguments as a set of wrapped terms
+  op constrWrapSet : TypeList Nat -> Term .
+  eq constrWrapSet(nil, N)
+   = 'empty.OWrapSet .
+  eq constrWrapSet(Tp TpL, N)
+   = '_`,_['`[`[_`]`][qid("V#" + string(N,10) + ":" + string(Tp))],constrWrapSet(TpL, s N)] .
+
+--- mountEmbSmall4 - OR[i | i <- [1..n]] (w1,tff(vi),w2) == w3 or
+--- embSmall4f(empty,(w1,tff(vi),w2), w3) or
+--- embSmall4f((w1,h(v1,...,vn)),w2,w3)
+ op mountEmbSmall4 : OpDecl OpDecl TypeList Nat -> Term .
+ eq mountEmbSmall4((op Q1 : TpI1 TpI2 -> Tp1 [assoc comm AtS1] .), (op Q2 : TpL2 -> Tp2 [AtS2] .), (nil).TypeList,N) = qid("embSmall4-" + alpha(string(Q1)))['_`,_['WS1:OWrapSet,'`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),0)]],'WS2:OWrapSet,'T:OTerm] .
+ eq mountEmbSmall4((op Q1 : TpI1 TpI2 -> Tp1 [assoc comm AtS1] .), (op Q2 : TpL2 -> Tp2 [AtS2] .), Tp3 TpL3, N) = '_or_['_>=v_[qid("(" + alpha(string(Q1)) + ",_)")['_`,_['_`,_['WS1:OWrapSet,'`[`[_`]`][qid("V#" + string(N,10) + ":" + string(Tp3))]],'WS2:OWrapSet]],'T:OTerm],mountEmbSmall4((op Q1 : TpI1 TpI2 -> Tp1 [assoc comm AtS1] .), (op Q2 : TpL2 -> Tp2 [AtS2] .), TpL3, s N)] .
+    
+--- mountEmbSmall5f - AND[i | i <- [1..n]] w3 == (w1,tff(vi),w2) or
+--- embSmall4f(empty,w3,(w1,tff(vi),w2)) or
+--- embSmall5f((w1,h(v1,...,vn)),w2,w3)
+ op mountEmbSmall5 : OpDecl OpDecl TypeList Nat -> Term .
+ eq mountEmbSmall5((op Q1 : TpI1 TpI2 -> Tp1 [assoc comm AtS1] .), (op Q2 : TpL2 -> Tp2 [AtS2] .), (nil).TypeList,N) = qid("embSmall5-" + alpha(string(Q1)))['_`,_['WS1:OWrapSet,'`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),0)]],'WS2:OWrapSet,'T:OTerm] .
+ eq mountEmbSmall5((op Q1 : TpI1 TpI2 -> Tp1 [assoc comm AtS1] .), (op Q2 : TpL2 -> Tp2 [AtS2] .), Tp3 TpL3, N) = '_and_['_>v_['T:OTerm,qid("(" + alpha(string(Q1)) + ",_)")['_`,_['_`,_['WS1:OWrapSet,'`[`[_`]`][qid("V#" + string(N,10) + ":" + string(Tp3))]],'WS2:OWrapSet]]],mountEmbSmall5((op Q1 : TpI1 TpI2 -> Tp1 [assoc comm AtS1] .), (op Q2 : TpL2 -> Tp2 [AtS2] .), TpL3, s N)] .
+
+endfm
+
+view OpDecl from TRIV to META-LEVEL is sort Elt to OpDecl .  endv
+
+fmod WRAP-COMPLETION is
+  pr WRAP-TERM-CONSTRUCTION .
+  pr TYPES-AUX .
+  pr 2TUPLE{Nat,OpDecl} * (sort Tuple{Nat,OpDecl} to NatOpDecl) .
+
+  var Tp   : Type .
+  var TpL  : TypeList .
+  var OPDS : OpDeclSet .
+  var EKOPDS : EKindOpDeclSetSet .
+  vars NOPD1 NOPD2 : NatOpDecl .
+  var Q : Qid .
+  var AtS : AttrSet .
+  var S : String .
+
+  --- wrapOps - add wrapping operators and wrapEmbSmall4 for AC operators
+  op wrapOps : EKindOpDeclSetSet -> OpDeclSet .
+  eq wrapOps((none).EKindOpDeclSetSet) = (none).OpDeclSet .
+  eq wrapOps((Tp [ TpL ] :: OPDS) EKOPDS) 
+   = (op '`[`[_`]`] : Tp -> 'OWrap [strat (0)] .) 
+     (op '_=_ : Tp Tp -> 'Atom [comm ctor] .) 
+     (op 'ut : Tp 'AtomMagma 'AtomMagma 'AtomMagma 'AtomMagma -> 'UnificationTarget [ctor strat (0)] .)
+     wrapOps(OPDS) wrapOps(EKOPDS) .
+
+  --- wrapOps - add wrapping operators to allow AC flattening and
+  --- wrongly typed terms, add embSmall and tf functions
+  op wrapOps : OpDeclSet -> OpDeclSet .
+  eq wrapOps((none).OpDeclSet) = (none).OpDeclSet .
+  eq wrapOps((op Q : TpL -> Tp [assoc comm AtS] .) OPDS) 
+   = (op qid("(" + alpha(string(Q)) + ",_)") : 'OWrapSet -> 'OTerm [none] .)
+     (op qid("embSmall4-" + alpha(string(Q))) : 'OWrapSet 'OWrapSet 'OTerm -> 'OBool [none] .)
+     (op qid("embSmall5-" + alpha(string(Q))) : 'OWrapSet 'OWrapSet 'OTerm -> 'OBool [none] .)
+     (op qid("tf-" + alpha(string(Q))) : 'OWrap -> 'OWrapSet [none] .) 
+     (op qid("noSmallHead-" + alpha(string(Q))) : 'OWrapSet -> 'OWrapSet [none] .)
+     (op qid("bigHead-" + alpha(string(Q))) : 'OWrapSet 'OWrapSet -> 'OWrapSet [none] .)
+     wrapOps(OPDS) .
+  eq wrapOps((op Q : TpL -> Tp [AtS] .) OPDS)
+   = (if (isComm(AtS) == true) then
+       (op qid("(" + alpha(string(Q)) + ",_)") : 'OWrapSet -> 'OTerm [none] .) 
+     else 
+       (op qid("(" + alpha(string(Q)) + ",_)") : 'OWrapList -> 'OTerm [none] .)
+     fi)
+     wrapOps(OPDS) [owise] .
+
+--- atomMagmaEqs - for all top sorts, add (T = T) , AM = AM equation
+  op wrapEqs : EKindOpDeclSetSet -> EquationSet .
+  eq wrapEqs(none)
+   = none .
+  eq wrapEqs((Tp [ TpL ] :: OPDS) EKOPDS)
+   = (eq 'wrapToTerm['W:OWrap] = '`(variable`,_`)['W:OWrap] [owise] .)
+     (eq '_>v_['`(variable`,_`)['W:OWrap],'T:OTerm] = 'false.OBool [none] .)
+     wrapEqs(EKOPDS) . 
+
+  --- fromOpDeclToNatOpDecl - we order simbols based on the metadata
+  --- attribute
+  op fromOpDeclToNatOpDecl : OpDecl -> NatOpDecl .
+  eq fromOpDeclToNatOpDecl((op Q : TpL -> Tp [AtS metadata(S)] .)) = (rat(S,10),(op Q : TpL -> Tp [AtS metadata(S)] .))  .
+  eq fromOpDeclToNatOpDecl((op Q : TpL -> Tp [AtS] .)) = (0,(op Q : TpL -> Tp [AtS] .)) [owise] .
+
+  --- order for NatOpDecl
+  op _<_ : NatOpDecl NatOpDecl -> Bool .
+  eq NOPD1 < NOPD2 = (p1 NOPD1) < (p1 NOPD2) .
+
+--- atomMagmaEqs - for all top sorts, add (T = T) , AM = AM equation
+  op atomMagmaEqs : EKindOpDeclSetSet -> EquationSet .
+  eq atomMagmaEqs(none)
+   = none .
+  eq atomMagmaEqs((Tp [ TpL ] :: OPDS) EKOPDS)
+   = (eq '_subseteq_['_`,_['_=_[qid("V:" + string(Tp)), qid("V:" + string(Tp))],'AM1:AtomMagma],'AM2:AtomMagma] = '_subseteq_['AM1:AtomMagma,'AM2:AtomMagma] [none] .) 
+     (eq '_subseteq_['AM1:AtomMagma,'_`,_['_=_[qid("V:" + string(Tp)), qid("V:" + string(Tp))],'AM2:AtomMagma]] = '_subseteq_['AM1:AtomMagma,'AM2:AtomMagma] [none] .)
+     atomMagmaEqs(EKOPDS) . 
+endfm
+
+view NatOpDecl from STRICT-TOTAL-ORDER to WRAP-COMPLETION is 
+  sort Elt to NatOpDecl .  
+---  op X:Elt < Y:Elt to term X:NatOpDecl < Y:NatOpDecl .
+  op _<_ : Elt Elt -> Bool to _<_ .
+endv
+
+fmod WRAP-OP-COMPLETION is
+  pr TERM-CONSTRUCTION .
+  pr WRAP-COMPLETION .
+  pr SORTABLE-LIST{NatOpDecl} * (sort List{NatOpDecl} to NatOpDeclList) .
+
+  var OPD  : OpDecl .
+  var OPDS : OpDeclSet .
+  vars Q Q1 Q2 : Qid .
+  vars TpL TpL1 TpL2 : TypeList .
+  vars Tp Tp1 Tp2 TpI1 TpI2 : Type .
+  vars AtS AtS1 AtS2 : AttrSet .
+  vars NOPDL NOPDL1 NOPDL2 : NatOpDeclList .
+  var N : Nat .
+
+--- fromOpDeclSetToNatOpDeclList - Set to List
+  op fromOpDeclSetToNatOpDeclList : OpDeclSet -> NatOpDeclList .
+  eq fromOpDeclSetToNatOpDeclList((none).OpDeclSet) = (nil).NatOpDeclList .
+  eq fromOpDeclSetToNatOpDeclList((OPD OPDS)) 
+   = fromOpDeclToNatOpDecl(OPD) fromOpDeclSetToNatOpDeclList(OPDS) .
+
+--- constrGreaterEqs - we construct the equations of the form
+--- f(x_1,...,x_n) >v g(y_1,...,y_n) = x_1 > g(y_1,...,y_n) or ... or
+--- x_n > g(y_1,...,y_n) if g > f
+  op constrGreaterEqs : OpDecl -> EquationSet .
+  eq constrGreaterEqs((op Q : TpL -> Tp [comm AtS] .))
+   = (eq '_>v_[qid("(" + alpha(string(Q)) + ",_)")['WS:OWrapSet],'T:OTerm] = 'acrpo5-1-set['WS:OWrapSet,'T:OTerm] [owise] .) .
+  eq constrGreaterEqs((op Q : TpL -> Tp [AtS] .))
+   = (eq '_>v_[qid("(" + alpha(string(Q)) + ",_)")['WL:OWrapList],'T:OTerm] = 'acrpo5-1-list['WL:OWrapList,'T:OTerm] [owise] .) [owise] .
+
+--- constrSmallerEqs - we construct the equations of the form
+--- f(x_1,...,x_n) >v g(y_1,...,y_n) = x_1 > g(y_1,...,y_n) or ... or
+--- x_n > g(y_1,...,y_n) or (f(x_1,...,x_n) > y_1 and ... and
+--- f(x_1,...,x_n) > y_n) if f > g
+  op constrSmallerEqs : OpDecl NatOpDeclList -> EquationSet .
+  eq constrSmallerEqs(OPD, (nil).NatOpDeclList) = (none).EquationSet .
+  eq constrSmallerEqs((op Q1 : TpL1 -> Tp1 [AtS1] .), (N,(op Q2 : TpL2 -> Tp2 [AtS2] .)) NOPDL) 
+   = if (isComm(AtS1) == true)
+     then if (isComm(AtS2) == true)
+          then --- comm comm
+	    (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]] = '_or_['acrpo5-1-set['WS1:OWrapSet,qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]],'acrpo5-2-set[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],'WS2:OWrapSet]] [none] .)
+	  else --- comm non-comm
+	    (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]] = '_or_['acrpo5-1-set['WS1:OWrapSet,qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]],'acrpo5-2-list[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],'WL2:OWrapList]] [none] .)
+	  fi
+     else if (isComm(AtS2) == true)
+	  then --- non-comm comm
+	    (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]] = '_or_['acrpo5-1-list['WL1:OWrapList,qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]],'acrpo5-2-set[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],'WS2:OWrapSet]] [none] .)
+	  else --- non-comm non-comm
+  	    (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]] = '_or_['acrpo5-1-list['WL1:OWrapList,qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]],'acrpo5-2-list[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],'WL2:OWrapList]] [none] .)
+	  fi
+     fi	    
+     constrSmallerEqs((op Q1 : TpL1 -> Tp1 [AtS1] .), NOPDL) .
+  
+--- constrEqualEqs - f(x_1,...,x_n) >v f(y_1,...,y_n)
+  op constrEqualEqs : OpDecl -> EquationSet .  
+  eq constrEqualEqs((op Q : TpI1 TpI2 -> Tp [assoc comm AtS] .))
+   = (eq '_>v_[qid("(" + alpha(string(Q)) + ",_)")['WS1:OWrapSet],qid("(" + alpha(string(Q)) + ",_)")['WS2:OWrapSet]] = '_or_['acrpo5-1-set['WS1:OWrapSet,qid("(" + alpha(string(Q)) + ",_)")['WS2:OWrapSet]],qid("embSmall4-" + alpha(string(Q)))['empty.OWrapSet,'WS1:OWrapSet, qid("(" + alpha(string(Q)) + ",_)")['WS2:OWrapSet]]] [none] .) .
+  eq constrEqualEqs((op Q : TpL -> Tp [AtS] .)) = constrEqualEqs((op Q : TpL -> Tp [AtS] .), isComm(AtS)) [owise] .
+
+--- constrEqualEqs - f(x_1,...,x_n) >v f(y_1,...,y_n)
+  op constrEqualEqs : OpDecl Bool -> EquationSet .    
+  eq constrEqualEqs((op Q : TpL -> Tp [AtS] .), false) 
+   = (eq '_>v_[qid("(" + alpha(string(Q)) + ",_)")['WL1:OWrapList],qid("(" + alpha(string(Q)) + ",_)")['WL2:OWrapList]] = '_or_['acrpo5-1-list['WL1:OWrapList, qid("(" + alpha(string(Q)) + ",_)")['WL2:OWrapList]], '_and_['_>v`{lex`}_['WL1:OWrapList,'WL2:OWrapList], 'acrpo5-2-list[qid("(" + alpha(string(Q)) + ",_)")['WL1:OWrapList],'WL2:OWrapList]]] [none] .) .
+  eq constrEqualEqs((op Q : TpL -> Tp [AtS] .), true)
+   = (eq '_>v_[qid("(" + alpha(string(Q)) + ",_)")['WS1:OWrapSet],qid("(" + alpha(string(Q)) + ",_)")['WS2:OWrapSet]] = '_or_['acrpo5-1-set['WS1:OWrapSet,qid("(" + alpha(string(Q)) + ",_)")['WS2:OWrapSet]],'_and_['_>>v_['WS1:OWrapSet,'WS2:OWrapSet],'acrpo5-2-set[qid("(" + alpha(string(Q)) + ",_)")['WS1:OWrapSet],'WS2:OWrapSet]]] [none] .) .
+
+--- constrWrapToTermEqs - wrapToTerm([[t]]) = (root(t),args)
+  op constrWrapToTermEqs : NatOpDeclList -> EquationSet .
+  eq constrWrapToTermEqs((nil).NatOpDeclList)
+   = (none).EquationSet . 
+  eq constrWrapToTermEqs((N,(op Q : TpI1 TpI2 -> Tp [assoc comm AtS] .)) NOPDL)
+   = (eq 'wrapToTerm['`[`[_`]`][constrTerm((op Q : TpI1 TpI2 -> Tp [assoc comm AtS] .),0)]] = qid("(" + alpha(string(Q)) + ",_)")[qid("tf-" + alpha(string(Q)))['`[`[_`]`][constrTerm((op Q : TpI1 TpI2 -> Tp [assoc comm AtS] .),0)]]] [none] .)
+	constrWrapToTermEqs(NOPDL) .
+  eq constrWrapToTermEqs((N,(op Q : TpL -> Tp [AtS] .)) NOPDL) = constrWrapToTermEq(N,(op Q : TpL -> Tp [AtS] .), isComm(AtS)) constrWrapToTermEqs(NOPDL) [owise] .
+
+--- constrWrapToTermEq - wrapToTerm([[t]]) = (root(t),args)
+  op constrWrapToTermEq : Nat OpDecl Bool -> EquationSet .
+  eq constrWrapToTermEq(N, (op Q : TpL -> Tp [AtS] .), false)
+   = (eq 'wrapToTerm['`[`[_`]`][constrTerm((op Q : TpL -> Tp [AtS] .),0)]] = qid("(" + alpha(string(Q)) + ",_)")[constrWrapList(TpL,1)] [none] .) .
+  eq constrWrapToTermEq(N, (op Q : TpL -> Tp [AtS] .), true)
+   = (eq 'wrapToTerm['`[`[_`]`][constrTerm((op Q : TpL -> Tp [AtS] .),0)]] = qid("(" + alpha(string(Q)) + ",_)")[constrWrapSet(TpL,1)] [none] .) .
+
+--- constrWrapEqs - construct the ordering given the precedence as a
+--- list of operators
+  op constrWrapEqs : NatOpDeclList NatOpDeclList -> EquationSet .
+  eq constrWrapEqs(NOPDL, (nil).NatOpDeclList)
+   = (eq 'sharp['WS:OWrapSet,'N:ONat] = '`(_`,_`)['WS:OWrapSet,'N:ONat] [owise] .)
+     constrWrapToTermEqs(NOPDL) .
+  eq constrWrapEqs(NOPDL1, (N,(op Q : TpL -> Tp [assoc comm AtS] .)) NOPDL2)
+   = constrGreaterEqs((op Q : TpL -> Tp [assoc comm AtS] .)) 
+     constrSmallerEqs((op Q : TpL -> Tp [assoc comm AtS] .),NOPDL1) 
+     constrEqualEqs((op Q : TpL -> Tp [assoc comm AtS] .)) 
+     constrACEqs((op Q : TpL -> Tp [assoc comm AtS] .),NOPDL1)  
+     constrBHEqs((op Q : TpL -> Tp [assoc comm AtS] .),NOPDL2) 
+     constrSharpEqs((op Q : TpL -> Tp [assoc comm AtS] .)) 
+     constrWrapEqs(NOPDL1 (N,(op Q : TpL -> Tp [assoc comm AtS] .)), NOPDL2) .
+  eq constrWrapEqs(NOPDL1, (N,(op Q : TpL -> Tp [AtS] .)) NOPDL2)
+   = constrGreaterEqs((op Q : TpL -> Tp [AtS] .)) 
+     constrSmallerEqs((op Q : TpL -> Tp [AtS] .),NOPDL1) 
+     constrEqualEqs((op Q : TpL -> Tp [AtS] .)) 
+     constrSharpEqs((op Q : TpL -> Tp [AtS] .)) 
+     constrWrapEqs(NOPDL1 (N,(op Q : TpL -> Tp [AtS] .)), NOPDL2) [owise] .
+
+--- constACEqs - If f is AC then we construct the tf-f, embSmall4-f,
+--- embSmall5-f and noSmalHead-f equations
+ op constrACEqs : OpDecl NatOpDeclList -> EquationSet .
+ eq constrACEqs((op Q : TpI1 TpI2 -> Tp [assoc comm AtS] .), (nil).NatOpDeclList)
+  = (eq qid("tf-" + alpha(string(Q)))['`[`[_`]`][constrTerm((op Q : TpI1 TpI2 -> Tp [assoc comm AtS] .),0)]] = '_`,_[qid("tf-" + alpha(string(Q)))['`[`[_`]`][qid("V#" + string(1,10) + ":" + string(TpI1))]],qid("tf-" + alpha(string(Q)))['`[`[_`]`][qid("V#" + string(2,10) + ":" + string(TpI2))]]] [none] .)
+    (eq qid("tf-" + alpha(string(Q)))['W:OWrap] = 'W:OWrap [owise] .)
+    (eq qid("embSmall4-" + alpha(string(Q)))['WS1:OWrapSet,'WS2:OWrapSet,qid("(" + alpha(string(Q)) + ",_)")['WS3:OWrapSet]] = qid("embSmall5-" + alpha(string(Q)))['empty.OWrapSet,'WS3:OWrapSet,qid("(" + alpha(string(Q)) + ",_)")['_`,_['WS1:OWrapSet,'WS2:OWrapSet]]] [owise] .)
+    (eq qid("embSmall5-" + alpha(string(Q)))['WS1:OWrapSet,'WS2:OWrapSet,qid("(" + alpha(string(Q)) + ",_)")['WS3:OWrapSet]] = '_and_['_>>=v_[qid("noSmallHead-" + alpha(string(Q)))['WS3:OWrapSet],qid("noSmallHead-" + alpha(string(Q)))['_`,_['WS1:OWrapSet,'WS2:OWrapSet]]],'_or_['_>>v_[qid("bigHead-" + alpha(string(Q)))['empty.OWrapSet,'WS3:OWrapSet],qid("bigHead-" + alpha(string(Q)))['empty.OWrapSet,'_`,_['WS1:OWrapSet,'WS2:OWrapSet]]],'_or_['_>_['sharp['WS3:OWrapSet,'0.ONat],'sharp['_`,_['WS1:OWrapSet,'WS2:OWrapSet],'0.ONat]],'_and_['_>=_['sharp['WS3:OWrapSet,'0.ONat],'sharp['_`,_['WS1:OWrapSet,'WS2:OWrapSet],'0.ONat]],'_>>v_['WS3:OWrapSet,'_`,_['WS1:OWrapSet,'WS2:OWrapSet]]]]]] [owise] .)
+    (eq qid("noSmallHead-" + alpha(string(Q)))['WS:OWrapSet] = 'WS:OWrapSet [owise] .) .
+ eq constrACEqs((op Q1 : TpI1 TpI2 -> Tp1 [assoc comm AtS1] .), (N,(op Q2 : TpL2 -> Tp2 [AtS2] .)) NOPDL)
+  = (eq qid("embSmall4-" + alpha(string(Q1)))['WS1:OWrapSet,'_`,_['`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),0)],'WS2:OWrapSet],'T:OTerm] = mountEmbSmall4((op Q1 : TpI1 TpI2 -> Tp1 [assoc comm AtS1] .), (op Q2 : TpL2 -> Tp2 [AtS2] .),TpL2,1) [none] .)
+    (eq qid("embSmall5-" + alpha(string(Q1)))['WS1:OWrapSet,'_`,_['`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),0)],'WS2:OWrapSet],'T:OTerm] = mountEmbSmall5((op Q1 : TpI1 TpI2 -> Tp1 [assoc comm AtS1] .), (op Q2 : TpL2 -> Tp2 [AtS2] .),TpL2,1) [none] .)
+    (eq qid("noSmallHead-" + alpha(string(Q1)))['_`,_['`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),0)],'WS:OWrapSet]] = qid("noSmallHead-" + alpha(string(Q1)))['WS:OWrapSet] [none] .)
+    constrACEqs((op Q1 : TpI1 TpI2 -> Tp1 [assoc comm AtS1] .), NOPDL) .
+
+--- constBHEqs - If f is AC then we construct the bigHead-f equations
+ op constrBHEqs : OpDecl NatOpDeclList -> EquationSet .
+ eq constrBHEqs((op Q : TpI1 TpI2 -> Tp [assoc comm AtS] .), (nil).NatOpDeclList)
+  = (eq qid("bigHead-" + alpha(string(Q)))['WS1:OWrapSet,'WS2:OWrapSet] = 'WS1:OWrapSet [owise] .) .
+ eq constrBHEqs((op Q1 : TpI1 TpI2 -> Tp1 [assoc comm AtS1] .), (N,(op Q2 : TpL2 -> Tp2 [AtS2] .)) NOPDL)
+  = (eq qid("bigHead-" + alpha(string(Q1)))['WS1:OWrapSet,'_`,_['`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),0)],'WS2:OWrapSet]] = qid("bigHead-" + alpha(string(Q1)))['_`,_['WS1:OWrapSet,'`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),0)]],'WS2:OWrapSet] [none] .)
+    constrBHEqs((op Q1 : TpI1 TpI2 -> Tp1 [assoc comm AtS1] .), NOPDL) .
+
+--- constrSharpEqs - If the term is rooted by a function symbol it counts as 1
+  op constrSharpEqs : OpDecl -> EquationSet .
+  eq constrSharpEqs((op Q : TpL -> Tp [AtS] .))
+   = (eq 'sharp['_`,_['`[`[_`]`][constrTerm((op Q : TpL -> Tp [AtS] .),0)],'WS:OWrapSet],'N:ONat] = 'sharp['WS:OWrapSet,'s_['N:ONat]] [none] .) .
+
+endfm
+
+--- test: red metaReduce(compWithOrd(upModule('MY-MODULE,false)),'_>v_['wrapToTerm['`[`[_`]`]['my.term1]],'wrapToTerm['`[`[_`]`]['my.term2]]]) .
+
+fmod ORDER-COMPLETION is
+  pr WRAP-OP-COMPLETION .
+
+  var EKOPDS : EKindOpDeclSetSet .
+  var NOPDL : NatOpDeclList .
+  var Q : Qid .
+  var TpL : TypeList .
+  var Tp : Type .
+  var AtS : AttrSet .
+  var S : String .
+  var M : Module .
+  var H : Header .
+  var IL : ImportList .
+  var SS : SortSet .
+  var SDS : SubsortDeclSet .
+  var ODS : OpDeclSet .
+  var MAS : MembAxSet .
+  var EqS : EquationSet .
+
+  *** Given a functional module with annotations for predicate and
+  *** function symbols, it completes it with an AC-RPO ordering using
+  *** the priorities given by the user.
+  op compWithOrd : FModule -> FModule .
+  eq compWithOrd(fmod H is IL sorts SS . SDS ODS MAS EqS endfm)
+   = fmod H is 
+       IL
+       (protecting 'NAT * ( sort 'Bool to 'OBool
+                          , sort 'Zero to 'OZero
+                          , sort 'NzNat to 'ONzNat
+                          , sort 'Nat to 'ONat) .)
+       sorts (SS ; 'OTerm ; 'OWrap ; 'OWrapList ; 'OWrapSet ; 'OWrapLiteral ; 'OWrapClause ; 'OWrapPolynomial ; 'Atom ; 'AtomMagma ; 'Clause ; 'UnificationTarget ; newTopSorts(processKinds(getOpsByKind(fmod H is IL sorts SS . SDS ODS MAS EqS endfm, (none).KindOpDeclSetSet, ODS)))) . 
+       (subsort 'OWrap < 'OWrapList .)
+       (subsort 'OWrap < 'OWrapSet .)
+       (subsort 'Atom < 'AtomMagma .)
+       newSubsorts(processKinds(getOpsByKind(fmod H is IL sorts SS . SDS ODS MAS EqS endfm, (none).KindOpDeclSetSet, ODS))) 
+       SDS 
+       (op 'nil : nil -> 'OWrapList [ctor] .)
+       (op '__ : 'OWrapList 'OWrapList -> 'OWrapList [ctor assoc id('nil.OWrapList)] .)
+       (op 'empty : nil -> 'OWrapSet [ctor] .)
+       (op '_`,_ : 'OWrapSet 'OWrapSet -> 'OWrapSet [ctor assoc comm id('empty.OWrapSet)] .)
+       (op '`{_`} : 'OWrapSet -> 'OWrapLiteral [ctor] .)
+       (op '`{_`} : 'OWrapLiteral -> 'OWrapClause [ctor] .)
+       (op 'empty : nil -> 'OWrapLiteral [ctor] .)
+       (op '_`,_ : 'OWrapLiteral 'OWrapLiteral -> 'OWrapLiteral [ctor assoc comm id('empty.OWrapLiteral)] .)
+       (op 'empty : nil -> 'OWrapClause [ctor] .)
+       (op '_`,_ : 'OWrapClause 'OWrapClause -> 'OWrapClause [ctor assoc comm id('empty.OWrapClause)] .)
+       (op '`(_`,_`) : 'OWrapSet 'ONat -> 'OWrapPolynomial [ctor] .)
+       wrapOps(processKinds(getOpsByKind(fmod H is IL sorts SS . SDS ODS MAS EqS endfm, (none).KindOpDeclSetSet, ODS)))
+       (op '`(variable`,_`) : 'OWrap -> 'OTerm [none] .)
+       (op '_>v_  : 'OTerm 'OTerm -> 'OBool [none] .) --- terms
+       (op '_>=v_ : 'OTerm 'OTerm -> 'OBool [none] .)
+       (op '_>v_  : 'OWrap 'OWrap -> 'OBool [none] .)
+       (op '_>=v_ : 'OWrap 'OWrap -> 'OBool [none] .)
+       (op '_>v`{lex`}_ : 'OWrapList 'OWrapList -> 'OBool [none] .)
+       (op '_>>v_ : 'OWrapSet 'OWrapSet -> 'OBool [none] .) --- mset of terms
+       (op '_>>=v_ : 'OWrapSet 'OWrapSet -> 'OBool [none] .)
+       (op '_>l_ : 'OWrapLiteral 'OWrapLiteral -> 'OBool [none] .) --- literals
+       (op '_>=l_ : 'OWrapLiteral 'OWrapLiteral -> 'OBool [none] .)
+       (op '_>c_ : 'OWrapClause 'OWrapClause -> 'OBool [none] .) --- clauses
+       (op '_>=c_ : 'OWrapClause 'OWrapClause -> 'OBool [none] .)
+       (op 'wrapToTerm : 'OWrap -> 'OTerm [none] .)
+       (op 'acrpo5-1-set : 'OWrapSet 'OTerm -> 'OBool [none] .)
+       (op 'acrpo5-1-list : 'OWrapList 'OTerm -> 'OBool [none] .)
+       (op 'acrpo5-2-set : 'OTerm 'OWrapSet -> 'OBool [none] .)
+       (op 'acrpo5-2-list : 'OTerm 'OWrapList -> 'OBool [none] .)
+       (op 'sharp : 'OWrapSet 'ONat -> 'OWrapPolynomial [none] .)
+       (op 'filter : 'OWrap 'OWrapSet -> 'OWrapSet [none] .)
+       (op 'filter : 'OWrapSet 'OWrapLiteral -> 'OWrapLiteral [none] .)
+       (op 'filter : 'OWrapLiteral 'OWrapClause -> 'OWrapClause [none] .)
+       (op '_\_ : 'OWrapSet 'OWrapSet -> 'OWrapSet [none] .)
+       (op 'size : 'OWrapSet -> 'ONat [none] .)
+       (op '_>_ : 'OWrapPolynomial 'OWrapPolynomial -> 'OBool [none] .)
+       (op '_>=_ : 'OWrapPolynomial 'OWrapPolynomial -> 'OBool [none] .)
+       (op 'empty : nil -> 'AtomMagma [ctor] .)
+       (op '_`,_ : 'AtomMagma 'AtomMagma -> 'AtomMagma [ctor assoc comm id('empty.AtomMagma)] .)
+       (op '_->_ : 'AtomMagma 'AtomMagma -> 'Clause [none] .)
+       (op '_subseteq_ : 'AtomMagma 'AtomMagma -> 'OBool [none] .)       
+       ODS
+       MAS
+       (eq '_>v`{lex`}_['nil.OWrapList,'WL:OWrapList] = 'false.OBool [none] .)
+       (eq '_>v`{lex`}_['__['W:OWrap,'WL:OWrapList],'nil.OWrapList] = 'true.OBool [none] .)
+       (eq '_>v`{lex`}_['__['W1:OWrap,'WL1:OWrapList],'__['W2:OWrap,'WL2:OWrapList]] = '_or_['_>v_['wrapToTerm['W1:OWrap],'wrapToTerm['W2:OWrap]],'_and_['_==_['W1:OWrap,'W2:OWrap],'_>v`{lex`}_['WL1:OWrapList,'WL2:OWrapList]]] [none] .)
+       (eq '_>>v_['empty.OWrapSet,'WS:OWrapSet] = 'false.OBool [none] .)
+       (eq '_>>v_['_`,_['W:OWrap,'WS:OWrapSet],'empty.OWrapSet] = 'true.OBool [none] .)
+       (eq '_>>v_['_`,_['W:OWrap,'WS1:OWrapSet],'_`,_['W:OWrap,'WS2:OWrapSet]] = '_>>v_['WS1:OWrapSet,'WS2:OWrapSet] [none] .)
+       (eq '_>>v_['_`,_['W:OWrap,'WS1:OWrapSet],'WS2:OWrapSet] = '_>>=v_['WS1:OWrapSet,'filter['W:OWrap,'WS2:OWrapSet]] [owise] .)
+       (eq '_>l_['empty.OWrapLiteral,'WL:OWrapLiteral] = 'false.OBool [none] .)
+       (eq '_>l_['_`,_['`{_`}['WS:OWrapSet],'WL:OWrapLiteral],'empty.OWrapLiteral] = 'true.OBool [none] .)
+       (eq '_>l_['_`,_['`{_`}['WS:OWrapSet],'WL1:OWrapLiteral],'_`,_['`{_`}['WS:OWrapSet],'WL2:OWrapLiteral]] = '_>l_['WL1:OWrapLiteral,'WL2:OWrapLiteral] [none] .)
+       (eq '_>l_['_`,_['`{_`}['WS:OWrapSet],'WL1:OWrapLiteral],'WL2:OWrapLiteral] = '_>=l_['WL1:OWrapLiteral,'filter['WS:OWrapSet,'WL2:OWrapLiteral]] [owise] .)
+       (eq '_>c_['empty.OWrapClause,'WC:OWrapClause] = 'false.OBool [none] .)
+       (eq '_>c_['_`,_['`{_`}['WL:OWrapLiteral],'WC:OWrapClause],'empty.OWrapClause] = 'true.OBool [none] .)
+       (eq '_>c_['_`,_['`{_`}['WL:OWrapLiteral],'WC1:OWrapClause],'_`,_['`{_`}['WL:OWrapLiteral],'WC2:OWrapClause]] = '_>c_['WC1:OWrapClause,'WC2:OWrapClause] [none] .)
+       (eq '_>c_['_`,_['`{_`}['WL:OWrapLiteral],'WC1:OWrapClause],'WC2:OWrapClause] = '_>=c_['WC1:OWrapClause,'filter['WL:OWrapLiteral,'WC2:OWrapClause]] [owise] .)
+       (eq 'acrpo5-1-set['empty.OWrapSet,'T:OTerm] = 'false.OBool [none] .)
+       (eq 'acrpo5-1-set['_`,_['W:OWrap,'WS:OWrapSet],'T:OTerm] = '_or_['_>=v_['wrapToTerm['W:OWrap],'T:OTerm],'acrpo5-1-set['WS:OWrapSet,'T:OTerm]] [none] .)
+       (eq 'acrpo5-1-list['nil.OWrapList,'T:OTerm] = 'false.OBool [none] .)
+       (eq 'acrpo5-1-list['__['W:OWrap,'WL:OWrapList],'T:OTerm] = '_or_['_>=v_['wrapToTerm['W:OWrap],'T:OTerm],'acrpo5-1-list['WL:OWrapList,'T:OTerm]] [none] .)
+       (eq 'acrpo5-2-set['T:OTerm,'empty.OWrapSet] = 'true.OBool [none] .)
+       (eq 'acrpo5-2-set['T:OTerm,'_`,_['W:OWrap,'WS:OWrapSet]] = '_and_['_>v_['T:OTerm,'wrapToTerm['W:OWrap]],'acrpo5-2-set['T:OTerm,'WS:OWrapSet]] [none] .)
+       (eq 'acrpo5-2-list['T:OTerm,'nil.OWrapList] = 'true.OBool [none] .)
+       (eq 'acrpo5-2-list['T:OTerm,'__['W:OWrap,'WL:OWrapList]] = '_and_['_>v_['T:OTerm,'wrapToTerm['W:OWrap]],'acrpo5-2-list['T:OTerm,'WL:OWrapList]] [none] .)
+       (eq '_>=v_['T1:OTerm,'T2:OTerm] = '_or_['_==_['T1:OTerm,'T2:OTerm],'_>v_['T1:OTerm,'T2:OTerm]] [none] .)
+       (eq '_>=v_['W1:OWrap,'W2:OWrap] = '_or_['_==_['W1:OWrap,'W2:OWrap],'_>v_['W1:OWrap,'W2:OWrap]] [none] .)
+       (eq '_>>=v_['WS1:OWrapSet,'WS2:OWrapSet] = '_or_['_==_['WS1:OWrapSet,'WS2:OWrapSet],'_>>v_['WS1:OWrapSet,'WS2:OWrapSet]] [none] .)
+       (eq '_>=l_['WL1:OWrapLiteral,'WL2:OWrapLiteral] = '_or_['_==_['WL1:OWrapLiteral,'WL2:OWrapLiteral],'_>l_['WL1:OWrapLiteral,'WL2:OWrapLiteral]] [none] .)
+       (eq '_>=c_['WC1:OWrapClause,'WC2:OWrapClause] = '_or_['_==_['WC1:OWrapClause,'WC2:OWrapClause],'_>c_['WC1:OWrapClause,'WC2:OWrapClause]] [none] .)
+       (eq 'filter['W:OWrap,'empty.OWrapSet] = 'empty.OWrapSet [none] .)
+       (eq 'filter['W1:OWrap,'_`,_['W2:OWrap,'WS:OWrapSet]] = 'if_then_else_fi['_>v_['wrapToTerm['W1:OWrap],'wrapToTerm['W2:OWrap]],'filter['W1:OWrap,'WS:OWrapSet],'_`,_['W2:OWrap,'filter['W1:OWrap,'WS:OWrapSet]]] [none] .)
+       (eq 'filter['WS:OWrapSet,'empty.OWrapLiteral] = 'empty.OWrapLiteral [none] .)
+       (eq 'filter['WS1:OWrapSet,'_`,_['`{_`}['WS2:OWrapSet],'WL:OWrapLiteral]] = 'if_then_else_fi['_>>v_['WS1:OWrapSet,'WS2:OWrapSet],'filter['WS1:OWrapSet,'WL:OWrapLiteral],'_`,_['`{_`}['WS2:OWrapSet],'filter['WS1:OWrapSet,'WL:OWrapLiteral]]] [none] .)
+
+       (eq 'filter['WL:OWrapLiteral,'empty.OWrapClause] = 'empty.OWrapClause [none] .)
+       (eq 'filter['WL1:OWrapLiteral,'_`,_['`{_`}['WL2:OWrapLiteral],'WC:OWrapClause]] = 'if_then_else_fi['_>l_['WL1:OWrapLiteral,'WL2:OWrapLiteral],'filter['WL1:OWrapLiteral,'WC:OWrapClause],'_`,_['`{_`}['WL2:OWrapLiteral],'filter['WL1:OWrapLiteral,'WC:OWrapClause]]] [none] .)
+       (eq '_\_['_`,_['W:OWrap,'WS1:OWrapSet],'_`,_['W:OWrap,'WS2:OWrapSet]] = '_\_['WS1:OWrapSet,'WS2:OWrapSet] [none] .)
+       (eq '_\_['WS1:OWrapSet,'WS2:OWrapSet] = 'WS1:OWrapSet [owise] .)
+       (eq 'size['empty.OWrapSet] = '0.ONat [none] .)
+       (eq 'size['_`,_['W:OWrap,'WS1:OWrapSet]] = 's_['size['WS1:OWrapSet]] [none] .)
+       (eq '_>_['`(_`,_`)['WS1:OWrapSet,'N1:ONat],'`(_`,_`)['WS2:OWrapSet,'N2:ONat]] = '_and_['_==_['_\_['WS2:OWrapSet,'WS1:OWrapSet],'empty.OWrapSet],'_>_['_+_['size['_\_['WS1:OWrapSet,'WS2:OWrapSet]],'N1:ONat],'N2:ONat]] [none] .)
+       (eq '_>=_['`(_`,_`)['WS1:OWrapSet,'N1:ONat],'`(_`,_`)['WS2:OWrapSet,'N2:ONat]] = '_and_['_==_['_\_['WS2:OWrapSet,'WS1:OWrapSet],'empty.OWrapSet],'_>=_['_+_['size['_\_['WS1:OWrapSet,'WS2:OWrapSet]],'N1:ONat],'N2:ONat]] [none] .)
+       (eq '_subseteq_['AM1:AtomMagma,'_`,_['AM1:AtomMagma,'AM2:AtomMagma]] = 'true.OBool [none] .)
+       (eq '_subseteq_['AM1:AtomMagma,'AM2:AtomMagma] = 'false.OBool [owise] .)
+       (eq '_>v_['W1:OWrap,'W2:OWrap] = '_>v_['wrapToTerm['W1:OWrap],'wrapToTerm['W2:OWrap]] [none] .)
+       wrapEqs(processKinds(getOpsByKind(fmod H is IL sorts SS . SDS ODS MAS EqS endfm, (none).KindOpDeclSetSet, ODS)))
+       atomMagmaEqs(processKinds(getOpsByKind(fmod H is IL sorts SS . SDS ODS MAS EqS endfm, (none).KindOpDeclSetSet, ODS)))
+       constrWrapEqs((nil).NatOpDeclList,sort(fromOpDeclSetToNatOpDeclList(ODS)))
+     endfm .
+endfm
+
+***(
+red metaReduce(compWithOrd(upModule('BOOL-OPS-TP,false)),'_>c_['_`,_['`{_`}['`[`[_`]`]['false.Bool]],'`{_`}['`[`[_`]`]['true.Bool]]],'`{_`}['_`,_['`[`[_`]`]['false.Bool],'`[`[_`]`]['true.Bool]]]]) .
+
+red metaReduce(compWithOrd(upModule('BOOL-OPS-TP,false)),'_>c_['`{_`}['`{_`}['_`,_['`[`[_`]`]['false.Bool],'`[`[_`]`]['true.Bool]]]],'`{_`}['_`,_['`{_`}['`[`[_`]`]['false.Bool]],'`{_`}['`[`[_`]`]['true.Bool]]]]]) .
+)
+
+fmod WEIGHTED-CLAUSE-ORDER is
+  pr EXTENDED-WEIGHTED-CLAUSE-SET .
+  pr META-LEVEL .
+ 
+  vars A A1 A2 : Atom .
+  vars WA WA1 WA2 : WAtom .
+  var NeAM : NeAtomMagma .
+  var NeWAM : NeWAtomMagma .
+  vars GM WAM : WAtomMagma .
+  vars DT AM : AtomMagma .
+  var M : Module .
+  vars T T1 T2 T3 : Term .
+  var TType : Type .
+  var N : Nat .
+
+  --- fromGMToTerm - negative literals
+  op fromGMToTerm : WAtomMagma -> Term .
+  eq fromGMToTerm ((empty).WAtomMagma) = 'empty.OWrapClause .
+  eq fromGMToTerm ((N) (T1 = T2)) = '`{_`}['`{_`}['_`,_['`[`[_`]`][T1],'`[`[_`]`][T2]]]] .
+  eq fromGMToTerm ((WA , NeWAM)) = '_`,_[fromGMToTerm(WA), fromGMToTerm(NeWAM)] .
+
+  --- fromDTToTerm - positive literals
+  op fromDTToTerm : AtomMagma -> Term .
+  eq fromDTToTerm ((empty).AtomMagma) = 'empty.OWrapClause .
+  eq fromDTToTerm ((T1 = T2)) = '`{_`}['_`,_['`{_`}['`[`[_`]`][T1]],'`{_`}['`[`[_`]`][T2]]]] .
+  eq fromDTToTerm ((A , NeAM)) = '_`,_[fromDTToTerm(A), fromDTToTerm(NeAM)] .
+
+  --- fromClauseToTerm - construct a term from a clause 
+  op fromClauseToTerm : WClause -> Term .
+  eq fromClauseToTerm((GM => DT)) = '_`,_[fromGMToTerm(GM),fromDTToTerm(DT)] .
+
+  --- Clause is not greater than a positive Atom
+  op _/>{_}_ : WClause Module Atom ~> Bool .
+  eq (GM => DT) />{M} A2
+      = if (getTerm(metaReduce(M, '_>c_[fromClauseToTerm((GM => DT)),fromDTToTerm(A2)])) == 'true.OBool)
+	then false
+	else true
+	fi .
+
+  --- each atom in AtomMagma is not greater than Atom
+  op _/>{_}_ : AtomMagma Module Atom ~> Bool .
+  eq (A1, AM) />{M} A2
+   = if (getTerm(metaReduce(M, '_>c_[fromDTToTerm(A1),fromDTToTerm(A2)]))  == 'true.OBool)
+     then false
+     else AM />{M} A2
+     fi .
+  eq (empty).AtomMagma />{M} A = true .
+
+  --- each atom in WAtomMagma is not greater than Atom
+  op _/>{_}_ : WAtomMagma Module Atom ~> Bool .
+  eq (WA1, WAM) />{M} A2
+   = if (getTerm(metaReduce(M, '_>c_[fromGMToTerm(WA1),fromDTToTerm(A2)]))  == 'true.OBool)
+     then false
+     else WAM />{M} A2
+     fi .
+  eq (empty).WAtomMagma />{M} A = true .
+
+  --- each atom in AtomMagma is not greater than WAtom
+  op _/>{_}_ : AtomMagma Module WAtom ~> Bool .
+  eq (A1, AM) />{M} WA2
+   = if (getTerm(metaReduce(M, '_>c_[fromDTToTerm(A1),fromGMToTerm(WA2)]))  == 'true.OBool)
+     then false
+     else AM />{M} WA2
+     fi .
+  eq (empty).AtomMagma />{M} WA = true .
+
+  --- each atom in WAtomMagma is not greater than WAtom
+  op _/>{_}_ : WAtomMagma Module WAtom ~> Bool .
+  eq (WA1, WAM) />{M} WA2
+   = if (getTerm(metaReduce(M, '_>c_[fromGMToTerm(WA1),fromGMToTerm(WA2)]))  == 'true.OBool)
+     then false
+     else WAM />{M} WA2
+     fi .
+  eq (empty).WAtomMagma />{M} WA = true .
+
+  --- each atom in AtomMagma is not greater or equal than Atom
+  op _/>={_}_ : AtomMagma Module Atom ~> Bool .
+  eq (A1, AM) />={M} A2
+   = if (getTerm(metaReduce(M, '_>=c_[fromDTToTerm(A1),fromDTToTerm(A2)]))  == 'true.OBool)
+     then false
+     else AM />={M} A2
+     fi .
+  eq (empty).AtomMagma />={M} A = true .
+
+  --- each atom in WAtomMagma is not greater or equal than Atom
+  op _/>={_}_ : WAtomMagma Module Atom ~> Bool .
+  eq (WA1, WAM) />={M} A2
+   = if (getTerm(metaReduce(M, '_>=c_[fromGMToTerm(WA1),fromDTToTerm(A2)]))  == 'true.OBool)
+     then false
+     else WAM />={M} A2
+     fi .
+  eq (empty).WAtomMagma />={M} A = true .
+
+  --- each atom in AtomMagma is not greater or equal than WAtom
+  op _/>={_}_ : AtomMagma Module WAtom ~> Bool .
+  eq (A1, AM) />={M} WA2
+   = if (getTerm(metaReduce(M, '_>=c_[fromDTToTerm(A1),fromGMToTerm(WA2)]))  == 'true.OBool)
+     then false
+     else AM />={M} WA2
+     fi .
+  eq (empty).AtomMagma />={M} WA = true .
+
+  --- each atom in WAtomMagma is not greater or equal than WAtom
+  op _/>={_}_ : WAtomMagma Module WAtom ~> Bool .
+  eq (WA1, WAM) />={M} WA2
+   = if (getTerm(metaReduce(M, '_>=c_[fromGMToTerm(WA1),fromGMToTerm(WA2)]))  == 'true.OBool)
+     then false
+     else WAM />={M} WA2
+     fi .
+  eq (empty).WAtomMagma />={M} WA = true .
+
+
+  --- Atom is greater than each atom in AtomMagma
+  op _>{_}_ : Atom Module AtomMagma ~> Bool .
+  eq A1 >{M} (A2, AM)
+   = if (getTerm(metaReduce(M, '_>c_[fromDTToTerm(A1),fromDTToTerm(A2)]))  == 'true.OBool)
+     then A1 >{M} AM
+     else false
+     fi .
+  eq A >{M} (empty).AtomMagma = true .
+
+  --- WAtom is greater than each atom in AtomMagma
+  op _>{_}_ : WAtom Module AtomMagma ~> Bool .
+  eq WA1 >{M} (A2, AM)
+   = if (getTerm(metaReduce(M, '_>c_[fromGMToTerm(WA1),fromDTToTerm(A2)]))  == 'true.OBool)
+     then WA1 >{M} AM
+     else false
+     fi .
+  eq WA >{M} (empty).AtomMagma = true .
+
+  --- Atom is greater than each atom in WAtomMagma
+  op _>{_}_ : Atom Module WAtomMagma ~> Bool .
+  eq A1 >{M} (WA2, WAM)
+   = if (getTerm(metaReduce(M, '_>c_[fromDTToTerm(A1),fromGMToTerm(WA2)]))  == 'true.OBool)
+     then A1 >{M} WAM
+     else false
+     fi .
+  eq A >{M} (empty).WAtomMagma = true .
+
+  --- Atom is greater than each atom in AtomMagma
+  op _>{_}_ : WAtom Module WAtomMagma ~> Bool .
+  eq WA1 >{M} (WA2, WAM)
+   = if (getTerm(metaReduce(M, '_>c_[fromGMToTerm(WA1),fromGMToTerm(WA2)]))  == 'true.OBool)
+     then WA1 >{M} WAM
+     else false
+     fi .
+  eq WA >{M} (empty).WAtomMagma = true .
+    
+  --- T1 is greater than T2, false doesn't mean than T2 > T1
+  op _>{_}_ : Term Module Term ~> Bool .
+  eq T1 >{M} T2 = if (getTerm(metaReduce(M, '_>v_['`[`[_`]`][T1],'`[`[_`]`][T2]])) == 'true.OBool) then true else false fi .
+
+  --- T1 is not greater or equal than T2
+  op _/>={_}_ : Term Module Term ~> Bool .
+  eq T1 />={M} T2 = if (getTerm(metaReduce(M, '_>=v_['`[`[_`]`][T1],'`[`[_`]`][T2]])) == 'true.OBool) then false else true fi .
+endfm

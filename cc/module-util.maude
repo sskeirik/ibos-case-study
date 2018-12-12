@@ -1,0 +1,414 @@
+***(-----------------------------------------------------------------
+
+Module      :  module-util
+Stability   :  unstable
+Portability :  portable
+
+Some auxiliary functions on the meta-level
+
+---------------------------------------------------------------------)
+
+fmod STRING-STRING-MAP is
+  pr MAP{String,String} * (sort Map{String, String} to StringStringMap) .
+endfm
+
+view StringStringMap from TRIV to STRING-STRING-MAP is sort Elt to StringStringMap .  endv
+
+fmod STRING-AUX is
+  pr CONVERSION .
+  pr STRING-STRING-MAP .
+
+  var  Str  : String .
+  vars St St' St'' : String .
+  var N : Nat .
+  var SM : StringStringMap .
+
+  --- replace St' by St'' in St
+  op replace : String String String -> String .
+  eq replace(St, St', St'') = replace(St, St', St'', find(St,St',0)) .
+
+  --- replace St' by St'' in St (with find)
+  op replace : String String String FindResult -> String .
+  eq replace(St, St', St'', notFound) = St .
+  eq replace(St, St', St'', N) = substr(St, 0, N) + St'' + replace(substr(St, N + length(St'), length(St)), St', St'') .
+
+  --- replace St' by St'' in St
+  op replaceAll : String StringStringMap -> String .
+  eq replaceAll(St, empty) = St .
+  eq replaceAll(St, ((St' |-> St''), SM)) = replaceAll(replace(St, St', St''), SM) .
+
+  --- alpha - removes _ from a string
+  op alpha : String -> String . --- [memo] .
+  eq alpha(Str) = replaceAll(Str, (("_" |-> ""), ("`," |-> "comma") , ("`[" |-> "lbracket") , ("`]" |-> "rbracket") , ("`(" |-> "lparen") , ("`)" |-> "rparen"))) .
+
+endfm
+
+fmod TERM-CONSTRUCTION is
+  pr STRING-AUX .
+  pr META-LEVEL .
+
+  var F : Qid .
+  var N : Nat .
+  vars Tp Tp1 Tp2 : Type .
+  var TpL : TypeList .
+  var AtS : AttrSet .
+
+--- isComm - check if comm is in the AttSet
+  op isComm : AttrSet -> Bool . --- [memo] .
+  eq isComm(comm AtS) = true .
+  eq isComm(AtS) = false [owise] .
+
+--- isAssoc - check if assoc is in the AttSet
+  op isAssoc : AttrSet -> Bool . ---[memo] .
+  eq isAssoc(assoc AtS) = true .
+  eq isAssoc(AtS) = false [owise] .
+
+--- isCtor - check if ctor is in the AttSet
+  op isCtor : AttrSet -> Bool . ---  [memo] .
+  eq isCtor(ctor AtS) = true .
+  eq isCtor(AtS) = false [owise] .
+
+--- isComm - check if the operator is commutative
+  op isComm : OpDecl -> Bool . --- [memo] .
+  eq isComm(op F : TpL -> Tp [AtS] .) = isComm(AtS) .
+
+--- isAssoc - check if the operator is associative
+  op isAssoc : OpDecl -> Bool . --- [memo] .
+  eq isAssoc(op F : TpL -> Tp [AtS] .) = isAssoc(AtS) .
+
+--- constrTerm - Construct a Term from it operator definition
+  op constrTerm : OpDecl Nat -> Term . --- [memo] .
+  eq constrTerm((op F : nil -> Tp [AtS] .),N)
+   = qid(alpha(string(F)) + "." + string(Tp)) .
+  eq constrTerm((op F : Tp1 TpL -> Tp2 [AtS] .),N)
+   = F[listVars(Tp1 TpL, N)] .
+
+--- constrToACTerm - Construct an AC-Term from it operator definition
+--- applying toAC function to its arguments
+  op constrToACTerm : OpDecl Nat -> Term . --- [memo] .
+  eq constrToACTerm((op F : nil -> Tp [AtS] .),N)
+   = qid(alpha(string(F)) + "." + string(Tp)) .
+  eq constrToACTerm((op F : Tp1 TpL -> Tp2 [AtS] .),N)
+   = if (isAssoc(AtS) == true) then
+       if (isComm(AtS) == true) then
+         F[toAClistVars(Tp1 TpL, N)]
+       else
+         qid(string(F) + "^AC")[toAClistVars(Tp1 TpL, N)]
+       fi
+     else
+       if (isComm(AtS) == true) then
+         qid(string(F) + "^AC")[toAClistVars(Tp1 TpL, N)]
+       else
+         F[toAClistVars(Tp1 TpL, N)]
+       fi
+     fi .
+
+--- listVars - Construct a list of vars separated by comma
+  op listVars : TypeList Nat -> TermList . --- [memo] .
+  eq listVars(Tp nil, N)
+   = qid("V#" + string(s N,10) + ":" + string(Tp)) .
+  eq listVars(Tp TpL, N)
+   = qid("V#" + string(s N,10) + ":" + string(Tp)) , listVars(TpL, s N) [owise] .
+
+--- toAClistVars - Construct a list of vars separated by comma and
+--- apply toAC function
+  op toAClistVars : TypeList Nat -> TermList . --- [memo] .
+  eq toAClistVars(Tp nil, N)
+   = 'toAC[qid("V#" + string(s N,10) + ":" + string(Tp))] .
+  eq toAClistVars(Tp TpL, N)
+   = 'toAC[qid("V#" + string(s N,10) + ":" + string(Tp))] , toAClistVars(TpL, s N) [owise] .
+
+--- typeListLength - lenght of TypeList
+  op typeListLength : TypeList -> Nat .
+  eq typeListLength(nil) = 0 .
+  eq typeListLength(Tp TpL) = s typeListLength(TpL) .
+
+endfm
+
+fmod TYPES-AUX is
+  pr CONVERSION .
+  pr META-LEVEL .
+  pr TERM-CONSTRUCTION .
+
+--- Meta-Level Sorts
+  sorts KindOpDeclSet KindOpDeclSetSet NEKindOpDeclSetSet .
+  sorts EKindOpDeclSet EKindOpDeclSetSet NEEKindOpDeclSetSet .
+
+  subsorts KindOpDeclSet < NEKindOpDeclSetSet < KindOpDeclSetSet  .
+  subsorts EKindOpDeclSet < NEEKindOpDeclSetSet < EKindOpDeclSetSet .
+
+--- Working with Kinds and Types
+  op _::_ : Kind OpDeclSet -> KindOpDeclSet [ctor] .
+  op none : -> KindOpDeclSetSet [ctor] .
+  op __ : NEKindOpDeclSetSet NEKindOpDeclSetSet -> NEKindOpDeclSetSet [ctor assoc comm id: none] .
+  op __ : KindOpDeclSetSet KindOpDeclSetSet -> KindOpDeclSetSet [assoc comm id: none] .
+  op _[_]::_ : Type TypeList OpDeclSet -> EKindOpDeclSet [ctor] .
+  op none : -> EKindOpDeclSetSet [ctor] .
+  op __ : NEEKindOpDeclSetSet NEEKindOpDeclSetSet -> NEEKindOpDeclSetSet [ctor assoc comm id: none] .
+  op __ : EKindOpDeclSetSet EKindOpDeclSetSet -> EKindOpDeclSetSet [assoc comm id: none] .
+  op newTopSorts : EKindOpDeclSetSet -> SortSet .
+
+  vars Tp Tp1 Tp2 Tp3 : Type .
+  vars TpL TpL1 TpL2 TpL3 : TypeList .
+  var K : Kind .
+  var OPD : OpDecl .
+  vars OPDS OPDS1 OPDS2 : OpDeclSet .
+  var KOPDS  : KindOpDeclSetSet .
+  var EKOPDS : EKindOpDeclSetSet .
+  vars FRes FRes' : FindResult .
+  var Str : String .
+  var N : NzNat .
+  var M : Module .
+  vars AtS AtS1 AtS2 : AttrSet .
+  var F   : Qid .
+  var FS  : QidSet .
+  var NeTL : NeTermList .
+  var C : Constant .
+  vars T T1 T2 : Term .
+  var SS : SortSet .
+
+--- fromTypeListToString - concat a list of types into a String
+  op fromTypeListToString : TypeList -> String .
+  eq fromTypeListToString(nil) = "" .
+  eq fromTypeListToString(Tp TpL) = string(Tp) + fromTypeListToString(TpL) .
+
+--- setTopSort - create a new top sort if there is not top sort
+  op setTopSort : TypeList -> Type .
+  eq setTopSort(Tp)  = Tp .
+  eq setTopSort(TpL) = qid(fromTypeListToString(TpL)) [owise] .
+
+--- newTopSorts - list all the new top sorts
+  eq newTopSorts((none).EKindOpDeclSetSet)
+   = (none).SortSet .
+  eq newTopSorts((Tp [ Tp ] :: OPDS) EKOPDS)
+   = newTopSorts(EKOPDS) .
+  eq newTopSorts((Tp [ TpL ] :: OPDS) EKOPDS)
+   = Tp ; newTopSorts(EKOPDS) [owise] .
+
+--- newSubsorts - for each new top sort, set the dependencies
+--- with respect to the rest of sorts in the SCC
+  op newSubsorts : EKindOpDeclSetSet -> SubsortDeclSet .
+  eq newSubsorts((none).EKindOpDeclSetSet)
+   = (none).SubsortDeclSet .
+  eq newSubsorts((Tp [ nil ] :: OPDS) EKOPDS)
+   = newSubsorts(EKOPDS) .
+  eq newSubsorts((Tp1 [ Tp2 TpL ] :: OPDS) EKOPDS)
+   = if (Tp1 == Tp2) then
+       newSubsorts((Tp1 [ TpL ] :: OPDS) EKOPDS)
+     else
+       (subsort Tp2 < Tp1 .) newSubsorts((Tp1 [ TpL ] :: OPDS) EKOPDS)
+     fi .
+
+--- processKinds - set the Top Sort is exists, if not create one
+  op processKinds : KindOpDeclSetSet -> EKindOpDeclSetSet .
+  eq processKinds((none).KindOpDeclSetSet)
+   = (none).EKindOpDeclSetSet .
+  eq processKinds((K :: OPDS) KOPDS)
+   = (setTopSort(extractTypes(string(K))) [ extractTypes(string(K)) ] :: OPDS) processKinds(KOPDS) .
+
+--- extractTypes - given a Kind as a String "'`[S1`,S2`,S3`]" extracts
+--- the different maximal types as a list of Qids: 'S1 'S2 'S3
+  op extractTypes : String -> TypeList .
+  eq extractTypes(Str) = if (substr(Str,0,2) == "`[")
+                         then extractTypes(substr(Str,2, length(Str)))
+                         else if (find(Str,"`,",0) =/= notFound)
+                              then (qid(substr(Str,0,find(Str,"`,",0)))
+                                   extractTypes(substr(Str,find(Str,"`,",0) + 2, length(Str))))
+         		      else qid(substr(Str,0,find(Str,"`]",0)))
+                              fi
+                         fi .
+
+--- getOpsByKind - get all the operators group by kind
+  op getOpsByKind : Module KindOpDeclSetSet OpDeclSet -> KindOpDeclSetSet . --- [memo] .
+  eq getOpsByKind(M, KOPDS, (none).OpDeclSet)
+   = KOPDS .
+  eq getOpsByKind(M, KOPDS, (op F : TpL -> Tp [AtS] .) OPDS)
+   = getOpsByKind(M, KOPDS, (op F : TpL -> Tp [AtS] .) OPDS, getKind(M, Tp)) .
+
+--- getOpsByKind - get all the operators group by kind (auxiliary)
+  op getOpsByKind : Module KindOpDeclSetSet OpDeclSet Kind -> KindOpDeclSetSet . --- [memo] .
+  eq getOpsByKind(M, (K :: OPDS1) KOPDS, (op F : TpL -> Tp [AtS] .) OPDS2, K)
+   = getOpsByKind(M, (K :: (OPDS1 (op F : TpL -> Tp [AtS] .))) KOPDS, OPDS2) .
+  eq getOpsByKind(M, KOPDS, (op F : TpL -> Tp [AtS] .) OPDS, K)
+   = getOpsByKind(M, createKindSet(K,(op F : TpL -> Tp [AtS] .)) KOPDS, OPDS) [owise] .
+
+--- getEOpsByKind - get all the operators group by kind and add AC
+--- extensions when the symbols is only A or C
+  op getEOpsByKind : Module KindOpDeclSetSet OpDeclSet -> KindOpDeclSetSet . --- [memo] .
+  eq getEOpsByKind(M, KOPDS, (none).OpDeclSet)
+   = KOPDS .
+  eq getEOpsByKind(M, KOPDS, (op F : TpL -> Tp [AtS] .) OPDS)
+   = getEOpsByKind(M, KOPDS, (op F : TpL -> Tp [AtS] .) OPDS, getKind(M, Tp)) .
+
+--- getEOpsByKind - get all the operators group by kind (auxiliary)
+--- and generate its extended version
+  op getEOpsByKind : Module KindOpDeclSetSet OpDeclSet Kind -> KindOpDeclSetSet . --- [memo] .
+  eq getEOpsByKind(M, (K :: OPDS1) KOPDS, (op F : TpL -> Tp [AtS] .) OPDS2, K)
+   = if (isAssoc(AtS) == true) then
+       if (isComm(AtS) == true) then
+         getEOpsByKind(M, (K :: (OPDS1 (op F : TpL -> Tp [AtS] .))) KOPDS, OPDS2)
+       else
+         getEOpsByKind(M, (K :: (OPDS1 (op F : TpL -> Tp [AtS] .) (op qid(string(F) + "^AC") : TpL -> Tp [comm AtS] .))) KOPDS, OPDS2)
+       fi
+     else
+       if (isComm(AtS) == true) then
+         getEOpsByKind(M, (K :: (OPDS1 (op F : TpL -> Tp [AtS] .) (op qid(string(F) + "^AC") : TpL -> Tp [assoc AtS] .))) KOPDS, OPDS2)
+       else
+         getEOpsByKind(M, (K :: (OPDS1 (op F : TpL -> Tp [AtS] .))) KOPDS, OPDS2)
+       fi
+     fi .
+  eq getEOpsByKind(M, KOPDS, (op F : TpL -> Tp [AtS] .) OPDS, K)
+   = if (isAssoc(AtS) == true) then
+       if (isComm(AtS) == true) then
+         getEOpsByKind(M, createKindSet(K,(op F : TpL -> Tp [AtS] .)) KOPDS, OPDS)
+       else
+         getEOpsByKind(M, createKindSet(K,(op F : TpL -> Tp [AtS] .) (op qid(string(F) + "^AC") : TpL -> Tp [comm AtS] .)) KOPDS, OPDS)
+       fi
+     else
+       if (isComm(AtS) == true) then
+         getEOpsByKind(M, createKindSet(K,(op F : TpL -> Tp [AtS] .) (op qid(string(F) + "^AC") : TpL -> Tp [assoc AtS] .)) KOPDS, OPDS)
+       else
+         getEOpsByKind(M, createKindSet(K,(op F : TpL -> Tp [AtS] .)) KOPDS, OPDS)
+       fi
+     fi [owise] .
+
+--- createKindSet - we have to create the new kindset
+  op createKindSet : Kind OpDeclSet -> KindOpDeclSetSet .
+  eq createKindSet(K, OPDS)
+   = (K :: OPDS) .
+
+--- isMaximalTyping - tell us if a typing is maximal with respect to another
+  op isMaximalTyping : Module OpDecl OpDeclSet -> Bool . --- [memo] .
+  eq isMaximalTyping(M, OPD, none) = true .
+  eq isMaximalTyping(M, (op F : TpL1 -> Tp1 [AtS1] .), (op F : TpL2 -> Tp2 [AtS2] .) OPDS)
+   = isMaximalTyping(M, Tp1 TpL1, Tp2 TpL2) or isMaximalTyping(M, (op F : TpL1 -> Tp1 [AtS1] .), OPDS) .
+  eq isMaximalTyping(M, OPD, OPDS)
+   = true [owise] .
+
+--- isMaximalTyping - tell us if a typing is maximal with respect to another
+  op isMaximalTyping : Module TypeList TypeList -> Bool . --- [memo] .
+  eq isMaximalTyping(M, nil, nil)
+   = false .
+  eq isMaximalTyping(M, Tp1 TpL1, Tp2 TpL2)
+   = if intersection(Tp2 ; lesserSorts(M, Tp2),Tp1) =/= none
+     then isMaximalTyping(M, TpL1, TpL2)
+     else true
+     fi .
+
+--- getMaximalTypings - filter non maximal typings
+  op getMaximalTypings : Module OpDeclSet -> OpDeclSet . --- [memo] .
+  eq getMaximalTypings(M, (none).OpDeclSet)
+   = none .
+  eq getMaximalTypings(M, OPD OPDS)
+   = if isMaximalTyping(M, OPD, OPDS)
+     then OPD getMaximalTypings(M, OPDS)
+     else getMaximalTypings(M, OPDS)
+     fi .
+
+--- getMaximalTypings - filter non maximal typings
+  op getMaximalTypings : Module KindOpDeclSetSet -> KindOpDeclSetSet . --- [memo] .
+  eq getMaximalTypings(M, (none).KindOpDeclSetSet)
+   = none .
+  eq getMaximalTypings(M, (K :: OPDS) KOPDS)
+   = (K :: getMaximalTypings(M, OPDS)) getMaximalTypings(M, KOPDS) [owise] .
+
+  --- getOpsByAndAndQId - return the possible maximal typings given a
+  --- Kind and a Qid
+  op getOpsByKindAndQId : KindOpDeclSetSet Kind Qid -> OpDeclSet . --- [memo] .
+  eq getOpsByKindAndQId((K :: OPDS) KOPDS, K, F) = getOpsByQid(OPDS, F) .
+  eq getOpsByKindAndQId(KOPDS, K, F) = (none).OpDeclSet [owise] .
+
+  --- getOpsByAndAndQId - return the possible typings given a Qid
+  op getOpsByQid : OpDeclSet Qid -> OpDeclSet . ---[memo] .
+  eq getOpsByQid((op F : TpL -> Tp [AtS] .) OPDS, F) = (op F : TpL -> Tp [AtS] .) getOpsByQid(OPDS, F) .
+  eq getOpsByQid(OPDS, F) = (none).OpDeclSet [owise] .
+
+  --- getOpsByType - return the possible maximal typings from a Type
+  op getOpsByType : KindOpDeclSetSet Kind SortSet -> OpDeclSet . --- [memo] .
+  eq getOpsByType((K :: OPDS) KOPDS, K, SS) = getOpsByType(OPDS, SS) .
+  eq getOpsByKindAndQId(KOPDS, K, SS) = (none).OpDeclSet [owise] .
+
+  --- getOpsByType - return the possible maximal typings from a Type
+  op getOpsByType : OpDeclSet SortSet -> OpDeclSet . --- [memo] .
+  eq getOpsByType((op F : TpL1 -> Tp [AtS] .) OPDS, SS)
+   = if intersection(SS,Tp) =/= none
+     then (op F : TpL1 -> Tp [AtS] .) getOpsByType(OPDS, SS)
+     else getOpsByType(OPDS, SS)
+     fi .
+  eq getOpsByType((none).OpDeclSet, SS) = (none).OpDeclSet .
+
+  --- get proper maximal operator if exists. CONDITION! : we force
+  --- maximal typings of AC operators as s s -> s and C operators as
+  --- s s -> s' We don't allow only A operators
+  op root : Module Term Type OpDeclSet -> OpDeclSet . --- [memo] .
+  eq root(M, T, Tp1, (none).OpDeclSet) = (none).OpDeclSet .
+  eq root(M, C, Tp, (op F : nil -> Tp [AtS] .) OPDS)
+    = if getName(C) == F
+      then (op F : nil -> Tp [AtS] .)
+      else root(M, C, Tp, OPDS)
+      fi .
+  eq root(M, F[NeTL], Tp1, (op F : TpL -> Tp2 [AtS] .) OPDS)
+    = if (isAssoc(AtS) == true)
+      then
+        if (isComm(AtS) == true)
+        then ac-root(M, F[NeTL], Tp1, (op F : TpL -> Tp2 [AtS] .) OPDS)
+        else a-root(M, F[NeTL], Tp1, (op F : TpL -> Tp2 [AtS] .) OPDS)
+        fi
+      else
+        if (isComm(AtS) == true)
+        then c-root(M, F[NeTL], Tp1, (op F : TpL -> Tp2 [AtS] .) OPDS)
+        else free-root(M, F[NeTL], Tp1, (op F : TpL -> Tp2 [AtS] .) OPDS)
+        fi
+      fi .
+  eq root(M, T, Tp1, OPD OPDS) = root(M, T, Tp1, OPDS) [owise] .
+
+
+  --- get proper maximal operator if exists (AC case).
+  op ac-root : Module Term Type OpDeclSet -> OpDeclSet . --- [memo] .
+  eq ac-root(M, F[NeTL], Tp1, (op F : Tp2 Tp2 -> Tp2 [assoc comm AtS] .) OPDS)
+   = if (intersection(Tp2 ; lesserSorts(M, Tp2),Tp1) =/= none) and (lesserSorts(M, NeTL, Tp2) == true)
+     then (op F : Tp2 Tp2 -> Tp2 [assoc comm AtS] .)
+     else root(M, F[NeTL], Tp1, OPDS)
+     fi .
+  eq ac-root(M, T, Tp1, OPD OPDS) = root(M, T, Tp1, OPDS) [owise] .
+
+  --- get proper maximal operator if exists (C case).
+  op c-root : Module Term Type OpDeclSet -> OpDeclSet . --- [memo] .
+  eq c-root(M, F[NeTL], Tp1, (op F : Tp3 Tp3 -> Tp2 [comm AtS] .) OPDS)
+   = if (intersection(Tp2 ; lesserSorts(M, Tp2),Tp1) =/= none) and (lesserSorts(M, NeTL, Tp3) == true)
+     then (op F : Tp3 Tp3 -> Tp2 [comm AtS] .)
+     else root(M, F[NeTL], Tp1, OPDS)
+     fi .
+  eq c-root(M, T, Tp1, OPD OPDS) = root(M, T, Tp1, OPDS) [owise] .
+
+  --- get proper maximal operator if exists (A case). Not allowed!
+  op a-root : Module Term Type OpDeclSet -> OpDeclSet . --- [memo] .
+  eq a-root(M, T, Tp1, OPD OPDS) = root(M, T, Tp1, OPDS) .
+
+  --- get proper maximal operator if exists (free symbol case).
+  op free-root : Module Term Type OpDeclSet -> OpDeclSet . --- [memo] .
+  eq free-root(M, F[NeTL], Tp1, (op F : TpL -> Tp2 [AtS] .) OPDS)
+   = if (intersection(Tp2 ; lesserSorts(M, Tp2),Tp1) =/= none) and (lesserSorts(M, NeTL, TpL) == true)
+     then (op F : TpL -> Tp2 [AtS] .)
+     else root(M, F[NeTL], Tp1, OPDS)
+     fi .
+  eq free-root(M, T, Tp1, OPD OPDS) = root(M, T, Tp1, OPDS) [owise] .
+
+  --- getCtors - filter ctor operators
+  op getCtors : OpDeclSet ~> OpDeclSet . --- [memo] .
+  eq getCtors((none).OpDeclSet) = (none).OpDeclSet .
+  eq getCtors((op F : TpL -> Tp [AtS] .) OPDS)
+   = if isCtor(AtS)
+     then (op F : TpL -> Tp [AtS] .) getCtors(OPDS)
+     else getCtors(OPDS)
+     fi .
+
+  --- lesserSorts - check if the list of terms are in the input type
+  --- list
+  op lesserSorts : Module NeTermList TypeList -> Bool .
+  eq lesserSorts(M, T1, Tp1) = intersection(Tp1 ; lesserSorts(M, Tp1), getType(metaNormalize(M,T1))) =/= none .
+  eq lesserSorts(M, (T1 , NeTL) , Tp1) = (intersection(Tp1 ; lesserSorts(M, Tp1), getType(metaNormalize(M,T1))) =/= none) and lesserSorts(M, NeTL, Tp1) .
+  eq lesserSorts(M, T1, Tp1 TpL) = intersection(Tp1 ; lesserSorts(M, Tp1), getType(metaNormalize(M,T1))) =/= none .
+  eq lesserSorts(M, (T1 , NeTL) , Tp1 TpL) = (intersection(Tp1 ; lesserSorts(M, Tp1), getType(metaNormalize(M,T1))) =/= none) and lesserSorts(M, NeTL, TpL) .
+
+endfm

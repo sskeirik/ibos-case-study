@@ -1,0 +1,482 @@
+***(-----------------------------------------------------------------
+
+Module      :  clause
+Stability   :  unstable
+Portability :  portable
+
+Atoms, literals, Atom magmas and clauses
+
+---------------------------------------------------------------------)
+
+fmod ATOM is
+  pr BOOL .
+  sort Atom .
+
+--- error - possible error when dealing with atoms
+  op error : -> [Atom] .
+  op _=_ : Universal Universal -> Atom [ctor comm poly (1 2) metadata "3"] .
+  op true  : -> Atom [ctor metadata "1"] .
+  op false : -> Atom [ctor metadata "2"] .
+
+  vars A A1 A2 : Atom .
+
+--- equality relation for Atoms 
+  op _===_ : Atom Atom -> Bool [comm] .
+  eq A === A = true .
+  eq A1 === A2 = false [owise] .
+endfm
+
+view Atom from TRIV to ATOM is
+  sort Elt to Atom .
+endv
+
+view AtomEq from EQUALITY-RELATION to ATOM is 
+  sort Elt to Atom .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+
+fmod WEIGHTED-ATOM is
+  pr ATOM .
+  pr NAT .
+
+  sort WAtom .
+
+--- error - possible error when dealing with atoms
+  op (_)_ : Nat Atom -> WAtom [ctor] .
+
+  vars N N1 N2 : Nat .
+  vars A1 A2 : Atom .
+
+--- equality relation for Atoms 
+  op _===_ : WAtom WAtom -> Bool [comm] .
+  eq (N1)A1 === (N2)A2 = A1 === A2 .
+endfm
+
+view WAtom from TRIV to WEIGHTED-ATOM is
+  sort Elt to WAtom .
+endv
+
+view WAtomEq from EQUALITY-RELATION to WEIGHTED-ATOM is 
+  sort Elt to Atom .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+
+fmod ATOM-MAGMA is
+  pr ATOM .
+  pr SET{Atom} * ( sort Set{Atom} to AtomMagma
+                 , sort NeSet{Atom} to NeAtomMagma) .
+
+  vars A1 A2 : Atom .
+  vars NeAM1 NeAM2 : NeAtomMagma .
+  vars AM1 AM2 : AtomMagma .
+
+--- equality relation for AtomMagmas
+  op _===_ : AtomMagma AtomMagma -> Bool [comm] .
+  eq (empty).AtomMagma === (empty).AtomMagma = true .
+  eq A1 === A1 = true .
+  eq (A1 , NeAM1) === (A1 , NeAM2) = NeAM1 === NeAM2 .
+  eq AM1 === AM2 = false [owise] .  
+endfm
+
+view AtomMagmaEq from EQUALITY-RELATION to ATOM-MAGMA is 
+  sort Elt to AtomMagma .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+
+fmod WEIGHTED-ATOM-MAGMA is
+  pr WEIGHTED-ATOM .
+  pr SET{WAtom} * ( sort Set{WAtom} to WAtomMagma
+                 , sort NeSet{WAtom} to NeWAtomMagma) .
+
+  vars A1 A2 : WAtom .
+  vars NeAM1 NeAM2 : NeWAtomMagma .
+  vars AM1 AM2 : WAtomMagma .
+
+--- equality relation for AtomMagmas
+  op _===_ : WAtomMagma WAtomMagma -> Bool [comm] .
+  eq (empty).WAtomMagma === (empty).WAtomMagma = true .
+  eq A1 === A1 = true .
+  eq (A1 , NeAM1) === (A1 , NeAM2) = NeAM1 === NeAM2 .
+  eq AM1 === AM2 = false [owise] .  
+endfm
+
+view WAtomMagmaEq from EQUALITY-RELATION to WEIGHTED-ATOM-MAGMA is 
+  sort Elt to WAtomMagma .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+
+fmod CLAUSE is
+  pr ATOM-MAGMA .
+
+  sort Clause .
+
+--- _=>_ - A clause is of the form GM => DT, where GM = A1
+--- and A2 and ... and AN, and DT = A1' or A2' or A3'.
+  op _=>_ : AtomMagma AtomMagma -> Clause [ctor prec 126] .
+--- error - possible error when dealing with clauses
+  op error : -> [Clause] .
+
+  vars GM1 GM2 DT1 DT2 : AtomMagma .
+    
+--- equality relation for Clauses
+  op _===_ : Clause Clause -> Bool [comm] .
+  eq (GM1 => DT1)  === (GM2 => DT2) = (GM1 === GM2) and (DT1 === DT2) .
+endfm
+
+view ClauseEq from EQUALITY-RELATION to CLAUSE is 
+  sort Elt to Clause .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+
+view Clause from TRIV to CLAUSE is sort Elt to Clause .  endv
+    
+fmod WEIGHTED-CLAUSE is
+  pr ATOM-MAGMA .
+  pr WEIGHTED-ATOM-MAGMA .
+  pr META-TERM .
+
+  sort WClause .
+
+--- _=>_ - A weighted clause is of the form GM => DT, where GM = (N1)A1
+--- and (N2)A2 and ... and (NN)AN, and DT = A1' or A2' or A3'.
+  op _=>_ : WAtomMagma AtomMagma -> WClause [ctor prec 126] .
+
+  var T : Term .
+  vars N M : Nat .
+  vars GM GM1 GM2 : WAtomMagma .  
+  vars DT DT1 DT2 : AtomMagma .
+  var A : Atom .
+
+--- simplification
+  eq (N)(T = T) , GM => DT = GM => DT .
+  eq (N)A , (M)A , GM => DT = if N < M then (N)A , GM => DT else (M)A , GM => DT fi . 
+
+--- error - possible error when dealing with clauses
+  op error : -> [WClause] .
+
+--- equality relation for Clauses
+  op _===_ : WClause WClause -> Bool [comm] .
+  eq (GM1 => DT1)  === (GM2 => DT2) = (GM1 === GM2) and (DT1 === DT2) .
+endfm
+
+view WClauseEq from EQUALITY-RELATION to WEIGHTED-CLAUSE is 
+  sort Elt to WClause .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+
+view WClause from TRIV to WEIGHTED-CLAUSE is sort Elt to WClause .  endv
+
+fmod EXTENDED-WEIGHTED-CLAUSE is
+  pr WEIGHTED-CLAUSE .
+  pr CLAUSE-INFO .
+  pr 2TUPLE{WClause,ClauseInfo} * (sort Tuple{WClause,ClauseInfo} to EWClause,
+                             op ((_,_)) : WClause ClauseInfo -> Tuple{WClause, ClauseInfo} to (_from_) [format (d b o n)]) .
+  pr 2TUPLE{WClause,Nat} * (sort Tuple{WClause,Nat} to WClauseNatTrace,
+                           op ((_,_)) : Clause Nat -> Tuple{Clause, Nat} to (_from_)) .
+
+  vars CT1 CT2 : EWClause .
+  vars CNT1 CNT2 : WClauseNatTrace .
+
+--- equality relation for EClause
+  op _===_ : EWClause EWClause -> Bool [comm] .
+  eq CT1  === CT2 = (p1 CT1) === (p1 CT2) .
+
+--- equality relation for WClauseNatTrace
+  op _===_ : WClauseNatTrace WClauseNatTrace -> Bool [comm] .
+  eq CNT1  === CNT2 = (p1 CNT1) === (p1 CNT2) .
+endfm
+
+view EWClauseEq from EQUALITY-RELATION to EXTENDED-WEIGHTED-CLAUSE is 
+  sort Elt to EWClause .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+view WClauseNatTraceEq from EQUALITY-RELATION to EXTENDED-WEIGHTED-CLAUSE is 
+  sort Elt to WClauseNatTrace .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+    
+view EWClause from TRIV to EXTENDED-WEIGHTED-CLAUSE is sort Elt to EWClause .  endv
+
+
+fmod ORDERED-EXTENDED-WEIGHTED-CLAUSE is
+--- Weighted clauses
+  pr 2TUPLE{EWClause,Nat} * (sort Tuple{EWClause,Nat} to OEWClause) .
+
+  --- order for EWClause
+  op _<_ : OEWClause OEWClause -> Bool .
+
+  vars WC1 WC2 : OEWClause .
+
+  eq WC1 < WC2 = (p2 WC1) < (p2 WC2) .
+endfm
+
+view OEWClause from STRICT-TOTAL-ORDER to ORDERED-EXTENDED-WEIGHTED-CLAUSE is 
+  sort Elt to OEWClause .  
+  op _<_ : Elt Elt -> Bool to _<_ .
+endv
+
+fmod EXTENDED-WEIGHTED-CLAUSE-SET is
+--- Set of EWClause
+  pr SET{EWClause} * (sort Set{EWClause} to EWClauseSet,
+                   sort NeSet{EWClause} to NeEWClauseSet) .
+
+  vars Tr Tr1 Tr2 : ClauseInfo .
+  var C : WClause .
+  var CTS : EWClauseSet .
+
+--- updateTrace - modify Trace information
+  op updateTrace : EWClauseSet ClauseInfo -> EWClauseSet .
+  eq updateTrace((empty).EWClauseSet, Tr) = (empty).EWClauseSet .
+  eq updateTrace((C from Tr1 , CTS), Tr2) = (C from Tr2) , updateTrace(CTS, Tr2) .
+endfm
+
+view EWClauseSet from TRIV to EXTENDED-WEIGHTED-CLAUSE-SET is sort Elt to EWClauseSet .  endv
+
+fmod EXTENDED-WEIGHTED-CLAUSE-ITEM is
+  pr 2TUPLE{Nat,EWClause} 
+     * (sort Tuple{Nat,EWClause} to EWClauseItem) .
+
+  op noElemError : -> EWClauseItem [ctor] .
+  op _<_ : EWClauseItem EWClauseItem -> Bool .
+
+  vars CTI1 CTI2 : EWClauseItem .
+
+  eq CTI1 < CTI2 = (p1 CTI1) < (p1 CTI2) .
+endfm
+
+view EWClauseItemTriv from TRIV to EXTENDED-WEIGHTED-CLAUSE-ITEM is 
+  sort Elt to EWClauseItem .  
+endv
+
+view EWClauseItem from STRICT-TOTAL-ORDER to EXTENDED-WEIGHTED-CLAUSE-ITEM is 
+  sort Elt to EWClauseItem .  
+  op _<_ : Elt Elt -> Bool to _<_ .
+endv
+
+fmod EXTENDED-WEIGHTED-CLAUSE-ITEM-LIST is
+  pr SORTABLE-LIST{EWClauseItem}
+    * ( sort List{EWClauseItem} to EWClauseItemList
+      , sort NeList{EWClauseItem} to NeEWClauseItemList) .
+endfm
+
+view EWClauseItemList from TRIV to EXTENDED-WEIGHTED-CLAUSE-ITEM-LIST is
+  sort Elt to EWClauseItemList .
+endv
+
+fmod EXTENDED-WEIGHTED-CLAUSE-TABLE is
+  pr EXTENDED-WEIGHTED-CLAUSE-ITEM .
+  pr 2TUPLE{Nat,EWClauseItemList} 
+     * (sort Tuple{Nat,EWClauseItemList} to EWClauseTable) .
+  pr NAT-SET .
+
+  vars I MaxElem : Nat .
+  var CTL : EWClauseItemList .
+  var CTI : EWClauseItem .
+  var CTT : EWClauseTable .
+  var NS : NatSet .
+  var CT : EWClause .
+
+--- createTable - init structure
+  op createTable : -> EWClauseTable .
+  eq createTable = (1,(nil).EWClauseItemList) .
+
+--- createTableIndex - init structure and set index value
+  op createTableIndex : Nat -> EWClauseTable .
+  eq createTableIndex(I) = (I,(nil).EWClauseItemList) .
+
+--- getMaxElem - get Maximum element
+  op getMaxElem : EWClauseTable -> Nat .
+  eq getMaxElem((MaxElem,CTL)) = MaxElem .
+
+--- incMaxElem - increase Maximum element counter
+  op incMaxElem : EWClauseTable -> EWClauseTable .
+  eq incMaxElem((MaxElem,CTL)) = (s MaxElem,CTL) .
+
+--- getElemByIndex - get element by index
+  op getElemByIndex : Nat EWClauseTable -> EWClauseItem .
+  eq getElemByIndex(I, (MaxElem,CTL)) = getElemByIndex(I, CTL) .
+
+--- getElemByIndex - get element by index
+  op getElemByIndex : Nat EWClauseItemList -> EWClauseItem .
+  eq getElemByIndex(I, (CTI CTL))
+   = if (p1 CTI) < I 
+     then getElemByIndex(I, CTL)
+     else if (p1 CTI) == I
+          then CTI
+          else noElemError
+          fi
+     fi .
+  eq getElemByIndex(I, CTL) = noElemError [owise] .
+
+--- removeIndexes - remove elemements from clause track table
+  op removeIndexes : NatSet EWClauseTable -> EWClauseTable .
+  eq removeIndexes((I , NS), (MaxElem, CTL)) = removeIndexes(NS, (MaxElem, removeIndex(I,CTL))) .
+  eq removeIndexes(NS, CTT) = CTT [owise] .
+
+--- removeIndex - remove elemement from clause track table
+  op removeIndex : Nat EWClauseItemList -> EWClauseItemList .
+  eq removeIndex(I, (CTI CTL)) 
+   = if (p1 CTI) < I
+     then CTI removeIndex(I, CTL)
+     else if (p1 CTI) == I 
+          then CTL
+          else (CTI CTL)
+          fi
+     fi .
+  eq removeIndex(I, CTL) = CTL [owise] .
+
+--- addInPosition - if exists, modify, if not, insert
+  op addInPosition : EWClauseItem EWClauseTable -> EWClauseTable .
+  eq addInPosition((I,CT), (MaxElem, CTL)) 
+   = if I >= MaxElem 
+     then (s I, append(CTL , (I,CT)))
+     else (MaxElem, merge((I,CT), removeIndex(I, CTL)))
+     fi .
+  eq addInPosition(CTI, CTT) = CTT [owise] .
+
+endfm
+
+view EWClauseTable from TRIV to EXTENDED-WEIGHTED-CLAUSE-TABLE is 
+  sort Elt to EWClauseTable .  
+endv
+
+fmod EXTENDED-WEIGHTED-CLAUSE-TABLE-EXT is
+  pr EXTENDED-WEIGHTED-CLAUSE-TABLE .
+  pr 2TUPLE{EWClauseItemTriv,EWClauseTable} 
+     * (sort Tuple{EWClauseItemTriv,EWClauseTable} to CTItemCTTablePair) .
+
+  var CT : EWClause .
+  var CTT : EWClauseTable .
+  var I : Nat .
+
+--- insert - insert clause in table and return index
+  op insert : EWClause EWClauseTable -> CTItemCTTablePair .
+  eq insert(CT, CTT) = ((getMaxElem(CTT),CT),addInPosition((getMaxElem(CTT),CT), CTT)) .
+    
+endfm
+
+--- Clause tautology
+fmod TAUTOLOGY is
+  pr EXTENDED-WEIGHTED-CLAUSE-SET .
+
+*** Tautology predicate in pg 152
+  op tautology : WClause -> Bool .
+
+  var T : Term .
+  var GM : WAtomMagma .
+  var DT : AtomMagma .
+  var A : Atom .
+  var N : Nat .
+
+  eq tautology((GM => ((T = T), DT)))
+   = true .
+  eq tautology(((N)A , GM => A , DT))
+   = true .
+  eq tautology((GM => DT))
+   = false [owise] .
+endfm
+
+fmod ORDERED-EXTENDED-WEIGHTED-CLAUSE-LIST is
+  pr SORTABLE-LIST{OEWClause} 
+    * ( sort List{OEWClause} to OEWClauseList
+      , sort NeList{OEWClause} to NeOEWClauseList) .
+  pr EXTENDED-WEIGHTED-CLAUSE-SET .
+
+  var WC : OEWClause .
+  var WL : OEWClauseList .
+
+  op getClauses : OEWClauseList -> EWClauseSet .
+  eq getClauses((nil).OEWClauseList) = (empty).EWClauseSet .
+  eq getClauses(WC WL)
+   = (p1 WC) , getClauses(WL) .
+endfm
+
+view OEWClauseList from TRIV to ORDERED-EXTENDED-WEIGHTED-CLAUSE-LIST is sort Elt to OEWClauseList . endv
+
+fmod WEIGHT-WEIGHTED-CLAUSE is
+  pr WEIGHTED-CLAUSE .
+
+  var C : Constant .
+  var V : Variable .
+  var Q : Qid .
+  var TL : TermList .
+  vars T T1 T2 : Term .
+  var GM : WAtomMagma .
+  var DT : AtomMagma .  
+  var NeAM : NeAtomMagma .
+  var NeWAM : NeWAtomMagma .
+  var A : Atom .
+  var WA : WAtom .
+  var N : Nat .
+
+  op weight : WClause -> Nat . --- [memo] .
+  eq weight((GM => DT)) = weight(GM) + weight(DT) .
+
+  op weight : AtomMagma -> Nat . --- [memo] .
+  eq weight((empty).AtomMagma) = 0 .
+  eq weight((A , NeAM)) = weight(A) + weight(NeAM) + 1 .
+  eq weight(T1 = T2) = weight(T1) + weight(T2) + 1 .
+
+  op weight : WAtomMagma -> Nat . --- [memo] .
+  eq weight((empty).WAtomMagma) = 0 .
+  eq weight((WA , NeWAM)) = weight(WA) + weight(NeWAM) + 1 .
+  eq weight((N) A) = weight(A) .
+
+  op weight : TermList -> Nat . --- [memo] .
+  eq weight((empty).TermList) = 0 .
+  eq weight(C) = 1 .
+  eq weight(V) = 1 .
+  eq weight(Q[TL]) = 1 + weight(TL) .
+  eq weight((T,TL)) = weight(T) + weight(TL) .
+endfm
+
+fmod WEIGHTED-ATOM-MAGMA-UTIL is
+  pr ATOM-MAGMA .
+  pr WEIGHTED-ATOM-MAGMA .
+  pr TERM-UTIL .
+
+  vars T1 T2 : Term .
+  var S : Substitution .
+  var A : Atom .
+  var WA : WAtom .
+  var NeAM : NeAtomMagma .
+  var NeWAM : NeWAtomMagma .
+  var N : Nat .
+
+  --- apply substitution ---
+  op _<<_ : AtomMagma Substitution -> AtomMagma . --- [memo] .
+  eq (empty).AtomMagma << S = (empty).AtomMagma .
+  eq (T1 = T2) << S = (T1 << S) = (T2 << S) .
+  eq (A , NeAM) << S = (A << S) , (NeAM << S) . 
+
+  --- apply substitution ---
+  op _<<_ : WAtomMagma Substitution -> WAtomMagma . --- [memo] .
+  eq (empty).WAtomMagma << S = (empty).WAtomMagma .
+  eq ((N) A) << S = (N) (A << S) .
+  eq (WA , NeWAM) << S = (WA << S) , (NeWAM << S) . 
+
+  --- getMaxV# - max variable number
+  op getMaxV# : AtomMagma -> Nat . --- [memo] .
+  eq getMaxV#((empty).AtomMagma) = 0 .
+  eq getMaxV#((A, NeAM)) = max(getMaxV#(A), getMaxV#(NeAM)) .
+  eq getMaxV#((T1 = T2)) = max(getMaxV#(T1),getMaxV#(T2)) .
+
+  --- getMaxV# - max variable number
+  op getMaxV# : WAtomMagma -> Nat . --- [memo] .
+  eq getMaxV#((empty).WAtomMagma) = 0 .
+  eq getMaxV#((WA, NeWAM)) = max(getMaxV#(WA), getMaxV#(NeWAM)) .
+  eq getMaxV#((N) A) = getMaxV#(A) .
+endfm
+    
+fmod WEIGHTED-CLAUSE-UTIL is
+  pr WEIGHTED-CLAUSE .
+  pr WEIGHTED-ATOM-MAGMA-UTIL .
+
+  var GM : WAtomMagma .
+  var DT : AtomMagma .
+
+  --- getMaxV# - max variable number
+  op getMaxV# : WClause -> Nat . --- [memo] .
+  eq getMaxV#((GM => DT)) = max(getMaxV#(GM), getMaxV#(DT)) .
+
+endfm
