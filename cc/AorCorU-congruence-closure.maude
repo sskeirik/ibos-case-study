@@ -47,12 +47,12 @@ fmod A\/C\/U-CONG-CLOSURE is
   pr PROCESS .
   pr CRITICAL-PAIR .
 
-  sort State .
+  sort CCState .
 
-  op [_,_,_,_,_,_,_,_,_,_] : List{IMRule} FModule EquationSet IMRuleTable FAxiomSet List{OInfo<} Process Nat Nat Nat -> State .
-  op [_,_,_] : EquationSet Nat GroundTerm -> State [ctor] .  --- final result with count of overlap cycles and test
+  op [_,_,_,_,_,_,_,_,_,_] : List{IMRule} FModule EquationSet IMRuleTable FAxiomSet List{OInfo<} Process Nat Nat Nat -> CCState .
+  op [_,_,_] : EquationSet Nat GroundTerm -> CCState [ctor] .  --- final result with count of overlap cycles and test
 
-  op init : -> State .
+  op init : -> CCState .
 
   vars T T' T'' T''' : GroundTerm .  var ES ES' : EquationSet .  var AS : AttrSet . var FAS : FAxiomSet . var OL : List{OInfo<} .
   var OI : OInfo . vars i j n m k l m0 : Nat .  vars S S' S'' S''' : SetM{Qid} .  var f : Qid . var IMRT : IMRuleTable .
