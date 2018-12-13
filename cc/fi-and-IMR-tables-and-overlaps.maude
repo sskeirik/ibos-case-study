@@ -68,10 +68,6 @@ fmod FI-TABLE&OVERLAP-INFO is
  eq [[i,f],NPS] <  [[j,g],NPS'] = i < j .
 endfm
 
-view IMRule from TRIV to MARKED-RULE is
-  sort Elt to IMRule .
-endv
-
 view OInfo< from STRICT-WEAK-ORDER to FI-TABLE&OVERLAP-INFO is
   sort Elt to OInfo .
 endv

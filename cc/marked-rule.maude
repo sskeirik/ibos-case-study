@@ -58,6 +58,18 @@ fmod MARKED-RULE is protecting AAC-RPO .
                                                            fi .
 endfm
 
+view IMRule from TRIV to MARKED-RULE is
+  sort Elt to IMRule .
+endv
+
+view MRule< from STRICT-WEAK-ORDER to MARKED-RULE is
+  sort Elt to MRule .
+endv
+
+view GroundTermPair from TRIV to MARKED-RULE is
+  sort Elt to GroundTermPair .
+endv
+
 *** red make-rule('_+_['z.U,'s['z.U],'_|_['z.U,'s['z.U]]], '_+_['s['z.U],'_|_['z.U,'s['z.U]]]) .
 *** red make-rule('_+_['z.U,'s['z.U],'_|_['z.U,'s['z.U]]], '_+_['z.U,'s['z.U],'_|_['z.U,'s['z.U]]]) .
 *** red make-rule('_+_['s['z.U],'_|_['z.U,'s['z.U]]], '_+_['z.U,'s['z.U],'_|_['z.U,'s['z.U]]]) .

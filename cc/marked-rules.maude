@@ -21,14 +21,6 @@ fmod INSERT{X :: STRICT-WEAK-ORDER} is
   eq ins-rec(nil,L') = L' .
 endfm
 
-view IMRule from TRIV to MARKED-RULE is
-  sort Elt to IMRule .
-endv
-
-view MRule< from STRICT-WEAK-ORDER to MARKED-RULE is
-  sort Elt to MRule .
-endv
-
 fmod MARKED-RULES is
   protecting MARKED-RULE .
   protecting INSERT{MRule<} .

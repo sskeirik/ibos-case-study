@@ -75,10 +75,6 @@ fmod AC-TERM-REPR is
   eq ac(f,mtACTermSet)                    = leaf('mt-intersection.U) .
 endfm
 
-view GroundTermPair from TRIV to MARKED-RULE is
-  sort Elt to GroundTermPair .
-endv
-
 fmod CRITICAL-PAIR is
   pr LIST{GroundTermPair} .
   pr MARKED-RULES .
