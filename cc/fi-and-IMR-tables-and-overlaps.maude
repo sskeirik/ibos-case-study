@@ -1,24 +1,23 @@
-*** fi-and-IMR-tables-and-overlap.maude
-*** To perform congruence closure modulo A\/C, critical pairs need to be computed for rules whose top (lefthand side)
-*** symbol is A or AC. To make it easy to compute such critical pairs, several data types can be useful: (i)
-*** "IMRuleTable" is a table with entries "[f,IMRS]" where f is an A or AC symbol and IMRS is the set of current
-*** inter-reduced rules with top f, (ii) "FITable" is an auxiliary table with entries "[f,NS]" where f is an A or AC symbol
-*** and NS is the set of indices of current inter-reduced rules whose top symbol if f, and (iii) "List{OInfo<}" is a list
-*** of pairs of the form "[[i,f],NPS]" where f is the A of AC top of current rule i, and NPS is a set of pairs of the
-*** form [i,j] with i >= j such that the top of rule j is also f. This list will be SORTED from smaller to bigger indices,
-*** so that critical pairs for rules with bigger indices will only be computed after those for smaller indices have been
-*** processed. This list records, for each rule indexed i with A or AC top f, which rules with index lower of equal to i
-*** and same top f should be compared with rule i to compute A of AC critical pairs.
-***
-*** The subsort SMarking < Marking in marked-term.maude is here used for a completely different purpose: for pairs [i,f]
-*** with f the top symbol of a rule indexed i.
-***
-*** There are also several auxiliary functions, including: (i) upper-set(m,NS) is the set of number in NS strictly bigger
-*** than m, (ii) lower-pairs(i,NS) = {[i,j] | j \in NS and i >= j}, (iii) "overlaps(FIT,m)" returns a SORTED list of sort
-*** "List{OInfo<}" whose elements [[i,f],NPS] have i > m, and NPS = lower-pairs(i,NS), where [f,NS] is an entry in FIT and i \in NS.
-*** This records which critical pairs have to be computed for rule i with other rules j with same A or AC top f and i >= j, (iv)
-*** remove([i,f],IMRT) removes rule indexed i and top f from the "IMRuleTable" IMRT, (v) fi-table(IMRT) maps an "IMRuleTable"
-*** to its associated FITable, and (vi) compute-overlaps(IMRT,n) = overlaps(fi-table(IMRT),n).
+--- To perform congruence closure modulo A\/C, critical pairs need to be computed for rules whose top (lefthand side)
+--- symbol is A or AC. To make it easy to compute such critical pairs, several data types can be useful: (i)
+--- "IMRuleTable" is a table with entries "[f,IMRS]" where f is an A or AC symbol and IMRS is the set of current
+--- inter-reduced rules with top f, (ii) "FITable" is an auxiliary table with entries "[f,NS]" where f is an A or AC symbol
+--- and NS is the set of indices of current inter-reduced rules whose top symbol if f, and (iii) "List{OInfo<}" is a list
+--- of pairs of the form "[[i,f],NPS]" where f is the A of AC top of current rule i, and NPS is a set of pairs of the
+--- form [i,j] with i >= j such that the top of rule j is also f. This list will be SORTED from smaller to bigger indices,
+--- so that critical pairs for rules with bigger indices will only be computed after those for smaller indices have been
+--- processed. This list records, for each rule indexed i with A or AC top f, which rules with index lower of equal to i
+--- and same top f should be compared with rule i to compute A of AC critical pairs.
+---
+--- The subsort SMarking < Marking in marked-term.maude is here used for a completely different purpose: for pairs [i,f]
+--- with f the top symbol of a rule indexed i.
+---
+--- There are also several auxiliary functions, including: (i) upper-set(m,NS) is the set of number in NS strictly bigger
+--- than m, (ii) lower-pairs(i,NS) = {[i,j] | j \in NS and i >= j}, (iii) "overlaps(FIT,m)" returns a SORTED list of sort
+--- "List{OInfo<}" whose elements [[i,f],NPS] have i > m, and NPS = lower-pairs(i,NS), where [f,NS] is an entry in FIT and i \in NS.
+--- This records which critical pairs have to be computed for rule i with other rules j with same A or AC top f and i >= j, (iv)
+--- remove([i,f],IMRT) removes rule indexed i and top f from the "IMRuleTable" IMRT, (v) fi-table(IMRT) maps an "IMRuleTable"
+--- to its associated FITable, and (vi) compute-overlaps(IMRT,n) = overlaps(fi-table(IMRT),n).
 
 fmod 2-TUPLE{X :: TRIV, Y :: TRIV} is
   sorts Tuple{X, Y} .
@@ -30,42 +29,42 @@ fmod 2-TUPLE{X :: TRIV, Y :: TRIV} is
 endfm
 
 fmod FI-TABLE&OVERLAP-INFO is
- pr 2-TUPLE{Nat,Nat} .
- pr SETM-QID .
- pr SET{Nat} .
- pr MARKED-TERM .
+  pr 2-TUPLE{Nat,Nat} .
+  pr SETM-QID .
+  pr SET{Nat} .
+  pr MARKED-TERM .
 
- sorts FIEntry FITable NatPairSet OInfo .
- subsort Tuple{Nat,Nat} < NatPairSet .
- subsort FIEntry < FITable .
+  sorts FIEntry FITable NatPairSet OInfo .
+  subsort Tuple{Nat,Nat} < NatPairSet .
+  subsort FIEntry < FITable .
 
- op [_,_] : Qid Set{Nat} -> FIEntry [ctor] .
- op mt-tab : -> FITable [ctor] .
- op _&_ : FITable FITable -> FITable [ctor assoc comm id: mt-tab] .
+  op [_,_] : Qid Set{Nat} -> FIEntry [ctor] .
+  op mt-tab : -> FITable [ctor] .
+  op _&_ : FITable FITable -> FITable [ctor assoc comm id: mt-tab] .
 
- var P : Tuple{Nat,Nat} . vars i j m : Nat .  vars f g : Qid .  var NPS NPS' : NatPairSet .
- var NS : Set{Nat} .  var FIT : FITable .
+  var P : Tuple{Nat,Nat} . vars i j m : Nat .  vars f g : Qid .  var NPS NPS' : NatPairSet .
+  var NS : Set{Nat} .  var FIT : FITable .
 
- op mt-npset : -> NatPairSet [ctor] .
- op _&_ : NatPairSet NatPairSet  -> NatPairSet [ctor assoc comm id: mt-npset] .
+  op mt-npset : -> NatPairSet [ctor] .
+  op _&_ : NatPairSet NatPairSet  -> NatPairSet [ctor assoc comm id: mt-npset] .
 
   eq P & P = P .
 
- op upper-set : Nat Set{Nat} -> Set{Nat} .
+  op upper-set : Nat Set{Nat} -> Set{Nat} .
 
- eq upper-set(m,(i, NS)) = if i > m then (i, upper-set(m,NS)) else upper-set(m,NS) fi .
- eq   upper-set(m,empty) = empty .
+  eq upper-set(m,(i, NS)) = if i > m then (i, upper-set(m,NS)) else upper-set(m,NS) fi .
+  eq   upper-set(m,empty) = empty .
 
- op lower-pairs : Nat Set{Nat} -> NatPairSet .
+  op lower-pairs : Nat Set{Nat} -> NatPairSet .
 
   eq lower-pairs(i,(j , NS)) = if i >= j then [i,j] & lower-pairs(i,NS) else lower-pairs(i,NS) fi .
   eq lower-pairs(i,empty) = mt-npset .
 
- op [_,_] : SMarking NatPairSet -> OInfo [ctor] .
+  op [_,_] : SMarking NatPairSet -> OInfo [ctor] .
 
- op _<_ : OInfo OInfo -> Bool .
+  op _<_ : OInfo OInfo -> Bool .
 
- eq [[i,f],NPS] <  [[j,g],NPS'] = i < j .
+  eq [[i,f],NPS] <  [[j,g],NPS'] = i < j .
 endfm
 
 view OInfo< from STRICT-WEAK-ORDER to FI-TABLE&OVERLAP-INFO is
@@ -84,9 +83,9 @@ fmod OVERLAP-LIST&IMRULE-TABLE is
   op [_,_] : Qid Set{IMRule} -> IMRuleTable [ctor] .
   op _@_ : IMRuleTable IMRuleTable -> IMRuleTable [ctor assoc comm id: mt-imrtab] .
 
- var P : Tuple{Nat,Nat} . vars m i j : Nat .  vars f g : Qid .  var NPS NPS' : NatPairSet .
- var NS NS' : Set{Nat} . var FIT : FITable . var OL : List{OInfo<} .  var MR : MRule .
- var IMR : IMRule . var IMRS : Set{IMRule} . var IMRT : IMRuleTable .
+  var P : Tuple{Nat,Nat} . vars m i j : Nat .  vars f g : Qid .  var NPS NPS' : NatPairSet .
+  var NS NS' : Set{Nat} . var FIT : FITable . var OL : List{OInfo<} .  var MR : MRule .
+  var IMR : IMRule . var IMRS : Set{IMRule} . var IMRT : IMRuleTable .
 
   op add-imrule : Qid IMRule IMRuleTable -> IMRuleTable .
 
@@ -125,48 +124,41 @@ fmod OVERLAP-LIST&IMRULE-TABLE is
   eq remove([i,f],IMRT) = IMRT [owise] .
 endfm
 
-***(
-red overlaps(['f,(1,2,8)] & ['g,(3,5,6)] & ['h,(4,12)],1) .
-
-The following "remove" functions are unnecessary: they can be
-replaced by a simple computation of the FITable from the IMRuleTable
-at the end of an entire cycle of processing critical pairs.
-This should be more efficient than removing things from three
-places, particularly from the OL list, which is tricky.
-
-Comments on such functions:
-
-(iv) remove([i,f],FIT) removes i from entry [f,NS] in the  "FITable" FIT, (v) remove([i,f],IMRT) removes rule
-indexed i from the "IMRuleTable" IMRT, and (vi) remove-aux([i,f],OL) with OL a sorted list of sort "List{OInfo<}"
-both removes the element [[i,f],NPS] in list OL, and all pairs (j,i) in each NPS' of each other element [[j,f],NPS']
-in OL with j > i.  The reason for the "remove" functions (iv)-(vi) is to avoid computing useless critical pairs
-for rules already removed from the "IMRuleTable".
-
- op remove : SMarking FITable -> FITable .
-
- eq remove([i,f],[f,i,NS] & FIT) = remove([i,f],[f,NS]) & FIT .
- eq remove([i,f],FIT) = FIT [owise] .
-
-
- op remove : Nat NatPairSet -> NatPairSet .
-
- eq remove(i,[j,i] & NPS) = remove(i,NPS) .
- eq remove(i,NPS) = NPS [owise] .
-
-
-
-  op remove : SMarking List{OInfo<} -> List{OInfo<} .  *** assumes sorted list
-  op remove-aux : SMarking List{OInfo<} -> List{OInfo<} .
-
-
-  eq remove-aux([i,f],nil) = nil .
-  eq remove-aux([i,f],[[j,g],NPS] OL) = if f == g then [[j,g],remove(i,NPS)] remove-aux([i,f],OL)
-                                               else [[j,g],NPS] remove-aux([i,f],OL)
-                                    fi .
-
-  eq remove([i,f],nil) = nil .
-  eq remove([i,f],[[j,g],NPS] OL) = if i == j then remove-aux([i,f],OL)
-                                               else [[j,g],NPS] remove([i,f],OL)
-                                    fi .
-
-)
+--- The following "remove" functions are unnecessary: they can be
+--- replaced by a simple computation of the FITable from the IMRuleTable
+--- at the end of an entire cycle of processing critical pairs.
+--- This should be more efficient than removing things from three
+--- places, particularly from the OL list, which is tricky.
+---
+--- Comments on such functions:
+---
+--- [iv] remove([i,f],FIT) removes i from entry [f,NS] in the  "FITable" FIT, (v) remove([i,f],IMRT) removes rule
+--- indexed i from the "IMRuleTable" IMRT, and (vi) remove-aux([i,f],OL) with OL a sorted list of sort "List{OInfo<}"
+--- both removes the element [[i,f],NPS] in list OL, and all pairs (j,i) in each NPS' of each other element [[j,f],NPS']
+--- in OL with j > i.  The reason for the "remove" functions (iv)-(vi) is to avoid computing useless critical pairs
+--- for rules already removed from the "IMRuleTable".
+---
+---   op remove : SMarking FITable -> FITable .
+---
+---   eq remove([i,f],[f,i,NS] & FIT) = remove([i,f],[f,NS]) & FIT .
+---   eq remove([i,f],FIT) = FIT [owise] .
+---
+---
+---   op remove : Nat NatPairSet -> NatPairSet .
+---
+---   eq remove(i,[j,i] & NPS) = remove(i,NPS) .
+---   eq remove(i,NPS) = NPS [owise] .
+---
+---   op remove : SMarking List{OInfo<} -> List{OInfo<} .  --- assumes sorted list
+---   op remove-aux : SMarking List{OInfo<} -> List{OInfo<} .
+---
+---
+---   eq remove-aux([i,f],nil) = nil .
+---   eq remove-aux([i,f],[[j,g],NPS] OL) = if f == g then [[j,g],remove(i,NPS)] remove-aux([i,f],OL)
+---                                                else [[j,g],NPS] remove-aux([i,f],OL)
+---                                     fi .
+---
+---   eq remove([i,f],nil) = nil .
+---   eq remove([i,f],[[j,g],NPS] OL) = if i == j then remove-aux([i,f],OL)
+---                                                else [[j,g],NPS] remove([i,f],OL)
+---                                     fi .

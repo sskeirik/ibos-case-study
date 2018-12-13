@@ -1,10 +1,8 @@
-*** marked-rules.maude imports simplify-marked-term-and-rules
-
-*** Two data structures for rules used in congruence closure are defined: (i) "LIST{IMRule}" will be used
-*** to keep inter-reduced rules in a list, (ii) "INSERT{MRule<}" is used to keep unprocessed rules in a sorted list.
-***
-*** In addition, a function "make-rules" generates a list "rules" from the meta-representation of the user-specified
-*** "equations", and a "remove" function eliminates an indexed rule given the index.
+--- Two data structures for rules used in congruence closure are defined: (i) "LIST{IMRule}" will be used
+--- to keep inter-reduced rules in a list, (ii) "INSERT{MRule<}" is used to keep unprocessed rules in a sorted list.
+---
+--- In addition, a function "make-rules" generates a list "rules" from the meta-representation of the user-specified
+--- "equations", and a "remove" function eliminates an indexed rule given the index.
 
 fmod INSERT{X :: STRICT-WEAK-ORDER} is
    protecting WEAKLY-SORTABLE-LIST{X} .
@@ -12,8 +10,8 @@ fmod INSERT{X :: STRICT-WEAK-ORDER} is
   vars E E' : X$Elt .
   vars L L' : List{X} .
 
-  op ins : X$Elt List{X} -> List{X} .    *** inserts elt in list, assumed sorted
-  op ins-rec : List{X} List{X} -> List{X} .  *** inserts elts of 1st list in 2nd list, assumed sorted
+  op ins : X$Elt List{X} -> List{X} .        --- inserts elt in list, assumed sorted
+  op ins-rec : List{X} List{X} -> List{X} .  --- inserts elts of 1st list in 2nd list, assumed sorted
 
   eq ins(E,nil) = E .
   eq ins(E,E' L') = if (E' < E)  then  (E' ins(E,L'))  else (E E' L') fi .
@@ -31,10 +29,10 @@ fmod MARKED-RULES is
   vars i j n m k l : Nat . vars S S' S'' S''' : SetM{Qid} .
   var U : Module .
 
-  op rules      : Module Term       -> List{MRule<} [memo] . *** generates sorted rule list from the user-specified ground equations
-  op clean      : List{MRule<}      -> List{MRule<} .        *** removes mt-rule prefixes
-  op make-rules : Module GroundTerm -> [List{MRule<}] .      *** generates rule list from meta-represented Eq term.
-  op remove     : Nat List{IMRule}  -> List{IMRule} .        *** assumes [i] MR occurs only once in the rule list
+  op rules      : Module Term       -> List{MRule<} [memo] . --- generates sorted rule list from the user-specified ground equations
+  op clean      : List{MRule<}      -> List{MRule<} .        --- removes mt-rule prefixes
+  op make-rules : Module GroundTerm -> [List{MRule<}] .      --- generates rule list from meta-represented Eq term.
+  op remove     : Nat List{IMRule}  -> List{IMRule} .        --- assumes [i] MR occurs only once in the rule list
 
   eq rules(U,T) = clean(sort(make-rules(U,T))) .
 

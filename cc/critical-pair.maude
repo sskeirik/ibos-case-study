@@ -1,5 +1,3 @@
-*** critical-pair.maude imports marked-rules.maude and fi-and-IMR-tables-and-overlaps.maude
-
 fmod FAXIOMSET is
   pr QID .
   sorts Axiom FAxiom FAxiomSet .
@@ -95,8 +93,8 @@ fmod CRITICAL-PAIR is
   op make-rule-map : Module List{GroundTermPair}  -> List{MRule<} .
 
   op CPS         : Module OInfo IMRuleTable FAxiomSet -> List{GroundTermPair} .
-  op ax-CPS      : Module FAxiomSet MRule MRule FAxiom -> List{GroundTermPair} . *** CPS of two rules with same top axiom
-  op ax-CPS-same : MRule FAxiom -> List{GroundTermPair} .                        *** CPS of a rule with itself
+  op ax-CPS      : Module FAxiomSet MRule MRule FAxiom -> List{GroundTermPair} . --- CPS of two rules with same top axiom
+  op ax-CPS-same : MRule FAxiom -> List{GroundTermPair} .                        --- CPS of a rule with itself
   op CPS-A       : MRule MRule Qid -> List{GroundTermPair} .
   op CPS-A-aux   : MRule MRule Qid Nat -> List{GroundTermPair} .
   op CPS-AC      : Module FAxiomSet MRule MRule Qid -> List{GroundTermPair} .
@@ -143,10 +141,10 @@ fmod CRITICAL-PAIR is
   eq CPS(U,[[i,f],[i,j] & NPS],[f,(([i] MR),([j] MR'),IMRS)] @ IMRT,[f,AX] @ FAS) =
     ax-CPS(U,[f,AX] @ FAS,MR,MR',[f,AX]) CPS(U,[[i,f],NPS],[f,(([i] MR),IMRS)] @ IMRT,[f,AX] @ FAS) .
   eq CPS(U,[[i,f],NPS],IMRT,FAS) =
-    nil [owise] . *** takes care of both index-pairs where some rule was previously deleted and of mt-fax.
+    nil [owise] . --- takes care of both index-pairs where some rule was previously deleted and of mt-fax.
 
-  eq ax-CPS-same(T [n,S] => T' [m,S'],[f,A]) = CPS-A(T [n,S] => T' [m,S'],T [n,S] => T' [m,S'],f) .  *** critical pairs of A-rule with itself
-  eq ax-CPS-same(T [n,S] => T' [m,S'],[f,AC]) = nil .                                                *** no CPs needed of AC-rule with itself
+  eq ax-CPS-same(T [n,S] => T' [m,S'],[f,A]) = CPS-A(T [n,S] => T' [m,S'],T [n,S] => T' [m,S'],f) .  --- critical pairs of A-rule with itself
+  eq ax-CPS-same(T [n,S] => T' [m,S'],[f,AC]) = nil .                                                --- no CPs needed of AC-rule with itself
 
   eq ax-CPS(U,FAS,T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],[f,A])  =
          CPS-A(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f) CPS-A(T'' [k,S''] => T''' [l,S'''],T [n,S] => T' [m,S'],f) .
@@ -154,14 +152,16 @@ fmod CRITICAL-PAIR is
          CPS-AC(U,FAS,T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f) .
 
   eq CPS-A(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f) = CPS-A-aux(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f,0) .
-  eq CPS-A(MR,MR',f) = nil [owise] .  *** covers the case (impossible in actual use) where either MR or MR' is mt-mrule
+  eq CPS-A(MR,MR',f) = nil [owise] .  --- covers the case (impossible in actual use) where either MR or MR' is mt-mrule
 
   eq CPS-A-aux(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f,i) =
          if metaUnify(upModule('U,true),f['X1:U,'X2:U] =? T /\ f['X2:U,'X3:U] =? T'' ,0,i) == noUnifier
             then nil
-            else [f[T',('X3:U << p1(metaUnify(upModule('U,true),f['X1:U,'X2:U] =? T /\ f['X2:U,'X3:U] =? T'' ,0,i)))],
-                  f[('X1:U << p1(metaUnify(upModule('U,true),f['X1:U,'X2:U] =? T /\ f['X2:U,'X3:U] =? T'' ,0,i))),T''']]
-                CPS-A-aux(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f,s(i))
+            else [
+                  f[T',('X3:U << p1(metaUnify(upModule('U,true),f['X1:U,'X2:U] =? T /\ f['X2:U,'X3:U] =? T'' ,0,i)))     ],
+                  f[   ('X1:U << p1(metaUnify(upModule('U,true),f['X1:U,'X2:U] =? T /\ f['X2:U,'X3:U] =? T'' ,0,i))),T''']
+                 ]
+                 CPS-A-aux(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f,s(i))
          fi .
 
   eq CPS-AC(U,FAS,T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f) =
@@ -174,67 +174,12 @@ fmod CRITICAL-PAIR is
          fi .
 endfm
 
-*** Since the rules in IMRuleTable are always inter-reduced, for two different rules [i] T [n,S] => T' [m,S'] and [j] T'' [k,S''] => T''' [l,S'''] in
-***     IMRuleTable the invariant getTerm(metaReduce(upModule('U,true),T)) == getTerm(metaReduce(upModule('U,true),T'')) always holds,
-***     so that we do not need the more complex equation below, which would save effort in a case that will never arise and would takes longer to execute.
-
-*** eq ax-CPS(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],[f,A]) =
-***       if getTerm(metaReduce(upModule('U,true),T)) == getTerm(metaReduce(upModule('U,true),T''))
-***          then CPS-A(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f)
-*** 	 else CPS-A(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f) CPS-A(T'' [k,S''] => T''' [l,S'''],T [n,S] => T' [m,S'],f)
-***       fi .
-
-*** red ax-CPS('__['a.U,'a.U,'b.U] [4,'a.U] => 'b.U [1,'b.U], '__['a.U,'b.U,'b.U,'a.U,'a.U] [5,'a.U] => '__['a.U,'a.U] [3,'a.U],['__,A]) .
-
-*** result NeList{GroundTermPair}:
-*** ['__['b.U,'__['a.U,'b.U]],'__['__['a.U,'b.U],'__['a.U,'a.U]]]
-*** ['__['__['a.U,'a.U],'__['a.U,'a.U]],'__['__['a.U,'a.U],'b.U]]
-*** ['__['__['a.U,'a.U],'a.U],'__['a.U,'b.U]]
-***
-***
-***
-***
-*** [List{GroundTermPair}]:
-***
-*** ['__['b.U,'X2:U << p1(noUnifier)],'__['X2:U << p1(noUnifier),'__['a.U,'a.U]]]
-*** ['__['__['a.U,'a.U],'X2:U << p1(noUnifier)],'__['X2:U << p1(noUnifier),'b.U]]
-***
-*** red 'X2:U << ('X1:U <- 'a.U ; 'X2:U <- '__['a.U,'b.U] ; 'X3:U <- '__['b.U,'a.U,'a.U]) .
-
-*** result UnificationPair: {
-*** 	'X1:U <- 'a.U ;
-*** 	'X2:U <- '__['a.U,'b.U] ;
-*** 	'X3:U <- '__['b.U,'a.U,'a.U],0}
-***
-***
-*** red metaUnify(upModule('U,true),'__['X1:U,'X2:U] =? '__['a.U,'a.U,'b.U]  /\ '__['X2:U,'X3:U] =? '__['a.U,'b.U,'b.U,'a.U,'a.U],0,0) .
-
-*** fmod 'U is
-***   nil
-***   sorts 'U .
-***   none
-***   op '_+_ : 'U 'U -> 'U [assoc comm metadata("6")] .
-***   op '__ : 'U 'U -> 'U [assoc metadata("7")] .
-***   op '_|_ : 'U 'U -> 'U [comm metadata("5")] .
-***   op 'a : nil -> 'U [ctor metadata("1")] .
-***   op 'b : nil -> 'U [ctor metadata("2")] .
-***   op 's : 'U -> 'U [ctor metadata("4")] .
-***   op 'z : nil -> 'U [ctor metadata("3")] .
-***   none
-***   none
-*** endfm
-
-*** red metaUnify(fmod 'U is
-***   nil
-***   sorts 'U .
-***   none
-***   op '_+_ : 'U 'U -> 'U [assoc comm metadata("6")] .
-***   op '__ : 'U 'U -> 'U [assoc metadata("7")] .
-***   op '_|_ : 'U 'U -> 'U [comm metadata("5")] .
-***   op 'a : nil -> 'U [ctor metadata("1")] .
-***   op 'b : nil -> 'U [ctor metadata("2")] .
-***   op 's : 'U -> 'U [ctor metadata("4")] .
-***   op 'z : nil -> 'U [ctor metadata("3")] .
-***   none
-***   none
-*** endfm,'__['X1:U,'X2:U] =? T)
+--- Since the rules in IMRuleTable are always inter-reduced, for two different rules [i] T [n,S] => T' [m,S'] and [j] T'' [k,S''] => T''' [l,S'''] in
+--- IMRuleTable the invariant getTerm(metaReduce(upModule('U,true),T)) == getTerm(metaReduce(upModule('U,true),T'')) always holds,
+--- so that we do not need the more complex equation below, which would save effort in a case that will never arise and would takes longer to execute.
+---
+--- eq ax-CPS(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],[f,A]) =
+---       if getTerm(metaReduce(upModule('U,true),T)) == getTerm(metaReduce(upModule('U,true),T''))
+---          then CPS-A(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f)
+---       else CPS-A(T [n,S] => T' [m,S'],T'' [k,S''] => T''' [l,S'''],f) CPS-A(T'' [k,S''] => T''' [l,S'''],T [n,S] => T' [m,S'],f)
+---       fi .

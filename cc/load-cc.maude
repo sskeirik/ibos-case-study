@@ -8,9 +8,9 @@ load marked-rule.maude
 load marked-rules.maude
 load simplify-marked-term-and-rule.maude
 load process.maude
-*** for free congr, closure should load:
-*** load free-congruence-closure.maude
-*** for AorC congr. closure one should instead load:
+--- for free congr, closure should load:
+--- load free-congruence-closure.maude
+--- for AorC congr. closure one should instead load:
 load fi-and-IMR-tables-and-overlaps.maude
 load critical-pair.maude
 load AorC-congruence-closure.maude

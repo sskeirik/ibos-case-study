@@ -1,20 +1,19 @@
-*** simplify-marked-term-and-rule.maude requires file marked-rule.maude
-***Two functions are defined:
-
-*** [1] The result of "simpl-mterm(T [n,S] => T' [m,S'],T'' [k,S''])" should be either "failure" if "T''"
-*** cannot be rewritten by "T [n,S] => T' [m,S']" or the resulting new marked term otherwise.  But we want
-*** to FAIL FAST, so simplification is NOT attempted when the marks make it obvious that it will fail.
-
-*** [2] The result of "simpl-mrule(ES,T [n,S] => T' [m,S'])" is either a new marked rule simplified by the
-*** equations ES (in congruence closure ES are the inter-reduced rules) oriented by the total simplification order
-*** on terms, or mt-mrule if the rule simplified to the trivial rule.  For efficiency, the lefthand side is first
-*** simplified, so that, when E-irreducible, the new rule's orientation is known a priori and generating it is faster
-*** [recall that "size&ops" in marked-term.maude is memoized, which is useful if T' is also E-irreducible].
-
-*** A further optimization could be replacing calls to:
-*** "getTerm(metaNormalize(fmod 'U-WRAP is including 'U . sorts none . none none none none endfm,T))"
-*** by "T" itself, since in the congruence closure algorithm one can show that all "T"s to which
-*** such meta-normalization is applied are already meta-normalized.
+--- Two functions are defined:
+---
+--- [1] The result of "simpl-mterm(T [n,S] => T' [m,S'],T'' [k,S''])" should be either "failure" if "T''"
+--- cannot be rewritten by "T [n,S] => T' [m,S']" or the resulting new marked term otherwise.  But we want
+--- to FAIL FAST, so simplification is NOT attempted when the marks make it obvious that it will fail.
+---
+--- [2] The result of "simpl-mrule(ES,T [n,S] => T' [m,S'])" is either a new marked rule simplified by the
+--- equations ES (in congruence closure ES are the inter-reduced rules) oriented by the total simplification order
+--- on terms, or mt-mrule if the rule simplified to the trivial rule.  For efficiency, the lefthand side is first
+--- simplified, so that, when E-irreducible, the new rule's orientation is known a priori and generating it is faster
+--- [recall that "size&ops" in marked-term.maude is memoized, which is useful if T' is also E-irreducible].
+---
+--- A further optimization could be replacing calls to:
+--- "getTerm(metaNormalize(fmod 'U-WRAP is including 'U . sorts none . none none none none endfm,T))"
+--- by "T" itself, since in the congruence closure algorithm one can show that all "T"s to which
+--- such meta-normalization is applied are already meta-normalized.
 
 fmod SIMPLIFY-MARKED-TERM&RULE is protecting MARKED-RULE .
                                   protecting UNIT-FM .
@@ -42,5 +41,5 @@ fmod SIMPLIFY-MARKED-TERM&RULE is protecting MARKED-RULE .
                       size&ops(getTerm(metaReduce(addEqs(ES,U),T')))
       else make-rule(U,getTerm(metaReduce(addEqs(ES,U),T)),
                        getTerm(metaReduce(addEqs(ES,U),T')))
-     fi .
+      fi .
 endfm

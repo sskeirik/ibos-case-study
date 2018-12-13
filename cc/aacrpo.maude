@@ -1,13 +1,13 @@
-***(-----------------------------------------------------------------
-
-Module      :  aacrpo
-Stability   :  unstable
-Portability :  portable
-
-AACRPO for ordered rewriting. Based on [Rub99] and Rubio's PhD Thesis.
-
----------------------------------------------------------------------)
-
+--- -----------------------------------------------------------------
+---
+--- Module      :  aacrpo
+--- Stability   :  unstable
+--- Portability :  portable
+---
+--- AACRPO for ordered rewriting. Based on [Rub99] and Rubio's PhD Thesis.
+---
+--- ---------------------------------------------------------------------
+---
 --- ----------------------------------------------------------------
 --- NOTES FOR USING THIS MODULE:
 
@@ -67,7 +67,7 @@ fmod NAT+ is
 endfm
 
 fmod NAT-SET is
-  pr SET{Nat} *	(sort NeSet{Nat} to NeNatSet,
+  pr SET{Nat} * (sort NeSet{Nat} to NeNatSet,
                  sort Set{Nat} to NatSet) .
 endfm
 
@@ -304,7 +304,7 @@ fmod TYPES-AUX is
                          else if (find(Str,"`,",0) =/= notFound)
                               then (qid(substr(Str,0,find(Str,"`,",0)))
                                    extractTypes(substr(Str,find(Str,"`,",0) + 2, length(Str))))
-         		      else qid(substr(Str,0,find(Str,"`]",0)))
+                              else qid(substr(Str,0,find(Str,"`]",0)))
                               fi
                          fi .
 
@@ -522,7 +522,7 @@ fmod VARIABLE-SET is
   eq isVar(V) = true .
   eq isVar(T) = false [owise] .
 
---- getVars - returns distinct vars of a term  
+--- getVars - returns distinct vars of a term
   op getVars : TermList -> QidSet . --- [memo] .
   eq getVars(V) = V .
   eq getVars(Cs) = none .
@@ -534,7 +534,7 @@ fmod VARIABLE-SET is
   op getVNumber : Variable -> Nat . --- [memo] .
   eq getVNumber(V)
       = if (rfind(string(V), "#", 1) == notFound)
-	then 0
+        then 0
         else rat(substr(string(getName(V)),2,length(string(getName(V)))),10)
         fi .
 
@@ -553,7 +553,7 @@ view TermPosition from TRIV to TERM-POSITION is sort Elt to TermPosition .  endv
 fmod TERM-POSITION-SET is
 ---  pr TERM-POSITION .
   pr SET{TermPosition} * ( sort Set{TermPosition} to TermPositionSet
-	                 , sort NeSet{TermPosition} to NeTermPositionSet) .
+                         , sort NeSet{TermPosition} to NeTermPositionSet) .
 endfm
 
 view TermPositionSet from TRIV to TERM-POSITION-SET is sort Elt to TermPositionSet .  endv
@@ -575,13 +575,13 @@ fmod TERM-UTIL is
   pr NETL-NAT .
   pr TYPES-AUX .
 
-  vars N N' N1 N2 N3 : Nat .  
+  vars N N' N1 N2 N3 : Nat .
   vars F Q : Qid .
   vars S S1 S2 S' Subst Subst' SUB : Substitution .
-  var V : Variable .  
+  var V : Variable .
   var C : Constant .
-  vars T T1 T2 : Term .  
-  var TL : TermList .  
+  vars T T1 T2 : Term .
+  var TL : TermList .
   vars NTL NTL1 NTL2 : NeTermList .
   var NV : NeQidSet .
   var P : Position .
@@ -619,11 +619,11 @@ fmod TERM-UTIL is
   eq norm(Q[TL]) = Q[norm(TL)] .
   eq norm(empty) = empty .
   eq norm(C) = C .
-  eq norm(V) = if substr(string(V), 0, 1) == "#" 
+  eq norm(V) = if substr(string(V), 0, 1) == "#"
                then qid("V" + string(V)) else V fi .
 
 --- getSubst --- match of two terms in the same theory
-  op getSubst  : NeTermList NeTermList -> Substitution? . 
+  op getSubst  : NeTermList NeTermList -> Substitution? .
   eq getSubst(V, T) = V <- T .
   eq getSubst(C, C) = none .
   eq getSubst(F[NTL1], F[NTL2]) = getSubst(NTL1,NTL2) .
@@ -706,10 +706,10 @@ fmod TERM-UTIL is
   eq cap(M, C, N) = cap-term(M, C, N, croot(M,C)) .
   eq cap(M, V, N) = (V | N) .
   eq cap(M, (T1 , NTL1), N1) = ((p1(cap(M, T1, N1)) , p1(cap(M, NTL1, p2(cap(M, T1, N1))))) | p2(cap(M, NTL1, p2(cap(M, T1, N1))))) .
-    
+
   --- cap - renames term headed by defined symbols and also return
   --- the next fresh variable number
-  op cap-term : Module Term Nat OpDeclSet -> NeTermListNat . --- [memo] .    
+  op cap-term : Module Term Nat OpDeclSet -> NeTermListNat . --- [memo] .
   eq cap-term(M, F[NTL], N, ODS)
     = if (ODS == (none).OpDeclSet)
       then (qid("V#" + string(s N,10) + ":" + string(leastSort(M,F[NTL]))) | s N)
@@ -733,13 +733,13 @@ endfm
 
 fmod OP-DECL-SET-UTIL is
   pr META-LEVEL .
- 
+
   var Q : Qid .
   vars Tp Tp1 Tp2 TpO : Type .
   var AttS : AttrSet .
   var ODS : OpDeclSet .
   var OD : OpDecl .
-  
+
   op isAC : OpDeclSet -> Bool .
   op getReturnType : OpDeclSet -> TypeSet .
   op length : OpDeclSet -> Nat .
@@ -803,14 +803,14 @@ fmod CLAUSE-INFO is
   op assumption : -> ClauseInfo [ctor] .
   op conjecture : -> ClauseInfo [ctor] .
   op lemma : -> ClauseInfo [ctor] .
-  op orderedResolution : Nat Nat -> ClauseInfo [ctor] . 
-  op equalityResolution : Nat -> ClauseInfo [ctor] . 
-  op equalityFactoring : Nat -> ClauseInfo [ctor] . 
-  op orderedFactoring : Nat -> ClauseInfo [ctor] . 
-  op superpositionR : Nat Nat Position -> ClauseInfo [ctor] . 
-  op superposition : Nat Nat Position -> ClauseInfo [ctor] . 
-  op rewritten : Nat -> ClauseInfo [ctor] . 
-  op simplified : Nat -> ClauseInfo [ctor] . 
+  op orderedResolution : Nat Nat -> ClauseInfo [ctor] .
+  op equalityResolution : Nat -> ClauseInfo [ctor] .
+  op equalityFactoring : Nat -> ClauseInfo [ctor] .
+  op orderedFactoring : Nat -> ClauseInfo [ctor] .
+  op superpositionR : Nat Nat Position -> ClauseInfo [ctor] .
+  op superposition : Nat Nat Position -> ClauseInfo [ctor] .
+  op rewritten : Nat -> ClauseInfo [ctor] .
+  op simplified : Nat -> ClauseInfo [ctor] .
 endfm
 
 view ClauseInfo from TRIV to CLAUSE-INFO is sort Elt to ClauseInfo .  endv
@@ -827,7 +827,7 @@ fmod ATOM is
 
   vars A A1 A2 : Atom .
 
---- equality relation for Atoms 
+--- equality relation for Atoms
   op _===_ : Atom Atom -> Bool [comm] .
   eq A === A = true .
   eq A1 === A2 = false [owise] .
@@ -837,8 +837,8 @@ view Atom from TRIV to ATOM is
   sort Elt to Atom .
 endv
 
-view AtomEq from EQUALITY-RELATION to ATOM is 
-  sort Elt to Atom .  
+view AtomEq from EQUALITY-RELATION to ATOM is
+  sort Elt to Atom .
   op _===_ : Elt Elt -> Bool to _===_ .
 endv
 
@@ -854,7 +854,7 @@ fmod WEIGHTED-ATOM is
   vars N N1 N2 : Nat .
   vars A1 A2 : Atom .
 
---- equality relation for Atoms 
+--- equality relation for Atoms
   op _===_ : WAtom WAtom -> Bool [comm] .
   eq (N1)A1 === (N2)A2 = A1 === A2 .
 endfm
@@ -863,8 +863,8 @@ view WAtom from TRIV to WEIGHTED-ATOM is
   sort Elt to WAtom .
 endv
 
-view WAtomEq from EQUALITY-RELATION to WEIGHTED-ATOM is 
-  sort Elt to Atom .  
+view WAtomEq from EQUALITY-RELATION to WEIGHTED-ATOM is
+  sort Elt to Atom .
   op _===_ : Elt Elt -> Bool to _===_ .
 endv
 
@@ -882,11 +882,11 @@ fmod ATOM-MAGMA is
   eq (empty).AtomMagma === (empty).AtomMagma = true .
   eq A1 === A1 = true .
   eq (A1 , NeAM1) === (A1 , NeAM2) = NeAM1 === NeAM2 .
-  eq AM1 === AM2 = false [owise] .  
+  eq AM1 === AM2 = false [owise] .
 endfm
 
-view AtomMagmaEq from EQUALITY-RELATION to ATOM-MAGMA is 
-  sort Elt to AtomMagma .  
+view AtomMagmaEq from EQUALITY-RELATION to ATOM-MAGMA is
+  sort Elt to AtomMagma .
   op _===_ : Elt Elt -> Bool to _===_ .
 endv
 
@@ -904,11 +904,11 @@ fmod WEIGHTED-ATOM-MAGMA is
   eq (empty).WAtomMagma === (empty).WAtomMagma = true .
   eq A1 === A1 = true .
   eq (A1 , NeAM1) === (A1 , NeAM2) = NeAM1 === NeAM2 .
-  eq AM1 === AM2 = false [owise] .  
+  eq AM1 === AM2 = false [owise] .
 endfm
 
-view WAtomMagmaEq from EQUALITY-RELATION to WEIGHTED-ATOM-MAGMA is 
-  sort Elt to WAtomMagma .  
+view WAtomMagmaEq from EQUALITY-RELATION to WEIGHTED-ATOM-MAGMA is
+  sort Elt to WAtomMagma .
   op _===_ : Elt Elt -> Bool to _===_ .
 endv
 
@@ -924,19 +924,19 @@ fmod CLAUSE is
   op error : -> [Clause] .
 
   vars GM1 GM2 DT1 DT2 : AtomMagma .
-    
+
 --- equality relation for Clauses
   op _===_ : Clause Clause -> Bool [comm] .
   eq (GM1 => DT1)  === (GM2 => DT2) = (GM1 === GM2) and (DT1 === DT2) .
 endfm
 
-view ClauseEq from EQUALITY-RELATION to CLAUSE is 
-  sort Elt to Clause .  
+view ClauseEq from EQUALITY-RELATION to CLAUSE is
+  sort Elt to Clause .
   op _===_ : Elt Elt -> Bool to _===_ .
 endv
 
 view Clause from TRIV to CLAUSE is sort Elt to Clause .  endv
-    
+
 fmod WEIGHTED-CLAUSE is
   pr ATOM-MAGMA .
   pr WEIGHTED-ATOM-MAGMA .
@@ -950,13 +950,13 @@ fmod WEIGHTED-CLAUSE is
 
   var T : Term .
   vars N M : Nat .
-  vars GM GM1 GM2 : WAtomMagma .  
+  vars GM GM1 GM2 : WAtomMagma .
   vars DT DT1 DT2 : AtomMagma .
   var A : Atom .
 
 --- simplification
   eq (N)(T = T) , GM => DT = GM => DT .
-  eq (N)A , (M)A , GM => DT = if N < M then (N)A , GM => DT else (M)A , GM => DT fi . 
+  eq (N)A , (M)A , GM => DT = if N < M then (N)A , GM => DT else (M)A , GM => DT fi .
 
 --- error - possible error when dealing with clauses
   op error : -> [WClause] .
@@ -966,8 +966,8 @@ fmod WEIGHTED-CLAUSE is
   eq (GM1 => DT1)  === (GM2 => DT2) = (GM1 === GM2) and (DT1 === DT2) .
 endfm
 
-view WClauseEq from EQUALITY-RELATION to WEIGHTED-CLAUSE is 
-  sort Elt to WClause .  
+view WClauseEq from EQUALITY-RELATION to WEIGHTED-CLAUSE is
+  sort Elt to WClause .
   op _===_ : Elt Elt -> Bool to _===_ .
 endv
 
@@ -993,15 +993,15 @@ fmod EXTENDED-WEIGHTED-CLAUSE is
   eq CNT1  === CNT2 = (p1 CNT1) === (p1 CNT2) .
 endfm
 
-view EWClauseEq from EQUALITY-RELATION to EXTENDED-WEIGHTED-CLAUSE is 
-  sort Elt to EWClause .  
+view EWClauseEq from EQUALITY-RELATION to EXTENDED-WEIGHTED-CLAUSE is
+  sort Elt to EWClause .
   op _===_ : Elt Elt -> Bool to _===_ .
 endv
-view WClauseNatTraceEq from EQUALITY-RELATION to EXTENDED-WEIGHTED-CLAUSE is 
-  sort Elt to WClauseNatTrace .  
+view WClauseNatTraceEq from EQUALITY-RELATION to EXTENDED-WEIGHTED-CLAUSE is
+  sort Elt to WClauseNatTrace .
   op _===_ : Elt Elt -> Bool to _===_ .
 endv
-    
+
 view EWClause from TRIV to EXTENDED-WEIGHTED-CLAUSE is sort Elt to EWClause .  endv
 
 
@@ -1017,8 +1017,8 @@ fmod ORDERED-EXTENDED-WEIGHTED-CLAUSE is
   eq WC1 < WC2 = (p2 WC1) < (p2 WC2) .
 endfm
 
-view OEWClause from STRICT-TOTAL-ORDER to ORDERED-EXTENDED-WEIGHTED-CLAUSE is 
-  sort Elt to OEWClause .  
+view OEWClause from STRICT-TOTAL-ORDER to ORDERED-EXTENDED-WEIGHTED-CLAUSE is
+  sort Elt to OEWClause .
   op _<_ : Elt Elt -> Bool to _<_ .
 endv
 
@@ -1040,7 +1040,7 @@ endfm
 view EWClauseSet from TRIV to EXTENDED-WEIGHTED-CLAUSE-SET is sort Elt to EWClauseSet .  endv
 
 fmod EXTENDED-WEIGHTED-CLAUSE-ITEM is
-  pr 2TUPLE{Nat,EWClause} 
+  pr 2TUPLE{Nat,EWClause}
      * (sort Tuple{Nat,EWClause} to EWClauseItem) .
 
   op noElemError : -> EWClauseItem [ctor] .
@@ -1051,12 +1051,12 @@ fmod EXTENDED-WEIGHTED-CLAUSE-ITEM is
   eq CTI1 < CTI2 = (p1 CTI1) < (p1 CTI2) .
 endfm
 
-view EWClauseItemTriv from TRIV to EXTENDED-WEIGHTED-CLAUSE-ITEM is 
-  sort Elt to EWClauseItem .  
+view EWClauseItemTriv from TRIV to EXTENDED-WEIGHTED-CLAUSE-ITEM is
+  sort Elt to EWClauseItem .
 endv
 
-view EWClauseItem from STRICT-TOTAL-ORDER to EXTENDED-WEIGHTED-CLAUSE-ITEM is 
-  sort Elt to EWClauseItem .  
+view EWClauseItem from STRICT-TOTAL-ORDER to EXTENDED-WEIGHTED-CLAUSE-ITEM is
+  sort Elt to EWClauseItem .
   op _<_ : Elt Elt -> Bool to _<_ .
 endv
 
@@ -1072,7 +1072,7 @@ endv
 
 fmod EXTENDED-WEIGHTED-CLAUSE-TABLE is
   pr EXTENDED-WEIGHTED-CLAUSE-ITEM .
-  pr 2TUPLE{Nat,EWClauseItemList} 
+  pr 2TUPLE{Nat,EWClauseItemList}
      * (sort Tuple{Nat,EWClauseItemList} to EWClauseTable) .
   pr NAT-SET .
 
@@ -1106,7 +1106,7 @@ fmod EXTENDED-WEIGHTED-CLAUSE-TABLE is
 --- getElemByIndex - get element by index
   op getElemByIndex : Nat EWClauseItemList -> EWClauseItem .
   eq getElemByIndex(I, (CTI CTL))
-   = if (p1 CTI) < I 
+   = if (p1 CTI) < I
      then getElemByIndex(I, CTL)
      else if (p1 CTI) == I
           then CTI
@@ -1122,10 +1122,10 @@ fmod EXTENDED-WEIGHTED-CLAUSE-TABLE is
 
 --- removeIndex - remove elemement from clause track table
   op removeIndex : Nat EWClauseItemList -> EWClauseItemList .
-  eq removeIndex(I, (CTI CTL)) 
+  eq removeIndex(I, (CTI CTL))
    = if (p1 CTI) < I
      then CTI removeIndex(I, CTL)
-     else if (p1 CTI) == I 
+     else if (p1 CTI) == I
           then CTL
           else (CTI CTL)
           fi
@@ -1134,8 +1134,8 @@ fmod EXTENDED-WEIGHTED-CLAUSE-TABLE is
 
 --- addInPosition - if exists, modify, if not, insert
   op addInPosition : EWClauseItem EWClauseTable -> EWClauseTable .
-  eq addInPosition((I,CT), (MaxElem, CTL)) 
-   = if I >= MaxElem 
+  eq addInPosition((I,CT), (MaxElem, CTL))
+   = if I >= MaxElem
      then (s I, append(CTL , (I,CT)))
      else (MaxElem, merge((I,CT), removeIndex(I, CTL)))
      fi .
@@ -1143,13 +1143,13 @@ fmod EXTENDED-WEIGHTED-CLAUSE-TABLE is
 
 endfm
 
-view EWClauseTable from TRIV to EXTENDED-WEIGHTED-CLAUSE-TABLE is 
-  sort Elt to EWClauseTable .  
+view EWClauseTable from TRIV to EXTENDED-WEIGHTED-CLAUSE-TABLE is
+  sort Elt to EWClauseTable .
 endv
 
 fmod EXTENDED-WEIGHTED-CLAUSE-TABLE-EXT is
   pr EXTENDED-WEIGHTED-CLAUSE-TABLE .
-  pr 2TUPLE{EWClauseItemTriv,EWClauseTable} 
+  pr 2TUPLE{EWClauseItemTriv,EWClauseTable}
      * (sort Tuple{EWClauseItemTriv,EWClauseTable} to CTItemCTTablePair) .
 
   var CT : EWClause .
@@ -1159,14 +1159,14 @@ fmod EXTENDED-WEIGHTED-CLAUSE-TABLE-EXT is
 --- insert - insert clause in table and return index
   op insert : EWClause EWClauseTable -> CTItemCTTablePair .
   eq insert(CT, CTT) = ((getMaxElem(CTT),CT),addInPosition((getMaxElem(CTT),CT), CTT)) .
-    
+
 endfm
 
 --- Clause tautology
 fmod TAUTOLOGY is
   pr EXTENDED-WEIGHTED-CLAUSE-SET .
 
-*** Tautology predicate in pg 152
+--- Tautology predicate in pg 152
   op tautology : WClause -> Bool .
 
   var T : Term .
@@ -1184,7 +1184,7 @@ fmod TAUTOLOGY is
 endfm
 
 fmod ORDERED-EXTENDED-WEIGHTED-CLAUSE-LIST is
-  pr SORTABLE-LIST{OEWClause} 
+  pr SORTABLE-LIST{OEWClause}
     * ( sort List{OEWClause} to OEWClauseList
       , sort NeList{OEWClause} to NeOEWClauseList) .
   pr EXTENDED-WEIGHTED-CLAUSE-SET .
@@ -1209,7 +1209,7 @@ fmod WEIGHT-WEIGHTED-CLAUSE is
   var TL : TermList .
   vars T T1 T2 : Term .
   var GM : WAtomMagma .
-  var DT : AtomMagma .  
+  var DT : AtomMagma .
   var NeAM : NeAtomMagma .
   var NeWAM : NeWAtomMagma .
   var A : Atom .
@@ -1254,13 +1254,13 @@ fmod WEIGHTED-ATOM-MAGMA-UTIL is
   op _<<_ : AtomMagma Substitution -> AtomMagma . --- [memo] .
   eq (empty).AtomMagma << S = (empty).AtomMagma .
   eq (T1 = T2) << S = (T1 << S) = (T2 << S) .
-  eq (A , NeAM) << S = (A << S) , (NeAM << S) . 
+  eq (A , NeAM) << S = (A << S) , (NeAM << S) .
 
   --- apply substitution ---
   op _<<_ : WAtomMagma Substitution -> WAtomMagma . --- [memo] .
   eq (empty).WAtomMagma << S = (empty).WAtomMagma .
   eq ((N) A) << S = (N) (A << S) .
-  eq (WA , NeWAM) << S = (WA << S) , (NeWAM << S) . 
+  eq (WA , NeWAM) << S = (WA << S) , (NeWAM << S) .
 
   --- getMaxV# - max variable number
   op getMaxV# : AtomMagma -> Nat . --- [memo] .
@@ -1274,7 +1274,7 @@ fmod WEIGHTED-ATOM-MAGMA-UTIL is
   eq getMaxV#((WA, NeWAM)) = max(getMaxV#(WA), getMaxV#(NeWAM)) .
   eq getMaxV#((N) A) = getMaxV#(A) .
 endfm
-    
+
 fmod WEIGHTED-CLAUSE-UTIL is
   pr WEIGHTED-CLAUSE .
   pr WEIGHTED-ATOM-MAGMA-UTIL .
@@ -1536,16 +1536,16 @@ fmod WRAP-OP-COMPLETION is
    = if (isComm(AtS1) == true) and (isAssoc(AtS1) == true)
      then if (isComm(AtS2) == true) and (isAssoc(AtS2) == true)
           then --- AC AC
-	    (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]] = '_or_['acrpo5-1-set['WS1:OWrapSet,qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]],'acrpo5-2-set[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],'WS2:OWrapSet]] [none] .)
-	  else --- AC E0
-	    (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]] = '_or_['acrpo5-1-set['WS1:OWrapSet,qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]],'acrpo5-2-list[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],'WL2:OWrapList]] [none] .)
-	  fi
+            (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]] = '_or_['acrpo5-1-set['WS1:OWrapSet,qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]],'acrpo5-2-set[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],'WS2:OWrapSet]] [none] .)
+          else --- AC E0
+            (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]] = '_or_['acrpo5-1-set['WS1:OWrapSet,qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]],'acrpo5-2-list[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],'WL2:OWrapList]] [none] .)
+          fi
      else if (isComm(AtS2) == true) and (isAssoc(AtS2) == true)
-	  then --- E0 AC
-	    (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]] = '_or_['acrpo5-1-list['WL1:OWrapList,qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]],'acrpo5-2-set[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],'WS2:OWrapSet]] [none] .)
-	  else --- E0 E0
-  	    (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]] = '_or_['acrpo5-1-list['WL1:OWrapList,qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]],'acrpo5-2-list[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],'WL2:OWrapList]] [none] .)
-	  fi
+          then --- E0 AC
+            (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]] = '_or_['acrpo5-1-list['WL1:OWrapList,qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]],'acrpo5-2-set[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],'WS2:OWrapSet]] [none] .)
+          else --- E0 E0
+            (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]] = '_or_['acrpo5-1-list['WL1:OWrapList,qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]],'acrpo5-2-list[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],'WL2:OWrapList]] [none] .)
+         fi
      fi
      constrSmallerEqs((op Q1 : TpL1 -> Tp1 [AtS1] .), NOPDL) .
 
@@ -1558,16 +1558,16 @@ fmod WRAP-OP-COMPLETION is
    = if (isComm(AtS1) == true) and (isAssoc(AtS1) == true)
      then if (isComm(AtS2) == true) and (isAssoc(AtS2) == true)
           then --- AC AC
-	    (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]] = '_or_['acrpo5-1-set['WS1:OWrapSet,qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]],'acrpo5-2-set[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],'WS2:OWrapSet]] [none] .)
-	  else --- AC E0
-	    (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]] = '_or_['acrpo5-1-set['WS1:OWrapSet,qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]],'acrpo5-2-list[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],'WL2:OWrapList]] [none] .)
-	  fi
+            (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]] = '_or_['acrpo5-1-set['WS1:OWrapSet,qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]],'acrpo5-2-set[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],'WS2:OWrapSet]] [none] .)
+          else --- AC E0
+            (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]] = '_or_['acrpo5-1-set['WS1:OWrapSet,qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]],'acrpo5-2-list[qid("(" + alpha(string(Q1)) + ",_)")['WS1:OWrapSet],'WL2:OWrapList]] [none] .)
+          fi
      else if (isComm(AtS2) == true) and (isAssoc(AtS2) == true)
-	  then --- E0 AC
-	    (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]] = '_or_['acrpo5-1-list['WL1:OWrapList,qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]],'acrpo5-2-set[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],'WS2:OWrapSet]] [none] .)
-	  else --- E0 E0
-  	    (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]] = '_or_['acrpo5-1-list['WL1:OWrapList,qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]],'acrpo5-2-list[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],'WL2:OWrapList]] [none] .)
-	  fi
+          then --- E0 AC
+            (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]] = '_or_['acrpo5-1-list['WL1:OWrapList,qid("(" + alpha(string(Q2)) + ",_)")['WS2:OWrapSet]],'acrpo5-2-set[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],'WS2:OWrapSet]] [none] .)
+          else --- E0 E0
+            (eq '_>v_[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]] = '_or_['acrpo5-1-list['WL1:OWrapList,qid("(" + alpha(string(Q2)) + ",_)")['WL2:OWrapList]],'acrpo5-2-list[qid("(" + alpha(string(Q1)) + ",_)")['WL1:OWrapList],'WL2:OWrapList]] [none] .)
+          fi
      fi
      (eq '_>E_['`[`[_`]`][constrTerm((op Q1 : TpL1 -> Tp1 [AtS1] .),0)],'`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),typeListLength(TpL1))]] = '_>v_['`[`[_`]`]['toAC[constrTerm((op Q1 : TpL1 -> Tp1 [AtS1] .),0)]],'`[`[_`]`]['toAC[constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),typeListLength(TpL1))]]] [none] .)
      aac-constrSmallerEqs((op Q1 : TpL1 -> Tp1 [AtS1] .), NOPDL) .

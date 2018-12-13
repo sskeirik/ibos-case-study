@@ -1,5 +1,4 @@
-*** set-memo.maude
-*** version of SET{X} with memoization for some operations
+--- version of SET{X} with memoization for some operations
 
 fmod SETM{X :: TRIV} is
   protecting BOOL .
@@ -15,7 +14,7 @@ fmod SETM{X :: TRIV} is
   vars A S S' : SetM{X} .
 
   eq N & N = N .
-  
+
   op _=<_ : SetM{X} SetM{X} -> [Bool] [memo] .
   eq S =< (S & S') = true .
 endfm

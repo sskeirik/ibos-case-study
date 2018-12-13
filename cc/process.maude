@@ -1,10 +1,9 @@
-*** process.maude imports marked-rules.maude and simplify-marked-term-and-rule
-*** The main function is "reduce-imrules(T [n,S] => T' [m,S'],IMRL)" that yields the list of results
-*** of simplifying rules "IMRL" with T [n,S] => T' [m,S'].  Each result is either: {i} if rule i was irreducible,
-*** or [f,[i] mt.mrule] if it became trivial, or [f,[i] T'' [n',S''] => T''' [m',S''']  otherwise, with f the original rule's top.
-
-*** The sort "Process" will be used as a data structure in congruence closure to process the results
-*** obtained from "reduce-imrules(T [n,S] => T' [m,S'],IMRL)" in the context of the list of unprocessed rules.
+--- The main function is "reduce-imrules(T [n,S] => T' [m,S'],IMRL)" that yields the list of results
+--- of simplifying rules "IMRL" with T [n,S] => T' [m,S'].  Each result is either: {i} if rule i was irreducible,
+--- or [f,[i] mt.mrule] if it became trivial, or [f,[i] T'' [n',S''] => T''' [m',S''']  otherwise, with f the original rule's top.
+---
+--- The sort "Process" will be used as a data structure in congruence closure to process the results
+--- obtained from "reduce-imrules(T [n,S] => T' [m,S'],IMRL)" in the context of the list of unprocessed rules.
 
 fmod PROCESS is  pr MARKED-RULES .  pr SIMPLIFY-MARKED-TERM&RULE .
   sorts Result Results Process .  subsort Result < Results . subsort List{MRule<} < Process .
@@ -38,6 +37,6 @@ fmod PROCESS is  pr MARKED-RULES .  pr SIMPLIFY-MARKED-TERM&RULE .
                 then {top(T''),[i] make-rule(U,p1(simpl-mterm(U,T [n,S] => T' [m,S'],T'' [k,S''])),T''')}
                 else {top(T''),[i] make-rule(U,p1(simpl-mterm(U,T [n,S] => T' [m,S'],T'' [k,S''])),
                                              p1(simpl-mterm(U,T [n,S] => T' [m,S'],T''' [k,S'''])))}
-            fi
+             fi
      fi .
 endfm

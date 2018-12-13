@@ -1,5 +1,3 @@
-*** AorC-congruence-closure.maude
-
 fmod A\/C-CONG-CLOSURE is
   pr PROCESS .
   pr CRITICAL-PAIR .
@@ -7,11 +5,11 @@ fmod A\/C-CONG-CLOSURE is
   sort CCState .
 
   op [_,_,_,_,_,_,_,_,_,_,_] : Module Term List{IMRule} EquationSet IMRuleTable FAxiomSet List{OInfo<} Process Nat Nat Nat -> CCState .
-  op [_,_,_] : EquationSet Nat GroundTerm -> CCState [ctor] .  *** final result with count of overlap cycles and test
+  op [_,_,_] : EquationSet Nat GroundTerm -> CCState [ctor] .  --- final result with count of overlap cycles and test
 
   op init-cc  : Module Term -> CCState .
   op init-cc' : Module Term IMRuleTable FAxiomSet Process -> CCState .
-  op rem-att  : AttrSet EquationSet -> EquationSet .  *** removes equation with attributes unique to the equation
+  op rem-att  : AttrSet EquationSet -> EquationSet .  --- removes equation with attributes unique to the equation
   op reweqs   : Module EquationSet Term -> Term .
 
   vars T T' T'' T''' TES : GroundTerm .  var ES : EquationSet .  var AS : AttrSet . var FAS : FAxiomSet . var OL : List{OInfo<} .
@@ -56,59 +54,3 @@ fmod A\/C-CONG-CLOSURE is
 
   eq [U,TES,IMRL,ES,IMRT,FAS,OI OL,nil,m0,k,j] =  [U,TES,IMRL,ES,IMRT,FAS,OL,clean(sort(make-rule-map(U,CPS(U,OI,IMRT,FAS)))),m0,k,j] .
 endfm
-
-***! result [CCState]:
-***! [
-***! ([1]'__['a.U,'a.U,'b.U] [4,'__ & 'a.U & 'b.U] => 'b.U [1,'b.U])
-***! ([2]'__['a.U,'b.U,'b.U,'a.U] [5,'__ & 'a.U & 'b.U] => '__['a.U,'a.U] [3,'__  & 'a.U])
-***! ([3]'__['__['a.U,'a.U],'a.U] [5,'__ & 'a.U] => '__['a.U,'b.U] [3,'__ & 'a.U & 'b.U])
-***! ([4]'__['__['a.U,'b.U],'__['a.U,'a.U]] [7,'__ & 'a.U & 'b.U] => '__['b.U,'a.U,'b.U] [4,'__ & 'a.U & 'b.U])
-***! ([5]'__['__['a.U,'b.U],'a.U] [5,'__ & 'a.U & 'b.U] => '__['a.U,'b.U] [3,'__ & 'a.U & 'b.U]),
-***! eq '__['__['a.U,'a.U],'a.U] = '__['a.U,'b.U] [metadata("3")] .
-***! eq '__['__['a.U,'b.U],'a.U] = '__['a.U,'b.U] [metadata("5")] .
-***! eq '__['__['a.U,'b.U],'__['a.U,'a.U]] = '__['b.U,'a.U,'b.U] [metadata("4")] .
-***! eq '__['a.U,'a.U,'b.U] = 'b.U [metadata("1")] .
-***! eq '__['a.U,'b.U,'b.U,'a.U] = '__['a.U,'a.U] [metadata("2")] .,
-***! ['_+_,empty] @
-***! ['__,[1]'__['a.U,'a.U,'b.U] [4,'__ & 'a.U & 'b.U] => 'b.U [1,'b.U],
-***!      [2]'__['a.U,'b.U,'b.U,'a.U] [5,'__ & 'a.U & 'b.U] => '__['a.U,'a.U] [3,'__ & 'a.U],
-***!      [3]'__['__['a.U,'a.U],'a.U] [5,'__ & 'a.U] => '__['a.U,'b.U] [3,'__ & 'a.U & 'b.U],
-***!      [4]'__['__['a.U,'b.U],'__['a.U,'a.U]] [7,'__ & 'a.U & 'b.U] => '__['b.U,'a.U,'b.U] [4,'__ & 'a.U & 'b.U],
-***!      [5]'__['__['a.U,'b.U],'a.U] [5,'__ & 'a.U & 'b.U] => '__['a.U,'b.U] [3,'__ & 'a.U & 'b.U]],
-***! ['_+_,AC] @ ['__,A],
-***! [[4,'__],[4,1] & [4,2] & [4,3] & [4,4]],
-***! {1} {2} {3} {'__,[4]make-rule('__['a.U, 'b.U], p1(failure))}
-***!     # ('__['__['a.U,'b.U],'a.U] [5,'__ & 'a.U & 'b.U] => '__['a.U,'__['a.U,'b.U]] [5,'__ & 'a.U & 'b.U])
-***!       ('__['__['a.U,'b.U],'a.U] [5,'__ & 'a.U & 'b.U] => '__['a.U,'__['a.U,'a.U]] [5,'__ & 'a.U])
-***!       ('__['a.U,'__['a.U,'b.U]] [5,'__ & 'a.U & 'b.U] => '__['__['a.U,'a.U],'a.U] [5,'__ & 'a.U])
-***!       ('__['__['a.U,'b.U],'__['a.U,'a.U]] [7,'__ & 'a.U & 'b.U] => '__['__['a.U,'a.U],'b.U] [5,'__ & 'a.U & 'b.U])
-***!       ('__['__['a.U,'b.U],'__['a.U,'a.U]] [7,'__ & 'a.U & 'b.U] => '__['__['a.U,'a.U],'__['a.U,'b.U]] [7,'__ & 'a.U & 'b.U]),
-***! 4,2,6]
-
-***! result CCState:
-***! [
-***! ([1]'__['a.U,'a.U,'b.U] [4,'__ & 'a.U & 'b.U] => 'b.U [1,'b.U])
-***! ([2]'__['a.U,'b.U,'b.U,'a.U] [5,'__ & 'a.U & 'b.U] => '__['a.U,'a.U] [3,'__ & 'a.U])
-***! ([3]'__['__['a.U,'a.U],'a.U] [5,'__ & 'a.U] => '__['a.U,'b.U] [3,'__ & 'a.U & 'b.U])
-***! ([4]'__['__['a.U,'b.U],'__['a.U,'a.U]] [7,'__ & 'a.U & 'b.U]  => '__['b.U,'a.U,'b.U] [4,'__ & 'a.U & 'b.U])
-***! ([5]'__['__['a.U,'b.U],'a.U] [5,'__ & 'a.U & 'b.U] => '__['a.U,'b.U] [3,'__ & 'a.U & 'b.U]),
-***! eq '__['__['a.U,'a.U],'a.U] = '__['a.U,'b.U] [metadata("3")] .
-***! eq '__['__['a.U,'b.U],'a.U] = '__['a.U,'b.U] [metadata("5")] .
-***! eq '__['__['a.U,'b.U],'__['a.U,'a.U]] = '__['b.U,'a.U,'b.U] [metadata("4")] .
-***! eq '__['a.U,'a.U,'b.U] = 'b.U [metadata("1")] .
-***! eq '__['a.U,'b.U,'b.U,'a.U] = '__['a.U,'a.U] [metadata("2")] .,
-***! ['_+_,empty] @
-***! ['__,[1]'__['a.U,'a.U,'b.U] [4,'__ & 'a.U & 'b.U] => 'b.U [1,'b.U],
-***!      [2]'__['a.U,'b.U,'b.U,'a.U] [5,'__ & 'a.U & 'b.U] => '__['a.U,'a.U] [3,'__ & 'a.U],
-***!      [3]'__['__['a.U,'a.U],'a.U] [5,'__ & 'a.U] => '__['a.U,'b.U] [3,'__ & 'a.U & 'b.U],
-***!      [4]'__['__['a.U,'b.U],'__['a.U,'a.U]] [7,'__ & 'a.U & 'b.U] => '__['b.U,'a.U,'b.U] [4,'__ & 'a.U & 'b.U],
-***!      [5]'__['__['a.U,'b.U],'a.U] [5,'__ & 'a.U & 'b.U] => '__['a.U,'b.U] [3,'__ & 'a.U & 'b.U]],
-***! ['_+_,AC] @ ['__,A],
-***! [[4,'__],[4,1] & [4,2] & [4,3] & [4,4]],
-***! {'__,[4]'__['b.U,'a.U,'b.U] [4,'__ & 'a.U & 'b.U] => '__['a.U,'b.U] [3,'__ & 'a.U & 'b.U]}
-***!     # ('__['__['a.U,'b.U],'a.U] [5,'__ & 'a.U & 'b.U] => '__['a.U,'__['a.U,'b.U]] [5,'__ & 'a.U & 'b.U])
-***!       ('__['__['a.U,'b.U],'a.U] [5,'__ & 'a.U & 'b.U] => '__['a.U,'__['a.U,'a.U]] [5,'__ & 'a.U])
-***!       ('__['a.U,'__['a.U,'b.U]] [5,'__ & 'a.U & 'b.U] => '__['__['a.U,'a.U],'a.U] [5,'__ & 'a.U])
-***!       ('__['__['a.U,'b.U],'__['a.U,'a.U]] [7,'__ & 'a.U & 'b.U] => '__['__['a.U,'a.U],'b.U] [5,'__ & 'a.U & 'b.U])
-***!       ('__['__['a.U,'b.U],'__['a.U,'a.U]] [7,'__ & 'a.U & 'b.U] => '__['__['a.U,'a.U],'__['a.U,'b.U]] [7,'__ & 'a.U & 'b.U]),
-***! 4,2,6]
