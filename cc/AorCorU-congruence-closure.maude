@@ -44,10 +44,7 @@
 ---    top symbol and having lower or equal index to the given rule.
 
 fmod A\/C\/U-CONG-CLOSURE is
-  pr PROCESS .
-  pr CRITICAL-PAIR .
-
-  sort CCState .
+  pr CONG-CLOSURE-SHARED .
 
   op [_,_,_,_,_,_,_,_,_,_,_,_] : Module Term List{IMRule} EquationSet EquationSet IMRuleTable FAxiomSet List{OInfo<} Process Nat Nat Nat -> CCState .
   op [_,_,_] : EquationSet Nat GroundTerm -> CCState [ctor] .  --- final result with count of overlap cycles and test
@@ -59,16 +56,9 @@ fmod A\/C\/U-CONG-CLOSURE is
 
   op init-cc  : FModule Term -> CCState .
   op init-cc' : FModule FModule Term IMRuleTable FAxiomSet Process -> CCState .
-  op rem-att : AttrSet EquationSet -> EquationSet .  --- removes equation with attributes unique to the equation
-  op reweqs : Module EquationSet Term -> Term .
   op id:eqs : -> EquationSet .
   op id:set : -> SetM{Qid} .
   op left-simplify : Equation EquationSet -> [EquationSet] .
-
-  eq rem-att(AS,(eq T = T' [AS] .) ES) = ES .
-  eq rem-att(AS,ES) = ES [owise] .
-
-  eq reweqs(U,ES,TES) = getTerm(metaReduce(addEqs(ES,addDecls(U,upModule('EQSET,true))),TES)) .
 
   eq init-cc(U,TES) = [U,TES,nil,id:eqs,none,init-imrtab(U),init-faxset(U),nil,rules(U,TES),0,0,1] .
 
@@ -77,15 +67,15 @@ fmod A\/C\/U-CONG-CLOSURE is
              then [U,TES,IMRL,ES',ES,IMRT,FAS,OL,MRL,m0,k,j]
              else if ax top(left(simpl-mrule(U,(ES ES'),MR))) in FAS == free
                     then if top(left(simpl-mrule(U,(ES ES'),MR))) =< id:set == true
-                            then [U,TES,IMRL ([j] simpl-mrule(U,(ES ES'),MR)),left-simplify(eq left(simpl-mrule(U,(ES ES'),MR)) = right(simpl-mrule(U,(ES ES'),MR)) [none] .,ES'),
-                                   eq left(simpl-mrule(U,(ES ES'),MR)) = right(simpl-mrule(U,(ES ES'),MR)) [metadata(string(j,10))] . ES,
+                            then [U,TES,IMRL ([j] simpl-mrule(U,(ES ES'),MR)),left-simplify(neweq(U,ES ES',MR,none),ES'),
+                                   neweq(U,ES ES',MR,j) ES,
                                    IMRT,FAS,OL,reduce-imrules(U,simpl-mrule(U,(ES ES'),MR),IMRL) # MRL,m0,k,s(j)]
                             else [U,TES,IMRL ([j] simpl-mrule(U,(ES ES'),MR)),ES',
-                                   eq left(simpl-mrule(U,(ES ES'),MR)) = right(simpl-mrule(U,(ES ES'),MR)) [metadata(string(j,10))] . ES,
+                                   neweq(U,ES ES',MR,j) ES,
                                    IMRT,FAS,OL,reduce-imrules(U,simpl-mrule(U,(ES ES'),MR),IMRL) # MRL,m0,k,s(j)]
                          fi
                     else [U,TES,IMRL ([j] simpl-mrule(U,(ES ES'),MR)),ES',
-                           eq left(simpl-mrule(U,(ES ES'),MR)) = right(simpl-mrule(U,(ES ES'),MR)) [metadata(string(j,10))] . ES,
+                           neweq(U,ES ES',MR,j) ES,
                            add-imrule(top(left(simpl-mrule(U,(ES ES'),MR))),([j] simpl-mrule(U,(ES ES'),MR)),IMRT),
                            FAS,OL,reduce-imrules(U,simpl-mrule(U,(ES ES'),MR),IMRL) # MRL,m0,k,s(j)]
                   fi

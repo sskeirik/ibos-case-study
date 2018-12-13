@@ -13,4 +13,6 @@ load process.maude
 --- for AorC congr. closure one should instead load:
 load fi-and-IMR-tables-and-overlaps.maude
 load critical-pair.maude
+load cc-shared.maude
 load AorC-congruence-closure.maude
+load AorCorU-congruence-closure.maude

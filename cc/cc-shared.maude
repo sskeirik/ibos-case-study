@@ -1,0 +1,28 @@
+fmod CONG-CLOSURE-SHARED is
+  pr PROCESS .
+  pr CRITICAL-PAIR .
+
+  var AS : AttrSet .
+  var ES : EquationSet .
+  var T T' TES : Term .
+  var U : Module .
+  var MR : MRule .
+  var P : Parent .
+  var N : Nat .
+
+  sort CCState .
+
+  op rem-att : AttrSet EquationSet -> EquationSet .
+  eq rem-att(AS,(eq T = T' [AS] .) ES) = ES .
+  eq rem-att(AS,ES) = ES [owise] .
+
+  op reweqs : Module EquationSet Term -> Term .
+  eq reweqs(U,ES,TES) = getTerm(metaReduce(addEqs(ES,addDecls(U,upModule('EQSET,true))),TES)) .
+
+  op neweq : Module EquationSet MRule Parent -> Equation .
+  eq neweq(U,ES,MR,P) = (eq left(simpl-mrule(U,ES,MR)) = right(simpl-mrule(U,ES,MR)) [mr-att(P)] .) .
+
+  op mr-att : Parent -> AttrSet .
+  eq mr-att(none) = none .
+  eq mr-att(N) = metadata(string(N,10)) [owise] .
+endfm
