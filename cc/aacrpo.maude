@@ -25,6 +25,1269 @@ AACRPO for ordered rewriting. Based on [Rub99] and Rubio's PhD Thesis.
 --- 0).
 --- ----------------------------------------------------------------
 
+fmod 2TUPLE{X :: TRIV, Y :: TRIV} is
+  sorts Tuple{X, Y} .
+  op ((_,_)) : X$Elt Y$Elt -> Tuple{X, Y} [ctor] .
+  op p1_ : Tuple{X, Y} -> X$Elt .
+  op p2_ : Tuple{X, Y} -> Y$Elt .
+  eq p1(V1:[X$Elt],V2:[Y$Elt]) = V1:[X$Elt] .
+  eq p2(V1:[X$Elt],V2:[Y$Elt]) = V2:[Y$Elt] .
+endfm
+
+fmod 3TUPLE{X :: TRIV, Y :: TRIV, Z :: TRIV} is
+  sort Tuple{X, Y, Z} .
+  op ((_,_,_)) : X$Elt Y$Elt Z$Elt -> Tuple{X, Y, Z} [ctor] .
+  op p1_ : Tuple{X, Y, Z} -> X$Elt .
+  op p2_ : Tuple{X, Y, Z} -> Y$Elt .
+  op p3_ : Tuple{X, Y, Z} -> Z$Elt .
+  eq p1((A:[X$Elt], B:[Y$Elt], C:[Z$Elt])) = A:[X$Elt] .
+  eq p2((A:[X$Elt], B:[Y$Elt], C:[Z$Elt])) = B:[Y$Elt] .
+  eq p3((A:[X$Elt], B:[Y$Elt], C:[Z$Elt])) = C:[Z$Elt] .
+endfm
+
+fmod 4TUPLE{X :: TRIV, Y :: TRIV, W :: TRIV, Z :: TRIV} is
+  sort Tuple{X, Y, W, Z} .
+  op ((_,_,_,_)) : X$Elt Y$Elt W$Elt Z$Elt -> Tuple{X, Y, W, Z} [ctor] .
+  op p1_ : Tuple{X, Y, W, Z} -> X$Elt .
+  op p2_ : Tuple{X, Y, W, Z} -> Y$Elt .
+  op p3_ : Tuple{X, Y, W, Z} -> W$Elt .
+  op p4_ : Tuple{X, Y, W, Z} -> Z$Elt .
+  eq p1((A:[X$Elt], B:[Y$Elt], C:[W$Elt], D:[Z$Elt])) = A:[X$Elt] .
+  eq p2((A:[X$Elt], B:[Y$Elt], C:[W$Elt], D:[Z$Elt])) = B:[Y$Elt] .
+  eq p3((A:[X$Elt], B:[Y$Elt], C:[W$Elt], D:[Z$Elt])) = C:[W$Elt] .
+  eq p4((A:[X$Elt], B:[Y$Elt], C:[W$Elt], D:[Z$Elt])) = D:[Z$Elt] .
+endfm
+
+fmod NAT+ is
+  pr NAT .
+  sort Nat+ .
+  subsort Nat < Nat+ .
+  op +oo : -> Nat+ .
+  eq sd(+oo,N:Nat) = +oo .
+endfm
+
+fmod NAT-SET is
+  pr SET{Nat} *	(sort NeSet{Nat} to NeNatSet,
+                 sort Set{Nat} to NatSet) .
+endfm
+
+fmod POSITION is
+  protecting NAT .
+
+  sorts NePosition Position .
+  subsort Nat < NePosition < Position .
+
+--- delta - top position
+  op delta : -> Position [ctor] .
+--- _._ - position chain
+  op _._ : Position Position -> Position [ctor assoc id: delta] .
+  op _._ : NePosition Position -> NePosition [ctor assoc id: delta] .
+  op _._ : Position NePosition -> NePosition [ctor assoc id: delta] .
+
+endfm
+
+view Position from TRIV to POSITION is sort Elt to Position .  endv
+
+fth EQUALITY-RELATION is
+  protecting BOOL .
+  including TRIV .
+  op _===_ : Elt Elt -> Bool [comm] .
+  vars X Y : Elt .
+  eq (X === X) = true [nonexec label equality] .
+endfth
+
+view NatSet from TRIV to NAT-SET is sort Elt to NatSet .  endv
+
+fmod STRING-STRING-MAP is
+  pr MAP{String,String} * (sort Map{String, String} to StringStringMap) .
+endfm
+
+view StringStringMap from TRIV to STRING-STRING-MAP is sort Elt to StringStringMap .  endv
+
+fmod STRING-AUX is
+  pr CONVERSION .
+  pr STRING-STRING-MAP .
+
+  var  Str  : String .
+  vars St St' St'' : String .
+  var N : Nat .
+  var SM : StringStringMap .
+
+  --- replace St' by St'' in St
+  op replace : String String String -> String .
+  eq replace(St, St', St'') = replace(St, St', St'', find(St,St',0)) .
+
+  --- replace St' by St'' in St (with find)
+  op replace : String String String FindResult -> String .
+  eq replace(St, St', St'', notFound) = St .
+  eq replace(St, St', St'', N) = substr(St, 0, N) + St'' + replace(substr(St, N + length(St'), length(St)), St', St'') .
+
+  --- replace St' by St'' in St
+  op replaceAll : String StringStringMap -> String .
+  eq replaceAll(St, empty) = St .
+  eq replaceAll(St, ((St' |-> St''), SM)) = replaceAll(replace(St, St', St''), SM) .
+
+  --- alpha - removes _ from a string
+  op alpha : String -> String . --- [memo] .
+  eq alpha(Str) = replaceAll(Str, (("_" |-> ""), ("`," |-> "comma") , ("`[" |-> "lbracket") , ("`]" |-> "rbracket") , ("`(" |-> "lparen") , ("`)" |-> "rparen"))) .
+
+endfm
+
+fmod TERM-CONSTRUCTION is
+  pr STRING-AUX .
+  pr META-LEVEL .
+
+  var F : Qid .
+  var N : Nat .
+  vars Tp Tp1 Tp2 : Type .
+  var TpL : TypeList .
+  var AtS : AttrSet .
+
+--- isComm - check if comm is in the AttSet
+  op isComm : AttrSet -> Bool . --- [memo] .
+  eq isComm(comm AtS) = true .
+  eq isComm(AtS) = false [owise] .
+
+--- isAssoc - check if assoc is in the AttSet
+  op isAssoc : AttrSet -> Bool . ---[memo] .
+  eq isAssoc(assoc AtS) = true .
+  eq isAssoc(AtS) = false [owise] .
+
+--- isCtor - check if ctor is in the AttSet
+  op isCtor : AttrSet -> Bool . ---  [memo] .
+  eq isCtor(ctor AtS) = true .
+  eq isCtor(AtS) = false [owise] .
+
+--- isComm - check if the operator is commutative
+  op isComm : OpDecl -> Bool . --- [memo] .
+  eq isComm(op F : TpL -> Tp [AtS] .) = isComm(AtS) .
+
+--- isAssoc - check if the operator is associative
+  op isAssoc : OpDecl -> Bool . --- [memo] .
+  eq isAssoc(op F : TpL -> Tp [AtS] .) = isAssoc(AtS) .
+
+--- constrTerm - Construct a Term from it operator definition
+  op constrTerm : OpDecl Nat -> Term . --- [memo] .
+  eq constrTerm((op F : nil -> Tp [AtS] .),N)
+   = qid(alpha(string(F)) + "." + string(Tp)) .
+  eq constrTerm((op F : Tp1 TpL -> Tp2 [AtS] .),N)
+   = F[listVars(Tp1 TpL, N)] .
+
+--- constrToACTerm - Construct an AC-Term from it operator definition
+--- applying toAC function to its arguments
+  op constrToACTerm : OpDecl Nat -> Term . --- [memo] .
+  eq constrToACTerm((op F : nil -> Tp [AtS] .),N)
+   = qid(alpha(string(F)) + "." + string(Tp)) .
+  eq constrToACTerm((op F : Tp1 TpL -> Tp2 [AtS] .),N)
+   = if (isAssoc(AtS) == true) then
+       if (isComm(AtS) == true) then
+         F[toAClistVars(Tp1 TpL, N)]
+       else
+         qid(string(F) + "^AC")[toAClistVars(Tp1 TpL, N)]
+       fi
+     else
+       if (isComm(AtS) == true) then
+         qid(string(F) + "^AC")[toAClistVars(Tp1 TpL, N)]
+       else
+         F[toAClistVars(Tp1 TpL, N)]
+       fi
+     fi .
+
+--- listVars - Construct a list of vars separated by comma
+  op listVars : TypeList Nat -> TermList . --- [memo] .
+  eq listVars(Tp nil, N)
+   = qid("V#" + string(s N,10) + ":" + string(Tp)) .
+  eq listVars(Tp TpL, N)
+   = qid("V#" + string(s N,10) + ":" + string(Tp)) , listVars(TpL, s N) [owise] .
+
+--- toAClistVars - Construct a list of vars separated by comma and
+--- apply toAC function
+  op toAClistVars : TypeList Nat -> TermList . --- [memo] .
+  eq toAClistVars(Tp nil, N)
+   = 'toAC[qid("V#" + string(s N,10) + ":" + string(Tp))] .
+  eq toAClistVars(Tp TpL, N)
+   = 'toAC[qid("V#" + string(s N,10) + ":" + string(Tp))] , toAClistVars(TpL, s N) [owise] .
+
+--- typeListLength - lenght of TypeList
+  op typeListLength : TypeList -> Nat .
+  eq typeListLength(nil) = 0 .
+  eq typeListLength(Tp TpL) = s typeListLength(TpL) .
+
+endfm
+
+fmod TYPES-AUX is
+  pr CONVERSION .
+  pr META-LEVEL .
+  pr TERM-CONSTRUCTION .
+
+--- Meta-Level Sorts
+  sorts KindOpDeclSet KindOpDeclSetSet NEKindOpDeclSetSet .
+  sorts EKindOpDeclSet EKindOpDeclSetSet NEEKindOpDeclSetSet .
+
+  subsorts KindOpDeclSet < NEKindOpDeclSetSet < KindOpDeclSetSet  .
+  subsorts EKindOpDeclSet < NEEKindOpDeclSetSet < EKindOpDeclSetSet .
+
+--- Working with Kinds and Types
+  op _::_ : Kind OpDeclSet -> KindOpDeclSet [ctor] .
+  op none : -> KindOpDeclSetSet [ctor] .
+  op __ : NEKindOpDeclSetSet NEKindOpDeclSetSet -> NEKindOpDeclSetSet [ctor assoc comm id: none] .
+  op __ : KindOpDeclSetSet KindOpDeclSetSet -> KindOpDeclSetSet [assoc comm id: none] .
+  op _[_]::_ : Type TypeList OpDeclSet -> EKindOpDeclSet [ctor] .
+  op none : -> EKindOpDeclSetSet [ctor] .
+  op __ : NEEKindOpDeclSetSet NEEKindOpDeclSetSet -> NEEKindOpDeclSetSet [ctor assoc comm id: none] .
+  op __ : EKindOpDeclSetSet EKindOpDeclSetSet -> EKindOpDeclSetSet [assoc comm id: none] .
+  op newTopSorts : EKindOpDeclSetSet -> SortSet .
+
+  vars Tp Tp1 Tp2 Tp3 : Type .
+  vars TpL TpL1 TpL2 TpL3 : TypeList .
+  var K : Kind .
+  var OPD : OpDecl .
+  vars OPDS OPDS1 OPDS2 : OpDeclSet .
+  var KOPDS  : KindOpDeclSetSet .
+  var EKOPDS : EKindOpDeclSetSet .
+  vars FRes FRes' : FindResult .
+  var Str : String .
+  var N : NzNat .
+  var M : Module .
+  vars AtS AtS1 AtS2 : AttrSet .
+  var F   : Qid .
+  var FS  : QidSet .
+  var NeTL : NeTermList .
+  var C : Constant .
+  vars T T1 T2 : Term .
+  var SS : SortSet .
+
+--- fromTypeListToString - concat a list of types into a String
+  op fromTypeListToString : TypeList -> String .
+  eq fromTypeListToString(nil) = "" .
+  eq fromTypeListToString(Tp TpL) = string(Tp) + fromTypeListToString(TpL) .
+
+--- setTopSort - create a new top sort if there is not top sort
+  op setTopSort : TypeList -> Type .
+  eq setTopSort(Tp)  = Tp .
+  eq setTopSort(TpL) = qid(fromTypeListToString(TpL)) [owise] .
+
+--- newTopSorts - list all the new top sorts
+  eq newTopSorts((none).EKindOpDeclSetSet)
+   = (none).SortSet .
+  eq newTopSorts((Tp [ Tp ] :: OPDS) EKOPDS)
+   = newTopSorts(EKOPDS) .
+  eq newTopSorts((Tp [ TpL ] :: OPDS) EKOPDS)
+   = Tp ; newTopSorts(EKOPDS) [owise] .
+
+--- newSubsorts - for each new top sort, set the dependencies
+--- with respect to the rest of sorts in the SCC
+  op newSubsorts : EKindOpDeclSetSet -> SubsortDeclSet .
+  eq newSubsorts((none).EKindOpDeclSetSet)
+   = (none).SubsortDeclSet .
+  eq newSubsorts((Tp [ nil ] :: OPDS) EKOPDS)
+   = newSubsorts(EKOPDS) .
+  eq newSubsorts((Tp1 [ Tp2 TpL ] :: OPDS) EKOPDS)
+   = if (Tp1 == Tp2) then
+       newSubsorts((Tp1 [ TpL ] :: OPDS) EKOPDS)
+     else
+       (subsort Tp2 < Tp1 .) newSubsorts((Tp1 [ TpL ] :: OPDS) EKOPDS)
+     fi .
+
+--- processKinds - set the Top Sort is exists, if not create one
+  op processKinds : KindOpDeclSetSet -> EKindOpDeclSetSet .
+  eq processKinds((none).KindOpDeclSetSet)
+   = (none).EKindOpDeclSetSet .
+  eq processKinds((K :: OPDS) KOPDS)
+   = (setTopSort(extractTypes(string(K))) [ extractTypes(string(K)) ] :: OPDS) processKinds(KOPDS) .
+
+--- extractTypes - given a Kind as a String "'`[S1`,S2`,S3`]" extracts
+--- the different maximal types as a list of Qids: 'S1 'S2 'S3
+  op extractTypes : String -> TypeList .
+  eq extractTypes(Str) = if (substr(Str,0,2) == "`[")
+                         then extractTypes(substr(Str,2, length(Str)))
+                         else if (find(Str,"`,",0) =/= notFound)
+                              then (qid(substr(Str,0,find(Str,"`,",0)))
+                                   extractTypes(substr(Str,find(Str,"`,",0) + 2, length(Str))))
+         		      else qid(substr(Str,0,find(Str,"`]",0)))
+                              fi
+                         fi .
+
+--- getOpsByKind - get all the operators group by kind
+  op getOpsByKind : Module KindOpDeclSetSet OpDeclSet -> KindOpDeclSetSet . --- [memo] .
+  eq getOpsByKind(M, KOPDS, (none).OpDeclSet)
+   = KOPDS .
+  eq getOpsByKind(M, KOPDS, (op F : TpL -> Tp [AtS] .) OPDS)
+   = getOpsByKind(M, KOPDS, (op F : TpL -> Tp [AtS] .) OPDS, getKind(M, Tp)) .
+
+--- getOpsByKind - get all the operators group by kind (auxiliary)
+  op getOpsByKind : Module KindOpDeclSetSet OpDeclSet Kind -> KindOpDeclSetSet . --- [memo] .
+  eq getOpsByKind(M, (K :: OPDS1) KOPDS, (op F : TpL -> Tp [AtS] .) OPDS2, K)
+   = getOpsByKind(M, (K :: (OPDS1 (op F : TpL -> Tp [AtS] .))) KOPDS, OPDS2) .
+  eq getOpsByKind(M, KOPDS, (op F : TpL -> Tp [AtS] .) OPDS, K)
+   = getOpsByKind(M, createKindSet(K,(op F : TpL -> Tp [AtS] .)) KOPDS, OPDS) [owise] .
+
+--- getEOpsByKind - get all the operators group by kind and add AC
+--- extensions when the symbols is only A or C
+  op getEOpsByKind : Module KindOpDeclSetSet OpDeclSet -> KindOpDeclSetSet . --- [memo] .
+  eq getEOpsByKind(M, KOPDS, (none).OpDeclSet)
+   = KOPDS .
+  eq getEOpsByKind(M, KOPDS, (op F : TpL -> Tp [AtS] .) OPDS)
+   = getEOpsByKind(M, KOPDS, (op F : TpL -> Tp [AtS] .) OPDS, getKind(M, Tp)) .
+
+--- getEOpsByKind - get all the operators group by kind (auxiliary)
+--- and generate its extended version
+  op getEOpsByKind : Module KindOpDeclSetSet OpDeclSet Kind -> KindOpDeclSetSet . --- [memo] .
+  eq getEOpsByKind(M, (K :: OPDS1) KOPDS, (op F : TpL -> Tp [AtS] .) OPDS2, K)
+   = if (isAssoc(AtS) == true) then
+       if (isComm(AtS) == true) then
+         getEOpsByKind(M, (K :: (OPDS1 (op F : TpL -> Tp [AtS] .))) KOPDS, OPDS2)
+       else
+         getEOpsByKind(M, (K :: (OPDS1 (op F : TpL -> Tp [AtS] .) (op qid(string(F) + "^AC") : TpL -> Tp [comm AtS] .))) KOPDS, OPDS2)
+       fi
+     else
+       if (isComm(AtS) == true) then
+         getEOpsByKind(M, (K :: (OPDS1 (op F : TpL -> Tp [AtS] .) (op qid(string(F) + "^AC") : TpL -> Tp [assoc AtS] .))) KOPDS, OPDS2)
+       else
+         getEOpsByKind(M, (K :: (OPDS1 (op F : TpL -> Tp [AtS] .))) KOPDS, OPDS2)
+       fi
+     fi .
+  eq getEOpsByKind(M, KOPDS, (op F : TpL -> Tp [AtS] .) OPDS, K)
+   = if (isAssoc(AtS) == true) then
+       if (isComm(AtS) == true) then
+         getEOpsByKind(M, createKindSet(K,(op F : TpL -> Tp [AtS] .)) KOPDS, OPDS)
+       else
+         getEOpsByKind(M, createKindSet(K,(op F : TpL -> Tp [AtS] .) (op qid(string(F) + "^AC") : TpL -> Tp [comm AtS] .)) KOPDS, OPDS)
+       fi
+     else
+       if (isComm(AtS) == true) then
+         getEOpsByKind(M, createKindSet(K,(op F : TpL -> Tp [AtS] .) (op qid(string(F) + "^AC") : TpL -> Tp [assoc AtS] .)) KOPDS, OPDS)
+       else
+         getEOpsByKind(M, createKindSet(K,(op F : TpL -> Tp [AtS] .)) KOPDS, OPDS)
+       fi
+     fi [owise] .
+
+--- createKindSet - we have to create the new kindset
+  op createKindSet : Kind OpDeclSet -> KindOpDeclSetSet .
+  eq createKindSet(K, OPDS)
+   = (K :: OPDS) .
+
+--- isMaximalTyping - tell us if a typing is maximal with respect to another
+  op isMaximalTyping : Module OpDecl OpDeclSet -> Bool . --- [memo] .
+  eq isMaximalTyping(M, OPD, none) = true .
+  eq isMaximalTyping(M, (op F : TpL1 -> Tp1 [AtS1] .), (op F : TpL2 -> Tp2 [AtS2] .) OPDS)
+   = isMaximalTyping(M, Tp1 TpL1, Tp2 TpL2) or isMaximalTyping(M, (op F : TpL1 -> Tp1 [AtS1] .), OPDS) .
+  eq isMaximalTyping(M, OPD, OPDS)
+   = true [owise] .
+
+--- isMaximalTyping - tell us if a typing is maximal with respect to another
+  op isMaximalTyping : Module TypeList TypeList -> Bool . --- [memo] .
+  eq isMaximalTyping(M, nil, nil)
+   = false .
+  eq isMaximalTyping(M, Tp1 TpL1, Tp2 TpL2)
+   = if intersection(Tp2 ; lesserSorts(M, Tp2),Tp1) =/= none
+     then isMaximalTyping(M, TpL1, TpL2)
+     else true
+     fi .
+
+--- getMaximalTypings - filter non maximal typings
+  op getMaximalTypings : Module OpDeclSet -> OpDeclSet . --- [memo] .
+  eq getMaximalTypings(M, (none).OpDeclSet)
+   = none .
+  eq getMaximalTypings(M, OPD OPDS)
+   = if isMaximalTyping(M, OPD, OPDS)
+     then OPD getMaximalTypings(M, OPDS)
+     else getMaximalTypings(M, OPDS)
+     fi .
+
+--- getMaximalTypings - filter non maximal typings
+  op getMaximalTypings : Module KindOpDeclSetSet -> KindOpDeclSetSet . --- [memo] .
+  eq getMaximalTypings(M, (none).KindOpDeclSetSet)
+   = none .
+  eq getMaximalTypings(M, (K :: OPDS) KOPDS)
+   = (K :: getMaximalTypings(M, OPDS)) getMaximalTypings(M, KOPDS) [owise] .
+
+  --- getOpsByAndAndQId - return the possible maximal typings given a
+  --- Kind and a Qid
+  op getOpsByKindAndQId : KindOpDeclSetSet Kind Qid -> OpDeclSet . --- [memo] .
+  eq getOpsByKindAndQId((K :: OPDS) KOPDS, K, F) = getOpsByQid(OPDS, F) .
+  eq getOpsByKindAndQId(KOPDS, K, F) = (none).OpDeclSet [owise] .
+
+  --- getOpsByAndAndQId - return the possible typings given a Qid
+  op getOpsByQid : OpDeclSet Qid -> OpDeclSet . ---[memo] .
+  eq getOpsByQid((op F : TpL -> Tp [AtS] .) OPDS, F) = (op F : TpL -> Tp [AtS] .) getOpsByQid(OPDS, F) .
+  eq getOpsByQid(OPDS, F) = (none).OpDeclSet [owise] .
+
+  --- getOpsByType - return the possible maximal typings from a Type
+  op getOpsByType : KindOpDeclSetSet Kind SortSet -> OpDeclSet . --- [memo] .
+  eq getOpsByType((K :: OPDS) KOPDS, K, SS) = getOpsByType(OPDS, SS) .
+  eq getOpsByKindAndQId(KOPDS, K, SS) = (none).OpDeclSet [owise] .
+
+  --- getOpsByType - return the possible maximal typings from a Type
+  op getOpsByType : OpDeclSet SortSet -> OpDeclSet . --- [memo] .
+  eq getOpsByType((op F : TpL1 -> Tp [AtS] .) OPDS, SS)
+   = if intersection(SS,Tp) =/= none
+     then (op F : TpL1 -> Tp [AtS] .) getOpsByType(OPDS, SS)
+     else getOpsByType(OPDS, SS)
+     fi .
+  eq getOpsByType((none).OpDeclSet, SS) = (none).OpDeclSet .
+
+  --- get proper maximal operator if exists. CONDITION! : we force
+  --- maximal typings of AC operators as s s -> s and C operators as
+  --- s s -> s' We don't allow only A operators
+  op root : Module Term Type OpDeclSet -> OpDeclSet . --- [memo] .
+  eq root(M, T, Tp1, (none).OpDeclSet) = (none).OpDeclSet .
+  eq root(M, C, Tp, (op F : nil -> Tp [AtS] .) OPDS)
+    = if getName(C) == F
+      then (op F : nil -> Tp [AtS] .)
+      else root(M, C, Tp, OPDS)
+      fi .
+  eq root(M, F[NeTL], Tp1, (op F : TpL -> Tp2 [AtS] .) OPDS)
+    = if (isAssoc(AtS) == true)
+      then
+        if (isComm(AtS) == true)
+        then ac-root(M, F[NeTL], Tp1, (op F : TpL -> Tp2 [AtS] .) OPDS)
+        else a-root(M, F[NeTL], Tp1, (op F : TpL -> Tp2 [AtS] .) OPDS)
+        fi
+      else
+        if (isComm(AtS) == true)
+        then c-root(M, F[NeTL], Tp1, (op F : TpL -> Tp2 [AtS] .) OPDS)
+        else free-root(M, F[NeTL], Tp1, (op F : TpL -> Tp2 [AtS] .) OPDS)
+        fi
+      fi .
+  eq root(M, T, Tp1, OPD OPDS) = root(M, T, Tp1, OPDS) [owise] .
+
+
+  --- get proper maximal operator if exists (AC case).
+  op ac-root : Module Term Type OpDeclSet -> OpDeclSet . --- [memo] .
+  eq ac-root(M, F[NeTL], Tp1, (op F : Tp2 Tp2 -> Tp2 [assoc comm AtS] .) OPDS)
+   = if (intersection(Tp2 ; lesserSorts(M, Tp2),Tp1) =/= none) and (lesserSorts(M, NeTL, Tp2) == true)
+     then (op F : Tp2 Tp2 -> Tp2 [assoc comm AtS] .)
+     else root(M, F[NeTL], Tp1, OPDS)
+     fi .
+  eq ac-root(M, T, Tp1, OPD OPDS) = root(M, T, Tp1, OPDS) [owise] .
+
+  --- get proper maximal operator if exists (C case).
+  op c-root : Module Term Type OpDeclSet -> OpDeclSet . --- [memo] .
+  eq c-root(M, F[NeTL], Tp1, (op F : Tp3 Tp3 -> Tp2 [comm AtS] .) OPDS)
+   = if (intersection(Tp2 ; lesserSorts(M, Tp2),Tp1) =/= none) and (lesserSorts(M, NeTL, Tp3) == true)
+     then (op F : Tp3 Tp3 -> Tp2 [comm AtS] .)
+     else root(M, F[NeTL], Tp1, OPDS)
+     fi .
+  eq c-root(M, T, Tp1, OPD OPDS) = root(M, T, Tp1, OPDS) [owise] .
+
+  --- get proper maximal operator if exists (A case). Not allowed!
+  op a-root : Module Term Type OpDeclSet -> OpDeclSet . --- [memo] .
+  eq a-root(M, T, Tp1, OPD OPDS) = root(M, T, Tp1, OPDS) .
+
+  --- get proper maximal operator if exists (free symbol case).
+  op free-root : Module Term Type OpDeclSet -> OpDeclSet . --- [memo] .
+  eq free-root(M, F[NeTL], Tp1, (op F : TpL -> Tp2 [AtS] .) OPDS)
+   = if (intersection(Tp2 ; lesserSorts(M, Tp2),Tp1) =/= none) and (lesserSorts(M, NeTL, TpL) == true)
+     then (op F : TpL -> Tp2 [AtS] .)
+     else root(M, F[NeTL], Tp1, OPDS)
+     fi .
+  eq free-root(M, T, Tp1, OPD OPDS) = root(M, T, Tp1, OPDS) [owise] .
+
+  --- getCtors - filter ctor operators
+  op getCtors : OpDeclSet ~> OpDeclSet . --- [memo] .
+  eq getCtors((none).OpDeclSet) = (none).OpDeclSet .
+  eq getCtors((op F : TpL -> Tp [AtS] .) OPDS)
+   = if isCtor(AtS)
+     then (op F : TpL -> Tp [AtS] .) getCtors(OPDS)
+     else getCtors(OPDS)
+     fi .
+
+  --- lesserSorts - check if the list of terms are in the input type
+  --- list
+  op lesserSorts : Module NeTermList TypeList -> Bool .
+  eq lesserSorts(M, T1, Tp1) = intersection(Tp1 ; lesserSorts(M, Tp1), getType(metaNormalize(M,T1))) =/= none .
+  eq lesserSorts(M, (T1 , NeTL) , Tp1) = (intersection(Tp1 ; lesserSorts(M, Tp1), getType(metaNormalize(M,T1))) =/= none) and lesserSorts(M, NeTL, Tp1) .
+  eq lesserSorts(M, T1, Tp1 TpL) = intersection(Tp1 ; lesserSorts(M, Tp1), getType(metaNormalize(M,T1))) =/= none .
+  eq lesserSorts(M, (T1 , NeTL) , Tp1 TpL) = (intersection(Tp1 ; lesserSorts(M, Tp1), getType(metaNormalize(M,T1))) =/= none) and lesserSorts(M, NeTL, TpL) .
+
+endfm
+
+fmod VARIABLE-SET is
+  protecting META-LEVEL .
+  protecting QID-SET * (op empty to none, op _,_ to _;_ [prec 43]) .
+  protecting CONVERSION .
+
+  var V  : Variable .
+  var VS : QidSet .
+  var Cs : Constant .
+  var F  : Qid .
+  var TL : TermList .
+  var T  : Term .
+  var NTL : NeTermList .
+  vars I I' : Nat .
+
+--- isVar - if it is variable or not
+  op isVar : Variable -> Bool .
+  eq isVar(V) = true .
+  eq isVar(T) = false [owise] .
+
+--- getVars - returns distinct vars of a term  
+  op getVars : TermList -> QidSet . --- [memo] .
+  eq getVars(V) = V .
+  eq getVars(Cs) = none .
+  eq getVars(F[NTL]) = getVars(NTL) .
+  eq getVars(empty) = none .
+  eq getVars((T , NTL)) = getVars(T) ; getVars(NTL) .
+
+--- getVNumber - get N if variable is of the form V#N
+  op getVNumber : Variable -> Nat . --- [memo] .
+  eq getVNumber(V)
+      = if (rfind(string(V), "#", 1) == notFound)
+	then 0
+        else rat(substr(string(getName(V)),2,length(string(getName(V)))),10)
+        fi .
+
+endfm
+
+view Term from TRIV to META-TERM is sort Elt to Term .  endv
+
+fmod TERM-POSITION is
+  pr META-TERM .
+  pr POSITION .
+  pr 2TUPLE{Term,Position} * (sort Tuple{Term,Position} to TermPosition) .
+endfm
+
+view TermPosition from TRIV to TERM-POSITION is sort Elt to TermPosition .  endv
+
+fmod TERM-POSITION-SET is
+---  pr TERM-POSITION .
+  pr SET{TermPosition} * ( sort Set{TermPosition} to TermPositionSet
+	                 , sort NeSet{TermPosition} to NeTermPositionSet) .
+endfm
+
+view TermPositionSet from TRIV to TERM-POSITION-SET is sort Elt to TermPositionSet .  endv
+view NeTermPositionSet from TRIV to TERM-POSITION-SET is sort Elt to NeTermPositionSet .  endv
+
+view NeTermList from TRIV to META-TERM is sort Elt to NeTermList . endv
+
+fmod NETL-NAT is
+  pr 2TUPLE{NeTermList,Nat} * (sort Tuple{NeTermList,Nat} to NeTermListNat
+                              ,  op ((_,_)) to ((_|_))) .
+
+endfm
+
+view NeTermListNat from TRIV to NETL-NAT is sort Elt to NeTermListNat . endv
+
+fmod TERM-UTIL is
+  pr VARIABLE-SET .
+  pr TERM-POSITION-SET .
+  pr NETL-NAT .
+  pr TYPES-AUX .
+
+  vars N N' N1 N2 N3 : Nat .  
+  vars F Q : Qid .
+  vars S S1 S2 S' Subst Subst' SUB : Substitution .
+  var V : Variable .  
+  var C : Constant .
+  vars T T1 T2 : Term .  
+  var TL : TermList .  
+  vars NTL NTL1 NTL2 : NeTermList .
+  var NV : NeQidSet .
+  var P : Position .
+  var ODS : OpDeclSet .
+  var OD : OpDecl .
+  vars Tp Tp1 Tp2 TpO : Type .
+  var AttS : AttrSet .
+  var M : Module .
+  var QS : QidSet .
+  var KOPDS : KindOpDeclSetSet .
+
+  --- apply substitution ---
+  op _<<_ : TermList Substitution -> TermList . --- [memo] .
+  eq TL << none = TL .
+  eq C << Subst = C .
+  eq V << ((V <- T) ; Subst) = T .
+  eq V << Subst = V [owise] .
+  eq Q[TL] << Subst = Q[TL << Subst] .
+  eq (T, NTL) << Subst = (T << Subst, NTL << Subst) .
+  eq empty << Subst = empty .
+
+  op _<<_ : Substitution Substitution -> Substitution .
+  eq S << (none).Substitution = S .
+  eq (none).Substitution << S = (none).Substitution .
+  eq ((V <- T) ; S') <<  S
+   = (V <- (T << S)) ;(S' << S) .
+
+  --- Rename each # variables in substitutions
+  --- User input should not have variables starting with "#".
+  op norm : Substitution -> Substitution .
+  op norm : TermList -> TermList .
+  eq norm((V <- T) ; Subst)    = V <- norm(T) ; norm(Subst) .
+  eq norm((none).Substitution) = (none).Substitution .
+  eq norm((T, NTL)) = norm(T), norm(NTL) .
+  eq norm(Q[TL]) = Q[norm(TL)] .
+  eq norm(empty) = empty .
+  eq norm(C) = C .
+  eq norm(V) = if substr(string(V), 0, 1) == "#" 
+               then qid("V" + string(V)) else V fi .
+
+--- getSubst --- match of two terms in the same theory
+  op getSubst  : NeTermList NeTermList -> Substitution? . 
+  eq getSubst(V, T) = V <- T .
+  eq getSubst(C, C) = none .
+  eq getSubst(F[NTL1], F[NTL2]) = getSubst(NTL1,NTL2) .
+  eq getSubst((T1 , NTL1) , (T2 , NTL2)) = if getSubst(T1,T2) =/= noMatch and getSubst(NTL1,NTL2) =/= noMatch then getSubst(T1,T2) ; getSubst(NTL1,NTL2) else noMatch fi .
+  eq getSubst(NTL1,NTL2) = noMatch [owise] .
+
+--- fromSToCond
+  op fromSToCond : QidSet -> Condition .
+  eq fromSToCond(none) = nil .
+  eq fromSToCond(V) = ('upTerm[V] = upTerm(V)) .
+  eq fromSToCond((V ; NV)) = ('upTerm[V] = upTerm(V)) /\ fromSToCond(NV) .
+
+--- nv-subterms - non-variable subterms
+  op nvsubterms : NeTermList Position -> TermPositionSet . --- [memo] .
+  eq nvsubterms(V, P) = (empty).TermPositionSet .
+  eq nvsubterms(C, P) = (C, P) .
+  eq nvsubterms(F[NTL], P) = (F[NTL], P) , nvsubterms(NTL, P . 1) .
+  eq nvsubterms((T , NTL), P . N) = nvsubterms(T, P . N) , nvsubterms(NTL, P . s N) .
+
+  --- flat - flat AC subterms
+  op flat : Module NeTermList -> NeTermList . --- [memo] .
+  eq flat(M, T1) = getTerm(metaNormalize(M, T1)) .
+
+--- croot - returns the maximal constructor typing of the root symbol
+--- if it exists. None otherwise.
+  op croot : Module Term -> OpDeclSet .
+  eq croot(M, F[NTL]) = root(M, F[NTL], getType(metaNormalize(M, F[NTL])), getOpsByKindAndQId(getMaximalTypings(M,getOpsByKind(M, (none).KindOpDeclSetSet, getCtors(getOps(M)))),getKind(M,getType(metaNormalize(M, F[NTL]))), F)) .
+  eq croot(M, C) = constant-croot(M, C, getName(C), getType(C), getCtors(getOps(M))) .
+  eq croot(M, T) = (none).OpDeclSet [owise] .
+
+--- constant-croot - returns the maximal constructor typing of the root constant symbol
+--- if it exists. None otherwise.
+  op constant-croot : Module Term Qid Type OpDeclSet -> OpDeclSet .
+  eq constant-croot(M, C, F, Tp, (op F : nil -> Tp [AttS] .) ODS) = (op F : nil -> Tp [AttS] .) .
+  eq constant-croot(M, T, F, Tp, ODS) = (none).OpDeclSet [owise] .
+
+--- root - returns the maximal typing of the root symbol if it
+--- exists. None otherwise.
+  op root : Module Term -> OpDeclSet .
+  eq root(M, F[NTL]) = root(M, F[NTL], getType(metaNormalize(M, F[NTL])), getOpsByKindAndQId(getMaximalTypings(M,getOpsByKind(M, (none).KindOpDeclSetSet, getOps(M))),getKind(M,getType(metaNormalize(M, F[NTL]))), F)) .
+  eq root(M, C) = constant-root(M, C, getName(C), getType(C), getOps(M)) .
+  eq root(M, T) = (none).OpDeclSet [owise] .
+
+
+--- constant-root - returns the maximal typing of the root constant symbol
+--- if it exists. None otherwise.
+  op constant-root : Module Term Qid Type OpDeclSet -> OpDeclSet .
+  eq constant-root(M, C, F, Tp, (op F : nil -> Tp [AttS] .) ODS) = (op F : nil -> Tp [AttS] .) .
+  eq constant-root(M, T, F, Tp, ODS) = (none).OpDeclSet [owise] .
+
+--- replace-position - T|_P = T'
+  op _[_](_) : Term Term Position -> Term .
+  eq T1[T2](delta) = T2 .
+  eq (Q[TL])[T](N . P) = Q[replace-position-list(TL, T, N . P)] .
+
+--- replace-position-list - replace subterm of T by T' in a list.
+  op replace-position-list : TermList Term Position -> Term .
+  eq replace-position-list((T1, TL), T2, 1 . P) = T1[T2](P) , TL .
+  eq replace-position-list((T1, TL), T2, (s s N) . P) = T1 , replace-position-list(TL, T2, (s N) . P) .
+
+  --- mountACTerm - if the list of terms if greater than 1 then we
+  --- mount an AC Term; if not, we return the term
+  op mountACTerm : Qid NeTermList -> Term .
+  eq mountACTerm(Q,T) = T .
+  eq mountACTerm(Q,NTL) = Q[NTL] [owise] .
+
+--- used for unification purposses to avoid renaming to variables in
+--- use
+  op getMaxV# : TermList -> Nat . --- [memo] .
+  eq getMaxV#(V) = getVNumber(V) .
+  eq getMaxV#(C) = 0 .
+  eq getMaxV#(F[NTL]) = getMaxV#(NTL) .
+  eq getMaxV#((empty).TermList) = 0 .
+  eq getMaxV#((T , NTL)) = max(getMaxV#(T),getMaxV#(NTL)) .
+
+  --- cap - renames terms headed by defined symbols and also return
+  --- the next fresh variable number
+  op cap : Module NeTermList Nat -> NeTermListNat . --- [memo] .
+  eq cap(M, F[NTL], N) = cap-term(M, F[NTL], N, croot(M, F[NTL])) .
+  eq cap(M, C, N) = cap-term(M, C, N, croot(M,C)) .
+  eq cap(M, V, N) = (V | N) .
+  eq cap(M, (T1 , NTL1), N1) = ((p1(cap(M, T1, N1)) , p1(cap(M, NTL1, p2(cap(M, T1, N1))))) | p2(cap(M, NTL1, p2(cap(M, T1, N1))))) .
+    
+  --- cap - renames term headed by defined symbols and also return
+  --- the next fresh variable number
+  op cap-term : Module Term Nat OpDeclSet -> NeTermListNat . --- [memo] .    
+  eq cap-term(M, F[NTL], N, ODS)
+    = if (ODS == (none).OpDeclSet)
+      then (qid("V#" + string(s N,10) + ":" + string(leastSort(M,F[NTL]))) | s N)
+      else (F[p1(cap(M,NTL,N))] | p2(cap(M,NTL,N)))
+      fi .
+  eq cap-term(M, C, N, ODS)
+    = if (ODS == (none).OpDeclSet)
+      then (qid("V#" + string(s N,10) + ":" + string(leastSort(M,C))) | s N)
+      else (C | N)
+      fi .
+  eq cap-term(M, V, N, ODS) = (V | N) .
+
+  op f-sorts : Module Qid -> TypeSet .
+  eq f-sorts(M, F) = f-sorts(getOpsByQid(getCtors(getOps(M)), F)) .
+
+  op f-sorts : OpDeclSet -> TypeSet .
+  eq f-sorts((none).OpDeclSet) = (none).TypeSet .
+  eq f-sorts((op F : Tp Tp -> Tp [assoc comm AttS] .) ODS) = Tp ; f-sorts(ODS) .
+  eq f-sorts(ODS) = (none).TypeSet [owise] .
+endfm
+
+fmod OP-DECL-SET-UTIL is
+  pr META-LEVEL .
+ 
+  var Q : Qid .
+  vars Tp Tp1 Tp2 TpO : Type .
+  var AttS : AttrSet .
+  var ODS : OpDeclSet .
+  var OD : OpDecl .
+  
+  op isAC : OpDeclSet -> Bool .
+  op getReturnType : OpDeclSet -> TypeSet .
+  op length : OpDeclSet -> Nat .
+
+  --- tell us if Q is an AC Symbol in the given OpDeclSet
+  eq isAC((op Q : Tp1 Tp2 -> TpO [assoc comm AttS] .) ODS) = true .
+  eq isAC(ODS) = false [owise] .
+
+  --- getReturnType - give us the possible returning types of an AC
+  --- symbol.
+  eq getReturnType((op Q : Tp Tp -> Tp [assoc comm AttS] .) ODS) = Tp .
+  eq getReturnType(ODS) = (none).TypeSet [owise] .
+
+  --- lenght - number of operators
+  eq length((none).OpDeclSet) = 0 .
+  eq length(OD ODS) = 1 + length(ODS) .
+
+endfm
+
+fmod TERM-SET is
+  protecting META-TERM .
+
+ sorts NeTermSet TermSet .
+  subsort Term < NeTermSet < TermSet .
+
+  op mt  : -> TermSet [ctor] .
+  op _o_ : TermSet TermSet -> TermSet [ctor assoc comm id: mt] .
+  op _o_ : NeTermSet TermSet -> NeTermSet [ctor assoc comm id: mt] .
+
+  var T  : Term .
+  var TL : TermList .
+  vars TS TS1 TS2 : TermSet .
+
+  --- formTLToTS - from TermList to TermSet
+  op fromTLToTS : TermList -> TermSet .
+  eq fromTLToTS(empty)  = mt .
+  eq fromTLToTS((T,TL)) = (T o fromTLToTS(TL)) .
+
+  --- formTSToTL - from TermSet to TermList
+  op fromTSToTL : TermSet -> TermList .
+  eq fromTSToTL(mt)  = empty .
+  eq fromTSToTL((T o TS)) = (T , fromTSToTL(TS)) .
+
+  --- set-intersection - TermSet intersection
+  op set-intersection : TermSet TermSet -> TermSet .
+  eq set-intersection(T o TS1, T o TS2) = T o set-intersection(TS1, TS2) .
+  eq set-intersection(TS1, TS2) = mt [owise] .
+
+  --- set-difference - TermSet difference
+  op set-difference : TermSet TermSet -> TermSet .
+  eq set-difference((T o TS1), (T o TS2)) = set-difference(TS1, TS2) .
+endfm
+
+fmod CLAUSE-INFO is
+  pr NAT .
+  pr POSITION .
+
+  sort ClauseInfo .
+
+--- inference and simplification rules
+  op assumption : -> ClauseInfo [ctor] .
+  op conjecture : -> ClauseInfo [ctor] .
+  op lemma : -> ClauseInfo [ctor] .
+  op orderedResolution : Nat Nat -> ClauseInfo [ctor] . 
+  op equalityResolution : Nat -> ClauseInfo [ctor] . 
+  op equalityFactoring : Nat -> ClauseInfo [ctor] . 
+  op orderedFactoring : Nat -> ClauseInfo [ctor] . 
+  op superpositionR : Nat Nat Position -> ClauseInfo [ctor] . 
+  op superposition : Nat Nat Position -> ClauseInfo [ctor] . 
+  op rewritten : Nat -> ClauseInfo [ctor] . 
+  op simplified : Nat -> ClauseInfo [ctor] . 
+endfm
+
+view ClauseInfo from TRIV to CLAUSE-INFO is sort Elt to ClauseInfo .  endv
+
+fmod ATOM is
+  pr BOOL .
+  sort Atom .
+
+--- error - possible error when dealing with atoms
+  op error : -> [Atom] .
+  op _=_ : Universal Universal -> Atom [ctor comm poly (1 2) metadata "3"] .
+  op true  : -> Atom [ctor metadata "1"] .
+  op false : -> Atom [ctor metadata "2"] .
+
+  vars A A1 A2 : Atom .
+
+--- equality relation for Atoms 
+  op _===_ : Atom Atom -> Bool [comm] .
+  eq A === A = true .
+  eq A1 === A2 = false [owise] .
+endfm
+
+view Atom from TRIV to ATOM is
+  sort Elt to Atom .
+endv
+
+view AtomEq from EQUALITY-RELATION to ATOM is 
+  sort Elt to Atom .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+
+fmod WEIGHTED-ATOM is
+  pr ATOM .
+  pr NAT .
+
+  sort WAtom .
+
+--- error - possible error when dealing with atoms
+  op (_)_ : Nat Atom -> WAtom [ctor] .
+
+  vars N N1 N2 : Nat .
+  vars A1 A2 : Atom .
+
+--- equality relation for Atoms 
+  op _===_ : WAtom WAtom -> Bool [comm] .
+  eq (N1)A1 === (N2)A2 = A1 === A2 .
+endfm
+
+view WAtom from TRIV to WEIGHTED-ATOM is
+  sort Elt to WAtom .
+endv
+
+view WAtomEq from EQUALITY-RELATION to WEIGHTED-ATOM is 
+  sort Elt to Atom .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+
+fmod ATOM-MAGMA is
+  pr ATOM .
+  pr SET{Atom} * ( sort Set{Atom} to AtomMagma
+                 , sort NeSet{Atom} to NeAtomMagma) .
+
+  vars A1 A2 : Atom .
+  vars NeAM1 NeAM2 : NeAtomMagma .
+  vars AM1 AM2 : AtomMagma .
+
+--- equality relation for AtomMagmas
+  op _===_ : AtomMagma AtomMagma -> Bool [comm] .
+  eq (empty).AtomMagma === (empty).AtomMagma = true .
+  eq A1 === A1 = true .
+  eq (A1 , NeAM1) === (A1 , NeAM2) = NeAM1 === NeAM2 .
+  eq AM1 === AM2 = false [owise] .  
+endfm
+
+view AtomMagmaEq from EQUALITY-RELATION to ATOM-MAGMA is 
+  sort Elt to AtomMagma .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+
+fmod WEIGHTED-ATOM-MAGMA is
+  pr WEIGHTED-ATOM .
+  pr SET{WAtom} * ( sort Set{WAtom} to WAtomMagma
+                 , sort NeSet{WAtom} to NeWAtomMagma) .
+
+  vars A1 A2 : WAtom .
+  vars NeAM1 NeAM2 : NeWAtomMagma .
+  vars AM1 AM2 : WAtomMagma .
+
+--- equality relation for AtomMagmas
+  op _===_ : WAtomMagma WAtomMagma -> Bool [comm] .
+  eq (empty).WAtomMagma === (empty).WAtomMagma = true .
+  eq A1 === A1 = true .
+  eq (A1 , NeAM1) === (A1 , NeAM2) = NeAM1 === NeAM2 .
+  eq AM1 === AM2 = false [owise] .  
+endfm
+
+view WAtomMagmaEq from EQUALITY-RELATION to WEIGHTED-ATOM-MAGMA is 
+  sort Elt to WAtomMagma .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+
+fmod CLAUSE is
+  pr ATOM-MAGMA .
+
+  sort Clause .
+
+--- _=>_ - A clause is of the form GM => DT, where GM = A1
+--- and A2 and ... and AN, and DT = A1' or A2' or A3'.
+  op _=>_ : AtomMagma AtomMagma -> Clause [ctor prec 126] .
+--- error - possible error when dealing with clauses
+  op error : -> [Clause] .
+
+  vars GM1 GM2 DT1 DT2 : AtomMagma .
+    
+--- equality relation for Clauses
+  op _===_ : Clause Clause -> Bool [comm] .
+  eq (GM1 => DT1)  === (GM2 => DT2) = (GM1 === GM2) and (DT1 === DT2) .
+endfm
+
+view ClauseEq from EQUALITY-RELATION to CLAUSE is 
+  sort Elt to Clause .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+
+view Clause from TRIV to CLAUSE is sort Elt to Clause .  endv
+    
+fmod WEIGHTED-CLAUSE is
+  pr ATOM-MAGMA .
+  pr WEIGHTED-ATOM-MAGMA .
+  pr META-TERM .
+
+  sort WClause .
+
+--- _=>_ - A weighted clause is of the form GM => DT, where GM = (N1)A1
+--- and (N2)A2 and ... and (NN)AN, and DT = A1' or A2' or A3'.
+  op _=>_ : WAtomMagma AtomMagma -> WClause [ctor prec 126] .
+
+  var T : Term .
+  vars N M : Nat .
+  vars GM GM1 GM2 : WAtomMagma .  
+  vars DT DT1 DT2 : AtomMagma .
+  var A : Atom .
+
+--- simplification
+  eq (N)(T = T) , GM => DT = GM => DT .
+  eq (N)A , (M)A , GM => DT = if N < M then (N)A , GM => DT else (M)A , GM => DT fi . 
+
+--- error - possible error when dealing with clauses
+  op error : -> [WClause] .
+
+--- equality relation for Clauses
+  op _===_ : WClause WClause -> Bool [comm] .
+  eq (GM1 => DT1)  === (GM2 => DT2) = (GM1 === GM2) and (DT1 === DT2) .
+endfm
+
+view WClauseEq from EQUALITY-RELATION to WEIGHTED-CLAUSE is 
+  sort Elt to WClause .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+
+view WClause from TRIV to WEIGHTED-CLAUSE is sort Elt to WClause .  endv
+
+fmod EXTENDED-WEIGHTED-CLAUSE is
+  pr WEIGHTED-CLAUSE .
+  pr CLAUSE-INFO .
+  pr 2TUPLE{WClause,ClauseInfo} * (sort Tuple{WClause,ClauseInfo} to EWClause,
+                             op ((_,_)) : WClause ClauseInfo -> Tuple{WClause, ClauseInfo} to (_from_) [format (d b o n)]) .
+  pr 2TUPLE{WClause,Nat} * (sort Tuple{WClause,Nat} to WClauseNatTrace,
+                           op ((_,_)) : Clause Nat -> Tuple{Clause, Nat} to (_from_)) .
+
+  vars CT1 CT2 : EWClause .
+  vars CNT1 CNT2 : WClauseNatTrace .
+
+--- equality relation for EClause
+  op _===_ : EWClause EWClause -> Bool [comm] .
+  eq CT1  === CT2 = (p1 CT1) === (p1 CT2) .
+
+--- equality relation for WClauseNatTrace
+  op _===_ : WClauseNatTrace WClauseNatTrace -> Bool [comm] .
+  eq CNT1  === CNT2 = (p1 CNT1) === (p1 CNT2) .
+endfm
+
+view EWClauseEq from EQUALITY-RELATION to EXTENDED-WEIGHTED-CLAUSE is 
+  sort Elt to EWClause .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+view WClauseNatTraceEq from EQUALITY-RELATION to EXTENDED-WEIGHTED-CLAUSE is 
+  sort Elt to WClauseNatTrace .  
+  op _===_ : Elt Elt -> Bool to _===_ .
+endv
+    
+view EWClause from TRIV to EXTENDED-WEIGHTED-CLAUSE is sort Elt to EWClause .  endv
+
+
+fmod ORDERED-EXTENDED-WEIGHTED-CLAUSE is
+--- Weighted clauses
+  pr 2TUPLE{EWClause,Nat} * (sort Tuple{EWClause,Nat} to OEWClause) .
+
+  --- order for EWClause
+  op _<_ : OEWClause OEWClause -> Bool .
+
+  vars WC1 WC2 : OEWClause .
+
+  eq WC1 < WC2 = (p2 WC1) < (p2 WC2) .
+endfm
+
+view OEWClause from STRICT-TOTAL-ORDER to ORDERED-EXTENDED-WEIGHTED-CLAUSE is 
+  sort Elt to OEWClause .  
+  op _<_ : Elt Elt -> Bool to _<_ .
+endv
+
+fmod EXTENDED-WEIGHTED-CLAUSE-SET is
+--- Set of EWClause
+  pr SET{EWClause} * (sort Set{EWClause} to EWClauseSet,
+                   sort NeSet{EWClause} to NeEWClauseSet) .
+
+  vars Tr Tr1 Tr2 : ClauseInfo .
+  var C : WClause .
+  var CTS : EWClauseSet .
+
+--- updateTrace - modify Trace information
+  op updateTrace : EWClauseSet ClauseInfo -> EWClauseSet .
+  eq updateTrace((empty).EWClauseSet, Tr) = (empty).EWClauseSet .
+  eq updateTrace((C from Tr1 , CTS), Tr2) = (C from Tr2) , updateTrace(CTS, Tr2) .
+endfm
+
+view EWClauseSet from TRIV to EXTENDED-WEIGHTED-CLAUSE-SET is sort Elt to EWClauseSet .  endv
+
+fmod EXTENDED-WEIGHTED-CLAUSE-ITEM is
+  pr 2TUPLE{Nat,EWClause} 
+     * (sort Tuple{Nat,EWClause} to EWClauseItem) .
+
+  op noElemError : -> EWClauseItem [ctor] .
+  op _<_ : EWClauseItem EWClauseItem -> Bool .
+
+  vars CTI1 CTI2 : EWClauseItem .
+
+  eq CTI1 < CTI2 = (p1 CTI1) < (p1 CTI2) .
+endfm
+
+view EWClauseItemTriv from TRIV to EXTENDED-WEIGHTED-CLAUSE-ITEM is 
+  sort Elt to EWClauseItem .  
+endv
+
+view EWClauseItem from STRICT-TOTAL-ORDER to EXTENDED-WEIGHTED-CLAUSE-ITEM is 
+  sort Elt to EWClauseItem .  
+  op _<_ : Elt Elt -> Bool to _<_ .
+endv
+
+fmod EXTENDED-WEIGHTED-CLAUSE-ITEM-LIST is
+  pr SORTABLE-LIST{EWClauseItem}
+    * ( sort List{EWClauseItem} to EWClauseItemList
+      , sort NeList{EWClauseItem} to NeEWClauseItemList) .
+endfm
+
+view EWClauseItemList from TRIV to EXTENDED-WEIGHTED-CLAUSE-ITEM-LIST is
+  sort Elt to EWClauseItemList .
+endv
+
+fmod EXTENDED-WEIGHTED-CLAUSE-TABLE is
+  pr EXTENDED-WEIGHTED-CLAUSE-ITEM .
+  pr 2TUPLE{Nat,EWClauseItemList} 
+     * (sort Tuple{Nat,EWClauseItemList} to EWClauseTable) .
+  pr NAT-SET .
+
+  vars I MaxElem : Nat .
+  var CTL : EWClauseItemList .
+  var CTI : EWClauseItem .
+  var CTT : EWClauseTable .
+  var NS : NatSet .
+  var CT : EWClause .
+
+--- createTable - init structure
+  op createTable : -> EWClauseTable .
+  eq createTable = (1,(nil).EWClauseItemList) .
+
+--- createTableIndex - init structure and set index value
+  op createTableIndex : Nat -> EWClauseTable .
+  eq createTableIndex(I) = (I,(nil).EWClauseItemList) .
+
+--- getMaxElem - get Maximum element
+  op getMaxElem : EWClauseTable -> Nat .
+  eq getMaxElem((MaxElem,CTL)) = MaxElem .
+
+--- incMaxElem - increase Maximum element counter
+  op incMaxElem : EWClauseTable -> EWClauseTable .
+  eq incMaxElem((MaxElem,CTL)) = (s MaxElem,CTL) .
+
+--- getElemByIndex - get element by index
+  op getElemByIndex : Nat EWClauseTable -> EWClauseItem .
+  eq getElemByIndex(I, (MaxElem,CTL)) = getElemByIndex(I, CTL) .
+
+--- getElemByIndex - get element by index
+  op getElemByIndex : Nat EWClauseItemList -> EWClauseItem .
+  eq getElemByIndex(I, (CTI CTL))
+   = if (p1 CTI) < I 
+     then getElemByIndex(I, CTL)
+     else if (p1 CTI) == I
+          then CTI
+          else noElemError
+          fi
+     fi .
+  eq getElemByIndex(I, CTL) = noElemError [owise] .
+
+--- removeIndexes - remove elemements from clause track table
+  op removeIndexes : NatSet EWClauseTable -> EWClauseTable .
+  eq removeIndexes((I , NS), (MaxElem, CTL)) = removeIndexes(NS, (MaxElem, removeIndex(I,CTL))) .
+  eq removeIndexes(NS, CTT) = CTT [owise] .
+
+--- removeIndex - remove elemement from clause track table
+  op removeIndex : Nat EWClauseItemList -> EWClauseItemList .
+  eq removeIndex(I, (CTI CTL)) 
+   = if (p1 CTI) < I
+     then CTI removeIndex(I, CTL)
+     else if (p1 CTI) == I 
+          then CTL
+          else (CTI CTL)
+          fi
+     fi .
+  eq removeIndex(I, CTL) = CTL [owise] .
+
+--- addInPosition - if exists, modify, if not, insert
+  op addInPosition : EWClauseItem EWClauseTable -> EWClauseTable .
+  eq addInPosition((I,CT), (MaxElem, CTL)) 
+   = if I >= MaxElem 
+     then (s I, append(CTL , (I,CT)))
+     else (MaxElem, merge((I,CT), removeIndex(I, CTL)))
+     fi .
+  eq addInPosition(CTI, CTT) = CTT [owise] .
+
+endfm
+
+view EWClauseTable from TRIV to EXTENDED-WEIGHTED-CLAUSE-TABLE is 
+  sort Elt to EWClauseTable .  
+endv
+
+fmod EXTENDED-WEIGHTED-CLAUSE-TABLE-EXT is
+  pr EXTENDED-WEIGHTED-CLAUSE-TABLE .
+  pr 2TUPLE{EWClauseItemTriv,EWClauseTable} 
+     * (sort Tuple{EWClauseItemTriv,EWClauseTable} to CTItemCTTablePair) .
+
+  var CT : EWClause .
+  var CTT : EWClauseTable .
+  var I : Nat .
+
+--- insert - insert clause in table and return index
+  op insert : EWClause EWClauseTable -> CTItemCTTablePair .
+  eq insert(CT, CTT) = ((getMaxElem(CTT),CT),addInPosition((getMaxElem(CTT),CT), CTT)) .
+    
+endfm
+
+--- Clause tautology
+fmod TAUTOLOGY is
+  pr EXTENDED-WEIGHTED-CLAUSE-SET .
+
+*** Tautology predicate in pg 152
+  op tautology : WClause -> Bool .
+
+  var T : Term .
+  var GM : WAtomMagma .
+  var DT : AtomMagma .
+  var A : Atom .
+  var N : Nat .
+
+  eq tautology((GM => ((T = T), DT)))
+   = true .
+  eq tautology(((N)A , GM => A , DT))
+   = true .
+  eq tautology((GM => DT))
+   = false [owise] .
+endfm
+
+fmod ORDERED-EXTENDED-WEIGHTED-CLAUSE-LIST is
+  pr SORTABLE-LIST{OEWClause} 
+    * ( sort List{OEWClause} to OEWClauseList
+      , sort NeList{OEWClause} to NeOEWClauseList) .
+  pr EXTENDED-WEIGHTED-CLAUSE-SET .
+
+  var WC : OEWClause .
+  var WL : OEWClauseList .
+
+  op getClauses : OEWClauseList -> EWClauseSet .
+  eq getClauses((nil).OEWClauseList) = (empty).EWClauseSet .
+  eq getClauses(WC WL)
+   = (p1 WC) , getClauses(WL) .
+endfm
+
+view OEWClauseList from TRIV to ORDERED-EXTENDED-WEIGHTED-CLAUSE-LIST is sort Elt to OEWClauseList . endv
+
+fmod WEIGHT-WEIGHTED-CLAUSE is
+  pr WEIGHTED-CLAUSE .
+
+  var C : Constant .
+  var V : Variable .
+  var Q : Qid .
+  var TL : TermList .
+  vars T T1 T2 : Term .
+  var GM : WAtomMagma .
+  var DT : AtomMagma .  
+  var NeAM : NeAtomMagma .
+  var NeWAM : NeWAtomMagma .
+  var A : Atom .
+  var WA : WAtom .
+  var N : Nat .
+
+  op weight : WClause -> Nat . --- [memo] .
+  eq weight((GM => DT)) = weight(GM) + weight(DT) .
+
+  op weight : AtomMagma -> Nat . --- [memo] .
+  eq weight((empty).AtomMagma) = 0 .
+  eq weight((A , NeAM)) = weight(A) + weight(NeAM) + 1 .
+  eq weight(T1 = T2) = weight(T1) + weight(T2) + 1 .
+
+  op weight : WAtomMagma -> Nat . --- [memo] .
+  eq weight((empty).WAtomMagma) = 0 .
+  eq weight((WA , NeWAM)) = weight(WA) + weight(NeWAM) + 1 .
+  eq weight((N) A) = weight(A) .
+
+  op weight : TermList -> Nat . --- [memo] .
+  eq weight((empty).TermList) = 0 .
+  eq weight(C) = 1 .
+  eq weight(V) = 1 .
+  eq weight(Q[TL]) = 1 + weight(TL) .
+  eq weight((T,TL)) = weight(T) + weight(TL) .
+endfm
+
+fmod WEIGHTED-ATOM-MAGMA-UTIL is
+  pr ATOM-MAGMA .
+  pr WEIGHTED-ATOM-MAGMA .
+  pr TERM-UTIL .
+
+  vars T1 T2 : Term .
+  var S : Substitution .
+  var A : Atom .
+  var WA : WAtom .
+  var NeAM : NeAtomMagma .
+  var NeWAM : NeWAtomMagma .
+  var N : Nat .
+
+  --- apply substitution ---
+  op _<<_ : AtomMagma Substitution -> AtomMagma . --- [memo] .
+  eq (empty).AtomMagma << S = (empty).AtomMagma .
+  eq (T1 = T2) << S = (T1 << S) = (T2 << S) .
+  eq (A , NeAM) << S = (A << S) , (NeAM << S) . 
+
+  --- apply substitution ---
+  op _<<_ : WAtomMagma Substitution -> WAtomMagma . --- [memo] .
+  eq (empty).WAtomMagma << S = (empty).WAtomMagma .
+  eq ((N) A) << S = (N) (A << S) .
+  eq (WA , NeWAM) << S = (WA << S) , (NeWAM << S) . 
+
+  --- getMaxV# - max variable number
+  op getMaxV# : AtomMagma -> Nat . --- [memo] .
+  eq getMaxV#((empty).AtomMagma) = 0 .
+  eq getMaxV#((A, NeAM)) = max(getMaxV#(A), getMaxV#(NeAM)) .
+  eq getMaxV#((T1 = T2)) = max(getMaxV#(T1),getMaxV#(T2)) .
+
+  --- getMaxV# - max variable number
+  op getMaxV# : WAtomMagma -> Nat . --- [memo] .
+  eq getMaxV#((empty).WAtomMagma) = 0 .
+  eq getMaxV#((WA, NeWAM)) = max(getMaxV#(WA), getMaxV#(NeWAM)) .
+  eq getMaxV#((N) A) = getMaxV#(A) .
+endfm
+    
+fmod WEIGHTED-CLAUSE-UTIL is
+  pr WEIGHTED-CLAUSE .
+  pr WEIGHTED-ATOM-MAGMA-UTIL .
+
+  var GM : WAtomMagma .
+  var DT : AtomMagma .
+
+  --- getMaxV# - max variable number
+  op getMaxV# : WClause -> Nat . --- [memo] .
+  eq getMaxV#((GM => DT)) = max(getMaxV#(GM), getMaxV#(DT)) .
+
+endfm
+
 fmod WRAP-TERM-CONSTRUCTION is
   pr STRING-AUX .
   pr META-LEVEL .

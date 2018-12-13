@@ -1,14 +1,6 @@
 --- this file loads all of the dependencies for congruence closure, except FULL-MAUDE,
 --- which must be loaded externally first
 load eqset.maude
-load tuple.maude
-load nat-util.maude
-load prelude-ext.maude
-load position.maude
-load clause-info.maude
-load module-util.maude
-load term-util.maude
-load clause.maude
 load aacrpo.maude
 load set-memo.maude
 load marked-term.maude
