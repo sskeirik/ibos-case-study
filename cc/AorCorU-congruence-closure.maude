@@ -49,96 +49,62 @@ fmod A\/C\/U-CONG-CLOSURE is
 
   sort CCState .
 
-  op [_,_,_,_,_,_,_,_,_,_,_,_] : Module Term List{IMRule} FModule EquationSet IMRuleTable FAxiomSet List{OInfo<} Process Nat Nat Nat -> CCState .
+  op [_,_,_,_,_,_,_,_,_,_,_,_] : Module Term List{IMRule} EquationSet EquationSet IMRuleTable FAxiomSet List{OInfo<} Process Nat Nat Nat -> CCState .
   op [_,_,_] : EquationSet Nat GroundTerm -> CCState [ctor] .  --- final result with count of overlap cycles and test
 
   vars T T' T'' T''' TES : GroundTerm .  var ES ES' : EquationSet .  var AS : AttrSet . var FAS : FAxiomSet . var OL : List{OInfo<} .
   var OI : OInfo . vars i j n m k l m0 : Nat .  vars S S' S'' S''' : SetM{Qid} .  var f : Qid . var IMRT : IMRuleTable .
-  var MR : MRule .  var IMR : IMRule .  var MRL : List{MRule<} . var IMRL : List{IMRule} . var RS : Results . var U FM : FModule .
+  var MR : MRule .  var IMR : IMRule .  var MRL : List{MRule<} . var IMRL : List{IMRule} . var RS : Results . var U : FModule .
   var H : Header . var IL : ImportList .
 
   op init-cc  : FModule Term -> CCState .
   op init-cc' : FModule FModule Term IMRuleTable FAxiomSet Process -> CCState .
   op rem-att : AttrSet EquationSet -> EquationSet .  --- removes equation with attributes unique to the equation
-  op id:module : -> FModule .
+  op id:eqs : -> EquationSet .
   op id:set : -> SetM{Qid} .
   op left-simplify : Equation EquationSet -> [EquationSet] .
 
   eq rem-att(AS,(eq T = T' [AS] .) ES) = ES .
   eq rem-att(AS,ES) = ES [owise] .
 
-  eq init-cc(U,TES) = [U,TES,nil,id:module,none,init-imrtab(U),init-faxset(U),nil,rules(U,TES),0,0,1] .
+  eq init-cc(U,TES) = [U,TES,nil,id:eqs,none,init-imrtab(U),init-faxset(U),nil,rules(U,TES),0,0,1] .
 
-  eq [U,TES,IMRL,(fmod H is protecting 'U .
-             sorts none .
-             none
-             none
-             none
-             ES' endfm),ES,IMRT,FAS,OL,MR MRL,m0,k,j] =
+  eq [U,TES,IMRL,ES',ES,IMRT,FAS,OL,MR MRL,m0,k,j] =
           if simpl-mrule(U,(ES ES'),MR) == mt-mrule
-             then [U,TES,IMRL,(fmod H is protecting 'U .
-                         sorts none .
-                         none
-                         none
-                         none
-                         ES' endfm),ES,IMRT,FAS,OL,MRL,m0,k,j]
+             then [U,TES,IMRL,ES',ES,IMRT,FAS,OL,MRL,m0,k,j]
              else if ax top(left(simpl-mrule(U,(ES ES'),MR))) in FAS == free
                     then if top(left(simpl-mrule(U,(ES ES'),MR))) =< id:set == true
-                            then [U,TES,IMRL ([j] simpl-mrule(U,(ES ES'),MR)),(fmod H is protecting 'U .
-                                                                       sorts none .
-                                                                       none
-                                                                       none
-                                                                       none
-                                                                       left-simplify(eq left(simpl-mrule(U,(ES ES'),MR)) = right(simpl-mrule(U,(ES ES'),MR)) [none] .,ES') endfm),
+                            then [U,TES,IMRL ([j] simpl-mrule(U,(ES ES'),MR)),left-simplify(eq left(simpl-mrule(U,(ES ES'),MR)) = right(simpl-mrule(U,(ES ES'),MR)) [none] .,ES'),
                                    eq left(simpl-mrule(U,(ES ES'),MR)) = right(simpl-mrule(U,(ES ES'),MR)) [metadata(string(j,10))] . ES,
                                    IMRT,FAS,OL,reduce-imrules(U,simpl-mrule(U,(ES ES'),MR),IMRL) # MRL,m0,k,s(j)]
-                            else [U,TES,IMRL ([j] simpl-mrule(U,(ES ES'),MR)),(fmod H is protecting 'U .
-                                                                       sorts none .
-                                                                       none
-                                                                       none
-                                                                       none
-                                                                       ES' endfm),
+                            else [U,TES,IMRL ([j] simpl-mrule(U,(ES ES'),MR)),ES',
                                    eq left(simpl-mrule(U,(ES ES'),MR)) = right(simpl-mrule(U,(ES ES'),MR)) [metadata(string(j,10))] . ES,
                                    IMRT,FAS,OL,reduce-imrules(U,simpl-mrule(U,(ES ES'),MR),IMRL) # MRL,m0,k,s(j)]
                          fi
-                    else [U,TES,IMRL ([j] simpl-mrule(U,(ES ES'),MR)),(fmod H is protecting 'U .
-                                                               sorts none .
-                                                               none
-                                                               none
-                                                               none
-                                                               ES' endfm),
+                    else [U,TES,IMRL ([j] simpl-mrule(U,(ES ES'),MR)),ES',
                            eq left(simpl-mrule(U,(ES ES'),MR)) = right(simpl-mrule(U,(ES ES'),MR)) [metadata(string(j,10))] . ES,
                            add-imrule(top(left(simpl-mrule(U,(ES ES'),MR))),([j] simpl-mrule(U,(ES ES'),MR)),IMRT),
                            FAS,OL,reduce-imrules(U,simpl-mrule(U,(ES ES'),MR),IMRL) # MRL,m0,k,s(j)]
                   fi
           fi .
 
-  eq [U,TES,IMRL,FM,ES,IMRT,FAS,OL,{i} RS # MRL,m0,k,j] = [U,TES,IMRL,FM,ES,IMRT,FAS,OL,RS # MRL,m0,k,j] .
+  eq [U,TES,IMRL,ES',ES,IMRT,FAS,OL,{i} RS # MRL,m0,k,j] = [U,TES,IMRL,ES',ES,IMRT,FAS,OL,RS # MRL,m0,k,j] .
 
-  eq [U,TES,IMRL,FM,ES,IMRT,FAS,OL,{f,[i] mt-mrule} RS # MRL,m0,k,j] =
-       [U,TES,remove(i,IMRL),FM,rem-att(metadata(string(i,10)),ES),remove([i,f],IMRT),FAS,OL, RS # MRL,m0,k,j] .
+  eq [U,TES,IMRL,ES',ES,IMRT,FAS,OL,{f,[i] mt-mrule} RS # MRL,m0,k,j] =
+       [U,TES,remove(i,IMRL),ES',rem-att(metadata(string(i,10)),ES),remove([i,f],IMRT),FAS,OL, RS # MRL,m0,k,j] .
 
-  eq [U,TES,IMRL,FM,ES,IMRT,FAS,OL,{f,[i] T [n,S] => T' [m,S']} RS # MRL,m0,k,j] =
-       [U,TES,remove(i,IMRL),FM,rem-att(metadata(string(i,10)),ES),remove([i,f],IMRT),FAS,OL,RS # ins(T [n,S] => T' [m,S'],MRL),m0,k,j] .
+  eq [U,TES,IMRL,ES',ES,IMRT,FAS,OL,{f,[i] T [n,S] => T' [m,S']} RS # MRL,m0,k,j] =
+       [U,TES,remove(i,IMRL),ES',rem-att(metadata(string(i,10)),ES),remove([i,f],IMRT),FAS,OL,RS # ins(T [n,S] => T' [m,S'],MRL),m0,k,j] .
 
-  eq [U,TES,IMRL,(fmod H is protecting 'U .
-            sorts none .
-            none
-            none
-            none
-            ES' endfm),ES,IMRT,FAS,nil,nil,m0,k,s(j)] = if m0 == j then [(ES ES'),k,getTerm(metaReduce(fmod 'TEST-RULES is including 'U-EQ .
-                                                                                                       sorts none .
-                                                                                                       none
-                                                                                                       none
-                                                                                                       none
-                                                                                                       (ES ES') endfm,'equations.Eqs))]
-                                                                   else [U,TES,IMRL,(fmod H is protecting 'U .
-                                                                               sorts none .
-                                                                               none
-                                                                               none
-                                                                               none
-                                                                               ES' endfm),ES,IMRT,FAS,compute-overlaps(IMRT,m0),nil,j,s(k),s(j)]
-                                                                   fi .
+  eq [U,TES,IMRL,ES',ES,IMRT,FAS,nil,nil,m0,k,s(j)] = if m0 == j
+                                                         then [(ES ES'),k,getTerm(metaReduce(fmod 'TEST-RULES is including 'U-EQ .
+                                                                                             sorts none .
+                                                                                             none
+                                                                                             none
+                                                                                             none
+                                                                                             (ES ES') endfm,'equations.Eqs))]
+                                                         else [U,TES,IMRL,ES',ES,IMRT,FAS,compute-overlaps(IMRT,m0),nil,j,s(k),s(j)]
+                                                      fi .
 
-  eq [U,TES,IMRL,FM,ES,IMRT,FAS,OI OL,nil,m0,k,j] =  [U,TES,IMRL,FM,ES,IMRT,FAS,OL,clean(sort(make-rule-map(U,CPS(U,OI,IMRT,FAS)))),m0,k,j] .
+  eq [U,TES,IMRL,ES',ES,IMRT,FAS,OI OL,nil,m0,k,j] = [U,TES,IMRL,ES',ES,IMRT,FAS,OL,clean(sort(make-rule-map(U,CPS(U,OI,IMRT,FAS)))),m0,k,j] .
 endfm
