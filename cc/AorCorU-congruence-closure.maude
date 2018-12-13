@@ -60,12 +60,15 @@ fmod A\/C\/U-CONG-CLOSURE is
   op init-cc  : FModule Term -> CCState .
   op init-cc' : FModule FModule Term IMRuleTable FAxiomSet Process -> CCState .
   op rem-att : AttrSet EquationSet -> EquationSet .  --- removes equation with attributes unique to the equation
+  op reweqs : Module EquationSet Term -> Term .
   op id:eqs : -> EquationSet .
   op id:set : -> SetM{Qid} .
   op left-simplify : Equation EquationSet -> [EquationSet] .
 
   eq rem-att(AS,(eq T = T' [AS] .) ES) = ES .
   eq rem-att(AS,ES) = ES [owise] .
+
+  eq reweqs(U,ES,TES) = getTerm(metaReduce(addEqs(ES,addDecls(U,upModule('EQSET,true))),TES)) .
 
   eq init-cc(U,TES) = [U,TES,nil,id:eqs,none,init-imrtab(U),init-faxset(U),nil,rules(U,TES),0,0,1] .
 
@@ -97,12 +100,7 @@ fmod A\/C\/U-CONG-CLOSURE is
        [U,TES,remove(i,IMRL),ES',rem-att(metadata(string(i,10)),ES),remove([i,f],IMRT),FAS,OL,RS # ins(T [n,S] => T' [m,S'],MRL),m0,k,j] .
 
   eq [U,TES,IMRL,ES',ES,IMRT,FAS,nil,nil,m0,k,s(j)] = if m0 == j
-                                                         then [(ES ES'),k,getTerm(metaReduce(fmod 'TEST-RULES is including 'U-EQ .
-                                                                                             sorts none .
-                                                                                             none
-                                                                                             none
-                                                                                             none
-                                                                                             (ES ES') endfm,'equations.Eqs))]
+                                                         then [(ES ES'),k,reweqs(U,ES ES',TES)]
                                                          else [U,TES,IMRL,ES',ES,IMRT,FAS,compute-overlaps(IMRT,m0),nil,j,s(k),s(j)]
                                                       fi .
 
