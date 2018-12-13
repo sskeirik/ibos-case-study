@@ -12,6 +12,9 @@ fmod CONG-CLOSURE-SHARED is
 
   sort CCState .
 
+  op rem-att : Nat EquationSet -> EquationSet .
+  eq rem-att(N,ES) = rem-att(mr-att(N),ES) .
+
   op rem-att : AttrSet EquationSet -> EquationSet .
   eq rem-att(AS,(eq T = T' [AS] .) ES) = ES .
   eq rem-att(AS,ES) = ES [owise] .

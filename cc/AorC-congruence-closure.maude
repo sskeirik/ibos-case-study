@@ -30,10 +30,10 @@ fmod A\/C-CONG-CLOSURE is
        [U,TES,IMRL,ES,IMRT,FAS,OL,RS # MRL,m0,k,j] .
 
   eq [U,TES,IMRL,ES,IMRT,FAS,OL,{f,[i] mt-mrule} RS # MRL,m0,k,j] =
-       [U,TES,remove(i,IMRL),rem-att(metadata(string(i,10)),ES),remove([i,f],IMRT),FAS,OL, RS # MRL,m0,k,j] .
+       [U,TES,remove(i,IMRL),rem-att(i,ES),remove([i,f],IMRT),FAS,OL, RS # MRL,m0,k,j] .
 
   eq [U,TES,IMRL,ES,IMRT,FAS,OL,{f,[i] T [n,S] => T' [m,S']} RS # MRL,m0,k,j] =
-       [U,TES,remove(i,IMRL),rem-att(metadata(string(i,10)),ES),remove([i,f],IMRT),FAS,OL,RS # ins(T [n,S] => T' [m,S'],MRL),m0,k,j] .
+       [U,TES,remove(i,IMRL),rem-att(i,ES),remove([i,f],IMRT),FAS,OL,RS # ins(T [n,S] => T' [m,S'],MRL),m0,k,j] .
 
   eq [U,TES,IMRL,ES,IMRT,FAS,nil,nil,m0,k,s(j)] =
        if m0 == j
