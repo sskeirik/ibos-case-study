@@ -27,7 +27,7 @@
 --- 5. In the fifth rule no unprocessed rules remain, so a congruence closure has been reached.  The equations are returned;
 ---    for testing purposes the user-specified equations are simplified by the convergent rules (this is of course unnecessary).
 
-fmod FREE-CONGRUENCE-CLOSURE is
+fmod FREE-CONG-CLOSURE is
   pr PROCESS .
   sort State .
   --- subsort EquationSet < State . --- could be used when test is removed
