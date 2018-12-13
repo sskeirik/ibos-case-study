@@ -63,25 +63,23 @@ fmod A\/C\/U-CONG-CLOSURE is
   eq init-cc(U,TES) = [U,TES,nil,id:eqs,none,init-imrtab(U),init-faxset(U),nil,rules(U,TES),0,0,1] .
 
   eq [U,TES,IMRL,ES',ES,IMRT,FAS,OL,MR MRL,m0,k,j] =
-          if simpl-mrule(U,ES ES',MR) == mt-mrule
-             then [U,TES,IMRL,ES',ES,IMRT,FAS,OL,MRL,m0,k,j]
-             else if ax top(left(simpl-mrule(U,ES ES',MR))) in FAS == free
-                    then if top(left(simpl-mrule(U,ES ES',MR))) =< id:set == true
-                            then [U,TES,IMRL ([j] simpl-mrule(U,ES ES',MR)),left-simplify(neweq(U,ES ES',MR,none),ES'),
-                                   neweq(U,ES ES',MR,j) ES,
-                                   IMRT,FAS,OL,reduce-imrules(U,ES ES',MR,IMRL) # MRL,m0,k,s(j)]
-                            else [U,TES,IMRL ([j] simpl-mrule(U,ES ES',MR)),ES',
-                                   neweq(U,ES ES',MR,j) ES,
-                                   IMRT,FAS,OL,reduce-imrules(U,ES ES',MR,IMRL) # MRL,m0,k,s(j)]
-                         fi
-                    else [U,TES,IMRL ([j] simpl-mrule(U,ES ES',MR)),ES',
-                           neweq(U,ES ES',MR,j) ES,
-                           add-imrule(top(left(simpl-mrule(U,ES ES',MR))),([j] simpl-mrule(U,ES ES',MR)),IMRT),
-                           FAS,OL,reduce-imrules(U,ES ES',MR,IMRL) # MRL,m0,k,s(j)]
-                  fi
-          fi .
+       if simpl-mrule(U,ES ES',MR) == mt-mrule
+          then [U,TES,IMRL,ES',ES,IMRT,FAS,OL,MRL,m0,k,j]
+          else if ax top(left(simpl-mrule(U,ES ES',MR))) in FAS == free
+                 then if top(left(simpl-mrule(U,ES ES',MR))) =< id:set == true
+                         then [U,TES,IMRL ([j] simpl-mrule(U,ES ES',MR)),left-simplify(neweq(U,ES ES',MR,none),ES'),
+                                neweq(U,ES ES',MR,j) ES,IMRT,FAS,OL,reduce-imrules(U,ES ES',MR,IMRL) # MRL,m0,k,s(j)]
+                         else [U,TES,IMRL ([j] simpl-mrule(U,ES ES',MR)),ES',
+                                neweq(U,ES ES',MR,j) ES,IMRT,FAS,OL,reduce-imrules(U,ES ES',MR,IMRL) # MRL,m0,k,s(j)]
+                      fi
+                 else [U,TES,IMRL ([j] simpl-mrule(U,ES ES',MR)),ES',neweq(U,ES ES',MR,j) ES,
+                        add-imrule(top(left(simpl-mrule(U,ES ES',MR))),([j] simpl-mrule(U,ES ES',MR)),IMRT),
+                        FAS,OL,reduce-imrules(U,ES ES',MR,IMRL) # MRL,m0,k,s(j)]
+               fi
+       fi .
 
-  eq [U,TES,IMRL,ES',ES,IMRT,FAS,OL,{i} RS # MRL,m0,k,j] = [U,TES,IMRL,ES',ES,IMRT,FAS,OL,RS # MRL,m0,k,j] .
+  eq [U,TES,IMRL,ES',ES,IMRT,FAS,OL,{i} RS # MRL,m0,k,j] =
+       [U,TES,IMRL,ES',ES,IMRT,FAS,OL,RS # MRL,m0,k,j] .
 
   eq [U,TES,IMRL,ES',ES,IMRT,FAS,OL,{f,[i] mt-mrule} RS # MRL,m0,k,j] =
        [U,TES,remove(i,IMRL),ES',rem-att(metadata(string(i,10)),ES),remove([i,f],IMRT),FAS,OL, RS # MRL,m0,k,j] .
@@ -89,10 +87,12 @@ fmod A\/C\/U-CONG-CLOSURE is
   eq [U,TES,IMRL,ES',ES,IMRT,FAS,OL,{f,[i] T [n,S] => T' [m,S']} RS # MRL,m0,k,j] =
        [U,TES,remove(i,IMRL),ES',rem-att(metadata(string(i,10)),ES),remove([i,f],IMRT),FAS,OL,RS # ins(T [n,S] => T' [m,S'],MRL),m0,k,j] .
 
-  eq [U,TES,IMRL,ES',ES,IMRT,FAS,nil,nil,m0,k,s(j)] = if m0 == j
-                                                         then [ES ES',k,reweqs(U,ES ES',TES)]
-                                                         else [U,TES,IMRL,ES',ES,IMRT,FAS,compute-overlaps(IMRT,m0),nil,j,s(k),s(j)]
-                                                      fi .
+  eq [U,TES,IMRL,ES',ES,IMRT,FAS,nil,nil,m0,k,s(j)] =
+       if m0 == j
+          then [ES ES',k,reweqs(U,ES ES',TES)]
+          else [U,TES,IMRL,ES',ES,IMRT,FAS,compute-overlaps(IMRT,m0),nil,j,s(k),s(j)]
+       fi .
 
-  eq [U,TES,IMRL,ES',ES,IMRT,FAS,OI OL,nil,m0,k,j] = [U,TES,IMRL,ES',ES,IMRT,FAS,OL,clean(sort(make-rule-map(U,CPS(U,OI,IMRT,FAS)))),m0,k,j] .
+  eq [U,TES,IMRL,ES',ES,IMRT,FAS,OI OL,nil,m0,k,j] =
+       [U,TES,IMRL,ES',ES,IMRT,FAS,OL,clean(sort(make-rule-map(U,CPS(U,OI,IMRT,FAS)))),m0,k,j] .
 endfm
