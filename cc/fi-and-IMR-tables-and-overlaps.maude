@@ -34,6 +34,10 @@ fmod FI-TABLE&OVERLAP-INFO is
   pr SET{Nat} .
   pr MARKED-TERM .
 
+  var i j m : Nat .
+  var P : Tuple{Nat,Nat} . var NS : Set{Nat} . var NPS NPS' : NatPairSet .
+  var f g : Qid . var FIT : FITable .
+
   sorts FIEntry FITable NatPairSet OInfo .
   subsort Tuple{Nat,Nat} < NatPairSet .
   subsort FIEntry < FITable .
@@ -42,29 +46,23 @@ fmod FI-TABLE&OVERLAP-INFO is
   op mt-tab : -> FITable [ctor] .
   op _&_ : FITable FITable -> FITable [ctor assoc comm id: mt-tab] .
 
-  var P : Tuple{Nat,Nat} . vars i j m : Nat .  vars f g : Qid .  var NPS NPS' : NatPairSet .
-  var NS : Set{Nat} .  var FIT : FITable .
-
   op mt-npset : -> NatPairSet [ctor] .
   op _&_ : NatPairSet NatPairSet  -> NatPairSet [ctor assoc comm id: mt-npset] .
-
+  ------------------------------------------------------------------------------
   eq P & P = P .
 
   op upper-set : Nat Set{Nat} -> Set{Nat} .
-
   eq upper-set(m,(i, NS)) = if i > m then (i, upper-set(m,NS)) else upper-set(m,NS) fi .
-  eq   upper-set(m,empty) = empty .
+  eq upper-set(m,empty) = empty .
 
   op lower-pairs : Nat Set{Nat} -> NatPairSet .
-
   eq lower-pairs(i,(j , NS)) = if i >= j then [i,j] & lower-pairs(i,NS) else lower-pairs(i,NS) fi .
   eq lower-pairs(i,empty) = mt-npset .
 
   op [_,_] : SMarking NatPairSet -> OInfo [ctor] .
-
+  ------------------------------------------------
   op _<_ : OInfo OInfo -> Bool .
-
-  eq [[i,f],NPS] <  [[j,g],NPS'] = i < j .
+  eq [[i,f],NPS] < [[j,g],NPS'] = i < j .
 endfm
 
 view OInfo< from STRICT-WEAK-ORDER to FI-TABLE&OVERLAP-INFO is
@@ -77,49 +75,42 @@ fmod OVERLAP-LIST&IMRULE-TABLE is
   pr MARKED-RULE .
   pr SET{IMRule} .
 
-  sort IMRuleTable .
+  var P : Tuple{Nat,Nat} . var m i j : Nat . var f g : Qid . var NPS NPS' : NatPairSet .
+  var NS NS' : Set{Nat} . var FIT : FITable . var OL : List{OInfo<} . var MR : MRule .
+  var IMR : IMRule . var IMRS : Set{IMRule} . var IMRT : IMRuleTable .
 
+  sort IMRuleTable .
   op mt-imrtab : -> IMRuleTable [ctor] .
   op [_,_] : Qid Set{IMRule} -> IMRuleTable [ctor] .
   op _@_ : IMRuleTable IMRuleTable -> IMRuleTable [ctor assoc comm id: mt-imrtab] .
 
-  var P : Tuple{Nat,Nat} . vars m i j : Nat .  vars f g : Qid .  var NPS NPS' : NatPairSet .
-  var NS NS' : Set{Nat} . var FIT : FITable . var OL : List{OInfo<} .  var MR : MRule .
-  var IMR : IMRule . var IMRS : Set{IMRule} . var IMRT : IMRuleTable .
-
   op add-imrule : Qid IMRule IMRuleTable -> IMRuleTable .
-
   eq add-imrule(f,IMR,[f,IMRS] @ IMRT) = [f,(IMR,IMRS)] @ IMRT .
   eq add-imrule(f,IMR,IMRT) = IMRT [owise] .
 
   op indices : Set{IMRule} -> Set{Nat} .
-
   eq indices(empty) = empty .
   eq indices((([i] MR), IMRS)) = i, indices(IMRS) .
 
   op fi-table : IMRuleTable -> FITable .
-
   eq fi-table(mt-imrtab) = mt-tab .
   eq fi-table([f,IMRS] @ IMRT) = [f,indices(IMRS)] & fi-table(IMRT) .
 
   op overlaps-entry : FIEntry Set{Nat} -> List{OInfo<} .
-
   eq overlaps-entry([f,i,NS],(i,NS')) = [[i,f],lower-pairs(i,(i , NS))] overlaps-entry([f,i,NS],NS') .
   eq overlaps-entry([f,NS],NS') = nil [owise] .
 
   op overlaps : FITable Nat -> List{OInfo<} .
-  op overlaps-aux : FITable Nat -> List{OInfo<} .
-
   eq overlaps(FIT,m) = sort(overlaps-aux(FIT,m)) .
+
+  op overlaps-aux : FITable Nat -> List{OInfo<} .
   eq overlaps-aux([f,NS] & FIT,m) = overlaps-entry([f,NS],upper-set(m,NS)) overlaps-aux(FIT,m) .
   eq overlaps-aux(mt-tab,m) = nil .
 
   op compute-overlaps : IMRuleTable Nat -> List{OInfo<} .
-
   eq compute-overlaps(IMRT,m) = overlaps(fi-table(IMRT),m) .
 
   op remove : SMarking IMRuleTable -> IMRuleTable .
-
   eq remove([i,f],[f,[i] MR,IMRS] @ IMRT) = remove([i,f],[f,IMRS]) @ IMRT .
   eq remove([i,f],IMRT) = IMRT [owise] .
 endfm
