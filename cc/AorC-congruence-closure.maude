@@ -21,11 +21,11 @@ fmod A\/C-CONG-CLOSURE is
              else if ax top(left(simpl-mrule(U,ES,MR))) in FAS == free
                     then [U,TES,IMRL ([j] simpl-mrule(U,ES,MR)),
                            neweq(U,ES,MR,j) ES,
-                           IMRT,FAS,OL,reduce-imrules(U,simpl-mrule(U,ES,MR),IMRL) # MRL,m0,k,s(j)]
+                           IMRT,FAS,OL,reduce-imrules(U,ES,MR,IMRL) # MRL,m0,k,s(j)]
                     else [U,TES,IMRL ([j] simpl-mrule(U,ES,MR)),
                            neweq(U,ES,MR,j) ES,
                            add-imrule(top(left(simpl-mrule(U,ES,MR))),([j] simpl-mrule(U,ES,MR)),IMRT),
-                                                   FAS,OL,reduce-imrules(U,simpl-mrule(U,ES,MR),IMRL) # MRL,m0,k,s(j)]
+                                                   FAS,OL,reduce-imrules(U,ES,MR,IMRL) # MRL,m0,k,s(j)]
                   fi
           fi .
 
