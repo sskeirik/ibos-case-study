@@ -3,6 +3,7 @@ fmod CONG-CLOSURE-SHARED is
   pr CRITICAL-PAIR .
 
   var AS : AttrSet .
+  var E : Equation .
   var ES : EquationSet .
   var T T' TES : Term .
   var U : Module .
@@ -28,4 +29,13 @@ fmod CONG-CLOSURE-SHARED is
   op mr-att : Parent -> AttrSet .
   eq mr-att(none) = none .
   eq mr-att(N) = metadata(string(N,10)) [owise] .
+
+  op left-simplify : Module Equation EquationSet -> [EquationSet] .
+  eq left-simplify(U,E,ES) = left-simplify(addEqs(E,U),ES) .
+
+  op left-simplify : Module EquationSet -> [EquationSet] .
+  eq left-simplify(U,eq T = T' [AS] . ES) =
+    (eq getTerm(metaReduce(U,T)) = T' [AS] .)
+    left-simplify(U,ES) .
+  eq left-simplify(U,none) = none .
 endfm
