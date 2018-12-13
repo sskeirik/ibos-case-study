@@ -17,7 +17,7 @@
 *** such meta-normalization is applied are already meta-normalized.
 
 fmod SIMPLIFY-MARKED-TERM&RULE is protecting MARKED-RULE .
-                                  protecting UNIT .
+                                  protecting UNIT-FM .
 
   vars T T' T'' : GroundTerm . vars n m k : Nat .
   vars S S' S'' : SetM{Qid}  . var ES : EquationSet .
