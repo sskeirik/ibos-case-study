@@ -28,47 +28,32 @@
 ---    for testing purposes the user-specified equations are simplified by the convergent rules (this is of course unnecessary).
 
 fmod FREE-CONG-CLOSURE is
-  pr PROCESS .
-  sort State .
-  --- subsort EquationSet < State . --- could be used when test is removed
+  pr CONG-CLOSURE-SHARED .
 
-  op [_,_,_,_] : List{IMRule} EquationSet Process Nat -> State .
-  op [_,_] : EquationSet GroundTerm -> State [ctor] .  --- final results with test
+  op [_,_,_,_,_,_] : Module Term List{IMRule} EquationSet Process Nat -> CCState .
+  op [_,_] : EquationSet GroundTerm -> CCState [ctor] .  --- final results with test
 
-  op init : -> State .
+  op init-cc : Module Term -> CCState .
 
-  vars T T' T'' T''' : GroundTerm .  var ES : EquationSet .  var AS : AttrSet .
+  vars T T' T'' T''' TES : GroundTerm .  var ES : EquationSet .  var AS : AttrSet .
   vars i j n m k l : Nat .  vars S S' S'' S''' : SetM{Qid} .  var f : Qid .
   var MR : MRule .  var IMR : IMRule .  var MRL : List{MRule<} . var IMRL : List{IMRule} . var RS : Results .
+  var U : Module .
 
-  op rem-att : AttrSet EquationSet -> EquationSet .  --- removes equation with attributes unique to the equation
+  eq init-cc(U,TES) = [U,TES,nil,none,rules(U,TES),1] .
 
-  eq rem-att(AS,(eq T = T' [AS] .) ES) = ES .
-  eq rem-att(AS,ES) = ES [owise] .
-
-  eq init = [nil,none,rules,1] .
-
-  eq [IMRL,ES,MR MRL,j] =
-       if simpl-mrule(ES,MR) == mt-mrule
-       then [IMRL,ES,MRL,j]
-       else [IMRL ([j] simpl-mrule(ES,MR)),
-              eq left(simpl-mrule(ES,MR)) = right(simpl-mrule(ES,MR)) [metadata(string(j,10))] . ES,
-              reduce-imrules(simpl-mrule(ES,MR),IMRL) # MRL,s(j)]
+  eq [U,TES,IMRL,ES,MR MRL,j] =
+       if simpl-mrule(U,ES,MR) == mt-mrule
+       then [U,TES,IMRL,ES,MRL,j]
+       else [U,TES,IMRL ([j] simpl-mrule(U,ES,MR)),neweq(U,ES,MR,j) ES,reduce-imrules(U,ES,MR,IMRL) # MRL,s(j)]
        fi .
 
-  eq [IMRL,ES,{i} RS # MRL,j] = [IMRL,ES, RS # MRL,j] .
+  eq [U,TES,IMRL,ES,{i} RS # MRL,j] = [U,TES,IMRL,ES, RS # MRL,j] .
 
-  eq [IMRL,ES,{f,[i] mt-mrule} RS # MRL,j] =
-       [remove(i,IMRL),rem-att(metadata(string(i,10)),ES), RS # MRL,j] .
+  eq [U,TES,IMRL,ES,{f,[i] mt-mrule} RS # MRL,j] = [U,TES,remove(i,IMRL),rem-att(i,ES), RS # MRL,j] .
 
-  eq [IMRL,ES,{f,[i] T [n,S] => T' [m,S']} RS # MRL,j] =
-       [remove(i,IMRL),rem-att(metadata(string(i,10)),ES), RS # ins(T [n,S] => T' [m,S'],MRL),j] .
+  eq [U,TES,IMRL,ES,{f,[i] T [n,S] => T' [m,S']} RS # MRL,j] =
+       [U,TES,remove(i,IMRL),rem-att(i,ES), RS # ins(T [n,S] => T' [m,S'],MRL),j] .
 
-  eq [IMRL,ES,nil,j] = [ES,getTerm(metaReduce(fmod 'TEST-RULES is including 'U-EQ .
-                                              sorts none .
-                                              none
-                                              none
-                                              none
-                                              ES
-                                              endfm,'equations.Eqs))] .
+  eq [U,TES,IMRL,ES,nil,j] = [ES,reweqs(U,ES,TES)] .
 endfm
