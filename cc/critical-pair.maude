@@ -77,9 +77,9 @@ fmod CRITICAL-PAIR is
   pr LIST{GroundTermPair} .
   pr MARKED-RULES .
   pr OVERLAP-LIST&IMRULE-TABLE .
-  pr TERM-UTIL .
   pr FAXIOMSET .
   pr AC-TERM-REPR .
+  pr SUBSTITUTION-HANDLING .
 
   op p1 : UnificationPair -> Substitution .
   op _in_ : Attr AttrSet -> Bool .
