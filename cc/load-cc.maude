@@ -14,3 +14,9 @@ load cc-shared.maude
 load free-congruence-closure.maude
 load AorC-congruence-closure.maude
 load AorCorU-congruence-closure.maude
+
+fmod CONG-CLOSURE is
+  pr FREE-CONG-CLOSURE .
+  pr A\/C-CONG-CLOSURE .
+  pr A\/C\/U-CONG-CLOSURE .
+endfm

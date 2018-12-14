@@ -11,7 +11,9 @@ fmod CONG-CLOSURE-SHARED is
   var P : Parent .
   var N : Nat .
 
-  sort CCState .
+  sort FreeCCState AxCCState .
+  op [_,_] : EquationSet GroundTerm -> FreeCCState [ctor] .
+  op [_,_,_] : EquationSet Nat GroundTerm -> AxCCState [ctor] .
 
   op rem-att : Nat EquationSet -> EquationSet .
   eq rem-att(N,ES) = rem-att(mr-att(N),ES) .

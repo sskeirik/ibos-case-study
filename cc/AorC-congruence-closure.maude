@@ -1,18 +1,17 @@
 fmod A\/C-CONG-CLOSURE is
   pr CONG-CLOSURE-SHARED .
 
-  op [_,_,_,_,_,_,_,_,_,_,_] : Module Term List{IMRule} EquationSet IMRuleTable FAxiomSet List{OInfo<} Process Nat Nat Nat -> CCState .
-  op [_,_,_] : EquationSet Nat GroundTerm -> CCState [ctor] .  --- final result with count of overlap cycles and test
+  op [_,_,_,_,_,_,_,_,_,_,_] : Module Term List{IMRule} EquationSet IMRuleTable FAxiomSet List{OInfo<} Process Nat Nat Nat -> AxCCState .
 
-  op init-cc  : Module Term -> CCState .
-  op init-cc' : Module Term IMRuleTable FAxiomSet Process -> CCState .
+  op init-ac-cc  : Module Term -> AxCCState .
+  op init-ac-cc' : Module Term IMRuleTable FAxiomSet Process -> AxCCState .
 
   vars T T' T'' T''' TES : GroundTerm .  var ES : EquationSet .  var AS : AttrSet . var FAS : FAxiomSet . var OL : List{OInfo<} .
   var OI : OInfo . vars i j n m k l m0 : Nat .  vars S S' S'' S''' : SetM{Qid} .  var f : Qid . var IMRT : IMRuleTable . var P : Process .
   var MR : MRule .  var IMR : IMRule .  var MRL : List{MRule<} . var IMRL : List{IMRule} . var RS : Results . var U : Module .
 
-  eq init-cc (U,T)            = init-cc'(U,T,init-imrtab(U),init-faxset(U),rules(U,T)) .
-  eq init-cc'(U,T,IMRT,FAS,P) = [U,T,nil,none,IMRT,FAS,nil,P,0,0,1] .
+  eq init-ac-cc (U,T)            = init-ac-cc'(U,T,init-imrtab(U),init-faxset(U),rules(U,T)) .
+  eq init-ac-cc'(U,T,IMRT,FAS,P) = [U,T,nil,none,IMRT,FAS,nil,P,0,0,1] .
 
   eq [U,TES,IMRL,ES,IMRT,FAS,OL,MR MRL,m0,k,j] =
        if simpl-mrule(U,ES,MR) == mt-mrule

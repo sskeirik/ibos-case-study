@@ -30,17 +30,16 @@
 fmod FREE-CONG-CLOSURE is
   pr CONG-CLOSURE-SHARED .
 
-  op [_,_,_,_,_,_] : Module Term List{IMRule} EquationSet Process Nat -> CCState .
-  op [_,_] : EquationSet GroundTerm -> CCState [ctor] .  --- final results with test
+  op [_,_,_,_,_,_] : Module Term List{IMRule} EquationSet Process Nat -> FreeCCState .
 
-  op init-cc : Module Term -> CCState .
+  op init-free-cc : Module Term -> FreeCCState .
 
   vars T T' T'' T''' TES : GroundTerm .  var ES : EquationSet .  var AS : AttrSet .
   vars i j n m k l : Nat .  vars S S' S'' S''' : SetM{Qid} .  var f : Qid .
   var MR : MRule .  var IMR : IMRule .  var MRL : List{MRule<} . var IMRL : List{IMRule} . var RS : Results .
   var U : Module .
 
-  eq init-cc(U,TES) = [U,TES,nil,none,rules(U,TES),1] .
+  eq init-free-cc(U,TES) = [U,TES,nil,none,rules(U,TES),1] .
 
   eq [U,TES,IMRL,ES,MR MRL,j] =
        if simpl-mrule(U,ES,MR) == mt-mrule
