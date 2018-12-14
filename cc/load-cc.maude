@@ -11,9 +11,9 @@ load process.maude
 load fi-and-IMR-tables-and-overlaps.maude
 load critical-pair.maude
 load cc-shared.maude
-load free-congruence-closure.maude
-load AorC-congruence-closure.maude
-load AorCorU-congruence-closure.maude
+load free-cong-closure.maude
+load ac-cong-closure.maude
+load acu-cong-closure.maude
 
 fmod CONG-CLOSURE is
   pr FREE-CONG-CLOSURE .
