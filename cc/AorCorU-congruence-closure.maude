@@ -57,18 +57,22 @@ fmod A\/C\/U-CONG-CLOSURE is
   eq init-acu-cc(U,ES',ID,TES) = [U,TES,nil,ES',none,ID,init-imrtab(U),init-faxset(U),nil,rules(U,TES),0,0,1] .
 
   eq [U,TES,IMRL,ES',ES,ID,IMRT,FAS,OL,MR MRL,m0,k,j] =
-       if simpl-mrule(U,ES ES',MR) == mt-mrule
+       if sm(U,ES ES',MR) == mt-mrule
           then [U,TES,IMRL,ES',ES,ID,IMRT,FAS,OL,MRL,m0,k,j]
-          else if ax top(left(simpl-mrule(U,ES ES',MR))) in FAS == free
-                 then if top(left(simpl-mrule(U,ES ES',MR))) =< ID == true
-                         then [U,TES,IMRL ([j] simpl-mrule(U,ES ES',MR)),left-simplify(U,neweq(U,ES ES',MR,none),ES'),
-                                neweq(U,ES ES',MR,j) ES,ID,IMRT,FAS,OL,reduce-imrules(U,ES ES',MR,IMRL) # MRL,m0,k,s(j)]
-                         else [U,TES,IMRL ([j] simpl-mrule(U,ES ES',MR)),ES',
-                                neweq(U,ES ES',MR,j) ES,ID,IMRT,FAS,OL,reduce-imrules(U,ES ES',MR,IMRL) # MRL,m0,k,s(j)]
+          else if ax top(left(sm(U,ES ES',MR))) in FAS == free
+                 then if top(left(sm(U,ES ES',MR))) =< ID == true
+                         then [U,TES,IMRL ([j] sm(U,ES ES',MR)),
+                                left-simplify(U,eq left(sm(U,ES ES',MR)) = right(sm(U,ES ES',MR)) [meta(none)] .,ES'),
+                                (eq left(sm(U,ES ES',MR)) = right(sm(U,ES ES',MR)) [meta(j)] .) ES,ID,
+                                IMRT,FAS,OL,ri(U,sm(U,ES ES',MR),IMRL) # MRL,m0,k,s(j)]
+                         else [U,TES,IMRL ([j] sm(U,ES ES',MR)),ES',
+                                (eq left(sm(U,ES ES',MR)) = right(sm(U,ES ES',MR)) [meta(j)] .) ES,ID,
+                                IMRT,FAS,OL,ri(U,sm(U,ES ES',MR),IMRL) # MRL,m0,k,s(j)]
                       fi
-                 else [U,TES,IMRL ([j] simpl-mrule(U,ES ES',MR)),ES',neweq(U,ES ES',MR,j) ES,ID,
-                        add-imrule(top(left(simpl-mrule(U,ES ES',MR))),([j] simpl-mrule(U,ES ES',MR)),IMRT),
-                        FAS,OL,reduce-imrules(U,ES ES',MR,IMRL) # MRL,m0,k,s(j)]
+                 else [U,TES,IMRL ([j] sm(U,ES ES',MR)),ES',
+                        (eq left(sm(U,ES ES',MR)) = right(sm(U,ES ES',MR)) [meta(j)] .) ES,ID,
+                        add-imrule(top(left(sm(U,ES ES',MR))),([j] sm(U,ES ES',MR)),IMRT),
+                        FAS,OL,ri(U,sm(U,ES ES',MR),IMRL) # MRL,m0,k,s(j)]
                fi
        fi .
 

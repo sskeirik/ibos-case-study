@@ -39,8 +39,4 @@ fmod PROCESS is  pr MARKED-RULES .  pr SIMPLIFY-MARKED-TERM&RULE .
                                              p1(simpl-mterm(U,T [n,S] => T' [m,S'],T''' [k,S'''])))}
              fi
      fi .
-
-  --- OUT: reduces List{IMRule} by a freshly generated MRule
-  op reduce-imrules : Module EquationSet MRule List{IMRule} -> Results .
-  eq reduce-imrules(U,ES,MR,IMRL) = reduce-imrules(U,simpl-mrule(U,ES,MR),IMRL) .
 endfm

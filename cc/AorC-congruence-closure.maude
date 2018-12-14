@@ -14,14 +14,14 @@ fmod A\/C-CONG-CLOSURE is
   eq init-ac-cc'(U,T,IMRT,FAS,P) = [U,T,nil,none,IMRT,FAS,nil,P,0,0,1] .
 
   eq [U,TES,IMRL,ES,IMRT,FAS,OL,MR MRL,m0,k,j] =
-       if simpl-mrule(U,ES,MR) == mt-mrule
+       if sm(U,ES,MR) == mt-mrule
           then [U,TES,IMRL,ES,IMRT,FAS,OL,MRL,m0,k,j]
-          else if ax top(left(simpl-mrule(U,ES,MR))) in FAS == free
-                 then [U,TES,IMRL ([j] simpl-mrule(U,ES,MR)),
-                        neweq(U,ES,MR,j) ES,IMRT,FAS,OL,reduce-imrules(U,ES,MR,IMRL) # MRL,m0,k,s(j)]
-                 else [U,TES,IMRL ([j] simpl-mrule(U,ES,MR)),neweq(U,ES,MR,j) ES,
-                        add-imrule(top(left(simpl-mrule(U,ES,MR))),([j] simpl-mrule(U,ES,MR)),IMRT),
-                        FAS,OL,reduce-imrules(U,ES,MR,IMRL) # MRL,m0,k,s(j)]
+          else if ax top(left(sm(U,ES,MR))) in FAS == free
+                 then [U,TES,IMRL ([j] sm(U,ES,MR)),(eq left(sm(U,ES,MR)) = right(sm(U,ES,MR)) [meta(j)] .) ES,
+                        IMRT,FAS,OL,ri(U,sm(U,ES,MR),IMRL) # MRL,m0,k,s(j)]
+                 else [U,TES,IMRL ([j] sm(U,ES,MR)),(eq left(sm(U,ES,MR)) = right(sm(U,ES,MR)) [meta(j)] .) ES,
+                        add-imrule(top(left(sm(U,ES,MR))),([j] sm(U,ES,MR)),IMRT),
+                        FAS,OL,ri(U,sm(U,ES,MR),IMRL) # MRL,m0,k,s(j)]
                fi
        fi .
 

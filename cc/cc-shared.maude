@@ -1,4 +1,4 @@
-fmod CONG-CLOSURE-SHARED is
+fmod CONG-CLOSURE-SHARED-IMPL is
   pr PROCESS .
   pr CRITICAL-PAIR .
 
@@ -16,7 +16,7 @@ fmod CONG-CLOSURE-SHARED is
   op [_,_,_] : EquationSet Nat GroundTerm -> AxCCState [ctor] .
 
   op rem-att : Nat EquationSet -> EquationSet .
-  eq rem-att(N,ES) = rem-att(mr-att(N),ES) .
+  eq rem-att(N,ES) = rem-att(meta(N),ES) .
 
   op rem-att : AttrSet EquationSet -> EquationSet .
   eq rem-att(AS,(eq T = T' [AS] .) ES) = ES .
@@ -25,12 +25,9 @@ fmod CONG-CLOSURE-SHARED is
   op reweqs : Module EquationSet Term -> Term .
   eq reweqs(U,ES,TES) = getTerm(metaReduce(addEqs(ES,addDecls(U,upModule('EQSET,true))),TES)) .
 
-  op neweq : Module EquationSet MRule Parent -> Equation .
-  eq neweq(U,ES,MR,P) = (eq left(simpl-mrule(U,ES,MR)) = right(simpl-mrule(U,ES,MR)) [mr-att(P)] .) .
-
-  op mr-att : Parent -> AttrSet .
-  eq mr-att(none) = none .
-  eq mr-att(N) = metadata(string(N,10)) [owise] .
+  op meta : Parent -> AttrSet .
+  eq meta(none) = none .
+  eq meta(N) = metadata(string(N,10)) [owise] .
 
   op left-simplify : Module Equation EquationSet -> [EquationSet] .
   eq left-simplify(U,E,ES) = left-simplify(addEqs(E,U),ES) .
@@ -40,4 +37,9 @@ fmod CONG-CLOSURE-SHARED is
     (eq getTerm(metaReduce(U,T)) = T' [AS] .)
     left-simplify(U,ES) .
   eq left-simplify(U,none) = none .
+endfm
+
+fmod CONG-CLOSURE-SHARED is
+  pr CONG-CLOSURE-SHARED-IMPL * (op simpl-mrule to sm,
+                                 op reduce-imrules to ri) .
 endfm

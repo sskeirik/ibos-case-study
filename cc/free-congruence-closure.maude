@@ -42,9 +42,9 @@ fmod FREE-CONG-CLOSURE is
   eq init-free-cc(U,TES) = [U,TES,nil,none,rules(U,TES),1] .
 
   eq [U,TES,IMRL,ES,MR MRL,j] =
-       if simpl-mrule(U,ES,MR) == mt-mrule
+       if sm(U,ES,MR) == mt-mrule
        then [U,TES,IMRL,ES,MRL,j]
-       else [U,TES,IMRL ([j] simpl-mrule(U,ES,MR)),neweq(U,ES,MR,j) ES,reduce-imrules(U,ES,MR,IMRL) # MRL,s(j)]
+       else [U,TES,IMRL ([j] sm(U,ES,MR)),(eq left(sm(U,ES,MR)) = right(sm(U,ES,MR)) [meta(j)] .) ES,ri(U,sm(U,ES,MR),IMRL) # MRL,s(j)]
        fi .
 
   eq [U,TES,IMRL,ES,{i} RS # MRL,j] = [U,TES,IMRL,ES, RS # MRL,j] .
