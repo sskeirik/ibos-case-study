@@ -1,0 +1,404 @@
+--- This file implements a contextual rewriting-based
+--- CNF-formula validity checker which uses an order-sorted
+--- congruence closure algorithm (that supports axioms) as its
+--- primary workhorse. The valdity checking process goes like this:
+--- through several steps:
+--- [1] it checks the module supports contextual rewriting (i.e. congruence closure)
+--- [2] converts the formula to CNF
+--- [3] applies a variant-unifiication-based clause simplifier
+---     whenever possible to generate sets of simplified clauses
+---
+--- At this point, we must now check EACH clause is VALID:
+---
+--- [4] if any clause can be solved with variant-satisfiability, that will be attempted:
+---     otherwise, the variables in the clause will become constants, and then
+---     the antecedent will pass to a congruence closure algorithm
+--- [5] the succedent will be rewritten with the union of the congruence-closure
+---     generated rewrite theory; if any of the equalities in the succedent drop
+---     out, the clause is valid---otherwise, we don't know
+--- [6] we either return true or a simplified CNF formula containing the conjunction
+---     of all of the clauses we could not solve
+
+--- Module provides a variant-satisfiability-based clause solver;
+--- given a clause, if any atom in the succedent falls within an
+--- FVP fragment which protects an OS-compact constructor subtheory,
+--- we then can perform variant satisfiability to solve the clause
+fmod VAR-SAT-CLAUSE-SOLVER is
+  pr VAR-UNIF-CLAUSE-SIMPLIFIER . --- for filter-disj()
+  pr VAR-SAT .                    --- for var-sat()
+  pr GENERIC-FORMULA-REDUCTION .  --- for MaybeBool and QFFormSetBoolPair
+
+  op vs-valid-clauses  : Module DisjSet         -> QFFormSetBoolPair .
+  op vs-valid-clauses1 : Module DisjSet DisjSet -> QFFormSetBoolPair .
+  op vs-valid-clauses2 : Module FOFormPair      -> MaybeBool .
+
+  var ND : NegDisj? . var PD P1 P2 : PosDisj? . var PA : PosEqAtom . var DS : Disj .
+  var U : Module . var D D' : DisjSet . var B B' : Bool .
+
+  --- INP: Module DisjSet (Clause)
+  --- PRE: Module is FVP and protects OS-compact constructor subtheory
+  --- OUT: Given a set of clauses CS:
+  ---      If all clauses can be proved valid by var-sat, returns (mtFormSet,true)
+  ---      Otherwise, returns (CS',false) where CS' is the set of clauses that cannot be proved invalid
+  --- [0] if noModule, we are done
+  eq vs-valid-clauses (noModule,D)          = (D,nobool) .
+  eq vs-valid-clauses (U,D)                 = vs-valid-clauses1(U,D,mtFormSet) [owise] .
+  --- [1] separate positive part of clause into var-sat applicable part; throw out any valid clauses
+  eq vs-valid-clauses1(U,ND \/ PD | D,D')   = if vs-valid-clauses2(U,filter-disj(U,PD,mtForm,mtForm)) == true then vs-valid-clauses1(U,D,D') else vs-valid-clauses1(U,D,D' | ND \/ PD) fi .
+  eq vs-valid-clauses1(U,mtFormSet,D')      = (D',if D' == mtFormSet then true else nobool fi) .
+  --- [2] check if any of the var-sat applicable conjuncts is valid
+  eq vs-valid-clauses2(U,(PA \/ P1,P2))     = if var-valid(U,PA) then true else if (P1 \/ P2) == mtForm then nobool else vs-valid-clauses2(U,(P1,P2)) fi fi .
+  eq vs-valid-clauses2(U,(mtForm,P2))       = nobool .
+endfm
+
+--- this module provides functions to check that a module is usuable for
+--- congruence closure (and thus contextural rewriting); essentially, we
+--- mean no adhoc-overloading and all subsorted-overloaded families of
+--- operators are labelled with the same unique number (rep. term order)
+fmod CR-SAFETY is
+  pr OPDECL-EXTRA . --- provides metadata() function
+  pr OP-FAMILY .    --- provides getOpFamilies() and OpFamilyMap datastructure
+  pr CONVERSION .   --- provides rat() function
+  op wf-metadata : Module          -> Bool .
+  op wf-metadata : OpFamily QidSet -> Bool .
+  op wfm         : OpDeclSet       ~> Qid .
+
+  var O O' : OpDecl   . var OS  : OpDeclSet   . var I : Qid    . var Q : QidSet .
+  var TYL  : TypeList . var OFM : OpFamilyMap . var U : Module .
+
+  --- INP: Module
+  --- PRE: None
+  --- OUT: true iff each subsort-overloaded opfamily is labelled by a unique number
+  eq wf-metadata(U)                      = wf-metadata(getOpFamilies(U),none) .
+  eq wf-metadata(((I,TYL) |-> OS) OFM,Q) = if wfm(OS) :: Qid then wf-metadata(OFM,wfm(OS) ; Q) else false fi .
+  eq wf-metadata(nil,Q)                  = true .
+ ceq wfm(O O' OS)                        = wfm(O OS) if metadata(O) == metadata(O') .
+ ceq wfm(O)                              = qid(metadata(O)) if rat(metadata(O),10) :: Nat .
+endfm
+
+--- Module provides conversion functions necessary for congruence closure that
+--- [1] map order-sorted terms to unsorted terms and back to order-sorted terms
+--- [2] map FOForm clauses into clauses that the congruence closure algorithm uses
+fmod CC-CONVERSION is
+  pr UNSORTIFY .
+  pr SORTIFY .
+  pr FOFORM .
+  pr FOFORMSET .
+  pr VARIABLES-TO-CONSTANTS .
+  pr A\/C-CONG-CLOSURE * (op `[_`,_`] to mr, op `{_`} to res) . --- A/C congruence closure
+
+  op varsToConstsWithMetadata# : Module Nat QidSet                            -> ModuleSubstPair  .
+  op varsToConstsWithMetadata# : Module Nat QidSet Qid OpDeclSet Substitution -> ModuleSubstPair  .
+  op shiftMetadata             : Module Nat Nat                               -> Module  .
+  op shiftMetadata             : Nat Nat OpDeclSet OpDeclSet                  -> OpDeclSet .
+
+  op unsortify                 : QFForm?                                         -> QFForm? .
+  op sortify                   : QFForm? QidTripleSet                            -> QFForm? .
+
+  op toNegSet                  : NegDisj                                         -> PosEqAtomSet .
+  op toPosSet                  : PosDisj                                         -> PosEqAtomSet .
+  op toNegDisj                 : PosEqAtomSet                                    -> NegDisj? .
+  op toPosDisj                 : PosEqAtomSet                                    -> PosDisj? .
+
+  op to-term                   : PosEqAtomSet                                    -> Term .
+  op to-term'                  : PosEqAtomSet                                    -> TermList .
+  op to-atoms                  : TermList                                        -> PosEqAtomSet .
+
+  op eqsToNegDisj              : EquationSet                                     -> NegDisj? .
+
+  var F1 F2 : QFForm . var T T' : Term . var Q Q' Q'' : QidSet . var TL : TermList . var N M : Nat . var I : Qid . var STR : String . var S : Substitution .
+  var U : Module . var ES : EquationSet . var PS : PosEqAtomSet . var NTL : NeTermList . var OS OS' : OpDeclSet . var TY : Type . var TYL : TypeList .
+  var PA PA' : PosEqAtom . var PD : PosDisj . var ND : NegDisj . var QTS : QidTripleSet . var AS : AttrSet . var O : OpDeclSet . var V : Variable . var P : Qid .
+
+  eq varsToConstsWithMetadata#(U,N,Q)           = varsToConstsWithMetadata#(U,N,Q,qid(opPrefix(U)),none,none) .
+  eq varsToConstsWithMetadata#(U,N,V ; Q,P,O,S) = varsToConstsWithMetadata#(U,s(N),Q,P,O op join(P getName(V)) : nil -> getType(V) [metadata(string(s(N),10))].,S ; V <- join(P getName(V) '. getType(V))) .
+  eq varsToConstsWithMetadata#(U,N,none,P,O,S)  = (addOps(O,U),S) .
+
+  eq shiftMetadata(U,N,M)                                            = setOps(U,shiftMetadata(N,M,getOps(U),none)) .
+  eq shiftMetadata(N,M,op I : TYL -> TY [AS metadata(STR)] . OS,OS') = shiftMetadata(N,M,OS,OS' op I : TYL -> TY [AS metadata(if rat(STR,10) > N then string(rat(STR,10) + M,10) else STR fi)] .) .
+  eq shiftMetadata(N,M,none,OS')                                     = OS' .
+
+  --- lift unsorted/sorted conversions to modules
+  eq unsortify(mtForm)         = mtForm .
+  eq unsortify(F1 /\ F2)       = unsortify(F1) /\ unsortify(F2) .
+  eq unsortify(F1 \/ F2)       = unsortify(F1) \/ unsortify(F2) .
+  eq unsortify(~ F1)           = ~ unsortify(F1) .
+  eq unsortify(T ?= T')        = unsortify(T) ?= unsortify(T') .
+  eq unsortify(T != T')        = unsortify(T) != unsortify(T') .
+  eq sortify(mtForm,QTS)       = mtForm .
+  eq sortify(F1 /\ F2,QTS)     = sortify(F1,QTS) /\ sortify(F2,QTS) .
+  eq sortify(F1 \/ F2,QTS)     = sortify(F1,QTS) \/ sortify(F2,QTS) .
+  eq sortify(~ F1,QTS)         = ~ sortify(F1,QTS) .
+  eq sortify(T ?= T',QTS)      = sortify(T,QTS) ?= sortify(T',QTS) .
+  eq sortify(T != T',QTS)      = sortify(T,QTS) != sortify(T',QTS) .
+
+  --- INP: PosDisj/NegDisj or PosEqAtomSet
+  --- PRE: Sometimes non-emptiness
+  --- OUT: PosEqAtomSet or PosDisj/NegDisj
+  eq toNegSet(T != T')         = T ?= T' .
+  eq toNegSet(T != T' \/ ND)   = T ?= T' | toNegSet(ND) .
+  eq toNegSet(mtForm)          = mtFormSet .
+  eq toPosSet(PA)              = PA .
+  eq toPosSet(PA \/ PD)        = PA | toPosSet(PD) .
+  eq toPosSet(mtForm)          = mtFormSet .
+  eq toPosDisj(PA | PS)        = PA \/ toPosDisj(PS) .
+  eq toPosDisj(mtFormSet)      = mtForm .
+  eq toNegDisj(T ?= T' | PS)   = T != T' \/ toNegDisj(PS) .
+  eq toNegDisj(mtFormSet)      = mtForm .
+
+  --- INP: PosEqAtomSet/Term
+  --- PRE: PosEqAtomSet is non-empty
+  --- OUT: Convert between two forms
+  eq to-term(T ?= T')          = '_~_[T,T'] .
+  eq to-term(PA | PA' | PS)    = '_@_[to-term'(PA | PA' | PS)] .
+  eq to-term'(T ?= T' | PS)    = '_~_[T,T'],to-term'(PS) .
+  eq to-term'(mtFormSet)       = empty .
+  eq to-atoms('mt.EqSet)       = mtFormSet .
+  eq to-atoms('_@_[NTL])       = to-atoms(NTL) .
+  eq to-atoms(('_~_[T,T'],TL)) = T ?= T' | to-atoms(TL) .
+  eq to-atoms(empty)           = mtFormSet .
+
+  --- INP: EquationSet
+  --- PRE: None
+  --- OUT: Disjunction of negative atoms, one for each equation
+  eq eqsToNegDisj(eq T = T' [AS]. ES) = T != T' \/ eqsToNegDisj(ES) .
+  eq eqsToNegDisj(none)               = mtForm .
+endfm
+
+--- TODO: add a function to apply a kind-to-sort mapping
+fmod KIND-TO-SORT-MAP is
+  pr STRING-EXTRA .
+  pr QIDTUPLESET  .
+  pr META-LEVEL   .
+  pr UNIT-FM      .
+
+  --- map kinds to sorts
+  op k2s-map   : Module         -> QidPairSet     .
+  op k2s-map   : KindSet        -> QidPairSet     .
+  op k2s       : KindSet        -> SortSet        .
+  op k2s       : Kind           -> Sort           .
+  op k2s       : String         -> Sort           .
+  --- top the signature
+  op top-subs  : Module KindSet -> SubsortDeclSet .
+  op top-subs  : Sort SortSet   -> SubsortDeclSet .
+  op top       : Module         -> Module         .
+
+
+  var K K' : Kind . var S S' : Sort . var SS : SortSet . var SR : String . var KS : KindSet . var M : Module .
+
+  eq k2s(none)           = none .
+  eq k2s(K ; K' ; KS)    = k2s(K) ; k2s(K' ; KS) .
+  eq k2s(K)              = k2s(string(K)) .
+  eq k2s(SR)             = qid("|" + replace(substr(substr(SR,0,sd(length(SR),2)),2,sd(length(SR),4)),"`,","|") + "|") .
+
+  eq k2s-map(M)          = k2s-map(getKinds(M)) .
+  eq k2s-map(K ; KS)     = qp(K,k2s(K)) | k2s-map(KS) .
+  eq k2s-map(none)       = none .
+
+  eq top(M)              = addSorts(k2s(getKinds(M)),addSubsorts(top-subs(M,getKinds(M)),M)) .
+  eq top-subs(M,K ; KS)  = top-subs(k2s(K),lesserSorts(M,K)) top-subs(M,KS) .
+  eq top-subs(M,none)    = none .
+  eq top-subs(S,S' ; SS) = subsort S' < S . top-subs(S,SS) .
+  eq top-subs(S,none)    = none .
+endfm
+
+--- take a module and extend it with sets of equations
+fmod EQUATIONAL-EXT is
+  pr META-LEVEL .
+  pr UNIT-FM .
+  pr FOFORMSET .
+  pr QID-JOIN .
+  pr UNIQUE-PREFIX .
+  pr KIND-TO-SORT-MAP .
+  pr FOFORMSET .
+
+  --- module conversions
+  op equational-ext : Module         -> Module      [memo] .
+  op eqset-sort     : Module         -> Sort        [memo] .
+  op eq-opid        : Module         -> Qid         [memo] .
+  op eqset-opid     : Module         -> Qid         [memo] .
+  op eqsetid-term   : Module         -> TermQid     [memo] .
+  op eq-ops         : Module KindSet -> OpDeclSet   [memo] .
+  op eq-eqs         : Module KindSet -> EquationSet [memo] .
+  --- formula conversions
+  op eq2as          : Module Term         -> PosEqAtomSet  .
+  op eq2as          : Qid Qid Term Term   -> PosEqAtomSet  .
+  op eq2as          : Qid TermList        -> PosEqAtomSet  .
+  op as2eq          : Module PosEqAtomSet -> Term          .
+  op as2eq'         : Module PosEqAtomSet -> TermList      .
+
+  var M : Module . var K : Kind . var KS : KindSet .
+  var NTL : NeTermList . var TL : TermList .
+  var A A' : PosEqAtom . var AS : PosEqAtomSet .
+  var O1 O2 : Qid . var ID T T' : Term .
+
+  --- extend module by topping it and then adding equations
+  eq equational-ext(M) = addEqs(eq-eqs(M,getKinds(M)),addSorts(eqset-sort(M),addOps(eq-ops(M,getKinds(M)),top(M)))) .
+
+  --- fresh sort for equation sets
+  eq eqset-sort(M)     = qid(sortPrefix(M) + "EqSet") .
+
+  --- fresh operator ids for equation sets
+  eq eq-opid(M)        = qid(opPrefix(M)   + "~") .
+  eq eqset-opid(M)     = qid(opPrefix(M)   + "|") .
+  eq eqsetid-term(M)   = qid("none." + string(eqset-sort(M))) .
+
+  --- operator and equation declarations for equation sets
+  eq eq-ops(M,K ; KS)  = op eq-opid(M) : k2s(K) k2s(K) -> eqset-sort(M) [ctor] . eq-ops(M,KS) .
+  eq eq-ops(M,none)    = (op eqset-opid(M) : eqset-sort(M) eqset-sort(M) -> eqset-sort(M) [ctor id(eqsetid-term(M))] . op 'none : nil -> eqset-sort(M) [ctor] .) .
+  eq eq-eqs(M,K ; KS)  = (eq eq-opid(M)[qid("X:" + string(k2s(K))),qid("X:" + string(k2s(K)))] = eqsetid-term(M) [none].) eq-eqs(M,KS) .
+  eq eq-eqs(M,none)    = none .
+
+  --- formula conversions
+  eq eq2as(M,T)                 = eq2as(eqset-opid(M),eq-opid(M),eqsetid-term(M),T) .
+  eq eq2as(O1,O2,ID,O1[NTL])    = eq2as(O2,NTL) .
+  eq eq2as(O1,O2,ID,O2[T,T'])   = T ?= T' .
+  eq eq2as(O1,O2,ID,ID)         = mtFormSet .
+  eq eq2as(O2,(O2[T,T'],TL))    = T ?= T' | eq2as(O2,TL) .
+  eq eq2as(O2,empty)            = mtFormSet .
+  ---
+  eq as2eq(M,mtFormSet)         = eqsetid-term(M) .
+  eq as2eq(M,A)                 = as2eq'(M,A) .
+  eq as2eq(M,A | A' | AS)       = eqset-opid(M)[as2eq'(M,A | A' | AS)] .
+  eq as2eq'(M,T ?= T' | A | AS) = eq-opid(M)[T,T'],as2eq'(M,A | AS) .
+  eq as2eq'(M,T ?= T')          = eq-opid(M)[T,T'] .
+endfm
+
+--- Module provides the actual implemnation of contextual rewriting
+--- that will be used in the satisfiablity algorithm
+--- NOTE: no clause simplification is performed here
+fmod CONTEXT-REW is
+  pr OPDECL-TYPING            . --- for overloading?() function
+  pr VARIABLES-TO-CONSTANTS   . --- variable-constant conversion
+  pr FOFORM-OPERATIONS        . --- for basic formula operations
+  pr FOFORM-SUBSTITUTION      . --- for formula substitution
+  pr FOFORMSET-CONSTS-TO-VARS . --- map constants back into variables
+  pr CNF                      . --- CNF formula transformation
+  pr CR-SAFETY                . --- provides wf-metadata()
+  pr CC-CONVERSION            . --- provides unsorted/sorted conversion and clause conversion
+  pr EQUATIONAL-EXT           . --- extend a theory with equations in that theory
+  pr SORTIFY-AUX              .
+
+  op context-rew  : Module Nat NegDisj PosDisj ~> Disj .
+  op context-rew' : Module Nat NegDisj PosDisj ~> Disj .
+  op context-rew1 : Module ModuleSubstPair NegDisj PosDisj ~> Disj .
+  op context-rew2 : Module Module Module Substitution QidSet PosEqAtomSet PosEqAtomSet ~> Disj .
+  op context-rew3 : Module Module Module Substitution QidSet EquationSet PosEqAtomSet PosEqAtomSet ~> Disj .
+  op context-rew4 : Module Module Module Substitution QidSet EquationSet PosEqAtomSet PosEqAtomSet PosEqAtomSet ~> Disj .
+  op print-disj   : PosDisj ~> PosDisj .
+  --- miscellaneous aux function
+  op get-eqs      : AxCCState ~> EquationSet .
+  op rewWithEqs   : Module EquationSet Term -> Term .
+  op constsToVars : Substitution Module QidSet PosEqAtomSet -> PosDisj .
+
+  var U U' U'' : Module  . var ND : NegDisj? . var QS UQS : QidSet  . var D : Disj . var N : Nat . var S : Substitution . var T : Term .
+  var CC       : AxCCState . var PD : PosDisj? . var ES : EquationSet . var EK : [EquationSet] . var AC SC SC' : PosEqAtomSet .
+
+  --- INP: Module Nat NegDisj PosDisj
+  --- PRE: [1] Disj are well-formed with respect to Module
+  ---      [2] Module's operators are properly annotated with an AC-RPO that is compatible with the rewrite relation
+  ---      [3] Module does not have operators with the id attribute
+  ---      [4] Nat is greater than or equal to the id constant with the highest value
+  --- OUT: PosDisj? rewritten with equations from congruence closure of equations in NegDisj modulo B
+  eq context-rew(U,N,ND,PD)                   = context-rew'(U,N,ND,PD) .
+  eq context-rew'(U,N,ND,PD)                  = context-rew1(U,varsToConstsWithMetadata#(shiftMetadata(U,N,| vars(ND) |),N,vars(ND)),ND,PD)
+  [print "CONTEXT-REW: " ND " => " PD] .
+  eq context-rew1(U,(U',S),ND,PD)             = context-rew2(U,U',setEqs(unsortify(U'),none),S,vars(PD) ; vars(ND),toNegSet(unsortify(ND << S)),toPosSet(unsortify(PD << S))) .
+  eq context-rew2(U,U',U'',S,QS,AC,SC)        = context-rew3(U,U',U'',S,QS,get-eqs(init-ac-cc(U'',to-term(AC))),AC,SC) .
+ ceq context-rew3(U,U',U'',S,QS,EK,AC,SC)     = context-rew4(U,U',U'',S,QS,EK,AC,SC,eq2as(U',rewWithEqs(U',sortify(EK,constsToQTS(U')),as2eq(U',constsToVars(S,U',QS,SC)))))
+  if EK :: EquationSet [print "CC RESULT: " EK] .
+  eq context-rew4(U,U',U'',S,QS,ES,AC,SC,SC') = print-disj(constsToVars(S,toPosDisj(SC'))) .
+
+  --- constsToVars
+  eq constsToVars(S,U,QS,SC) = toPosSet(sortify(toPosDisj(SC),constsToQTS(U) | varsToQTS(QS))) .
+  --- constsToVars(unsortify-codom(S),toPosDisj(SC))
+
+  eq rewWithEqs(U,ES,T) = getTerm(metaReduce(addEqs(ES,equational-ext(U)),T)) .
+  eq rewWithEqs(U:[Module],EK,T:[Term]) = 'error .
+
+  --- INP: AxCCState
+  --- PRE: None
+  --- OUT: Verifies that congruence closure completed successfully
+  eq get-eqs([ES,N,'mt.EqSet]) = ES .
+
+  eq print-disj(PD) = PD [print "RESULT: " PD] .
+endfm
+
+---(
+--- Module provides an implementation of contextual-rewriting based satisfiability
+--- (which offloads to a variant-satisfiability based solver whenever possible)
+fmod CONTEXT-REW-SOLVER is
+  pr FOFORMSET-OPERATIONS .       --- provides DisjSet data structure and conversion in DisjSet
+  pr CNF .                        --- provides toCNF()
+  pr VAR-UNIF-CLAUSE-SIMPLIFIER . --- provides vu-clause-simp()
+  pr VAR-SAT-CLAUSE-SOLVER .      --- provides vs-clause-solver()
+  pr REWRITE-CLAUSE-SIMPLIFIER .  --- rew-clause-simplify
+  pr CONTEXT-REW .                --- provides context-rew()
+  pr GENERIC-FORMULA-REDUCTION .  --- provides QFFormSetBoolPair data structure
+  pr CLAUSE-INVALIDITY-CHECKER .  --- provides clause-invalid?()
+
+  op cr-val  : Module Module Module QFForm?                                    -> QFFormSetBoolPair .
+  op cr-vald : Module Module Module DisjSet                                    -> QFFormSetBoolPair .
+  op cr-val1 : Module Module DisjSet                                           -> QFFormSetBoolPair .
+  op cr-val2 : Module Module DisjSet QFFormSetBoolPair                         -> QFFormSetBoolPair .
+  op cr-val3 : Module Module DisjSet DisjSet DisjSet MaybeBool                 -> QFFormSetBoolPair .
+  op cr-val4 : Module Module DisjSet DisjSet DisjSet MaybeBool PosDisj PosDisj -> QFFormSetBoolPair .
+  ---
+  op cr-sat  : Module Module Module QFForm?                                    -> QFFormSetBoolPair .
+  op cr-sat  : QFFormSetBoolPair                                               -> QFFormSetBoolPair .
+
+  var U U' RU : Module . var F : QFForm? . var N N' : NegDisj . var N? : NegDisj? . var P? : PosDisj? . var TA : TruthAtom .
+  var P P' : PosDisj . var D D' O : DisjSet . var B : Bool . var PK : [PosDisj] . var J : Disj . var B? : Bool? .
+
+  --- validity check goes as follows:
+  --- [0]   convert formula to CNF
+  eq cr-val (RU,U,U',F)                = cr-vald(RU,U,U',toDisjSet(simplify(toCNF(F)))) .
+  --- [1]   use var-unification + rewriting to simplify as many clauses as possible
+  eq cr-vald(RU,U,U',D)                = cr-val1(U,U',rew-clause-simplify(RU,vu-clause-simp(U',D),mtFormSet)) .
+  --- [2]   use var-sat if we can to prove clauses are valid
+  eq cr-val1(U,U',D)                   = cr-val2(U,U',D,vs-valid-clauses(U',D)) .
+  eq cr-val2(U,U',D',(D,B?))           = if D :: TruthAtom then (D',if D == tt then true else false fi) else cr-val3(U,U',D,D,mtFormSet,true) fi .
+  --- [3 ]  if next clause is well-formed, apply contextual rewriting
+  eq cr-val3(U,U',O,N \/ P | D,D',B)   = cr-val4(U,U',O,D,D',B,P,N \/ context-rew(U,0,N,P)) .
+  --- [3']  if next clause is true/false, just check truth directly
+  eq cr-val3(U,U',O,TA | D,D',B)       = (D | D',B and-then TA == tt) .
+  --- [3']  if next clause is not well-formed, we can't apply contextual rewriting; fail
+  eq cr-val3(U,U',O,J | D,D',B)        = (D | D' | J,nobool) [owise] .
+  --- [3''] if no more clauses to process; apply validity/invalidity checkers one last time to cr-simplified clauses
+  eq cr-val3(U,U',O,mtFormSet,D',B)    = if B or-else O == D' then (D',if B == false then nobool else B fi) else vs-valid-clauses(U',D') fi .
+  --- [4]   check if contextual rewriting was able to solve the clause
+  eq cr-val4(U,U',O,D,D',B,P,N' \/ P') = cr-val3(U,U',O,D,D' | (N' \/ P'),B and-then size(P') < size(P)) .
+  eq cr-val4(U,U',O,D,D',B,P,N')       = cr-val3(U,U',O,D,D' | N',B) .
+  eq cr-val4(U,U',O,D,D',B,P,PK)       = (D | D' | P,errb('Module 'not 'wellformed 'for 'contextual 'rewriting)) [owise] .
+endfm
+
+--- TODO: rethink this or remove it
+--- Module provides method to check if a clause in a set of clauses is NOT valid:
+--- This is applied as a last resort if we do not know how to proceed
+--- Strategy is as follows: if in a clause, terms in all positive atoms are:
+---   [a] constructor terms
+---   [b] non-narrowable with convergent equations generated from negative atoms --- still TODO
+---   [c] non-unifiable with each other
+--- we conclude invalid.
+--- Conditions [a] and [b] ensure terms are in normal form; condition [c] ensures they have no common instances
+fmod CLAUSE-INVALIDITY-CHECKER is
+  pr GENERIC-FORMULA-REDUCTION .  --- provides QFFormSetBoolPair data structure
+  pr FOFORMSET                  . --- DisjSet
+  pr CTOR-SIG                   . --- ctor-sig
+  pr FOFORM-OPERATIONS          . --- wellFormed()
+  op clause-invalid?  : Module QFFormSetBoolPair -> QFFormSetBoolPair .
+  op clause-invalid?  : Module DisjSet DisjSet   -> QFFormSetBoolPair .
+  op clause-invalid?  : Module Disj              -> Bool .
+  op clause-invalid'? : Module PosDisj?          -> Bool .
+  var U : Module . var N : NegDisj . var P : PosDisj . var P? : PosDisj? . var T T' : Term . var D D' : DisjSet . var B : Bool .
+
+  eq clause-invalid? (U,N \/ P)       = if wellFormed(ctor-sig(U),P) then clause-invalid'?(U,P) else nobool fi .
+  eq clause-invalid'?(U,T ?= T' \/ P) = metaUnify(U,T =? T,0,0) == noUnifier and-then clause-invalid'?(U,P) .
+  eq clause-invalid'?(U,mtForm)       = true .
+
+  eq clause-invalid?(U,(D,nobool))    = clause-invalid?(U,D,mtFormSet) .
+  eq clause-invalid?(U,(D,B))         = (D,B) .
+  eq clause-invalid?(U,N \/ P | D,D') = if clause-invalid?(U,N \/ P) then (N \/ P | D | D',false) else clause-invalid?(U,D,D' | N \/ P) fi .
+  eq clause-invalid?(U,mtFormSet,D')  = (D',nobool) .
+endfm
+---)
