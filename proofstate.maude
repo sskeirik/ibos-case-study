@@ -17,7 +17,7 @@ fmod REACH-PROOF-STRATEGY is
   subsort ProofRuleAction < ProofRuleActionList .
   --- basic proof rule actions
   op  subsume : -> ProofRuleAction [ctor] .
-  op  simplify : -> ProofRuleAction [ctor] .
+  op  simplify : Bool -> ProofRuleAction [ctor] .
   op  termcheck : -> ProofRuleAction [ctor] .
   op  step : -> ProofRuleAction [ctor] .
   op  axiom : LabelReachForm -> ProofRuleAction [ctor] .
@@ -62,29 +62,29 @@ fmod REACH-PROOF-STRATEGY is
 
   --- the default proof strategy
   op default : LabelReachFormList -> ProofStrat .
-  eq default(AXL) = simplify ;;
+  eq default(AXL) = simplify(true) ;;
                     subsume ;;
                     termcheck ;;
                     step ;;
-                    simplify ;;
+                    simplify(true) ;;
                     subsume ;;
                     termcheck ;;
                     pause ;;
                     default-loop(AXL) .
   op default-loop : LabelReachFormList -> ProofStrat .
   eq default-loop(AXL) = loop-axioms(AXL,step) ;;
-                         simplify ;;
+                         simplify(true) ;;
                          subsume ;;
                          termcheck ;;
                          pause ;;
                          default-loop(AXL) .
   --- the default proof strategy with (assumed) axioms
   op default : LabelReachFormList LabelReachFormList -> ProofStrat .
-  eq default(AXL,AX ; AXL') = simplify ;;
+  eq default(AXL,AX ; AXL') = simplify(true) ;;
                               subsume ;;
                               termcheck ;;
                               loop-axioms(AXL,step) ;;
-                              simplify ;;
+                              simplify(true) ;;
                               subsume ;;
                               termcheck ;;
                               pause ;;
@@ -601,7 +601,7 @@ fmod REACH-PROOF-STATE-PRINTER is
   --- OUT: print out the next action that this goal will take
   op printNext : ProofRuleAction -> Qid .
   eq printNext(subsume) = 'subsume .
-  eq printNext(simplify) = 'simplify .
+  eq printNext(simplify(B)) = 'simplify .
   eq printNext(termcheck) = 'termcheck .
   eq printNext(step) = 'step .
   eq printNext(axiom(L:LabelReachForm)) = 'axiom .
@@ -1140,8 +1140,8 @@ fmod VISUALIZE is
 
   --- OUT: true if ProofRuleActionList ends with item we wish to compress away
   op stackOn : ProofRuleActionList -> Bool .
-  eq stackOn(simplify) = true .
-  eq stackOn(PS simplify) = true .
+  eq stackOn(simplify(B:Bool)) = true .
+  eq stackOn(PS simplify(B:Bool)) = true .
   eq stackOn(PS) = false [owise] .
 
   --- OUT: true iff the only difference between the two formulas is the condition is negated

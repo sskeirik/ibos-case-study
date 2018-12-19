@@ -168,8 +168,9 @@ fmod REACH-PROOF-RULES-AUX is
   var SRSK : [StepResultSet] .
   var ARLK : [AxiomResultList] .
 
-  op simp-action : ProofMetadata Module ProofGoal -> ProofUpdate .
-  eq simp-action(D,U,G) = (none || newChildGoals(G,goal-simplify(U ; if enableVarUnifSimp then getModByImpl(D, 'varsat) else noModule fi,liftRFSS(getbody(G))))) .
+  op simp-action : ProofMetadata Module Bool ProofGoal -> ProofUpdate .
+  eq simp-action(D,U,B,G) = (none ||
+    newChildGoals(G,goal-simplify(U ; if enableVarUnifSimp and B then getModByImpl(D, 'varsat) else noModule fi,liftRFSS(getbody(G))))) .
 
   op termcheck-action : ProofMetadata Module QFCTermSet ProofGoal -> ProofUpdate .
   op termcheck-action : ProofMetadata Module Bool ProofGoal -> ProofUpdate .
@@ -288,7 +289,7 @@ fmod REACH-PROOF-RULES-AUX is
   eq printStep(false,STR,PU) = PU .
 
   op apply-proof-action : ProofMetadata ProofStrat ProofGoal -> ProofUpdate .
-  eq apply-proof-action(D,simplify,G)   = printStep(printStepName,"simp-action",simp-action(D,get-mod(D),G)) .
+  eq apply-proof-action(D,simplify(B),G)= printStep(printStepName,"simp-action",simp-action(D,get-mod(D),B,G)) .
   eq apply-proof-action(D,subsume,G)    = printStep(printStepName,"sub-action",sub-action(D,get-mod(D),G)) .
   eq apply-proof-action(D,termcheck,G)  = printStep(printStepName,"term-action",termcheck-action(D,get-mod(D),get-tst(D),G)) .
   eq apply-proof-action(D,step,G)       = printStep(printStepName,"step-action",step-action(D,get-mod(D),get-rls(D),G)) .

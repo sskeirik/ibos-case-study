@@ -543,7 +543,7 @@ mod RLTL-PROC-CMD is
   ---      avoid conflicts with any variables already in goals GS
   eq $cases (U,T,V,TS,GS) = $cases1(U,#renameAllVar(U,upTerm(GS),(T,V,TermList(TS))),GS) .
   eq $cases1(U,termdata((T,V,TL),Idx),GS) = $cases2(V,TermSet(TL),generalizeGoals(U,T,GS)) .
-  eq $cases2(V,TS,G && GS) = prestrat(G,case(V,TS) ;; simplify ;; subsume ;; termcheck ;; pause) && $cases2(V,TS,GS) .
+  eq $cases2(V,TS,G && GS) = prestrat(G,case(V,TS) ;; pause ;; simplify(true) ;; subsume ;; termcheck) && $cases2(V,TS,GS) .
   eq $cases2(V,TS,mt) = mt .
 
   --- commands to be typed BEFORE starting the proof
@@ -564,7 +564,7 @@ mod RLTL-PROC-CMD is
 
   --- commands to be typed AFTER starting the proof
   eq proc(case(N,V,TS),    R) = if getgl!(R,N) :: ProofGoal
-                                  then merge(delgl(R,getgl!(R,N)),apply-proof-strat(R,prestrat(getgl!(R,N),case(V,TS) ;; simplify ;; subsume ;; termcheck))) &
+                                  then merge(delgl(R,getgl!(R,N)),apply-proof-strat(R,prestrat(getgl!(R,N),case(V,TS) ;; pause ;; simplify(true) ;; subsume ;; termcheck))) &
                                     (write('Case 'rule 'generated: '\n printSpaces(8)) ; write-branch(N))
                                   else write('Goal: qid(string(N,10)) 'not 'found)
                                 fi .
@@ -577,7 +577,7 @@ mod RLTL-PROC-CMD is
 				  fi else write('Error: 'case 'pattern 'has 'wrong 'type)
 				fi .
   eq proc(split(N,B,QF,QF'), R) = if getgl!(R,N) :: ProofGoal
-                                  then merge(delgl(R,getgl!(R,N)),apply-proof-strat(R,prestrat(getgl!(R,N),split(B,QF,QF') ;; simplify ;; subsume ;; termcheck))) &
+                                  then merge(delgl(R,getgl!(R,N)),apply-proof-strat(R,prestrat(getgl!(R,N),split(B,QF,QF') ;; pause ;; simplify(true) ;; subsume ;; termcheck))) &
                                     (write('Split 'rule 'generated: '\n printSpaces(8)) ; write-branch(N))
                                   else write('Goal: qid(string(N,10)) 'not 'found)
                                 fi .
