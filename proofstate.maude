@@ -208,6 +208,7 @@ fmod REACH-PROOF-GOALSET is
   var S : Substitution .
   var SS : SubstitutionSet .
   var GSS : ProofGoalSubstPairSet .
+  var C C' : QFForm? .
 
   sort NeProofGoalSet MaybeProofGoal ProofGoalSet .
   subsort ProofGoal < MaybeProofGoal NeProofGoalSet < ProofGoalSet .
@@ -406,6 +407,20 @@ fmod REACH-PROOF-GOALSET is
   op goalsByMatch : Module Term ProofGoalSet -> ProofGoalSet .
   eq goalsByMatch(U,T,GS) = toGoalSet(#goalsByMatch(U,T,GS)) .
 
+  --- OUT: Get a set of goals whose LHS matches the pattern plus the
+  ---      witnessing substitutions
+  op #goalsByMatch : Module QFCTerm ProofGoalSet -> ProofGoalSubstPairSet .
+  eq #goalsByMatch(U,(T | C),G && GS) =
+    if matches#(U,(T | C),antc(getbody(G))) :: Substitution
+      then (G,matches#(U,(T | C),antc(getbody(G))))
+      else .ProofGoalSubstPairSet
+    fi && #goalsByMatch(U,(T | C),GS) .
+  eq #goalsByMatch(U,(T | C),mt) = .ProofGoalSubstPairSet .
+
+  op goalsByMatch : Module QFCTerm ProofGoalSet -> ProofGoalSet .
+  eq goalsByMatch(U,(T | mtForm),GS) = toGoalSet(#goalsByMatch(U,T,GS)) .
+  eq goalsByMatch(U,(T | C),GS) = toGoalSet(#goalsByMatch(U,(T | C),GS)) [owise] .
+
   --- OUT: Replace as many goals as possible by their generalizations
   ---      specified by the given pattern
   op generalizeGoals : Module Term ProofGoalSet -> ProofGoalSet .
@@ -414,6 +429,17 @@ fmod REACH-PROOF-GOALSET is
   op generalizeGoals2 : Term ProofGoalSubstPairSet -> ProofGoalSet .
   eq generalizeGoals2(T,(G,S) && GSS) =
     setbody(G,set-conj-antc(getbody(G),(T | conj-join(toPosEqAtoms(S))))) &&
+    generalizeGoals2(T,GSS) .
+  eq generalizeGoals2(T,.ProofGoalSubstPairSet) = mt .
+
+  --- OUT: Replace as many goals as possible by their generalizations
+  ---      specified by the given pattern with terms and conditions
+  op generalizeGoals : Module QFCTerm ProofGoalSet -> ProofGoalSet .
+  eq generalizeGoals(U,(T | C),GS) = generalizeGoals2((T | C),#goalsByMatch(U,(T | C),GS)) .
+
+  op generalizeGoals2 : QFCTerm ProofGoalSubstPairSet -> ProofGoalSet .
+  eq generalizeGoals2((T | C),(G,S) && GSS) =
+    setbody(G,set-conj-antc(getbody(G),(T | C /\ conj-join(toPosEqAtoms(S))))) &&
     generalizeGoals2(T,GSS) .
   eq generalizeGoals2(T,.ProofGoalSubstPairSet) = mt .
 
