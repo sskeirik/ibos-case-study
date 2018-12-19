@@ -584,7 +584,7 @@ fmod TRANSITION-CTOR-SIMPLIFICATION is
   pr MGCI .
 
   var M : Module . var R : ReachForm .
-  var T : Term . var CS S : Substitution .
+  var T : Term . var CS S S1 S2 : Substitution .
   var C C' : QFForm . var CTS : QFCTermSet .
 
   --- OUT: extract conjoined substitutions from the LHS
@@ -593,9 +593,15 @@ fmod TRANSITION-CTOR-SIMPLIFICATION is
   eq extract-conjoined-sub-rf(M,(R,S)) =
     extract-conjoined-sub-rf(M,#extract-conjoined-sub(M,lhs-cond(R)),R,S) .
 
+  ---  NB: the result of #extract-conjoined-sub() is a pair (C,CS) where CS is
+  ---      the substitution-like part and C is everything else;
+  ---      here, we cannot fully apply the substitution everywhere sometimes if
+  ---      if it is not a constructor subtitution so we keep the non-constructor
+  ---      part as a constraint in case it is needed later
   op extract-conjoined-sub-rf : Module FOFormSubstPair ReachForm Substitution -> ReachFormSubstPair .
-  eq extract-conjoined-sub-rf(M,(C,CS),(T | C') => CTS,S) =
-    ((T << ctor-sub(M,CS) | C) => ((CTS <<Term ctor-sub(M,CS)) <<Form CS), S .. CS) .
+ ceq extract-conjoined-sub-rf(M,(C,CS),(T | C') => CTS,S) =
+    ((T << S1 | C /\ conj-join(toPosEqAtoms(S2))) => ((CTS <<Term S1) <<Form CS), S .. CS)
+  if (S1,S2) := ctor-split-sub(M,CS) .
 endfm
 
 view NeModListReachFormSubstTuple from TRIV to TRANSITION-TUPLES is sort Elt to NeModListReachFormSubstTuple . endv

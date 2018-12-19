@@ -1143,11 +1143,12 @@ fmod FOFORM-EXTRACT-SUBSTITUTION is
   pr DNF .
   pr SUBSTITUTION-HANDLING .
   pr FOFORM-OPERATIONS .
+  pr FOFORM-TUPLES .
   pr FOFORMSET-OPERATIONS .
 
   var U : Module . var B : Bool .
   var V : Variable . var T : Term . var S : Substitution .
-  var Q : QFForm? . var PC : PosEqConj .
+  var Q : QFForm? . var PC : PosEqConj . var PC? : PosEqConj? .
   var FS : FOFormSubstPairSet .
   var TA : TruthAtom . var A : Atom . var AS AS' : AtomSet .
   var PD : PosEqDisj? . var ND : NegEqDisj? .
@@ -1157,6 +1158,14 @@ fmod FOFORM-EXTRACT-SUBSTITUTION is
   op is-sub? : Module QFForm? -> Bool .
   eq is-sub?(U,PC) = getForm(#extract-sub(U,true,toPosEqAtoms(PC))) == mtFormSet .
   eq is-sub?(U,Q) = false [owise] .
+
+  --- OUT: get PosEqConj from QFForm
+  op getPosEqConj : QFForm? -> FOFormPair .
+  eq getPosEqConj(Q) = getPosEqConj(Q,mtForm) .
+
+  op getPosEqConj : QFForm? PosEqConj? -> FOFormPair .
+  eq getPosEqConj(PC /\ Q,PC?) = getPosEqConj(Q,PC? /\ PC) .
+  eq getPosEqConj(Q,PC?) = (Q,PC?) [owise] .
 
   --------------------------------------------------------------------------
 
@@ -1168,9 +1177,12 @@ fmod FOFORM-EXTRACT-SUBSTITUTION is
 
   --- OUT: as above, but return substitution plus instantiated formula
   op #extract-conjoined-sub : Module QFForm? -> FOFormSubstPairSet .
- ceq #extract-conjoined-sub(U,PC /\ Q) =
-   #extract-conjoined-sub(U,#extract-sub(U,false,toPosEqAtoms(PC)),Q) if not Q :: PosEqConj .
-  eq #extract-conjoined-sub(U,Q) = (Q,none) [owise] .
+  eq #extract-conjoined-sub(U,Q) = #extract-conjoined-sub(U,getPosEqConj(Q)) .
+
+  op #extract-conjoined-sub : Module FOFormPair -> FOFormSubstPairSet .
+  eq #extract-conjoined-sub(U,(Q,PC)) =
+   #extract-conjoined-sub(U,#extract-sub(U,true,toPosEqAtoms(PC)),Q) .
+  eq #extract-conjoined-sub(U,(Q,mtForm)) = (Q,none) .
 
   op #extract-conjoined-sub : Module FOFormSetSubstPair QFForm? -> FOFormSubstPair .
   eq #extract-conjoined-sub(U,(AS,S),Q) = (Q << S /\ conj-join(AS),S) .
