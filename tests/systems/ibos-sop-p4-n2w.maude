@@ -42,13 +42,8 @@ load ../../rltool.maude
    (NWA wa<= C) =/= (tt)
 .)
 (start-proof .)
----set break on .
----break select checkVal .
----set print conceal on .
----print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm .
 (auto .)
----(focus 517,580 .)
-(focus 580 .)
----(case 517 on &53:MsgType by (MSG-RETURN-URL) U (&53:NonRetMsg) .)
-(case 580 on &54:MsgType by (MSG-RETURN-URL) U (&54:NonRetMsg) .)
+(cases ({< kernel | handledCurrently(msg(N:NetProcId,W:WebAppId,MT:MsgType,OUT:Label)), AS:AttributeSet > C}) on MT:MsgType by (MSG-RETURN-URL) U (&54:NonRetMsg) .)
+(auto .)
+(auto .)
 (auto .)
