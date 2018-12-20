@@ -778,7 +778,7 @@ fmod REACH-PROOF-GOAL-SIMPLIFICATION-IMPL is
 
   --- OUT: simplify a reachform's LHS condition by a formula simplification function
   op simplify-cond : ReachFormSubstPairSet -> ReachFormSubstPairSet .
-  eq simplify-cond(((T | C) => D,S) & FSS) = ((T | simplify(C)) => D,S) & simplify-cond(FSS) .
+  eq simplify-cond(((T | C) => D,S) & FSS) = split-disj((T | simplify(C)) => D,S) & simplify-cond(FSS) .
   eq simplify-cond(mtRFSS) = mtRFSS .
 
   --- OUT: reduce a reachform's LHS condition by a module
@@ -788,6 +788,11 @@ fmod REACH-PROOF-GOAL-SIMPLIFICATION-IMPL is
   --- OUT: conjoin overapproximation of difference with LHS condition
   op overapproximateDiff : Module ReachFormSubstPair -> ReachFormSubstPair .
   eq overapproximateDiff(U,((T | C) => D,S)) = (((T | cond(overapproximateDiff(U,(T | C),D))) => D),S) .
+
+  --- OUT: split disjunctive heads on reachformulas into multiple goals
+  op split-disj : ReachForm Substitution -> ReachFormSubstPairSet .
+  eq split-disj((T | Q:QFForm \/ Q':QFForm) => D,S) = split-disj((T | Q:QFForm) => D,S) & split-disj((T | Q':QFForm) => D,S) .
+  eq split-disj(R,S) = (R,S) [owise] .
 endfm
 
 view goal-simplify-impl from FUN to REACH-PROOF-GOAL-SIMPLIFICATION-IMPL is
