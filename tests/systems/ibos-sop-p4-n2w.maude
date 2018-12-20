@@ -5,25 +5,40 @@ set print attribute on .
 ---set print with parentheses on .
 
 load ../../rltool.maude
+
+fmod FOFORMSIMPLIFY-IMP-IMPL-EXT is
+  pr FOFORMSIMPLIFY-IMP-IMPL .
+
+  var D : Disj .
+  var T T' : Term .
+  var L L' : TermList .
+
+  --- these hold inductively
+  eq D \/ 'true.Bool != '_~_['false.Bool,'_bwa<=_[T,T']] \/ 'true.Bool ?= '_~_['false.Bool,'_bwa<=_['_+_['1.NzNat*,T],T']] = tt .
+  eq D \/ 'true.Bool != '_~_['false.Bool,'_bnp<=_[T,T']] \/ 'true.Bool ?= '_~_['false.Bool,'_bnp<=_['_+_['1.NzNat*,T],T']] = tt .
+endfm
+
+select RLTOOL .
+loop rltl-init .
+
 (select IBOS-NONFVP-STOP .)
 
 --- Solved:
---- 1. kernelReceivesOPMessage-pa7-cc1b .)
+--- 1. kernelReceivesOPMessage-pa7-cc1b
+--- 2. kernelReceivesOPMessage-pa7-cc1a
+--- 3. kernelReceivesOPMessage-pa6-cc2b
+--- 4. kernelReceivesOPMessage-pa6-cc2a
 
---- rules that handle webapps directly include:
---- [1] kernelReceivesOPMessage-pa6-cc2b
---- [2] kernelReceivesOPMessage-pa7-cc1b
----(select-rls kernelReceivesOPMessage-pa6-cc2b .)
----(select-rls! kernelReceivesOPMessage-pa6-cc2b kernelReceivesOPMessage-pa7-cc1b .)
 ---(select-rls new-url .)
 ---(select-rls stop .)
 ---(select-rls kernelForwardsOPMessage .)
 
-(select-rls kernelReceivesOPMessage-pa7-cc1a .)
+(select-rls new-url .)
 
-(use tool impsimp for validity on IBOS-NONFVP-STOP with FOFORMSIMPLIFY-IMP-IMPL .)
+(use tool impsimp for validity on IBOS-NONFVP-STOP with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool varsat for unsatisfiability on IBOS-FVP .)
-(declare-vars (C:Configuration) U (WPIS:WebappProcInfoSet) U (NPIS:NetworkProcInfoSet) U (MSG:Message) U (PS:PolicySet) U (NNP:Nat*) U (NWA:Nat*) U (U:Label) .)
+(declare-vars (C:Configuration) U (WPIS:WebappProcInfoSet) U (NPIS:NetworkProcInfoSet) U (MSG:Message) U
+              (PS:PolicySet) U (NNP:Nat*) U (NWA:Nat*) U (U:Label) U (B:Bool) U (B':Bool) .)
 (def-term-set ([C]) | true .)
 --- INV is a generalized multiset equality between:
 --- [1] set of fromKernel messages at the beginning of a list in a netproc
@@ -32,18 +47,25 @@ load ../../rltool.maude
 ({ C
    < webappmgr | nextWAN(NWA) >
    < kernel | weblabels(WPIS), networklabels(NPIS), displayedTopBar(U), handledCurrently(MSG), msgPolicy(PS), nextNetworkProc(NNP) > } ) |
-   (p5(C,WPIS,NPIS)) = (tt)                                  /\
-   (p4(C,WPIS,NPIS)) = (tt)                                  /\
-   (ch-p4(MSG,WPIS,NPIS)) = (tt)                             /\
+   (p5(C,WPIS,NPIS)) = (true)                                /\
+   (p4(C,WPIS,NPIS)) = (true)                                /\
+   (ch-p14(MSG,WPIS,NPIS,NNP)) = (true)                      /\
    --- these are strengthenings of the invariant above that allow the simplification rules to apply more often
    --- they are not strictly needed for correctness --- the invariant above should be enough
-   (dupl(C < webappmgr | none > < kernel | none >)) =/= (tt) /\
-   (NNP np<= C) =/= (tt)                                     /\
-   (NWA wa<= C) =/= (tt)
+   (NNP bnp<= C ~ false) = (true)                            /\
+   (NWA bwa<= C ~ false) = (true)                            /\
+   (dupl(C < webappmgr | nextWAN(NWA) > < kernel | nextNetworkProc(NNP) >)) =/= (tt)
 .)
 (start-proof .)
 (auto .)
-(cases ({< kernel | handledCurrently(msg(N:NetProcId,W:WebAppId,MT:MsgType,OUT:Label)), AS:AttributeSet > C}) on MT:MsgType by (MSG-RETURN-URL) U (&54:NonRetMsg) .)
+(auto .)
+---(
+---(cases ({< kernel | handledCurrently(msg(N:NetProcId,W:WebAppId,MT:MsgType,OUT:Label)), AS:AttributeSet > C}) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
+---(cases+ ({C}) | ((true) = (B' a (B o (false ~ (MSG-RETURN-URL ~ MT:MsgType))))) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
+--- set break on .
+--- set print conceal on .
+--- print conceal mod_is_sorts_._____endm fmod_is_sorts_.____endfm _;;_ ((_:_)) __ .
+--- break select form-check .
 (auto .)
 (auto .)
-(auto .)
+---)
