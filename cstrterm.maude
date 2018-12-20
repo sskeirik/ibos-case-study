@@ -315,7 +315,7 @@ fmod CONSTRAINED-TERM-FUNCTOR is
   pr UNIT-FM .          --- addXXX() functions
 
   var U : Module .
-  var CT : QFCTerm . var T T' : Term .
+  var CT : QFCTerm . var T T' : Term . var TL : TermList . var C : Constant .
   var F F' : QFForm . var F? : QFForm? .
   var X Y : Sort . var XS : SortSet .
   var N O S : Qid . --- the operator prefix O and sort prefix S
@@ -383,6 +383,27 @@ fmod CONSTRAINED-TERM-FUNCTOR is
 
   op tt-literal : Qid -> TermQid .
   eq tt-literal(O) = join('tt. O 'Form) .
+
+  --- Inverse functor
+  op eqform-func-op : Module Term -> [QFForm?] .
+  eq eqform-func-op(U,T) = eqform-func-op(qid(opPrefix(U)),qid(sortPrefix(U)),T) .
+
+  op eqform-func-op : Qid Qid Term -> [QFForm?] .
+  eq eqform-func-op(O,S,'/\[T,T',TL]) = and-eqform-func-op(O,S,(T,T',TL)) .
+  eq eqform-func-op(O,S,'\/[T,T',TL]) = or-eqform-func-op(O,S,(T,T',TL)) .
+ ceq eqform-func-op(O,S,  N[T,T']) =
+    if N == eq-literal(O) then T ?= T' else T != T' fi
+  if N in (eq-literal(O) ; neq-literal(O)) .
+ ceq eqform-func-op(O,S,C) = tt
+  if C == tt-literal(S) .
+
+  op and-eqform-func-op : Qid Qid NeTermList -> [QFForm?] .
+  eq and-eqform-func-op(O,S,(T,T',TL)) = eqform-func-op(O,S,T) /\ and-eqform-func-op(O,S,(T',TL)) .
+  eq and-eqform-func-op(O,S,T) = eqform-func-op(O,S,T) .
+
+  op or-eqform-func-op : Qid Qid NeTermList -> [QFForm?] .
+  eq or-eqform-func-op(O,S,(T,T',TL)) = eqform-func-op(O,S,T) \/ or-eqform-func-op(O,S,(T',TL)) .
+  eq or-eqform-func-op(O,S,T) = eqform-func-op(O,S,T) .
 endfm
 
 fmod CONSTRAINED-TERMSET-MATCH is
@@ -395,6 +416,8 @@ fmod CONSTRAINED-TERMSET-MATCH is
   var C C' : QFCTerm . var CS CS' : QFCTermSet .
   var U : Module . var T T' : Term .
   var F G : QFForm? . var O S : Qid .
+  var V : Variable .
+  var SUB : Substitution .
 
   op subsumeByMatch : Module QFCTermSet QFCTermSet -> Bool .
   eq subsumeByMatch(U,CS,CS') = matches#(U,CS',CS) =/= empty .
@@ -421,6 +444,13 @@ fmod CONSTRAINED-TERMSET-MATCH is
   op matches# : Module Qid Qid QFForm? QFForm? -> SubstitutionSet .
   eq matches#(U,O,S,F,G) =
     remove(safeMatch(cterm-func(U),'/\[eqform-func(U,F),form-variable(S)],eqform-func(U,G)),form-variable(S) <- tt-literal(O)) .
+
+  op getFormValue : Module Substitution -> FOFormSubstPair .
+  eq getFormValue(U,SUB) = getFormValue(U,form-variable(qid(sortPrefix(U))),SUB) .
+
+  op getFormValue : Module Qid Substitution -> FOFormSubstPair .
+  eq getFormValue(U,V,V <- T ; SUB) = (eqform-func-op(U,T),SUB) .
+  eq getFormValue(U,V,SUB) = (mtForm,SUB) [owise] .
 endfm
 
 --- This module defines a semantic pattern formula matcher that
