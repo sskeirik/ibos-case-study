@@ -235,10 +235,12 @@ fmod LABEL is pr NAT* .
   op _=/=_ : Label Label -> Bool .
 
   **** Equality enrichment (added by Camilo)
-  op _~_ : Label Label -> Bool [comm] .
+  op _~_ : MaybeLabel MaybeLabel -> Bool [comm] .
   eq L:Label     ~ L:Label      = true             [variant] .
   eq about-blank ~ url(N:Nat*)  = false            [variant] .
   eq url(N:Nat*) ~ url(N':Nat*) = N:Nat* ~ N':Nat* [variant] .
+  eq about-blank ~ nolabel      = false            [variant] .
+  eq url(N:Nat*) ~ nolabel      = false            [variant] .
 endfm
 
 fmod LABEL-PRED is pr LABEL . pr PRED .
