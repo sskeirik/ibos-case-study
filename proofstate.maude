@@ -435,13 +435,16 @@ fmod REACH-PROOF-GOALSET is
   --- OUT: Replace as many goals as possible by their generalizations
   ---      specified by the given pattern with terms and conditions
   op generalizeGoals : Module QFCTerm ProofGoalSet -> ProofGoalSet .
-  eq generalizeGoals(U,(T | C),GS) = generalizeGoals2((T | C),#goalsByMatch(U,(T | C),GS)) .
+  eq generalizeGoals(U,(T | C),GS) = generalizeGoals2(U,(T | C),#goalsByMatch(U,(T | C),GS)) .
 
-  op generalizeGoals2 : QFCTerm ProofGoalSubstPairSet -> ProofGoalSet .
-  eq generalizeGoals2((T | C),(G,S) && GSS) =
-    setbody(G,set-conj-antc(getbody(G),(T | C /\ conj-join(toPosEqAtoms(S))))) &&
-    generalizeGoals2(T,GSS) .
-  eq generalizeGoals2(T,.ProofGoalSubstPairSet) = mt .
+  op generalizeGoals2 : Module QFCTerm ProofGoalSubstPairSet -> ProofGoalSet .
+  eq generalizeGoals2(U,(T | C),(G,S) && GSS) =
+    generalizeGoals3((T | C),G,getFormValue(U,S)) && generalizeGoals2(U,(T | C),GSS) .
+  eq generalizeGoals2(U,(T | C),.ProofGoalSubstPairSet) = mt .
+
+  op generalizeGoals3 : QFCTerm ProofGoal FOFormSubstPair -> ProofGoal .
+  eq generalizeGoals3((T | C),G,(C',S)) =
+    setbody(G,(T | trueId(C /\ C' /\ conj-join(toPosEqAtoms(S)))) => succ(getbody(G))) .
 
   ---# Goal set creation
 
