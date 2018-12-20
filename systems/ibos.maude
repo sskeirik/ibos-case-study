@@ -104,6 +104,7 @@ fmod PROC-ID is
   sort ProcessId       .  **** general sort of process identifiers
   sort NonNetProcId    .  **** processes which cannot act like a network
   sort NonWebAppId     .  **** processes which are not webapps
+  sort NonPipeId       .  **** processes that cannot act like pipes
   sort PipeId          .  **** processes which can act like pipes
   sort NonNetPipeId    .  **** processes which are pipes and not networks
   sort NonWebPipeId    .  **** processes which are pipes and not webapps
@@ -116,12 +117,14 @@ fmod PROC-ID is
   sort NetProcId       .  **** processes which can act like a network
   sort WebAppId        .  **** processes which can act like a webapp
 
-  subsorts KernelId WebAppId NetProcId UIId DisplayId NICId WebAppMgrId < ProcessId .
-  subsorts UIId NetProcId WebAppId < PipeId < ProcessId .
-  subsorts KernelId DisplayId NICId UIId WebAppId WebAppMgrId < NonNetProcId < ProcessId .
-  subsorts KernelId DisplayId NICId UIId NetProcId WebAppMgrId < NonWebAppId < ProcessId .
-  subsorts UIId WebAppId < NonNetPipeId < NonNetProcId PipeId < ProcessId .
-  subsorts UIId NetProcId < NonWebPipeId < NonWebAppId PipeId < ProcessId .
+  subsorts UIId NetProcId WebAppId              < PipeId    < ProcessId .
+  subsorts KernelId DisplayId NICId WebAppMgrId < NonPipeId < ProcessId .
+
+  subsorts UIId WebAppId  < NonNetPipeId < PipeId .
+  subsorts UIId NetProcId < NonWebPipeId < PipeId .
+
+  subsorts NonPipeId NonNetPipeId < NonNetProcId < ProcessId .
+  subsorts NonPipeId NonWebPipeId < NonWebAppId  < ProcessId .
 
   op kernel    :      -> KernelId [ctor] .
   op webapp    :      -> WebAppId [ctor] .
