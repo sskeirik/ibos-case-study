@@ -577,6 +577,31 @@ fmod KERNEL-PREDS is
   --- eq set1neq((pi(webapp(N),L),WPIS),< webapp(M) | URL(L'),A > C) = N !~ M orP L !~ L' [variant] .
 endfm
 
+fmod KERNEL-NON-FVP is
+  pr KERNEL-PREDS .
+
+  var N : Nat* .
+  var NPIS : NetworkProcInfoSet .
+  var L L' L'' : Label .
+  var NI NI' : NetProcId .
+  var WI WI' : WebAppId .
+  var WIS : WebappProcInfoSet .
+  var NIS : NetworkProcInfoSet .
+
+  op no-networkproc-for-label : Label NetworkProcInfoSet -> Bool .
+  eq no-networkproc-for-label(L',(pi(network(N),L,L'),NPIS)) = false .
+  eq no-networkproc-for-label(L',(pi(network(N),L,L''),NPIS)) = no-networkproc-for-label(L',NPIS) .
+  eq no-networkproc-for-label(L',mtNPIS) = true .
+
+  op matching-procs : NetProcId WebAppId WebappProcInfoSet NetworkProcInfoSet -> Bool .
+  eq matching-procs(NI,WI,(pi(WI',L),WIS),NIS) = ((WI ~ WI') a matching-procs1(NI,L,NIS)) o matching-procs(NI,WI,WIS,NIS) .
+  eq matching-procs(NI,WI,mtWPIS,NIS) = false .
+
+  op matching-procs1 : NetProcId Label NetworkProcInfoSet -> Bool .
+  eq matching-procs1(NI,L,(pi(NI',L',L''),NIS)) = ((NI ~ NI') a (L ~ L')) o matching-procs1(NI,L,NIS) .
+  eq matching-procs1(NI,L,mtNPIS) = false .
+endfm
+
 mod KERNEL is
 **** A lot of the 'kernel' things are found above in 'KERNEL-POLICIES' instead
   inc KERNEL-POLICIES .
@@ -589,6 +614,8 @@ mod KERNEL is
   inc NIC             .
   pr  SYS-PREDS       .
   pr  WEBAPP-PREDS    .
+  pr  KERNEL-NON-FVP  .
+
   var Att Att2    : AttributeSet .
   var Att3        : AttributeSet .
   var Cnf         : Configuration .
@@ -802,12 +829,12 @@ rl [mem-out] :
 crl [kernelReceivesOPMessage-pa6-cc2b] :
     {Cnf < WI | Att2,toKernel(msg(ORG,NI,MT,L'); ML)> < kernel | Att,handledCurrently(none),msgPolicy(MP,policy(webapp,network,MT)),networklabels(NPIS),nextNetworkProc(N),weblabels(WPIS,pi(WI,L))>}
     => {Cnf < WI | Att2,toKernel(ML)> < kernel | Att,handledCurrently(msg(WI,network(N),MT,L')),msgPolicy(MP,policy(webapp,network,MT)),networklabels(NPIS),nextNetworkProc(s(N)),weblabels(WPIS,pi(WI,L))> < network(N)| fromKernel(mt),in(mtLL),mem-in(nolabel),mem-out(nolabel),out(mtLL),returnTo(WI),toKernel(mt)>}
-    if networkproc-for-label(L,NPIS)=/= tt = true .
+    if no-networkproc-for-label(L,NPIS) = true .
 
 crl [kernelReceivesOPMessage-pa6-cc2b] :
     {Cnf < WI | Att2,toKernel(msg(ORG,NI,MT,L'))> < kernel | Att,handledCurrently(none),msgPolicy(MP,policy(webapp,network,MT)),networklabels(NPIS),nextNetworkProc(N),weblabels(WPIS,pi(WI,L))>}
     => {Cnf < WI | Att2,toKernel(mt)> < kernel | Att,handledCurrently(msg(WI,network(N),MT,L')),msgPolicy(MP,policy(webapp,network,MT)),networklabels(NPIS),nextNetworkProc(s(N)),weblabels(WPIS,pi(WI,L))> < network(N)| fromKernel(mt),in(mtLL),mem-in(nolabel),mem-out(nolabel),out(mtLL),returnTo(WI),toKernel(mt)>}
-    if networkproc-for-label(L,NPIS)=/= tt = true .
+    if no-networkproc-for-label(L,NPIS) = true .
 
 crl [change-display] :
     {Cnf < WI | Att3,rendered(L')> < display | Att2,activeWebapp(WI),displayedContent(L)>}
@@ -817,12 +844,12 @@ crl [change-display] :
 crl [kernelReceivesOPMessage-pa7-cc1b] :
     {Cnf < kernel | Att,handledCurrently(none),msgPolicy(MP,policy(network,webapp,MT)),networklabels(NPIS),weblabels(WPIS)> < network(N)| Att2,toKernel(msg(ORG,webapp(N'),MT,L''); ML)>}
     => {Cnf < kernel | Att,handledCurrently(none),msgPolicy(MP,policy(network,webapp,MT)),networklabels(NPIS),weblabels(WPIS)> < network(N)| Att2,toKernel(ML)>}
-    if (networkproc(N,NPIS) andP webapp(N',WPIS))=/= tt = true .
+    if matching-procs(network(N),webapp(N'),WPIS,NPIS) = false .
 
 crl [kernelReceivesOPMessage-pa7-cc1b] :
     {Cnf < kernel | Att,handledCurrently(none),msgPolicy(MP,policy(network,webapp,MT)),networklabels(NPIS),weblabels(WPIS)> < network(N)| Att2,toKernel(msg(ORG,webapp(N'),MT,L''))>}
     => {Cnf < kernel | Att,handledCurrently(none),msgPolicy(MP,policy(network,webapp,MT)),networklabels(NPIS),weblabels(WPIS)> < network(N)| Att2,toKernel(mt)>}
-    if (networkproc(N,NPIS) andP webapp(N',WPIS))=/= tt = true .
+    if matching-procs(network(N),webapp(N'),WPIS,NPIS) = false .
 
  rl [new-url] :
     {Cnf < display | Att2,activeWebapp(WI),displayedContent(L')> < kernel | Att,displayedTopBar(L),handledCurrently(kernelDo(msg(ui,webapp,MSG-NEW-URL,URL))),weblabels(WPIS)> < webappmgr | Att3,nextWAN(NewWA)>}
