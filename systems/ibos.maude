@@ -5,8 +5,12 @@ fmod BOOL-NO-BUILTIN is
   op _==_  : Bool Bool -> Bool [ctor] . **** stub for real equality/disequality
   op _=/=_ : Bool Bool -> Bool [ctor] .
   op _a_   : Bool Bool -> Bool [assoc comm] .
+  op _o_   : Bool Bool -> Bool [assoc comm] .
+
   eq true  a B:Bool = B:Bool [variant] .
   eq false a B:Bool = false  [variant] .
+  eq true  o B:Bool = true   [variant] .
+  eq false o B:Bool = B:Bool [variant] .
 
   op _~_ : Bool Bool -> Bool [comm] .
   eq X:Bool ~ X:Bool = true  .
