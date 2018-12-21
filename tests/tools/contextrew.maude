@@ -59,3 +59,23 @@ red cr-simp(ex1,2,
 red crv(ex1 ; noModule ; upModule('FOFORMSIMPLIFY-IMPL,true) ; ex1,2,
   'sorted['__['N:Nat,'L:NeNatList]] != 'true.Bool \/
   'first ['__['N:Nat,'L:NeNatList]] ?= 'N:Nat) .
+
+---------------------------------------------------------------------
+
+--- TODO: fix this example
+mod EX1-RL is
+  pr EX1 .
+ crl NL:NeNatList => NL':NeNatList if sorted(NL':NeNatList) = true [nonexec] .
+endm
+
+select RLTOOL .
+
+loop rltl-init .
+
+(select EX1-RL .)
+(use tool conrew for validity on EX1 with FOFORMSIMPLIFY-IMP-IMPL .)
+(declare-vars (N:Nat) U (N':Nat) U (NL:NeNatList) U (NL2:NeNatList) U (NL3:NeNatList) .)
+(def-term-set (NL) | (sorted(NL)) = (true) .)
+(add-goal test : (N' NL2) | true => (N NL3) | (N) = (first(N NL3)) .)
+(start-proof .)
+(auto .)
