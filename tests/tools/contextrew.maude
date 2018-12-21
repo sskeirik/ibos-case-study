@@ -62,15 +62,16 @@ red crv(ex1 ; noModule ; upModule('FOFORMSIMPLIFY-IMPL,true) ; ex1,2,
 
 ---------------------------------------------------------------------
 
---- TODO: fix this example
 mod EX1-RL is
   pr EX1 .
- crl NL:NeNatList => NL':NeNatList if sorted(NL':NeNatList) = true [nonexec] .
+ crl N:Nat NL:NeNatList => N':Nat NL':NeNatList if sorted(N':Nat NL':NeNatList) = true [nonexec] .
 endm
 
 select RLTOOL .
 
 loop rltl-init .
+
+set print attribute on .
 
 (select EX1-RL .)
 (use tool conrew for validity on EX1 with FOFORMSIMPLIFY-IMP-IMPL .)
@@ -79,3 +80,4 @@ loop rltl-init .
 (add-goal test : (N' NL2) | true => (N NL3) | (N) = (first(N NL3)) .)
 (start-proof .)
 (auto .)
+quit
