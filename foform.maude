@@ -1383,6 +1383,8 @@ fmod FOFORM-CORE-PRETTYPRINT is
   eq prettyPrint(Q,E)           = E [owise] .
 
   op ppCNF : Qid QFForm -> QFForm .
+  eq ppCNF(Q,tt) = tt .
+  eq ppCNF(Q,ff) = ff .
   eq ppCNF(Q,D /\ F) = ppCNF'(Q,D) AND ppCNF(Q,F) .
   eq ppCNF(Q,D) = ppCNF'(Q,D) .
 
@@ -1394,6 +1396,7 @@ fmod FOFORM-CORE-PRETTYPRINT is
   op @ppCNF : Bool Qid QFForm -> QFForm .
   eq @ppCNF(true,Q,F) = @ppCNF(Q,F) .
   eq @ppCNF(false,Q,F) = F .
+  eq @ppCNF(B:Bool,Q,F:[QFForm]) = F:[QFForm] [owise print "CNF ERROR: " F:[QFForm]] .
 
   op @ppCNF : Qid QFForm -> QFForm .
   eq @ppCNF(Q,F) = @ppCNF(ppCNF(Q,F),F) .
