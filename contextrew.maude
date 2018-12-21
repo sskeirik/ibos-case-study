@@ -277,6 +277,7 @@ fmod CONTEXT-REW is
   pr CR-SAFETY                . --- provides wf-metadata()
   pr CC-CONVERSION            . --- provides unsorted/sorted conversion and clause conversion
   pr EQUATIONAL-EXT           . --- extend a theory with equations in that theory
+  pr FOFORM-OPERATIONS        . --- gets size()
   pr SORTIFY-AUX              .
 
   op context-rew  : Module Nat NegDisj PosDisj ~> Disj .
@@ -290,15 +291,23 @@ fmod CONTEXT-REW is
   op get-eqs      : AxCCState ~> EquationSet .
   op rewWithEqs   : Module EquationSet Term -> Term .
   op constsToVars : Substitution Module QidSet PosEqAtomSet -> PosDisj .
+  ---
+  op cr-simp      : Module Nat QFForm? -> QFForm? .
+  op cr-simp'     : Module Nat Disj? -> Disj? .
+  op cr-simp'     : Module Nat NegDisj PosDisj? ~> Disj .
 
-  var U U' U'' : Module  . var ND : NegDisj? . var QS UQS : QidSet  . var D : Disj . var N : Nat . var S : Substitution . var T : Term .
+  var U U' U'' : Module  . var ND : NegDisj? . var QS UQS : QidSet  . var D : Disj . var N Sz : Nat . var S : Substitution . var T : Term .
   var CC       : AxCCState . var PD : PosDisj? . var ES : EquationSet . var EK : [EquationSet] . var AC SC SC' : PosEqAtomSet .
+  var NND : NegDisj . var NPD : PosDisj . var D? : Disj? . var F? : QFForm? . var F : QFForm .
 
+  --- TODO: [1] extend this with a set of id constants/id rules that is automatically extracted from op decls
+  ---       [2] replace all eqs with copies narrowed by id rules
   --- INP: Module Nat NegDisj PosDisj
   --- PRE: [1] Disj are well-formed with respect to Module
   ---      [2] Module's operators are properly annotated with an AC-RPO that is compatible with the rewrite relation
   ---      [3] Module does not have operators with the id attribute
   ---      [4] Nat is greater than or equal to the id constant with the highest value
+  ---      [5] all id constants have lowest value in the AC-RPO ordering
   --- OUT: PosDisj? rewritten with equations from congruence closure of equations in NegDisj modulo B
   eq context-rew(U,N,ND,PD)                   = context-rew'(U,N,ND,PD) .
   eq context-rew'(U,N,ND,PD)                  = context-rew1(U,varsToConstsWithMetadata#(shiftMetadata(U,N,| vars(ND) |),N,vars(ND)),ND,PD)
@@ -309,69 +318,99 @@ fmod CONTEXT-REW is
   if EK :: EquationSet [print "CC RESULT: " EK] .
   eq context-rew4(U,U',U'',S,QS,ES,AC,SC,SC') = print-disj(constsToVars(S,toPosDisj(SC'))) .
 
-  --- constsToVars
-  eq constsToVars(S,U,QS,SC) = toPosSet(sortify(toPosDisj(SC),constsToQTS(U) | varsToQTS(QS))) .
-  --- constsToVars(unsortify-codom(S),toPosDisj(SC))
+  --- OUT: simplify QFForm by contextual rewriting so that solved equalities become tt
+  eq cr-simp (U,N,F?) = cr-simp'(U,N,toCNF(F?)) .
+  eq cr-simp'(U,N,D /\ F) = cr-simp'(U,N,D) /\ cr-simp'(U,N,F) .
+  eq cr-simp'(U,N,NND \/ NPD) = cr-simp'(U,size(NND \/ NPD),NND,context-rew(U,N,NND,NPD)) .
+  eq cr-simp'(U,N,D?) = D? [owise] .
+  eq cr-simp'(U,Sz,NND,PD) = if size(NND \/ PD) < Sz then tt else mtForm fi \/ NND \/ PD .
 
+  --- auxiliary functions
+  -----------------------
+  --- OUT: convert PosEqAtomSet from unsorted world back to sorted world
+  ---  NB: old version is - constsToVars(unsortify-codom(S),toPosDisj(SC))
+  eq constsToVars(S,U,QS,SC) = toPosSet(sortify(toPosDisj(SC),constsToQTS(U) | varsToQTS(QS))) .
+
+  --- TODO: create version that rewrites with ES only first, since that
+  ---       version is convergent but the combination may not be
+  --- OUT: return term T rewritten by module U with equations ES added
   eq rewWithEqs(U,ES,T) = getTerm(metaReduce(addEqs(ES,equational-ext(U)),T)) .
   eq rewWithEqs(U:[Module],EK,T:[Term]) = 'error .
 
-  --- INP: AxCCState
-  --- PRE: None
-  --- OUT: Verifies that congruence closure completed successfully
+  --- OUT: verifies that congruence closure completed successfully
   eq get-eqs([ES,N,'mt.EqSet]) = ES .
 
+  --- OUT: debugging printer
   eq print-disj(PD) = PD [print "RESULT: " PD] .
 endfm
 
----(
 --- Module provides an implementation of contextual-rewriting based satisfiability
 --- (which offloads to a variant-satisfiability based solver whenever possible)
 fmod CONTEXT-REW-SOLVER is
-  pr FOFORMSET-OPERATIONS .       --- provides DisjSet data structure and conversion in DisjSet
   pr CNF .                        --- provides toCNF()
+  pr FOFORMREDUCE .               --- provides reduce()
+  pr FOFORMSET-OPERATIONS .       --- provides DisjSet data structure and conversion in DisjSet
   pr VAR-UNIF-CLAUSE-SIMPLIFIER . --- provides vu-clause-simp()
-  pr VAR-SAT-CLAUSE-SOLVER .      --- provides vs-clause-solver()
-  pr REWRITE-CLAUSE-SIMPLIFIER .  --- rew-clause-simplify
+  pr FOFORM-EXTRACT-SUBSTITUTION . --- get extract sub
   pr CONTEXT-REW .                --- provides context-rew()
-  pr GENERIC-FORMULA-REDUCTION .  --- provides QFFormSetBoolPair data structure
-  pr CLAUSE-INVALIDITY-CHECKER .  --- provides clause-invalid?()
 
-  op cr-val  : Module Module Module QFForm?                                    -> QFFormSetBoolPair .
-  op cr-vald : Module Module Module DisjSet                                    -> QFFormSetBoolPair .
-  op cr-val1 : Module Module DisjSet                                           -> QFFormSetBoolPair .
-  op cr-val2 : Module Module DisjSet QFFormSetBoolPair                         -> QFFormSetBoolPair .
-  op cr-val3 : Module Module DisjSet DisjSet DisjSet MaybeBool                 -> QFFormSetBoolPair .
-  op cr-val4 : Module Module DisjSet DisjSet DisjSet MaybeBool PosDisj PosDisj -> QFFormSetBoolPair .
-  ---
-  op cr-sat  : Module Module Module QFForm?                                    -> QFFormSetBoolPair .
-  op cr-sat  : QFFormSetBoolPair                                               -> QFFormSetBoolPair .
+  op crv      : NeModuleList Nat QFForm  -> QFForm? .
+  op crv'     : NeModuleList Nat QFForm? -> QFForm? .
+  op crv-conj : NeModuleList Nat QFForm? -> QFForm? .
+  op crv-disj : NeModuleList Nat Disj    -> QFForm? .
+  op crv-run  : NeModuleList Nat Disj    -> QFForm? .
 
-  var U U' RU : Module . var F : QFForm? . var N N' : NegDisj . var N? : NegDisj? . var P? : PosDisj? . var TA : TruthAtom .
-  var P P' : PosDisj . var D D' O : DisjSet . var B : Bool . var PK : [PosDisj] . var J : Disj . var B? : Bool? .
+  var ML : [NeModuleList] .
+  var RewMod VSMod SimpMod CRMod : Module .
+  var D : Disj .
+  var F : QFForm .
+  var N : Nat .
 
   --- validity check goes as follows:
-  --- [0]   convert formula to CNF
-  eq cr-val (RU,U,U',F)                = cr-vald(RU,U,U',toDisjSet(simplify(toCNF(F)))) .
-  --- [1]   use var-unification + rewriting to simplify as many clauses as possible
-  eq cr-vald(RU,U,U',D)                = cr-val1(U,U',rew-clause-simplify(RU,vu-clause-simp(U',D),mtFormSet)) .
-  --- [2]   use var-sat if we can to prove clauses are valid
-  eq cr-val1(U,U',D)                   = cr-val2(U,U',D,vs-valid-clauses(U',D)) .
-  eq cr-val2(U,U',D',(D,B?))           = if D :: TruthAtom then (D',if D == tt then true else false fi) else cr-val3(U,U',D,D,mtFormSet,true) fi .
-  --- [3 ]  if next clause is well-formed, apply contextual rewriting
-  eq cr-val3(U,U',O,N \/ P | D,D',B)   = cr-val4(U,U',O,D,D',B,P,N \/ context-rew(U,0,N,P)) .
-  --- [3']  if next clause is true/false, just check truth directly
-  eq cr-val3(U,U',O,TA | D,D',B)       = (D | D',B and-then TA == tt) .
-  --- [3']  if next clause is not well-formed, we can't apply contextual rewriting; fail
-  eq cr-val3(U,U',O,J | D,D',B)        = (D | D' | J,nobool) [owise] .
-  --- [3''] if no more clauses to process; apply validity/invalidity checkers one last time to cr-simplified clauses
-  eq cr-val3(U,U',O,mtFormSet,D',B)    = if B or-else O == D' then (D',if B == false then nobool else B fi) else vs-valid-clauses(U',D') fi .
-  --- [4]   check if contextual rewriting was able to solve the clause
-  eq cr-val4(U,U',O,D,D',B,P,N' \/ P') = cr-val3(U,U',O,D,D' | (N' \/ P'),B and-then size(P') < size(P)) .
-  eq cr-val4(U,U',O,D,D',B,P,N')       = cr-val3(U,U',O,D,D' | N',B) .
-  eq cr-val4(U,U',O,D,D',B,P,PK)       = (D | D' | P,errb('Module 'not 'wellformed 'for 'contextual 'rewriting)) [owise] .
+  eq crv (ML,N,F) = simplify(crv'(ML,N,F)) .
+  eq crv'(ML,N,F) = crv-conj(ML,N,simplify(toCNF(F))) .
+  eq crv-conj(ML,N,D /\ F) = crv-disj(ML,N,D) /\ crv-conj(ML,N,F) .
+  eq crv-conj(ML,N,D) = crv-disj(ML,N,D) .
+  eq crv-conj(ML,N,mtForm) = mtForm .
+  eq crv-disj(ML,N,D) =
+    if crv-run(ML,N,D) == D
+      then D
+      else crv'(ML,N,crv-run(ML,N,D))
+    fi .
+  eq crv-run(RewMod ; VSMod ; SimpMod ; CRMod,N,D) =
+    cr-simp(CRMod,N,downTerm(modReduce(SimpMod,
+      upTerm(reduce(RewMod,false,
+               extract-clause-sub(RewMod,
+                 vu-clause-simp(VSMod,D))))),error("crv-disj failed"))) .
 endfm
 
+fmod CONTEXT-REW-BACKEND-IMPL is
+  pr RLTOOL-BACKEND .
+  pr CONTEXT-REW-SOLVER .
+  pr REACH-PROOF-STATE-OPS .
+  pr FOFORM-CORE-PRETTYPRINT .
+
+  var D : ProofMetadata .
+  var MQL : ScopedMapList .
+  var F : QFForm? .
+  var M : Module .
+  var ModArgs : ModuleList .
+
+  --- TODO: propery parameterize id constant metadata argument
+  eq checkVal((M,'conrew,ModArgs),MQL,D,F) =
+    if ModArgs :: Module then
+      --- FIXME: set output back to false when we are done
+      if @ppCNF(true,'tt.Pred,
+        crv(get-mod(D) ;
+	    getbackend('validity,'varsat,get-reg(D)) ;
+	    ModArgs ;
+	    getbackend('validity,'conrew,get-reg(D)),0,F)) == tt then true else nobool fi
+      else errb('conrew 'requires 'single 'module 'argument)
+    fi .
+  eq checkUnsat((M,'conrew,ModArgs),MQL,D,F) = nobool .
+endfm
+
+---(
 --- TODO: rethink this or remove it
 --- Module provides method to check if a clause in a set of clauses is NOT valid:
 --- This is applied as a last resort if we do not know how to proceed
