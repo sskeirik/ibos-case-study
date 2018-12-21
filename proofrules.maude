@@ -205,7 +205,7 @@ fmod REACH-PROOF-RULES-AUX is
   op sub-action2 : ProofMetadata Module [Bool] ProofGoal -> ProofUpdate .
   eq sub-action(D,U,G) = sub-action1(D,U,coerceBool(checkUnsat(D,lhs-cond(getbody(G))),false),G) .
   eq sub-action1(D,U,true,G)  = (none || mt) .
-  eq sub-action1(D,U,false,G) = sub-action2(D,U,subsume?(D,getvars(G),goal-simplify(U ; if enableVarUnifSimp then getModByImpl(D,'varsat) else noModule fi,liftRFSS(getbody(G)))),G) .
+  eq sub-action1(D,U,false,G) = sub-action2(D,U,subsume?(D,getvars(G),getbody(G)),G) .
   eq sub-action2(D,U,MB,G) =
     if MB == true
       then (none || mt)
@@ -215,16 +215,16 @@ fmod REACH-PROOF-RULES-AUX is
       fi
     fi .
   eq [handle-error] :
-     sub-action2(D,U,BK,G) = (out('Warning: 'checking 'goal &sp printGoals(U,G) &sp 'satisfaction 'encountered 'an 'error boolErrMsg(BK) '\n)) [owise] .
+     sub-action2(D,U,BK,G) = (st(err) ; out('Warning: 'checking 'goal &sp printGoals(U,G) &sp 'satisfaction 'encountered 'an 'error boolErrMsg(BK) '\n)) [owise] .
 
   op ax-action : ProofMetadata Module LabelReachForm ProofGoal -> ProofUpdate .
   op ax-action : ProofMetadata Module LabelReachForm [AxiomResultList] ProofGoal -> ProofUpdate .
   op ax-action : ProofMetadata Module ProofMetadata [MaybeBool] AxiomResultList AxiomResultList ProofGoal -> ProofUpdate .
   eq ax-action(D,U,AX,G) = ax-action(D,U,AX,apply-axioms(U,getbody(G),AX),G) .
-  eq ax-action(D,U,AX,nilax,G) = (if printAxiomFailures then out('Notice: 'no 'syntactically 'usable 'instances 'of 'axiom print(U,AX) 'found 'for &sp printGoals(U,G) '\n) else none fi) .
+  eq ax-action(D,U,AX,nilax,G) = (if printAxiomFailures then st(err) ; out('Notice: 'no 'syntactically 'usable 'instances 'of 'axiom print(U,AX) 'found 'for &sp printGoals(U,G) '\n) else none fi) .
   eq ax-action(D,U,AX,AR ARL,G) = ax-action(D,U,none,checkVal(D,arCond(AR)),ARL,AR,G) .
   eq [handle-error] :
-     ax-action(D,U,AX,ARLK,G) = (out('Warning: 'generating 'axiom print(U,AX) 'successors 'for &sp printGoals(U,G) &sp 'encountered 'an 'error errAxiomResultMsg(ARLK) '\n)) [owise] .
+     ax-action(D,U,AX,ARLK,G) = (st(err) ; out('Warning: 'generating 'axiom print(U,AX) 'successors 'for &sp printGoals(U,G) &sp 'encountered 'an 'error errAxiomResultMsg(ARLK) '\n)) [owise] .
 
   eq ax-action(D,U,D',BK,AR ARL,ARL',G) =
      if BK == true
