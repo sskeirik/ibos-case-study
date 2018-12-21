@@ -213,26 +213,21 @@ fmod IBOS-SOP-PRED is
   --- True if every RETURN-URL sent from every network object is consistent
   --- NB: toKernel doesn't require sender match, since kernel will rewrite
   --- NB: cc1a/2a rule doesn't require the OUT labels match!!!!
-  --- NB: we use a style that inductively reduces each argument at every
-  ---     step in a mutually recursive fashion
-  op p5 : Configuration WebappProcInfoSet NetworkProcInfoSet -> Bool [ctor] .
-  op p5i : Configuration WebappProcInfoSet NetworkProcInfoSet -> Bool [ctor] .
-  op p5ii : Configuration WebappProcInfoSet NetworkProcInfoSet -> Bool [ctor] .
-  op p5iii : Configuration WebappProcInfoSet NetworkProcInfoSet -> Bool [ctor] .
+  op p5 : Configuration WebappProcInfoSet NetworkProcInfoSet -> Bool .
   --------------------------------------------------------------------
-  eq p5(C,WIS,NIS) = p5i(C,WIS,NIS) o p5ii(C,WIS,NIS) o p5iii(C,WIS,NIS) .
 
-  eq p5i(C < NI | toKernel(msg(PI, WI, MT, OUT2) ; ML), A >, WIS, NIS)
-      = (((MT ~ MSG-RETURN-URL) ~ false) o matching-procs(NI,WI,WIS,NIS)) a p5(C < NI | toKernel(ML), A >, WIS, NIS) .
-  eq p5i(C < NI | toKernel(msg(PI, WI, MT, OUT2)), A >, WIS, NIS)
-      = (((MT ~ MSG-RETURN-URL) ~ false) o matching-procs(NI,WI,WIS,NIS)) a p5(C,WIS,NIS) .
-  eq p5i(C < NI      | toKernel(mt), A >, WIS, NIS) = p5(C, WIS, NIS) .
-  eq p5i(C < network |               A >, WIS, NIS) = p5(C, WIS, NIS) .
-  eq p5i(C < NNPI    |               A >, WIS, NIS) = p5(C, WIS, NIS) .
-  eq p5i(none, WIS, NIS) = true .
+  eq [p5-1] : p5(C < NI | toKernel(msg(PI, WI, MT, OUT2) ; ML), A >, WIS, NIS)
+            = (((MT ~ MSG-RETURN-URL) ~ false) o matching-procs(NI,WI,WIS,NIS)) a p5(C < NI | toKernel(ML), A >, WIS, NIS) .
+  eq [p5-2] : p5(C < NI | toKernel(msg(PI, WI, MT, OUT2)), A >, WIS, NIS)
+            = (((MT ~ MSG-RETURN-URL) ~ false) o matching-procs(NI,WI,WIS,NIS)) a p5(C,WIS,NIS) .
+  eq [p5-5] : p5(C < NI      | toKernel(mt), A >, WIS, NIS) = p5(C, WIS, NIS) .
+  eq [p5-6] : p5(C < network |               A >, WIS, NIS) = p5(C, WIS, NIS) .
+  eq [p5-7] : p5(C < NNPI    |               A >, WIS, NIS) = p5(C, WIS, NIS) .
 
-  eq p5ii (C,(pi(webapp(W),IN),WIS),                       NIS ) = (W bwa<= C ~ false) a p5(C,WIS,NIS) .
-  eq p5iii(C,                  WIS ,(pi(network(N),IN,OUT),NIS)) = (N bnp<= C ~ false) a p5(C,WIS,NIS) .
+  eq [p5-8] : p5(none, WIS, NIS) = true .
+
+  eq [p5-9] : p5(C,(pi(webapp(W),IN),WIS),                       NIS ) = (W bwa<= C ~ false) a p5(C,WIS,NIS) .
+  eq [p5-A] : p5(C,                  WIS ,(pi(network(N),IN,OUT),NIS)) = (N bnp<= C ~ false) a p5(C,WIS,NIS) .
 
   ------------------------------------------------------------------------------
   --- True if every RETURN-URL message currently handled by kernel is consistent
