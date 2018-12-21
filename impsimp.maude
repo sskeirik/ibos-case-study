@@ -51,30 +51,13 @@ fmod SORTIFY-FORM is
   eq sortify(T != T',QTS)      = sortify(T,QTS) != sortify(T',QTS) .
 endfm
 
-fmod IMP-SIMP-IMPL is
-  pr FOFORM-TUPLES .                --- NeModListFOFormPair
-  pr FOFORMSIMPLIFY .               --- simplify
-  pr FOFORMREDUCE .                 --- reduce
-  pr FOFORM-EXTRACT-SUBSTITUTION .  --- extract-imp-sub
-  pr VAR-UNIF-CLAUSE-SIMPLIFIER .   --- vu-clause-simp
-  pr REFLECT .                      --- modReduce
-
-  var RewMod VSMod SimpMod : Module . var D : Disj .
-  op imp-simp-impl1 : NeModListFOFormPair ~> NeModListFOFormPair .
-  eq imp-simp-impl1((RewMod ; VSMod ; SimpMod,D)) =
-    (RewMod ; VSMod ; SimpMod,
-        downTerm(modReduce(SimpMod,
-          upTerm(reduce(RewMod,false,
-                   extract-clause-sub(RewMod,
-                     vu-clause-simp(VSMod,D))))),error("imp-simp-impl1 failed"))) .
-endfm
-
-view imp-simp-impl from FUN to IMP-SIMP-IMPL is sort Elt to NeModListFOFormPair . op F to imp-simp-impl1 . endv
-
 fmod IMP-SIMP is
+  pr FOFORMSIMPLIFY .
+  pr FOFORMREDUCE .
+  pr FOFORM-EXTRACT-SUBSTITUTION .
+  pr VAR-UNIF-CLAUSE-SIMPLIFIER .
   pr FOFORMSET-OPERATIONS .       --- provides DisjSet data structure and conversion in DisjSet
   pr CNF .                        --- provides toCNF()
-  pr FIXF{imp-simp-impl} * (op FixF to imp-simp-impl) .
   pr FOFORM-CORE-PRETTYPRINT .
 
   --- OUT: returns a simplified conjunction of disjunctions
@@ -95,13 +78,24 @@ fmod IMP-SIMP is
   eq imp-simp-conj(RewMod,VSMod,SimpMod,D /\ F) = imp-simp-disj(RewMod,VSMod,SimpMod,D) /\ imp-simp-conj(RewMod,VSMod,SimpMod,F) .
   eq imp-simp-conj(RewMod,VSMod,SimpMod,D) = imp-simp-disj(RewMod,VSMod,SimpMod,D) .
 
+  eq imp-simp-disj(RewMod,VSMod,SimpMod,D) =
+    if imp-simp-impl(RewMod,VSMod,SimpMod,D) == D
+      then D
+      else imp-simp-conj(RewMod,VSMod,SimpMod,toCNF(imp-simp-impl(RewMod,VSMod,SimpMod,D)))
+    fi .
+
   --- TODO: until fixed point is reached
   ---       [1] try to use variant unification to solve pieces: vu-clause-simp(VSMod,D)
   ---       [2] try to use substitution extraction to solve pieces
   ---       [3] rewrite with all lemmas, reducing to normal form: reduce(RewMod,false,D)
   ---       [4] apply generic implication simplification rules: downTerm(getTerm(metaReduce(SimpMod,upTerm(D))))
   --- If all else fails, turn LHS vars into constants and then... let the user see them I guess
-  eq imp-simp-disj(RewMod,VSMod,SimpMod,D) = getForm(imp-simp-impl((RewMod ; VSMod ; SimpMod,D))) .
+  op imp-simp-impl : Module Module Module Disj -> [FOForm] .
+  eq imp-simp-impl(RewMod,VSMod,SimpMod,D) =
+    downTerm(modReduce(SimpMod,
+      upTerm(reduce(RewMod,false,
+               extract-clause-sub(RewMod,
+                 vu-clause-simp(VSMod,D))))),error("imp-simp-impl1 failed")) .
 endfm
 
 fmod IMP-SIMP-BACKEND-IMPL is
