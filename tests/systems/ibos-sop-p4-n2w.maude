@@ -54,7 +54,7 @@ loop rltl-init .
    --- they are not strictly needed for correctness --- the invariant above should be enough
    (NNP bnp<= C ~ false) = (true)                            /\
    (NWA bwa<= C ~ false) = (true)                            /\
-   (dupl(C < webappmgr | nextWAN(NWA) > < kernel | nextNetworkProc(NNP) >)) =/= (tt)
+   (dupl(C < webappmgr | nextWAN(NWA) > < kernel | nextNetworkProc(NNP) >)) = (false)
 .)
 (start-proof .)
 (auto .)

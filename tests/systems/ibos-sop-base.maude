@@ -88,19 +88,17 @@ fmod IBOS-FVP-PRED-EXT is
   eq W wa<= none = ff .
 
   --- duplicates can ignore attributes
+  op dupl : Configuration -> Bool [ctor] .
+  eq dupl(< PI | A > < PI | A' > C) = true .
   eq dupl(< PI | toKernel(MSGL),      A > C) = dupl(< PI | A > C) .
   eq dupl(< PI | fromKernel(MSGL),    A > C) = dupl(< PI | A > C) .
   eq dupl(< PI | activeWebapp(PI'),   A > C) = dupl(< PI | A > C) .
   eq dupl(< PI | displayedContent(L), A > C) = dupl(< PI | A > C) .
   eq dupl(< network(N) | A > < kernel    | nextNetworkProc(N + 1), A' > C) = dupl(< kernel    | nextNetworkProc(N), A' > C) .
   eq dupl(< webapp(W)  | A > < webappmgr | nextWAN(W + 1),         A' > C) = dupl(< webappmgr | nextWAN(W),         A' > C) .
-
-  eq dupl(< PI | A > < PI | A' > C) = ff .
-  eq dupl(< PI | A >) = ff .
-  eq dupl(none) = ff .
-  --- ceq dupl(< PI | none > < PI' | none > C) =
-  ---   dupl(< PI | none > C) andP dupl(< PI' | none > C)
-  --- if PI ~ PI' = false .
+  eq dupl(< PI | A >) = false .
+  eq dupl(none) = false .
+  --- ceq dupl(< PI | none > < PI' | none > C) = dupl(< PI | none > C) a dupl(< PI' | none > C) if PI ~ PI' = false .
 
   op _bnp<=_ : Nat* Configuration -> Bool .
   eq N     bnp<= C < network(N + M) | A > = true .

@@ -202,7 +202,6 @@ fmod SYS-PREDS is pr SYS .
   op _inA_   : Attribute AttributeSet      -> Pred [ctor] .
   op _subC_  : Configuration Configuration -> Pred [ctor] .
   op _subA_  : AttributeSet  AttributeSet  -> Pred [ctor] .
-  op dupl    : Configuration               -> Pred [ctor] .
   op a-dupl  : AttributeSet                -> Pred [ctor] .
   op _np<=_  : Nat* Configuration          -> Pred [ctor] .
   op _wa<=_  : Nat* Configuration          -> Pred [ctor] .
@@ -219,7 +218,6 @@ fmod SYS-PREDS is pr SYS .
   eq C subC C C'                       = tt [variant] .
   eq N np<= < network(N + M) | AS > C  = tt [variant] .
   eq N wa<= < webapp (N + M) | AS > C  = tt [variant] .
-  eq dupl(< P | AS > < P | AS' > C)    = tt [variant] .
   eq a-dupl(A, A, AS)                  = tt [variant] .
 endfm
 
