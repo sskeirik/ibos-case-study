@@ -55,6 +55,8 @@ endfm
 --- congruence closure (and thus contextural rewriting); essentially, we
 --- mean no adhoc-overloading and all subsorted-overloaded families of
 --- operators are labelled with the same unique number (rep. term order)
+--- NOTE: we need to allow for ad-hoc overloaded constants, so special
+---       case the handling of that particular operator family
 fmod CR-SAFETY is
   pr OPDECL-EXTRA . --- provides metadata() function
   pr OP-FAMILY .    --- provides getOpFamilies() and OpFamilyMap datastructure
@@ -70,7 +72,7 @@ fmod CR-SAFETY is
   --- PRE: None
   --- OUT: true iff each subsort-overloaded opfamily is labelled by a unique number
   eq wf-metadata(U)                      = wf-metadata(getOpFamilies(U),none) .
-  eq wf-metadata(((I,TYL) |-> OS) OFM,Q) = if wfm(OS) :: Qid then wf-metadata(OFM,wfm(OS) ; Q) else false fi .
+  eq wf-metadata(((I,TYL) |-> OS) OFM,Q) = if TYL == nil or-else wfm(OS) :: Qid then wf-metadata(OFM,if TYL =/= nil then wfm(OS) else qid(OS) fi ; Q) else false fi .
   eq wf-metadata(nil,Q)                  = true .
  ceq wfm(O O' OS)                        = wfm(O OS) if metadata(O) == metadata(O') .
  ceq wfm(O)                              = qid(metadata(O)) if rat(metadata(O),10) :: Nat .
