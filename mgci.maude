@@ -140,6 +140,7 @@ fmod MGCI is
   pr TERMSET-FM .
   pr SUBSTITUTIONSET .
   pr SUBSTITUTIONSETPAIR .
+  pr SUBSTITUTION-REFINEMENT .
 
   var M CM : Module .
   var I J N : Nat .
@@ -174,12 +175,23 @@ fmod MGCI is
   eq $mgci(M,CM,UP,N,{S,S',I},SS)  = $mgci(M,CM,UP,s(N),metaDisjointUnify(CM,UP,s(I),s(N)),SS | S) .
 
   --- OUT: return true iff the term is a constructor term
-  op ctor-term? : Module Term -> Bool .
-  eq ctor-term?(M,T) = metaMatch(ctor-refine(M),
-                         join('X ': ctor-sort(M,leastSort(M,T))),
-                         ctor-term(M,T),
-                         nil,
-                         0) :: Substitution .
+  op ctor-term? : Module Term -> [Bool] .
+  eq ctor-term?(M,T) = $ctor-term?(ctor-term-witness(M,T)) .
+
+  op $ctor-term? : Substitution? ~> Bool .
+  eq $ctor-term?(S) = true .
+  eq $ctor-term?(noMatch) = false .
+
+  op ctor-term-witness : Module Term -> [Substitution?] .
+  eq ctor-term-witness(M,T) =
+    if wellFormed(ctor-refine(M))
+      then metaMatch(ctor-refine(M),
+                     join('X ': ctor-sort(M,leastSort(M,T))),
+                     ctor-term(M,T),
+                     nil,
+                     0)
+      else errsub('Constructor 'Module 'Refinement 'Failed)
+    fi .
 
   --- OUT: a SubstitutionSetPair where the constructor assignments
   ---      are in the first slot, and the non-constructors are in the
