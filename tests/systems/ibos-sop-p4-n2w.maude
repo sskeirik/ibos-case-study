@@ -1,10 +1,10 @@
-load ibos-sop-base.maude
+load ibos-sop-removeid.maude
 
 set show advisories off .
 set print attribute on .
 ---set print with parentheses on .
 
-load ../../rltool.maude
+load ../../rltool-lib.maude
 
 fmod FOFORMSIMPLIFY-IMP-IMPL-EXT is
   pr FOFORMSIMPLIFY-IMP-IMPL .
@@ -21,7 +21,7 @@ endfm
 select RLTOOL .
 loop rltl-init .
 
-(select IBOS-NONFVP-STOP .)
+(select IBOS-SOP .)
 
 --- Solved:
 --- 1. kernelReceivesOPMessage-pa7-cc1b
@@ -33,12 +33,11 @@ loop rltl-init .
 ---(select-rls stop .)
 ---(select-rls kernelForwardsOPMessage .)
 
-(select-rls new-url .)
+(select-rls new-url stop .)
 
-(use tool impsimp for validity on IBOS-NONFVP-STOP with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
-(use tool varsat for unsatisfiability on IBOS-FVP .)
-(declare-vars (C:Configuration) U (WPIS:WebappProcInfoSet) U (NPIS:NetworkProcInfoSet) U (MSG:Message) U
-              (PS:PolicySet) U (NNP:Nat*) U (NWA:Nat*) U (U:Label) U (B:Bool) U (B':Bool) .)
+(use tool conrew for validity on IBOS-SOP with FOFORMSIMPLIFY-IMPL .)
+(declare-vars (C:NeConfiguration) U (WPIS:WebappProcInfoSet) U (NPIS:NetworkProcInfoSet) U (MSG:Message) U
+              (PS:PolicySet) U (NNP:Nat) U (NWA:Nat) U (U:Label) U (B:Bool) U (B':Bool) .)
 (def-term-set ([C]) | true .)
 --- INV is a generalized multiset equality between:
 --- [1] set of fromKernel messages at the beginning of a list in a netproc
@@ -47,19 +46,24 @@ loop rltl-init .
 ({ C
    < webappmgr | nextWAN(NWA) >
    < kernel | weblabels(WPIS), networklabels(NPIS), displayedTopBar(U), handledCurrently(MSG), msgPolicy(PS), nextNetworkProc(NNP) > } ) |
-   (p5(C,WPIS,NPIS)) = (true)                                /\
-   (p4(C,WPIS,NPIS)) = (true)                                /\
-   (ch-p14(MSG,WPIS,NPIS,NNP)) = (true)                      /\
+   (p4(C,WPIS,NPIS))                              = (true)   /\
+   (p5(C,WPIS,NPIS))                              = (true)   /\
+   (ch-p14(MSG,WPIS,NPIS,NNP))                    = (true)   /\
    --- these are strengthenings of the invariant above that allow the simplification rules to apply more often
    --- they are not strictly needed for correctness --- the invariant above should be enough
-   (NNP bnp<= C ~ false) = (true)                            /\
-   (NWA bwa<= C ~ false) = (true)                            /\
-   (dupl(C < webappmgr | nextWAN(NWA) > < kernel | nextNetworkProc(NNP) >)) = (false)
+   (fresh-np-id(NNP,C))                           = (true)   /\
+   (fresh-wa-id(NWA,C))                           = (true)   /\
+   (dupl(C < webappmgr | nextWAN(NWA)         >
+           < kernel    | nextNetworkProc(NNP) >)) = (false)
 .)
 (start-proof .)
-(auto .)
+--- set break on .
+--- set print conceal on .
+--- print conceal mod_is_sorts_._____endm fmod_is_sorts_.____endfm _;;_ ((_:_)) __ .
+--- break select simp-action step-action .
 (auto .)
 ---(
+(auto .)
 ---(cases ({< kernel | handledCurrently(msg(N:NetProcId,W:WebAppId,MT:MsgType,OUT:Label)), AS:AttributeSet > C}) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
 ---(cases+ ({C}) | ((true) = (B' a (B o (false ~ (MSG-RETURN-URL ~ MT:MsgType))))) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
 --- set break on .
