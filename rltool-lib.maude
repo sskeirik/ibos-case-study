@@ -425,8 +425,9 @@ mod RLTL-ACTION-IMPL is
   op handle-output : RLTLMode ProofMetadata -> QidList .
   eq handle-output(M,PM) =
     if active-mode?(M) then
-      if printStatusOnContinue then printSpaces(8) printStatusGoals(get-mod(PM),get-prf(PM)) '\n else nil fi
+      if printStatusOnContinue then printSpaces(8) printStatusGoals(get-mod(PM),get-prf(PM)) '\n
      'CONTINUE> 'type &sp '`( 'continue '. '`) &sp 'to 'continue
+      else nil fi
     else if M == on then
      'Auto 'Results: '\n printSpaces(8) printGoals(get-mod(PM),goalsByStatus(paused,get-prf(PM)))
     else if M == off then
