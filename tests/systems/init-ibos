@@ -1,0 +1,23 @@
+#!/bin/bash
+
+FILE_PATH="./ibos-sop-base.maude"
+FULL_MAUDE_PATH="../../../full-maude/full-maude-removeids.maude"
+MODULE_NAME="IBOS-SOP"
+OUTPUT_FILE_NAME="ibos-sop-removeid"
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd "$DIR"
+
+# note: the contextual rewriting backend doesn't care
+#       about what module it gets as long as the equational subtheory is:
+#       [1] ground convergent
+#       [2] compatible with the given ACRPO order
+
+maude <<INPUT |
+load ${FILE_PATH}
+load ${FULL_MAUDE_PATH}
+loop init .
+(remove identity attributes ${MODULE_NAME} .)
+quit
+INPUT
+tail -n+4 | head -n-2 | sed '1s/^/set include BOOL off .\n\n/' > "${OUTPUT_FILE_NAME}.maude"
