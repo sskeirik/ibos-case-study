@@ -14,7 +14,7 @@ fmod UNSORTIFY is
   pr META-LEVEL .
   pr ATTR-EXTRA .
 
-  op unsortify       : FModule           -> [FModule] .
+  op unsortify       : Module            -> [Module] .
   op unsortify       : OpDeclSet         -> [OpDeclSet] .
   op unsortify       : EquationSet       -> EquationSet .
   op unsortify       : TypeList          -> TypeList .
@@ -25,11 +25,13 @@ fmod UNSORTIFY is
   op unsortify-safe  : AttrSet           -> Bool .
 
   var H  : Header    . var SS : SortSet . var SDS : SubsortDeclSet .
-  var OS : OpDeclSet . var ES : EquationSet . var M : FModule . var AS : AttrSet .
+  var OS : OpDeclSet . var ES : EquationSet . var RLS : RuleSet . var M : Module .
   var TY : Type . var TYL : TypeList . var V : Variable . var C : Constant .
   var Q : Qid . var T T' : Term . var NL : NeTermList . var TL TL' : TermList .
-  var TQ : TermQid . var QS : QidSet . var S : Substitution .
+  var TQ : TermQid . var QS : QidSet . var S : Substitution . var AS : AttrSet .
 
+  eq unsortify(mod H is nil sorts SS . SDS OS none ES RLS endm) =
+    mod H is nil sorts 'U . none unsortify(OS) none unsortify(ES) RLS endm .
   eq unsortify(fmod H is nil sorts SS . SDS OS none ES endfm) =
     fmod H is nil sorts 'U . none unsortify(OS) none unsortify(ES) endfm .
 
