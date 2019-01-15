@@ -49,7 +49,7 @@ fmod CTOR-REFINE is
   var C : Constant .
 
   ceq ctor-refine(M) = $ctor-refine(M)
-  if not kinds?(true,M)
+  if not kinds?(M,true,getOps(M))
   /\ getMbs(M) == none .
 
   eq $ctor-refine(M) =
