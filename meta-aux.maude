@@ -2000,6 +2000,58 @@ fmod EQUALITY-FUNCTOR is
   eq pruneBool(OS) = OS [owise] .
 endfm
 
+fmod TOP-MODULE is
+  pr STRING-EXTRA .
+  pr QIDTUPLESET  .
+  pr META-LEVEL   .
+  pr UNIT-FM      .
+  pr CONVERSION   .
+
+  var S S' : Sort   . var SS : SortSet .
+  var K K' : Kind   . var KS : KindSet .
+  var Y    : Type   . var N  : Nat     .
+  var SR   : String . var M  : Module  .
+
+  --- map kinds to sorts
+  op k2s-map   : Module         -> QidPairSet     [memo] .
+  op k2s-map   : KindSet        -> QidPairSet     .
+  op k2s       : KindSet        -> SortSet        .
+  op k2s       : Kind           -> Sort           .
+  op k2s       : String         -> Sort           .
+  op k2s-map   : Module Type    -> Type           .
+  --- abbreviated kind to identifier map
+  op k2s-map#  : Module         -> QidPairSet     [memo] .
+  op k2s-map#  : KindSet Nat    -> QidPairSet     .
+  op k2s-map#  : Module Type    -> Type           .
+  --- top the signature
+  op top-subs  : Module KindSet -> SubsortDeclSet .
+  op top-subs  : Sort SortSet   -> SubsortDeclSet .
+  op top       : Module         -> Module         .
+
+  eq k2s(none)           = none .
+  eq k2s(K ; K' ; KS)    = k2s(K) ; k2s(K' ; KS) .
+  eq k2s(K)              = k2s(string(K)) .
+  eq k2s(SR)             = qid("|" + replace(substr(substr(SR,0,sd(length(SR),2)),2,sd(length(SR),4)),"`,","|") + "|") .
+
+  eq k2s-map(M)          = k2s-map(getKinds(M)) .
+  eq k2s-map(K ; KS)     = qp(K,k2s(K)) | k2s-map(KS) .
+  eq k2s-map(none)       = none .
+
+  eq k2s-map(M,Y)        = applyQPS!(getKind(M,Y),k2s-map(M)) .
+
+  eq k2s-map#(M)         = k2s-map#(getKinds(M),0) .
+  eq k2s-map#(K ; KS,N)  = qp(K,qid("Kind#" + string(N,10))) | k2s-map#(KS,s(N)) .
+  eq k2s-map#(none,N)    = none .
+
+  eq k2s-map#(M,Y)       = applyQPS!(getKind(M,Y),k2s-map#(M)) .
+
+  eq top(M)              = addSorts(k2s(getKinds(M)),addSubsorts(top-subs(M,getKinds(M)),M)) .
+  eq top-subs(M,K ; KS)  = top-subs(k2s(K),lesserSorts(M,K)) top-subs(M,KS) .
+  eq top-subs(M,none)    = none .
+  eq top-subs(S,S' ; SS) = subsort S' < S . top-subs(S,SS) .
+  eq top-subs(S,none)    = none .
+endfm
+
 fmod TERMSUBSTPAIR is
   pr META-TERM .
   sort TermSubstPair .
