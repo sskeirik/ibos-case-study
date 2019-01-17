@@ -2052,6 +2052,42 @@ fmod TOP-MODULE is
   eq top-subs(S,none)    = none .
 endfm
 
+--- take a module and extend it with sets of equations
+fmod EQUATIONSET-FUNCTOR is
+  pr META-LEVEL .
+  pr UNIT-FM .
+  pr QID-JOIN .
+  pr UNIQUE-PREFIX .
+
+  --- module conversions
+  op eqset-func   : Module         -> Module      [memo] .
+  op eqset-sort   : Module         -> Sort        .
+  op eq-opid      : Module         -> Qid         [memo] .
+  op eqset-opid   : Module         -> Qid         [memo] .
+  op eqsetid-term : Module         -> TermQid     [memo] .
+  op eq-ops       : Module KindSet -> OpDeclSet   .
+  op eq-eqs       : Module KindSet -> EquationSet .
+
+  var M : Module . var K : Kind . var KS : KindSet .
+
+  --- extend module by topping it and then adding equations
+  eq eqset-func(M) = addEqs(eq-eqs(M,getKinds(M)),addSorts(eqset-sort(M),addOps(eq-ops(M,getKinds(M)),M))) .
+
+  --- fresh sort for equation sets
+  eq eqset-sort(M) = qid(sortPrefix(M) + "EqSet") .
+
+  --- fresh operator ids for equation sets
+  eq eq-opid(M)      = qid(opPrefix(M)   + "~") .
+  eq eqset-opid(M)   = qid(opPrefix(M)   + "|") .
+  eq eqsetid-term(M) = qid("none." + string(eqset-sort(M))) .
+
+  --- operator and equation declarations for equation sets
+  eq eq-ops(M,K ; KS) = op eq-opid(M) : K K -> eqset-sort(M) [ctor] . eq-ops(M,KS) .
+  eq eq-ops(M,none)   = (op eqset-opid(M) : eqset-sort(M) eqset-sort(M) -> eqset-sort(M) [ctor assoc comm id(eqsetid-term(M))] . op 'none : nil -> eqset-sort(M) [ctor] .) .
+  eq eq-eqs(M,K ; KS) = (eq eq-opid(M)[qid("X:" + string(K)),qid("X:" + string(K))] = eqsetid-term(M) [none].) eq-eqs(M,KS) .
+  eq eq-eqs(M,none)   = none .
+endfm
+
 fmod TERMSUBSTPAIR is
   pr META-TERM .
   sort TermSubstPair .
