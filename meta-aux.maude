@@ -432,6 +432,12 @@ fmod UNIT-FM is
                   else addRls(getRls(U'),U)
                   fi))))))
     [owise] .
+
+  op toFModule : Module -> FModule .
+  eq toFModule(U) = addDecls(setName(emptyFModule,getName(U)),setRls(U,none)) .
+
+  op getSig : Module -> Module .
+  eq getSig(U) = setRls(setEqs(U,none),none) .
 endfm
 
 fmod BUBBLES is
