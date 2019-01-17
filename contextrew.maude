@@ -71,7 +71,7 @@ fmod CR-SAFETY is
   --- INP: Module
   --- PRE: None
   --- OUT: true iff each subsort-overloaded opfamily is labelled by a unique number
-  eq wf-metadata(U)                      = wf-metadata(getOpFamilies(U),none) .
+  eq wf-metadata(U)                        = wf-metadata(U,getOpFamilies(U,true),none) .
   eq wf-metadata(((I,TYL) |-> OS) OFM,Q) = if TYL == nil or-else wfm(OS) :: Qid then wf-metadata(OFM,if TYL =/= nil then wfm(OS) else qid(OS) fi ; Q) else false fi .
   eq wf-metadata(nil,Q)                  = true .
  ceq wfm(O O' OS)                        = wfm(O OS) if metadata(O) == metadata(O') .

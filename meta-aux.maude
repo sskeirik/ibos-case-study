@@ -1567,9 +1567,9 @@ fmod OP-FAMILY is
   op __ : OpFamilyMap OpFamilyMap -> OpFamilyMap [ctor assoc comm id: nil] .
   op nil : -> OpFamilyMap [ctor] .
 
-  op getOpFamilies : Module -> OpFamilyMap .
-  op getOpFamilies : Module OpDeclSet -> OpFamilyMap [memo] .
-  op $opF : Module OpDeclSet OpFamilyMap -> OpFamilyMap .
+  op getOpFamilies : Module Bool -> OpFamilyMap .
+  op getOpFamilies : Module Bool OpDeclSet -> OpFamilyMap [memo] .
+  op $opF : Module Bool OpDeclSet OpFamilyMap -> OpFamilyMap .
   op adhoc-overloaded? : OpFamilyMap -> Bool .
 
   var M : Module .
@@ -1580,17 +1580,18 @@ fmod OP-FAMILY is
   var OS OS' : OpDeclSet .
   var OFM : OpFamilyMap .
   var OD : OpDecl .
+  var B : Bool .
 
   --- INP: Module
   --- PRE: None
   --- OUT: OpFamilyMap which maps each Qid to all
   ---      the OpDecl's which have this Qid as their name
-  eq getOpFamilies(M) = getOpFamilies(M,getOps(M)) .
-  eq getOpFamilies(M,OS) = $opF(M,OS,nil) .
- ceq $opF(M,op Q : TYL -> TY [AS]. OS,OFM (Q,TYL') |-> OS') = $opF(M,OS,OFM (Q,TYL') |-> OS' op Q : TYL -> TY [AS].)
-  if TYL' == toKind(M,TYL) .
-  eq $opF(M,OD OS, OFM) = $opF(M,OS, OFM (qid(OD),toKind(M,argTypes(OD))) |-> OD) [owise] .
-  eq $opF(M,none,OFM) = OFM .
+  eq getOpFamilies(M,B) = getOpFamilies(M,B,getOps(M)) .
+  eq getOpFamilies(M,B,OS) = $opF(M,B,OS,nil) .
+ ceq $opF(M,B,op Q : TYL -> TY [AS]. OS,OFM (Q,TYL') |-> OS') = $opF(M,B,OS,OFM (Q,TYL') |-> OS' op Q : TYL -> TY [AS].)
+  if TYL' == toKind(M,TYL if B then TY else nil fi) .
+  eq $opF(M,B,OD OS, OFM) = $opF(M,B,OS,OFM (qid(OD),toKind(M,argTypes(OD) if B then resultType(OD) else nil fi)) |-> OD) [owise] .
+  eq $opF(M,B,none,OFM) = OFM .
 
   --- INP: OpFamilyMap
   --- PRE: OpFamilyMap is well-formed and sensible
@@ -1624,7 +1625,7 @@ fmod OP-FAMILY-AUX is
   --- INP: OpFamilyMap
   --- PRE: Valid OpFamilyMap
   --- OUT: true iff ctors always have minimal typings
-  eq ctorsPreregularBelow(M) = ctorsPreregularBelow(M,getOpFamilies(M)) .
+  eq ctorsPreregularBelow(M) = ctorsPreregularBelow(M,getOpFamilies(M,false)) .
   eq ctorsPreregularBelow(M,OFM (Q,KL) |-> OS) =
    $ctorsPreregularBelow(M,typesBelowMaximalOps(M,OS),ctors(OS),OS - ctors(OS)) and-then
    ctorsPreregularBelow(M,OFM) .
