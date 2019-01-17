@@ -61,21 +61,29 @@ fmod CR-SAFETY is
   pr OPDECL-EXTRA . --- provides metadata() function
   pr OP-FAMILY .    --- provides getOpFamilies() and OpFamilyMap datastructure
   pr CONVERSION .   --- provides rat() function
-  op wf-metadata : Module          -> Bool .
-  op wf-metadata : OpFamily QidSet -> Bool .
-  op wfm         : OpDeclSet       ~> Qid .
+  pr STRING-PAIR .  --- provides split function for strings
+  pr MAYBE-QID .
+  op wf-metadata : Module                 ~> QidSet [memo] .
+  op wf-metadata : Module OpFamily QidSet ~> QidSet .
+  op wfmd        : Module OpDeclSet       ~> QidSet .
+  op wfmd        : Module String          ~> QidSet .
 
   var O O' : OpDecl   . var OS  : OpDeclSet   . var I : Qid    . var Q : QidSet .
-  var TYL  : TypeList . var OFM : OpFamilyMap . var U : Module .
+  var TYL  : TypeList . var OFM : OpFamilyMap . var U : Module . var MD NS IS : String .
 
   --- INP: Module
   --- PRE: None
   --- OUT: true iff each subsort-overloaded opfamily is labelled by a unique number
   eq wf-metadata(U)                        = wf-metadata(U,getOpFamilies(U,true),none) .
-  eq wf-metadata(((I,TYL) |-> OS) OFM,Q) = if TYL == nil or-else wfm(OS) :: Qid then wf-metadata(OFM,if TYL =/= nil then wfm(OS) else qid(OS) fi ; Q) else false fi .
-  eq wf-metadata(nil,Q)                  = true .
- ceq wfm(O O' OS)                        = wfm(O OS) if metadata(O) == metadata(O') .
- ceq wfm(O)                              = qid(metadata(O)) if rat(metadata(O),10) :: Nat .
+  eq wf-metadata(U,((I,TYL) |-> OS) OFM,Q) = wf-metadata(U,OFM,wfmd(U,OS) ; Q) .
+  eq wf-metadata(U,nil,Q)                  = Q .
+
+  --- OUT: the unit symbol associated with this operator, if the metadata is wellformed
+ ceq wfmd(U,O O' OS) = wfmd(U,O OS) if metadata(O) == metadata(O') .
+  eq wfmd(U,O)       = wfmd(U,metadata(O)) .
+
+ ceq wfmd(U,MD) = none    if rat(MD,10) :: Nat .
+ ceq wfmd(U,MD) = qid(IS) if (NS,IS) := split(MD," ") /\ wellFormed(U,qid(IS)) .
 endfm
 
 fmod EQUATIONSET-FUNCTOR-LIFT is
@@ -109,8 +117,9 @@ endfm
 
 fmod CONG-CLOSURE-ENRICHMENT is
   pr VARIABLES-TO-CONSTANTS .
+  pr STRING-PAIR .
 
-  var T T' : Term . var VS : QidSet . var N M : Nat . var I P : Qid . var STR : String . var S : Substitution .
+  var T T' : Term . var VS : QidSet . var N M : Nat . var I P : Qid . var STR STR' : String . var S : Substitution .
   var U : Module . var OS OS' : OpDeclSet . var TY : Type . var TYL : TypeList .
   var AS : AttrSet . var V : Variable .
 
@@ -135,8 +144,14 @@ fmod CONG-CLOSURE-ENRICHMENT is
   eq shiftMetadata(U,N,M) = setOps(U,shiftMetadata(N,M,getOps(U),none)) .
 
   op shiftMetadata : Nat Nat OpDeclSet OpDeclSet -> OpDeclSet .
-  eq shiftMetadata(N,M,op I : TYL -> TY [AS metadata(STR)] . OS,OS') = shiftMetadata(N,M,OS,OS' op I : TYL -> TY [AS metadata(if rat(STR,10) > N then string(rat(STR,10) + M,10) else STR fi)] .) .
+  eq shiftMetadata(N,M,op I : TYL -> TY [AS metadata(STR)] . OS,OS') = shiftMetadata(N,M,OS,OS' op I : TYL -> TY [AS metadata(shiftMetadata(STR,N,M))] .) .
   eq shiftMetadata(N,M,none,OS')                                     = OS' .
+
+  op shiftMetadata : String Nat Nat ~> String .
+  eq shiftMetadata(STR,N,M) = if rat(STR,10) :: Nat then if rat(STR,10) > N then string(rat(STR,10) + M,10) else STR fi else shiftMetadata2(split(STR," "),N,M) fi .
+
+  op shiftMetadata2 : StringPair Nat Nat ~> String .
+ ceq shiftMetadata2((STR,STR'),N,M) = shiftMetadata(STR,N,M) if rat(STR,10) :: Nat .
 endfm
 
 --- Module provides the actual implemnation of contextual rewriting
@@ -164,6 +179,7 @@ fmod CONTEXT-REW is
   var U U+VS US+VS : Module . var ND : NegDisj? . var D : Disj . var N Sz : Nat . var S : Substitution . var T T' : Term .
   var CC  : AxCCState . var PD : PosDisj? . var ES : EquationSet . var AC SC SC' PS : PosEqAtomSet . var PA : PosEqAtom .
   var NND : NegDisj . var NPD : PosDisj . var D? : Disj? . var F? : QFForm? . var F F1 F2 : QFForm . var QPS : QidPairSet .
+  var IDS : QidSet .
 
   --- OUT: simplify QFForm by contextual rewriting so that solved equalities become tt
   op cr-simp  : Module Nat QFForm? -> QFForm? .
@@ -186,14 +202,14 @@ fmod CONTEXT-REW is
   ---      [5] all id constants have lowest value in the AC-RPO ordering
   --- OUT: PosDisj? rewritten with equations from congruence closure of equations in NegDisj modulo B
   op context-rew  : Module Nat NegDisj PosDisj ~> Disj .
-  op context-rew' : Module Nat NegDisj PosDisj ~> Disj .
+  op context-rew' : Module QidSet Nat NegDisj PosDisj ~> Disj .
   op context-rew1 : Module ModuleSubstPair NegDisj PosDisj ~> Disj .
   op context-rew2 : Module Module Substitution PosEqAtomSet PosEqAtomSet ~> Disj .
   op context-rew3 : Module Module Substitution EquationSet PosEqAtomSet ~> Disj .
   op context-rew4 : Module Module Substitution PosEqAtomSet PosEqAtomSet ~> Disj .
   ---
-  eq context-rew(U,N,ND,PD)         = context-rew'(toFModule(U),N,ND,PD) .
-  eq context-rew'(U,N,ND,PD)        = context-rew1(U,enrichModuleForCongClosure(U,N,vars(ND)),ND,PD) [print "PRE-CONTEXT-REW: " ND " => " PD] .
+  eq context-rew(U,N,ND,PD)         = context-rew'(toFModule(U),wf-metadata(U),N,ND,PD) .
+  eq context-rew'(U,IDS,N,ND,PD)    = context-rew1(U,enrichModuleForCongClosure(U,| IDS |,vars(ND)),ND,PD) [print "PRE-CONTEXT-REW: " ND " => " PD] .
   eq context-rew1(U,(U+VS,S),ND,PD) = context-rew2(U,U+VS,S,toNegSet(unsortify(U,ND << S)),toPosSet(PD << S)) .
   eq context-rew2(U,U+VS,S,AC,SC)   = context-rew3(U,U+VS,S,doCongClosure(U+VS,getSig(unsortify(U+VS)),AC),SC) .
   eq context-rew3(U,U+VS,S,ES,SC)   = context-rew4(U,U+VS,S,SC,applyCongClosureEquations(U+VS,ES,SC)) .
