@@ -182,14 +182,14 @@ fmod CONTEXT-REW is
   var IDS : QidSet .
 
   --- OUT: simplify QFForm by contextual rewriting so that solved equalities become tt
-  op cr-simp  : Module Nat QFForm? -> QFForm? .
-  op cr-simp' : Module Nat Disj? -> Disj? .
+  op cr-simp  : Module QFForm? -> QFForm? .
+  op cr-simp' : Module Disj? -> Disj? .
   op cr-simp' : Module Nat NegDisj PosDisj? ~> Disj .
   ---
-  eq cr-simp (U,N,F?) = cr-simp'(U,N,toCNF(F?)) .
-  eq cr-simp'(U,N,D /\ F) = cr-simp'(U,N,D) /\ cr-simp'(U,N,F) .
-  eq cr-simp'(U,N,NND \/ NPD) = cr-simp'(U,size(NND \/ NPD),NND,context-rew(U,N,NND,NPD)) .
-  eq cr-simp'(U,N,D?) = D? [owise] .
+  eq cr-simp (U,F?) = cr-simp'(U,toCNF(F?)) .
+  eq cr-simp'(U,D /\ F) = cr-simp'(U,D) /\ cr-simp'(U,F) .
+  eq cr-simp'(U,NND \/ NPD) = cr-simp'(U,size(NND \/ NPD),NND,context-rew(U,NND,NPD)) .
+  eq cr-simp'(U,D?) = D? [owise] .
   eq cr-simp'(U,Sz,NND,PD) = if size(NND \/ PD) < Sz then tt else mtForm fi \/ NND \/ PD .
 
   --- TODO: [1] extend this with a set of id constants/id rules that is automatically extracted from op decls
@@ -201,15 +201,15 @@ fmod CONTEXT-REW is
   ---      [4] Nat is greater than or equal to the id constant with the highest value
   ---      [5] all id constants have lowest value in the AC-RPO ordering
   --- OUT: PosDisj? rewritten with equations from congruence closure of equations in NegDisj modulo B
-  op context-rew  : Module Nat NegDisj PosDisj ~> Disj .
-  op context-rew' : Module QidSet Nat NegDisj PosDisj ~> Disj .
+  op context-rew  : Module NegDisj PosDisj ~> Disj .
+  op context-rew' : Module QidSet NegDisj PosDisj ~> Disj .
   op context-rew1 : Module ModuleSubstPair NegDisj PosDisj ~> Disj .
   op context-rew2 : Module Module Substitution PosEqAtomSet PosEqAtomSet ~> Disj .
   op context-rew3 : Module Module Substitution EquationSet PosEqAtomSet ~> Disj .
   op context-rew4 : Module Module Substitution PosEqAtomSet PosEqAtomSet ~> Disj .
   ---
-  eq context-rew(U,N,ND,PD)         = context-rew'(toFModule(U),wf-metadata(U),N,ND,PD) .
-  eq context-rew'(U,IDS,N,ND,PD)    = context-rew1(U,enrichModuleForCongClosure(U,| IDS |,vars(ND)),ND,PD) [print "PRE-CONTEXT-REW: " ND " => " PD] .
+  eq context-rew(U,ND,PD)           = context-rew'(toFModule(U),wf-metadata(U),ND,PD) .
+  eq context-rew'(U,IDS,ND,PD)      = context-rew1(U,enrichModuleForCongClosure(U,| IDS |,vars(ND)),ND,PD) [print "PRE-CONTEXT-REW: " ND " => " PD] .
   eq context-rew1(U,(U+VS,S),ND,PD) = context-rew2(U,U+VS,S,toNegSet(unsortify(U,ND << S)),toPosSet(PD << S)) .
   eq context-rew2(U,U+VS,S,AC,SC)   = context-rew3(U,U+VS,S,doCongClosure(U+VS,getSig(unsortify(U+VS)),AC),SC) .
   eq context-rew3(U,U+VS,S,ES,SC)   = context-rew4(U,U+VS,S,SC,applyCongClosureEquations(U+VS,ES,SC)) .
@@ -291,31 +291,30 @@ fmod CONTEXT-REW-SOLVER is
   pr FOFORM-EXTRACT-SUBSTITUTION . --- get extract sub
   pr CONTEXT-REW .                --- provides context-rew()
 
-  op crv      : NeModuleList Nat QFForm  -> QFForm? .
-  op crv'     : NeModuleList Nat QFForm? -> QFForm? .
-  op crv-conj : NeModuleList Nat QFForm? -> QFForm? .
-  op crv-disj : NeModuleList Nat Disj    -> QFForm? .
-  op crv-run  : NeModuleList Nat Disj    -> QFForm? .
+  op crv      : NeModuleList QFForm  -> QFForm? .
+  op crv'     : NeModuleList QFForm? -> QFForm? .
+  op crv-conj : NeModuleList QFForm? -> QFForm? .
+  op crv-disj : NeModuleList Disj    -> QFForm? .
+  op crv-run  : NeModuleList Disj    -> QFForm? .
 
   var ML : [NeModuleList] .
   var RewMod VSMod SimpMod CRMod : Module .
   var D : Disj .
   var F : QFForm .
-  var N : Nat .
 
   --- validity check goes as follows:
-  eq crv (ML,N,F) = simplify(crv'(ML,N,F)) .
-  eq crv'(ML,N,F) = crv-conj(ML,N,simplify(toCNF(F))) .
-  eq crv-conj(ML,N,D /\ F) = crv-disj(ML,N,D) /\ crv-conj(ML,N,F) .
-  eq crv-conj(ML,N,D) = crv-disj(ML,N,D) .
-  eq crv-conj(ML,N,mtForm) = mtForm .
-  eq crv-disj(ML,N,D) =
-    if crv-run(ML,N,D) == D
+  eq crv (ML,F) = simplify(crv'(ML,F)) .
+  eq crv'(ML,F) = crv-conj(ML,simplify(toCNF(F))) .
+  eq crv-conj(ML,D /\ F) = crv-disj(ML,D) /\ crv-conj(ML,F) .
+  eq crv-conj(ML,D) = crv-disj(ML,D) .
+  eq crv-conj(ML,mtForm) = mtForm .
+  eq crv-disj(ML,D) =
+    if crv-run(ML,D) == D
       then D
-      else crv'(ML,N,crv-run(ML,N,D))
+      else crv'(ML,crv-run(ML,D))
     fi .
-  eq crv-run(RewMod ; VSMod ; SimpMod ; CRMod,N,D) =
-    cr-simp(CRMod,N,downTerm(modReduce(SimpMod,
+  eq crv-run(RewMod ; VSMod ; SimpMod ; CRMod,D) =
+    cr-simp(CRMod,downTerm(modReduce(SimpMod,
       upTerm(reduce(RewMod,false,
                extract-clause-sub(RewMod,
                  vu-clause-simp(VSMod,D))))),error("crv-disj failed"))) .
@@ -341,7 +340,7 @@ fmod CONTEXT-REW-BACKEND-IMPL is
         crv(get-mod(D) ;
 	    getbackend('validity,'varsat,get-reg(D)) ;
 	    ModArgs ;
-	    toFModule(getbackend('validity,'conrew,get-reg(D))),0,F)) == tt then true else nobool fi
+	    toFModule(getbackend('validity,'conrew,get-reg(D))),F)) == tt then true else nobool fi
       else errb('conrew 'requires 'single 'module 'argument)
     fi .
   eq checkUnsat((M,'conrew,ModArgs),MQL,D,F) = nobool .
