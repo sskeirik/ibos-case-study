@@ -98,6 +98,9 @@ endfm
 
 fmod QIDTUPLESET is
   pr QID .
+
+  var Q Q' : Qid . var QPS : QidPairSet .
+
   sort EmptyQidTupleSet QidPairItem QidPairSet QidTripleItem QidTripleSet .
   subsort QidPairItem      < QidPairSet   .
   subsort QidTripleItem    < QidTripleSet .
@@ -108,6 +111,13 @@ fmod QIDTUPLESET is
   op _|_  : QidTripleSet QidTripleSet         -> QidTripleSet     [ctor assoc comm id: none] .
   op _|_  : EmptyQidTupleSet EmptyQidTupleSet -> EmptyQidTupleSet [ctor assoc comm id: none] .
   op none :                                   -> EmptyQidTupleSet [ctor] .
+
+  op applyQPS : Qid QidPairSet -> Qid .
+  eq applyQPS(Q,qp(Q,Q') | QPS) = Q' .
+  eq applyQPS(Q,QPS) = Q [owise] .
+
+  op applyQPS! : Qid QidPairSet ~> Qid .
+  eq applyQPS!(Q,qp(Q,Q') | QPS) = Q' .
 endfm
 
 fmod STRING-EXTRA is
