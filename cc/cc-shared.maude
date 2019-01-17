@@ -1,6 +1,7 @@
 fmod CONG-CLOSURE-SHARED-IMPL is
   pr PROCESS .
   pr CRITICAL-PAIR .
+  pr EQUATIONSET-FUNCTOR . --- NB: this dependency is not located in this module
 
   var AS : AttrSet .
   var E : Equation .
@@ -22,8 +23,10 @@ fmod CONG-CLOSURE-SHARED-IMPL is
   eq rem-att(AS,(eq T = T' [AS] .) ES) = ES .
   eq rem-att(AS,ES) = ES [owise] .
 
-  op reweqs : Module EquationSet Term -> Term .
-  eq reweqs(U,ES,TES) = getTerm(metaReduce(addEqs(ES,addDecls(U,upModule('EQSET,true))),TES)) .
+  --- OUT: return term T rewritten by module U with equations ES added
+  op rewWithEqs : Module EquationSet Term -> Term .
+  eq rewWithEqs(U,ES,TES) = getTerm(metaReduce(addEqs(ES,eqset-func(U)),TES)) .
+  eq rewWithEqs(U:[Module],EK:[EquationSet],TES:[Term]) = 'error [label rewWithEqs!] .
 
   op meta : Parent -> AttrSet .
   eq meta(none) = none .

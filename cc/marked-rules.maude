@@ -23,27 +23,32 @@ fmod MARKED-RULES is
   protecting MARKED-RULE .
   protecting INSERT{MRule<} .
   protecting LIST{IMRule} .
+  protecting EQUATIONSET-FUNCTOR . --- NB: this dependency comes from outside this project
 
   var MRL : List{MRule<} . var IMRL : List{IMRule} . var MR : MRule .
   vars T T' T'' T''' : GroundTerm . var TL : GroundTermList .
   vars i j n m k l : Nat . vars S S' S'' S''' : SetM{Qid} .
-  var U : Module .
+  var U : Module . var O1 O2 : Qid . var IT : Term .
 
-  op rules      : Module Term       -> List{MRule<} [memo] . --- generates sorted rule list from the user-specified ground equations
-  op clean      : List{MRule<}      -> List{MRule<} .        --- removes mt-rule prefixes
-  op make-rules : Module GroundTerm -> [List{MRule<}] .      --- generates rule list from meta-represented Eq term.
-  op remove     : Nat List{IMRule}  -> List{IMRule} .        --- assumes [i] MR occurs only once in the rule list
+  --- generates sorted rule list from the user-specified ground equations
+  op rules : Module Term -> List{MRule<} [memo] .
+  eq rules(U,T) = clean(sort(make-rules(U,eq-opid(U),eqset-opid(U),eqsetid-term(U),T))) .
 
-  eq rules(U,T) = clean(sort(make-rules(U,T))) .
-
+  --- removes mt-rule prefixes
+  op clean : List{MRule<} -> List{MRule<} .
   eq clean(nil) = nil .
   eq clean(mt-mrule MRL) = clean(MRL) .
   eq clean(MRL) = MRL [owise] .
 
-  eq make-rules(U,'_~_[T,T'])          = make-rule(U,T,T') .
-  eq make-rules(U,'_@_['_~_[T,T'],TL]) = make-rule(U,T,T') make-rules(U,'_@_[TL]) .
-  eq make-rules(U,'_@_[empty])         = nil .
+  --- generates rule list from meta-represented Eq term.
+  op make-rules : Module Qid Qid Term GroundTerm -> [List{MRule<}] .
+  eq make-rules(U,O1,O2,IT,O1[T,T'])        = make-rule(U,T,T') .
+  eq make-rules(U,O1,O2,IT,O2[O1[T,T'],TL]) = make-rule(U,T,T') make-rules(U,O1,O2,IT,O2[TL]) .
+  eq make-rules(U,O1,O2,IT,O2[empty])       = nil .
+  eq make-rules(U,O1,O2,IT,IT)              = nil .
 
+  --- assumes [i] MR occurs only once in the rule list
+  op remove : Nat List{IMRule} -> List{IMRule} .
   eq remove(i,nil) = nil .
   eq remove(i,([j] MR) IMRL) = if i == j then IMRL else ([j] MR) remove(i,IMRL) fi .
 endfm

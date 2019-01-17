@@ -87,7 +87,7 @@ fmod A\/C\/U-CONG-CLOSURE is
 
   eq [U,TES,IMRL,ES',ES,ID,IMRT,FAS,nil,nil,m0,k,s(j)] =
        if m0 == j
-          then [ES ES',k,reweqs(U,ES ES',TES)]
+          then [ES ES',k,rewWithEqs(U,ES ES',TES)]
           else [U,TES,IMRL,ES',ES,ID,IMRT,FAS,compute-overlaps(IMRT,m0),nil,j,s(k),s(j)]
        fi .
 

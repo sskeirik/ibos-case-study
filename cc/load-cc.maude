@@ -1,6 +1,5 @@
 --- this file loads all of the dependencies for congruence closure, except FULL-MAUDE,
 --- which must be loaded externally first
-load eqset.maude
 load aacrpo.maude
 load set-memo.maude
 load marked-term.maude

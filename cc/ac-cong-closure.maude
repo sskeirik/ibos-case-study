@@ -36,7 +36,7 @@ fmod A\/C-CONG-CLOSURE is
 
   eq [U,TES,IMRL,ES,IMRT,FAS,nil,nil,m0,k,s(j)] =
        if m0 == j
-          then [ES,k,reweqs(U,ES,TES)]
+          then [ES,k,rewWithEqs(U,ES,TES)]
           else [U,TES,IMRL,ES,IMRT,FAS,compute-overlaps(IMRT,m0),nil,j,s(k),s(j)]
        fi .
 

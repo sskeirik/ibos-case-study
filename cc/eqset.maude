@@ -1,7 +1,0 @@
-fmod EQSET is
-  sort U EqSet .
-  op _~_  : U U -> EqSet [ctor] .
-  op _@_  : EqSet EqSet -> EqSet [ctor assoc comm id: mt] .
-  op mt   : -> EqSet .
-  eq A:U ~ A:U = mt .
-endfm

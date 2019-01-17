@@ -54,5 +54,5 @@ fmod FREE-CONG-CLOSURE is
   eq [U,TES,IMRL,ES,{f,[i] T [n,S] => T' [m,S']} RS # MRL,j] =
        [U,TES,remove(i,IMRL),rem-att(i,ES), RS # ins(T [n,S] => T' [m,S'],MRL),j] .
 
-  eq [U,TES,IMRL,ES,nil,j] = [ES,reweqs(U,ES,TES)] .
+  eq [U,TES,IMRL,ES,nil,j] = [ES,rewWithEqs(U,ES,TES)] .
 endfm
