@@ -1657,6 +1657,7 @@ fmod STMT-EXTRA is
   var M : Module . var R R' : Rule . var RS : RuleSet . var Q : Qid . var Y : Sort .
   var U V : Term . var A : AttrSet . var C : Condition . var EC : EqCondition .
   var E E' : Equation . var ES : EquationSet . var B B' : MembAx . var BS : MembAxSet .
+  var S : String .
 
   op rl-labels : Module -> [QidSet] .
   op rl-labels : RuleSet -> [QidSet] .
@@ -1684,6 +1685,16 @@ fmod STMT-EXTRA is
 
   op stmt-labels : Module -> [QidSet] .
   eq stmt-labels(M) = rl-labels(M) ; eq-labels(M) ; mb-labels(M) .
+
+  op metadata : Rule ~> String .
+  op metadata : Equation ~> String .
+  op metadata : MembAx ~> String .
+  eq metadata(eq U = V [metadata(S) A].) = S .
+  eq metadata(ceq U = V if EC [metadata(S) A].) = S .
+  eq metadata(rl U => V [metadata(S) A].) = S .
+  eq metadata(crl U => V if C [metadata(S) A].) = S .
+  eq metadata(mb U : Y [metadata(S) A].) = S .
+  eq metadata(cmb U : Y if EC [metadata(S) A].) = S .
 endfm
 
 --- this module has functionality to generate unique prefixes with
