@@ -23,5 +23,11 @@ endfm
 
 fmod SETM-QID is
   pr SETM{Qid} .
-endfm
+  pr META-MODULE .
 
+  var Q : Qid . var QS : QidSet .
+
+  op toSetM : QidSet -> SetM{Qid} .
+  eq toSetM(Q ; QS) = Q & toSetM(QS) .
+  eq toSetM(none) = mt .
+endfm

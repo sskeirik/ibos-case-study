@@ -49,12 +49,12 @@ fmod A\/C\/U-CONG-CLOSURE is
   op [_,_,_,_,_,_,_,_,_,_,_,_,_] : Module Term List{IMRule} EquationSet EquationSet SetM{Qid} IMRuleTable FAxiomSet List{OInfo<} Process Nat Nat Nat -> AxCCState .
 
   vars T T' T'' T''' TES : GroundTerm .  var ES ES' : EquationSet .  var AS : AttrSet . var FAS : FAxiomSet . var OL : List{OInfo<} .
-  var OI : OInfo . vars i j n m k l m0 : Nat .  vars S S' S'' S''' ID : SetM{Qid} .  var f : Qid . var IMRT : IMRuleTable .
+  var OI : OInfo . vars i j n m k l m0 : Nat .  vars S S' S'' S''' ID : SetM{Qid} . var f : Qid . var ID' : QidSet . var IMRT : IMRuleTable .
   var MR : MRule .  var IMR : IMRule .  var MRL : List{MRule<} . var IMRL : List{IMRule} . var RS : Results . var U : FModule .
   var H : Header . var IL : ImportList .
 
-  op init-acu-cc : FModule EquationSet SetM{Qid} Term -> AxCCState .
-  eq init-acu-cc(U,ES',ID,TES) = [U,TES,nil,ES',none,ID,init-imrtab(U),init-faxset(U),nil,rules(U,TES),0,0,1] .
+  op init-acu-cc : FModule EquationSet QidSet Term -> AxCCState .
+  eq init-acu-cc(U,ES',ID',TES) = [U,TES,nil,ES',none,toSetM(ID'),init-imrtab(U),init-faxset(U),nil,rules(U,TES),0,0,1] .
 
   eq [U,TES,IMRL,ES',ES,ID,IMRT,FAS,OL,MR MRL,m0,k,j] =
        if sm(U,ES ES',MR) == mt-mrule
