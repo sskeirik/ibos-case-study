@@ -165,11 +165,12 @@ fmod CONTEXT-REW is
   pr FOFORMSET-CONSTS-TO-VARS . --- map constants back into variables
   pr CNF                      . --- CNF formula transformation
   pr CR-SAFETY                . --- provides wf-metadata()
-  pr A\/C-CONG-CLOSURE * (op `[_`,_`] to mr, op `{_`} to res) . --- A/C congruence closure
+  pr CONG-CLOSURE * (op `[_`,_`] to mr, op `{_`} to res) . --- A/C congruence closure
   pr EQUATIONSET-FUNCTOR-LIFT . --- extend a theory with equations in that theory
   pr CONG-CLOSURE-ENRICHMENT  .
   pr FOFORM-OPERATIONS        . --- gets size()
   pr SORTIFY-AUX              .
+  pr STMT-EXTRA .
   pr UNSORTIFY .
   pr SORTIFY .
   pr FOFORM .
@@ -177,9 +178,9 @@ fmod CONTEXT-REW is
   pr DEBUG-PRINT .
 
   var U U+VS US+VS : Module . var ND : NegDisj? . var D : Disj . var N Sz : Nat . var S : Substitution . var T T' : Term .
-  var CC  : AxCCState . var PD : PosDisj? . var ES : EquationSet . var AC SC SC' PS : PosEqAtomSet . var PA : PosEqAtom .
+  var CC  : AxCCState . var PD : PosDisj? . var ID-ES ES : EquationSet . var AC SC SC' PS : PosEqAtomSet . var PA : PosEqAtom .
   var NND : NegDisj . var NPD : PosDisj . var D? : Disj? . var F? : QFForm? . var F F1 F2 : QFForm . var QPS : QidPairSet .
-  var IDS : QidSet .
+  var IDS : QidSet . var E : Equation .
 
   --- OUT: simplify QFForm by contextual rewriting so that solved equalities become tt
   op cr-simp  : Module QFForm? -> QFForm? .
@@ -211,7 +212,7 @@ fmod CONTEXT-REW is
   eq context-rew(U,ND,PD)           = context-rew'(toFModule(U),wf-metadata(U),ND,PD) .
   eq context-rew'(U,IDS,ND,PD)      = context-rew1(U,enrichModuleForCongClosure(U,| IDS |,vars(ND)),ND,PD) [print "PRE-CONTEXT-REW: " ND " => " PD] .
   eq context-rew1(U,(U+VS,S),ND,PD) = context-rew2(U,U+VS,S,toNegSet(unsortify(U,ND << S)),toPosSet(PD << S)) .
-  eq context-rew2(U,U+VS,S,AC,SC)   = context-rew3(U,U+VS,S,doCongClosure(U+VS,getSig(unsortify(U+VS)),AC),SC) .
+  eq context-rew2(U,U+VS,S,AC,SC)   = context-rew3(U,U+VS,S,doCongClosure(U+VS,getSig(unsortify(U+VS)),wf-metadata(U),getTaggedIdEqs(U),AC),SC) .
   eq context-rew3(U,U+VS,S,ES,SC)   = context-rew4(U,U+VS,S,SC,applyCongClosureEquations(U+VS,ES,SC)) .
   eq context-rew4(U,U+VS,S,SC,SC')  = print-disj(constsToVars(S,SC')) .
 
@@ -220,8 +221,11 @@ fmod CONTEXT-REW is
   --- OUT: Perform congruence closure using the given set of disequalities as the equalities to be used
   --- PRE: [1] The Module should satisfy the requirements above
   ---      [2] The Module should be enriched by any variables in NegEqAtomSet
-  op doCongClosure : Module Module NegEqAtomSet ~> EquationSet .
-  eq doCongClosure(U+VS,US+VS,AC) = verifyCongClosure(U+VS,eqsetid-term(US+VS),init-ac-cc(US+VS,as2eq(US+VS,AC))) .
+  ---      [3] The Module should be preprocessed by removeIds() to remove id attrs and tag id constants and equations
+  ---      [4] The Module should only have unit elements that are constants
+  op doCongClosure : Module Module QidSet EquationSet NegEqAtomSet ~> EquationSet .
+ ceq doCongClosure(U+VS,US+VS,IDS,ID-ES,AC) = verifyCongClosure(U+VS,eqsetid-term(US+VS),init-acu-cc(US+VS,ID-ES,IDS,as2eq(US+VS,AC)))
+  if not (IDS == none xor ID-ES == none) .
 
   --- OUT: [1] verifies congruence closure success by checking that passed in equalities were reduced
   ---      [2] returns the congruence closure generated equations with sorts added back in
@@ -279,6 +283,14 @@ fmod CONTEXT-REW is
   op toPosDisj : PosEqAtomSet -> PosDisj? .
   eq toPosDisj(PA | PS)   = PA \/ toPosDisj(PS) .
   eq toPosDisj(mtFormSet) = mtForm .
+
+  --- OUT: get id equations from EquationSet tagged by removeIds() function
+  op getTaggedIdEqs : Module -> EquationSet [memo] .
+  eq getTaggedIdEqs(U) = getTaggedIdEqs(getEqs(U)) .
+
+  op getTaggedIdEqs : EquationSet -> EquationSet .
+  eq getTaggedIdEqs(E ES) = if substr(metadata(E),0,3) == "id " then E else none fi getTaggedIdEqs(ES) .
+  eq getTaggedIdEqs(none) = none .
 endfm
 
 --- Module provides an implementation of contextual-rewriting based satisfiability
