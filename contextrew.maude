@@ -126,7 +126,7 @@ fmod CONG-CLOSURE-ENRICHMENT is
   --- OUT: Module that has been enriched with constant bindings for each variable in the variable set
   ---      plus a substitution that maps each variable into the constant it was transformed into
   ---      Needed to perform congruence closure
-  --- PRE: [1] Module should have an ACRPO order on all of its operators
+  --- PRE: [1] Module should have a total order on all of its operators that lifts into an AC-RPO
   ---      [2] This ordering should be compatible with the rewrite relation defined by the equational theory of Module
   ---      [3] The identity elements for any operators should be minimal in the ordering
   ---      [4] The Nat argument should be equal to the number of identity elements in the order
