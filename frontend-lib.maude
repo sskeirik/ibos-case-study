@@ -6,6 +6,7 @@ load backend-lib.maude
 load var-sat.maude
 load impsimp.maude
 load cc/load-cc.maude
+load congclosure.maude
 load contextrew.maude
 
 fmod RLTOOL-BACKEND-IMPL is

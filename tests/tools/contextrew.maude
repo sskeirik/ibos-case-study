@@ -43,16 +43,22 @@ fmod TEST is
   pr CONTEXT-REW-SOLVER .
   pr FOFORM .
   op ex1 : -> Module [memo] .
- ceq ex1 = upModule('EX1,true) if wf-metadata(upModule('EX1,true)) .
+  eq ex1 = upModule('EX1,true) .
 endfm
 
 red ex1 .
 
-red context-rew(ex1,2,
-  'sorted['__['N:Nat,'L:NeNatList]] != 'true.Bool,
-  'first ['__['N:Nat,'L:NeNatList]] ?= 'N:Nat) == mtForm .
+red ordersortify-table(ex1) .
+red manysortify(ex1,
+  'sorted['__['N:Nat,'L:NeNatList]] != 'true.Bool \/
+  'first ['__['N:Nat,'L:NeNatList]] ?= 'N:Nat) .
 
-red cr-simp(ex1,2,
+red context-rew(ex1,
+  'sorted['__['N:Nat,'L:NeNatList]] != 'true.Bool,
+  'first ['__['N:Nat,'L:NeNatList]] ?= 'N:Nat) .
+
+---(
+red cr-simp(ex1,
   'sorted['__['N:Nat,'L:NeNatList]] != 'true.Bool \/
   'first ['__['N:Nat,'L:NeNatList]] ?= 'N:Nat) .
 
@@ -81,3 +87,4 @@ set print attribute on .
 (start-proof .)
 (auto .)
 quit
+---)

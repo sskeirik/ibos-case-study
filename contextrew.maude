@@ -51,136 +51,43 @@ fmod VAR-SAT-CLAUSE-SOLVER is
   eq vs-valid-clauses2(U,(mtForm,P2))       = nobool .
 endfm
 
---- this module provides functions to check that a module is usuable for
---- congruence closure (and thus contextural rewriting); essentially, we
---- mean no adhoc-overloading and all subsorted-overloaded families of
---- operators are labelled with the same unique number (rep. term order)
---- NOTE: we need to allow for ad-hoc overloaded constants, so special
----       case the handling of that particular operator family
-fmod CR-SAFETY is
-  pr OPDECL-EXTRA . --- provides metadata() function
-  pr OP-FAMILY .    --- provides getOpFamilies() and OpFamilyMap datastructure
-  pr CONVERSION .   --- provides rat() function
-  pr STRING-PAIR .  --- provides split function for strings
-  pr MAYBE-QID .
-  op wf-metadata : Module                 ~> QidSet [memo] .
-  op wf-metadata : Module OpFamily QidSet ~> QidSet .
-  op wfmd        : Module OpDeclSet       ~> QidSet .
-  op wfmd        : Module String          ~> QidSet .
-
-  var O O' : OpDecl   . var OS  : OpDeclSet   . var I : Qid    . var Q : QidSet .
-  var TYL  : TypeList . var OFM : OpFamilyMap . var U : Module . var MD NS IS : String .
-
-  --- INP: Module
-  --- PRE: None
-  --- OUT: true iff each subsort-overloaded opfamily is labelled by a unique number
-  eq wf-metadata(U)                        = wf-metadata(U,getOpFamilies(U,true),none) .
-  eq wf-metadata(U,((I,TYL) |-> OS) OFM,Q) = wf-metadata(U,OFM,wfmd(U,OS) ; Q) .
-  eq wf-metadata(U,nil,Q)                  = Q .
-
-  --- OUT: the unit symbol associated with this operator, if the metadata is wellformed
- ceq wfmd(U,O O' OS) = wfmd(U,O OS) if metadata(O) == metadata(O') .
-  eq wfmd(U,O)       = wfmd(U,metadata(O)) .
-
- ceq wfmd(U,MD) = none    if rat(MD,10) :: Nat .
- ceq wfmd(U,MD) = qid(IS) if (NS,IS) := split(MD," ") /\ wellFormed(U,qid(IS)) .
-endfm
-
-fmod EQUATIONSET-FUNCTOR-LIFT is
-  pr EQUATIONSET-FUNCTOR .
-  pr FOFORMSET .
-
-  var M : Module .
-  var A A' : PosEqAtom . var AS : PosEqAtomSet .
-  var NTL : NeTermList . var TL : TermList .
-  var O1 O2 : Qid . var ID T T' : Term .
-  --- formula conversions
-  op eq2as  : Module Term         -> PosEqAtomSet .
-  op eq2as  : Qid Qid Term Term   -> PosEqAtomSet .
-  op eq2as  : Qid TermList        -> PosEqAtomSet .
-  op as2eq  : Module PosEqAtomSet -> Term         .
-  op as2eq' : Module PosEqAtomSet -> TermList     .
-  --- formula conversions
-  eq eq2as(M,T)                 = eq2as(eqset-opid(M),eq-opid(M),eqsetid-term(M),T) .
-  eq eq2as(O1,O2,ID,O1[NTL])    = eq2as(O2,NTL) .
-  eq eq2as(O1,O2,ID,O2[T,T'])   = T ?= T' .
-  eq eq2as(O1,O2,ID,ID)         = mtFormSet .
-  eq eq2as(O2,(O2[T,T'],TL))    = T ?= T' | eq2as(O2,TL) .
-  eq eq2as(O2,empty)            = mtFormSet .
-  ---
-  eq as2eq(M,mtFormSet)         = eqsetid-term(M) .
-  eq as2eq(M,A)                 = as2eq'(M,A) .
-  eq as2eq(M,A | A' | AS)       = eqset-opid(M)[as2eq'(M,A | A' | AS)] .
-  eq as2eq'(M,T ?= T' | A | AS) = eq-opid(M)[T,T'],as2eq'(M,A | AS) .
-  eq as2eq'(M,T ?= T')          = eq-opid(M)[T,T'] .
-endfm
-
-fmod CONG-CLOSURE-ENRICHMENT is
-  pr VARIABLES-TO-CONSTANTS .
-  pr STRING-PAIR .
-
-  var T T' : Term . var VS : QidSet . var N M : Nat . var I P : Qid . var STR STR' : String . var S : Substitution .
-  var U : Module . var OS OS' : OpDeclSet . var TY : Type . var TYL : TypeList .
-  var AS : AttrSet . var V : Variable .
-
-  --- OUT: Module that has been enriched with constant bindings for each variable in the variable set
-  ---      plus a substitution that maps each variable into the constant it was transformed into
-  ---      Needed to perform congruence closure
-  --- PRE: [1] Module should have a total order on all of its operators that lifts into an AC-RPO
-  ---      [2] This ordering should be compatible with the rewrite relation defined by the equational theory of Module
-  ---      [3] The identity elements for any operators should be minimal in the ordering
-  ---      [4] The Nat argument should be equal to the number of identity elements in the order
-  op enrichModuleForCongClosure : Module Nat VariableSet -> ModuleSubstPair .
-  eq enrichModuleForCongClosure(U,N,VS) = varsToConstsWithMetadata#(shiftMetadata(U,N,| VS |),N,VS) .
-
-  op varsToConstsWithMetadata# : Module Nat QidSet -> ModuleSubstPair  .
-  eq varsToConstsWithMetadata#(U,N,VS) = varsToConstsWithMetadata#(U,N,VS,qid(opPrefix(U)),none,none) .
-
-  op varsToConstsWithMetadata# : Module Nat QidSet Qid OpDeclSet Substitution -> ModuleSubstPair  .
-  eq varsToConstsWithMetadata#(U,N,V ; VS,P,OS,S) = varsToConstsWithMetadata#(U,s(N),VS,P,OS op join(P getName(V)) : nil -> getType(V) [metadata(string(s(N),10))].,S ; V <- join(P getName(V) '. getType(V))) .
-  eq varsToConstsWithMetadata#(U,N,none,P,OS,S)  = (addOps(OS,U),S) .
-
-  op shiftMetadata : Module Nat Nat -> Module  .
-  eq shiftMetadata(U,N,M) = setOps(U,shiftMetadata(N,M,getOps(U),none)) .
-
-  op shiftMetadata : Nat Nat OpDeclSet OpDeclSet -> OpDeclSet .
-  eq shiftMetadata(N,M,op I : TYL -> TY [AS metadata(STR)] . OS,OS') = shiftMetadata(N,M,OS,OS' op I : TYL -> TY [AS metadata(shiftMetadata(STR,N,M))] .) .
-  eq shiftMetadata(N,M,none,OS')                                     = OS' .
-
-  op shiftMetadata : String Nat Nat ~> String .
-  eq shiftMetadata(STR,N,M) = if rat(STR,10) :: Nat then if rat(STR,10) > N then string(rat(STR,10) + M,10) else STR fi else shiftMetadata2(split(STR," "),N,M) fi .
-
-  op shiftMetadata2 : StringPair Nat Nat ~> String .
- ceq shiftMetadata2((STR,STR'),N,M) = shiftMetadata(STR,N,M) if rat(STR,10) :: Nat .
-endfm
-
 --- Module provides the actual implemnation of contextual rewriting
 --- that will be used in the satisfiablity algorithm
 --- NOTE: no clause simplification is performed here
 fmod CONTEXT-REW is
-  pr OPDECL-TYPING            . --- for overloading?() function
-  pr VARIABLES-TO-CONSTANTS   . --- variable-constant conversion
-  pr FOFORM-OPERATIONS        . --- for basic formula operations
-  pr FOFORM-SUBSTITUTION      . --- for formula substitution
-  pr FOFORMSET-CONSTS-TO-VARS . --- map constants back into variables
-  pr CNF                      . --- CNF formula transformation
-  pr CR-SAFETY                . --- provides wf-metadata()
-  pr CONG-CLOSURE * (op `[_`,_`] to mr, op `{_`} to res) . --- A/C congruence closure
-  pr EQUATIONSET-FUNCTOR-LIFT . --- extend a theory with equations in that theory
-  pr CONG-CLOSURE-ENRICHMENT  .
-  pr FOFORM-OPERATIONS        . --- gets size()
-  pr SORTIFY-AUX              .
-  pr STMT-EXTRA .
-  pr UNSORTIFY .
-  pr SORTIFY .
-  pr FOFORM .
-  pr FOFORMSET .
-  pr DEBUG-PRINT .
+  pr FOFORM-OPERATIONS     . --- size()
+  pr FOFORMSIMPLIFY        . --- simplify()
+  pr FOFORMREDUCE          . --- reduce()
+  pr FOFORM-CONSTS-TO-VARS . --- constsToVars()
+  pr CNF                   . --- toCNF()
+  pr CONG-CLOSURE-LIB      . --- congClosure()
 
-  var U U+VS US+VS : Module . var ND : NegDisj? . var D : Disj . var N Sz : Nat . var S : Substitution . var T T' : Term .
-  var CC  : AxCCState . var PD : PosDisj? . var ID-ES ES : EquationSet . var AC SC SC' PS : PosEqAtomSet . var PA : PosEqAtom .
-  var NND : NegDisj . var NPD : PosDisj . var D? : Disj? . var F? : QFForm? . var F F1 F2 : QFForm . var QPS : QidPairSet .
-  var IDS : QidSet . var E : Equation .
+  var U UCC : Module . var ES : EquationSet .
+  var S : Substitution . var Sz : Nat .
+  var ND  : NegDisj? . var PD : PosDisj? . var D? : Disj? .
+  var NND : NegDisj . var NPD : PosDisj . var D : Disj .
+  var F   : QFForm . var F? : QFForm? .
+  var CC  : CCState .
+
+  --- INP: Module NegDisj PosDisj
+  --- PRE: [1] Disj are well-formed with respect to Module
+  ---      [2] Module's operators are properly annotated with an AC-RPO that is compatible with the rewrite relation
+  ---      [3] Module does not have operators with the id attribute
+  ---      [4] Nat is greater than or equal to the id constant with the highest value
+  ---      [5] all id constants have lowest value in the AC-RPO ordering
+  --- OUT: PosDisj? rewritten with equations from congruence closure of equations in NegDisj modulo B
+  op context-rew : Module NegDisj PosDisj ~> PosDisj .
+  eq context-rew(U,ND,PD) = context-rew1(congClosure(U,simplify(~ ND)),PD) .
+
+  op context-rew1 : CCResult PosDisj ~> PosDisj .
+  eq context-rew1(errCCResult(QL:QidList),PD) = error(string(QL:QidList)) .
+  eq context-rew1((UCC,S,ES),PD) =
+    print-disj(
+      constsToVars(S,
+        if size(reduce(setEqs(UCC,ES),PD << S)) < size(PD)
+          then reduce(setEqs(UCC,ES),PD << S)
+          else reduce(addEqs(ES,UCC),PD << S)
+        fi)) .
 
   --- OUT: simplify QFForm by contextual rewriting so that solved equalities become tt
   op cr-simp  : Module QFForm? -> QFForm? .
@@ -193,104 +100,9 @@ fmod CONTEXT-REW is
   eq cr-simp'(U,D?) = D? [owise] .
   eq cr-simp'(U,Sz,NND,PD) = if size(NND \/ PD) < Sz then tt else mtForm fi \/ NND \/ PD .
 
-  --- TODO: [1] extend this with a set of id constants/id rules that is automatically extracted from op decls
-  ---       [2] replace all eqs with copies narrowed by id rules
-  --- INP: Module Nat NegDisj PosDisj
-  --- PRE: [1] Disj are well-formed with respect to Module
-  ---      [2] Module's operators are properly annotated with an AC-RPO that is compatible with the rewrite relation
-  ---      [3] Module does not have operators with the id attribute
-  ---      [4] Nat is greater than or equal to the id constant with the highest value
-  ---      [5] all id constants have lowest value in the AC-RPO ordering
-  --- OUT: PosDisj? rewritten with equations from congruence closure of equations in NegDisj modulo B
-  op context-rew  : Module NegDisj PosDisj ~> Disj .
-  op context-rew' : Module QidSet NegDisj PosDisj ~> Disj .
-  op context-rew1 : Module ModuleSubstPair NegDisj PosDisj ~> Disj .
-  op context-rew2 : Module Module Substitution PosEqAtomSet PosEqAtomSet ~> Disj .
-  op context-rew3 : Module Module Substitution EquationSet PosEqAtomSet ~> Disj .
-  op context-rew4 : Module Module Substitution PosEqAtomSet PosEqAtomSet ~> Disj .
-  ---
-  eq context-rew(U,ND,PD)           = context-rew'(toFModule(U),wf-metadata(U),ND,PD) .
-  eq context-rew'(U,IDS,ND,PD)      = context-rew1(U,enrichModuleForCongClosure(U,| IDS |,vars(ND)),ND,PD) [print "PRE-CONTEXT-REW: " ND " => " PD] .
-  eq context-rew1(U,(U+VS,S),ND,PD) = context-rew2(U,U+VS,S,toNegSet(unsortify(U,ND << S)),toPosSet(PD << S)) .
-  eq context-rew2(U,U+VS,S,AC,SC)   = context-rew3(U,U+VS,S,doCongClosure(U+VS,getSig(unsortify(U+VS)),wf-metadata(U),getTaggedIdEqs(U),AC),SC) .
-  eq context-rew3(U,U+VS,S,ES,SC)   = context-rew4(U,U+VS,S,SC,applyCongClosureEquations(U+VS,ES,SC)) .
-  eq context-rew4(U,U+VS,S,SC,SC')  = print-disj(constsToVars(S,SC')) .
-
-  --- Contextual Rewriting Implementation
-  ---------------------------------------
-  --- OUT: Perform congruence closure using the given set of disequalities as the equalities to be used
-  --- PRE: [1] The Module should satisfy the requirements above
-  ---      [2] The Module should be enriched by any variables in NegEqAtomSet
-  ---      [3] The Module should be preprocessed by removeIds() to remove id attrs and tag id constants and equations
-  ---      [4] The Module should only have unit elements that are constants
-  op doCongClosure : Module Module QidSet EquationSet NegEqAtomSet ~> EquationSet .
- ceq doCongClosure(U+VS,US+VS,IDS,ID-ES,AC) = verifyCongClosure(U+VS,eqsetid-term(US+VS),init-acu-cc(US+VS,ID-ES,IDS,as2eq(US+VS,AC)))
-  if not (IDS == none xor ID-ES == none) .
-
-  --- OUT: [1] verifies congruence closure success by checking that passed in equalities were reduced
-  ---      [2] returns the congruence closure generated equations with sorts added back in
-  op verifyCongClosure : Module Term AxCCState ~> EquationSet .
-  eq verifyCongClosure(U+VS,T,[ES,N,T ]) = sortify(ES,constsToQTS(U+VS)) .
- ceq verifyCongClosure(U+VS,T,[ES,N,T']) = none if debug-print("Congruence closure verification failed!") [owise] .
-
-  --- TODO: create version that rewrites with ES only first, since that
-  ---       version is convergent but the combination may not be
-  --- OUT: return term T rewritten by module U with equations ES added
-  op rewWithEqs : Module EquationSet Term -> Term .
-  eq rewWithEqs(U,ES,T) = getTerm(metaReduce(addEqs(ES,eqset-func(U)),T)) .
-  eq rewWithEqs(U:[Module],EK:[EquationSet],T:[Term]) = 'error [label rewWithEqs!] .
-
-  --- OUT: rewrites given equalities by the congruence closure generated equations
-  op applyCongClosureEquations : Module EquationSet PosEqAtomSet -> PosEqAtomSet .
-  eq applyCongClosureEquations(U+VS,ES,SC) = eq2as(U+VS,rewWithEqs(U+VS,ES,as2eq(U+VS,SC))) .
-
-  --- auxiliary functions
-  -----------------------
   --- OUT: debugging printer
   op print-disj : PosDisj ~> PosDisj .
   eq print-disj(PD) = PD [print "RESULT: " PD] .
-
-  --- lift unsorted/sorted conversions to modules
-  op unsortify : Module QFForm? -> QFForm? .
-  eq unsortify(U,mtForm)   = mtForm .
-  eq unsortify(U,F1 /\ F2) = unsortify(U,F1) /\ unsortify(U,F2) .
-  eq unsortify(U,F1 \/ F2) = unsortify(U,F1) \/ unsortify(U,F2) .
-  eq unsortify(U,~ F1)     = ~ unsortify(U,F1) .
-  eq unsortify(U,T ?= T')  = unsortify(U,T) ?= unsortify(U,T') .
-  eq unsortify(U,T != T')  = unsortify(U,T) != unsortify(U,T') .
-
-  op sortify : QFForm? QidPairSet -> QFForm? .
-  eq sortify(mtForm,QPS)   = mtForm .
-  eq sortify(F1 /\ F2,QPS) = sortify(F1,QPS) /\ sortify(F2,QPS) .
-  eq sortify(F1 \/ F2,QPS) = sortify(F1,QPS) \/ sortify(F2,QPS) .
-  eq sortify(~ F1,QPS)     = ~ sortify(F1,QPS) .
-  eq sortify(T ?= T',QPS)  = sortify(T,QPS) ?= sortify(T',QPS) .
-  eq sortify(T != T',QPS)  = sortify(T,QPS) != sortify(T',QPS) .
-
-  --- INP: PosDisj/NegDisj or PosEqAtomSet
-  --- PRE: Sometimes non-emptiness
-  --- OUT: PosEqAtomSet or PosDisj/NegDisj
-  op toNegSet : NegDisj -> PosEqAtomSet .
-  eq toNegSet(T != T')       = T ?= T' .
-  eq toNegSet(T != T' \/ ND) = T ?= T' | toNegSet(ND) .
-  eq toNegSet(mtForm)        = mtFormSet .
-
-  op toPosSet : PosDisj -> PosEqAtomSet .
-  eq toPosSet(PA)       = PA .
-  eq toPosSet(PA \/ PD) = PA | toPosSet(PD) .
-  eq toPosSet(mtForm)   = mtFormSet .
-
-  op toPosDisj : PosEqAtomSet -> PosDisj? .
-  eq toPosDisj(PA | PS)   = PA \/ toPosDisj(PS) .
-  eq toPosDisj(mtFormSet) = mtForm .
-
-  --- OUT: get id equations from EquationSet tagged by removeIds() function
-  op getTaggedIdEqs : Module -> EquationSet [memo] .
-  eq getTaggedIdEqs(U) = getTaggedIdEqs(getEqs(U)) .
-
-  op getTaggedIdEqs : EquationSet -> EquationSet .
-  eq getTaggedIdEqs(E ES) = if substr(metadata(E),0,3) == "id " then E else none fi getTaggedIdEqs(ES) .
-  eq getTaggedIdEqs(none) = none .
 endfm
 
 --- Module provides an implementation of contextual-rewriting based satisfiability

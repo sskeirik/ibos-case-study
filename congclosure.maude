@@ -1,0 +1,239 @@
+fmod MANYSORTIFY-FOFORM is
+  pr MANYSORTIFY .
+  pr FOFORM .
+
+  var U : Module .
+  var F1 F2 : QFForm .
+  var T T' : Term .
+  var QPS : QidPairSet .
+
+  --- lift unsorted/sorted conversions to modules
+  op manysortify : Module QFForm? -> QFForm? .
+  eq manysortify(U,mtForm)   = mtForm .
+  eq manysortify(U,F1 /\ F2) = manysortify(U,F1) /\ manysortify(U,F2) .
+  eq manysortify(U,F1 \/ F2) = manysortify(U,F1) \/ manysortify(U,F2) .
+  eq manysortify(U,~ F1)     = ~ manysortify(U,F1) .
+  eq manysortify(U,T ?= T')  = manysortify(U,T) ?= manysortify(U,T') .
+  eq manysortify(U,T != T')  = manysortify(U,T) != manysortify(U,T') .
+endfm
+
+--- this module provides functions to check that a module is usuable for
+--- congruence closure; essentially, we mean no adhoc-overloading
+--- (except for constants, since this is an easy to handle case)
+--- and all subsorted-overloaded families of operators are labelled
+--- with the same unique number (rep. term order)
+fmod CONG-CLOSURE-SAFETY is
+  pr OPDECL-EXTRA . --- provides metadata() function
+  pr OP-FAMILY .    --- provides getOpFamilies() and OpFamilyMap datastructure
+  pr CONVERSION .   --- provides rat() function
+  pr STRING-PAIR .  --- provides split function for strings
+  pr MAYBE-QID .
+  pr QID-JOIN .
+
+  var O O' : OpDecl   . var OS       : OpDeclSet   . var Q QI QN : Qid . var QIS QNS : QidSet .
+  var TYL  : TypeList . var OFM OFM' : OpFamilyMap . var U : Module  . var MD NUM ID : String .
+
+  sort CCMetadata .
+  op cc : Qid -> CCMetadata [ctor] .
+  op cc : Qid Qid -> CCMetadata [ctor] .
+
+  --- OUT: set of id elements from this module
+  --- PRE: [1] Module should have a total ordering of its operators by the metadata attribute
+  ---      [2] There should be no ad-hoc overloading of a symbol name with the same rank (# of args)
+  ---          except in the case of constants, which we handle
+  op ccModData : Module ~> QidSet [memo] .
+  eq ccModData(U) = ccOpFamDataInit(U,getOpFamilies(U,false),nil) .
+
+  --- Implementation of ccModData
+  -------------------------------
+  --- NB: this module gathers operators into families based on arity except for constants
+  ---     which are gathered based on coarity
+  op ccOpFamDataInit : Module OpFamily OpFamily ~> QidSet .
+  eq ccOpFamDataInit(U,((Q,nil) |-> OS) OFM,OFM') = ccOpFamDataInit(U,OFM,getOpFamilies(U,true,OS) OFM') .
+  eq ccOpFamDataInit(U,                 OFM,OFM') = if adhoc-overloaded(OFM,false,none) == none
+                                                      then ccOpFamData(U,OFM OFM',none,none)
+						      else errQid('Adhoc-overloaded 'syms: tolist(adhoc-overloaded(OFM,false,none)))
+						    fi [owise] .
+
+  op ccOpFamData : Module OpFamily QidSet QidSet ~> QidSet .
+  eq ccOpFamData(U,((Q,TYL) |-> OS) OFM,QNS,QIS) = ccOpFamData*(U,OFM,ccDeclSetData(U,OS),QNS,QIS) .
+  eq ccOpFamData(U,nil,QNS,QIS)                  = QIS .
+
+  --- NB: QNS records all observed numbers in the operator ordering for totality checking
+  ---     QIS  records all observed unit elements based on values embedded in metadata
+  op ccOpFamData* : Module OpFamily CCMetadata QidSet QidSet ~> QidSet .
+  eq ccOpFamData*(U,OFM,cc(QN),   QNS,QIS) =
+    if QN in QNS
+      then errQid('Operator 'id QN 'occurred 'in 'multiple 'operator 'families)
+      else ccOpFamData(U,OFM,QNS ; QN,QIS)
+    fi .
+  eq ccOpFamData*(U,OFM,cc(QN,QI),QNS,QIS) =
+    if QN in QNS
+      then errQid('Operator 'id QN 'occurred 'in 'multiple 'operator 'families)
+      else ccOpFamData(U,OFM,QNS ; QN,QIS ; QI)
+    fi .
+
+  --- OUT: either cc(NUM) or cc(NUM,ID) where NUM is the position of this operator family
+  ---      the total order and ID is the unit associated with this operator, if it exists
+  --- PRE: [1] each OpDecl in OpDeclset should have the same metadata value
+  ---      [2] the metadata should have the format "<num>" or "<num> <id>"
+  op ccDeclSetData : Module OpDeclSet ~> CCMetadata .
+ ceq ccDeclSetData(U,O O' OS) = ccDeclSetData(U,O OS) if metadata(O) == metadata(O') .
+  eq ccDeclSetData(U,O)       = ccParseDeclData(U,metadata(O)) .
+
+  op ccParseDeclData : Module String ~> CCMetadata .
+ ceq ccParseDeclData(U,MD) = cc(qid(MD))          if rat(MD,10) :: Nat .
+ ceq ccParseDeclData(U,MD) = cc(qid(NUM),qid(ID)) if (NUM,ID) := split(MD," ") /\ rat(NUM,10) :: Nat /\ wellFormed(U,qid(ID)) .
+endfm
+
+--- As it turns out, we can use this struct for two related but different tasks
+--- 1. For the module enrichment, where we do two things:
+---    a. add given variables into the module as constants and
+---       return a corresponding var-to-const substitution (components 1+2)
+---    b. extract the id equations out of the module (component 3)
+--- 2.
+fmod CONG-CLOSURE-RESULT is
+  pr META-LEVEL .
+  sort CCResult .
+  op ((_,_,_))   : Module Substitution EquationSet -> CCResult [ctor] .
+  op errCCResult : QidList                         ~> CCResult [ctor] .
+endfm
+
+fmod CONG-CLOSURE-ENRICHMENT is
+  pr VARIABLES-TO-CONSTANTS .
+  pr CONG-CLOSURE-RESULT .
+  pr STRING-PAIR .
+
+  var T T' : Term . var VS : QidSet .
+  var TY : Type . var TYL : TypeList .
+  var U : Module . var OS OS' : OpDeclSet .
+  var AS : AttrSet . var V : Variable .
+  var E : Equation . var ES : EquationSet .
+  var N M : Nat . var STR STR' : String .
+  var I P : Qid . var S : Substitution .
+
+  --- OUT: Module that has been enriched with constant bindings for each variable in the variable set
+  ---      plus a substitution that maps each variable into the constant it was transformed into
+  ---      Needed to perform congruence closure plus has had all identity equations extracted that
+  ---      were tagged by the removeIds() operator
+  --- PRE: [1] Module should have a total order on all of its operators that lifts into an AC-RPO
+  ---      [2] This ordering should be compatible with the rewrite relation defined by the equational theory of Module
+  ---      [3] The identity elements for any operators should be minimal in the ordering
+  ---      [4] The Nat argument should be equal to the number of identity elements in the order
+  op enrichModuleForCongClosure : Module Nat VariableSet -> CCResult .
+  eq enrichModuleForCongClosure(U,N,VS) =
+    extractTaggedIdEqs(varsToConstsWithMetadata#(shiftMetadata(U,N,| VS |),N,VS)) .
+
+  --- OUT: convert module into a new one with [a] variables added as fresh constants [b] metadata order updated appropriately
+  op varsToConstsWithMetadata# : Module Nat QidSet -> ModuleSubstPair  .
+  eq varsToConstsWithMetadata#(U,N,VS) = varsToConstsWithMetadata#(U,N,VS,qid(opPrefix(U)),none,none) .
+
+  op varsToConstsWithMetadata# : Module Nat QidSet Qid OpDeclSet Substitution -> ModuleSubstPair  .
+  eq varsToConstsWithMetadata#(U,N,V ; VS,P,OS,S) = varsToConstsWithMetadata#(U,s(N),VS,P,OS op join(P getName(V)) : nil -> getType(V) [metadata(string(s(N),10))].,S ; V <- join(P getName(V) '. getType(V))) .
+  eq varsToConstsWithMetadata#(U,N,none,P,OS,S)  = (addOps(OS,U),S) .
+
+  op shiftMetadata : Module Nat Nat -> Module  .
+  eq shiftMetadata(U,N,M) = setOps(U,shiftMetadata(N,M,getOps(U),none)) .
+
+  op shiftMetadata : Nat Nat OpDeclSet OpDeclSet -> OpDeclSet .
+  eq shiftMetadata(N,M,op I : TYL -> TY [AS metadata(STR)] . OS,OS') = shiftMetadata(N,M,OS,OS' op I : TYL -> TY [AS metadata(shiftMetadata(STR,N,M))] .) .
+  eq shiftMetadata(N,M,none,OS')                                     = OS' .
+
+  op shiftMetadata : String Nat Nat ~> String .
+  eq shiftMetadata(STR,N,M) = if rat(STR,10) :: Nat then if rat(STR,10) > N then string(rat(STR,10) + M,10) else STR fi else shiftMetadata2(split(STR," "),N,M) fi .
+
+  op shiftMetadata2 : StringPair Nat Nat ~> String .
+ ceq shiftMetadata2((STR,STR'),N,M) = shiftMetadata(STR,N,M) if rat(STR,10) :: Nat .
+
+  --- OUT: extract equations from EquationSet tagged by removeIds() function
+  op extractTaggedIdEqs : ModuleSubstPair -> CCResult .
+  eq extractTaggedIdEqs((U,S)) = extractTaggedIdEqs(getTaggedIdEqs(getEqs(U)),(U,S)) .
+
+  op extractTaggedIdEqs : EquationSet ModuleSubstPair -> CCResult .
+  eq extractTaggedIdEqs(ES,(U,S)) = (setEqs(U,getEqs(U) - ES),S,ES) .
+
+  op getTaggedIdEqs : EquationSet -> EquationSet .
+  eq getTaggedIdEqs(E ES) = if substr(metadata(E),0,3) == "id " then E else none fi getTaggedIdEqs(ES) .
+  eq getTaggedIdEqs(none) = none .
+endfm
+
+--- In this module, we put together all of the pieces for congruence closure
+--- on a conjunction of positive equality atoms.
+--- Here is a list of all of the steps we take when performing this process:
+--- Module Pre-processing:
+---  [1] extract and remove identity equations from the module
+---- [2] check module metadata and extract unit elements.
+---  [3] convert variables in conjunction into constants in the module,
+---      being sure to shift the metadata in the module appropriately +
+---      save var-to-const substitution.
+---  [4] convert module+constants into many-sorted form + compute inversion table
+---  [5] apply equationset functor to many-sorted module+constants
+--- Conjunction Preprocessing:
+---  [a] Convert all variables in conjunction into constants (using substitution from step 3)
+---  [b] Convert conjunction into many-sorted form (using module in step 3)
+---  [c] Convert to term by equationset functor (using module in step 4)
+--- Next, do congruence closure with module and term.
+--- Take congruence closure generated equations and convert back to
+--- order-sorted form (using inversion table from step 4)
+--- Return to the user the following:
+---  [i]   module from step 3 (no id eqs + variables as constants)
+---  [ii]  order-sorted equations generated by congruence closure
+---  [iii] the var-to-const substitution from step 3
+fmod CONG-CLOSURE-LIB is
+  pr STMT-EXTRA .
+  pr DEBUG-PRINT .
+  pr FOFORM-SUBSTITUTION .
+  pr FOFORM-OPERATIONS .
+  pr MANYSORTIFY-FOFORM .
+  pr QIDPAIRSET-TERMAPPLY .
+  pr CONG-CLOSURE-SAFETY .
+  pr CONG-CLOSURE-ENRICHMENT .
+  pr CONG-CLOSURE *
+     (op `[_`,_`] to mr,
+      op `{_`} to res) .
+
+  var U UCC : Module .
+  var IDS : QidSet .
+  var ID-ES ES : EquationSet .
+  var MS-PCT T T' : Term .
+  var M M' : Marking .
+  var N : Nat .
+  var PC : PosEqConj .
+  var PC? : PosEqConj? .
+  var S : Substitution .
+  var M2OMap : QidPairSet .
+  var MRL : List{MRule<} .
+
+  op congClosure : Module PosEqConj -> CCResult .
+  eq congClosure(U,PC) =
+    if ccModData(U) :: QidSet and-then wellFormed(U,PC)
+      then congClosure1(U,ccModData(U),PC)
+      else errCCResult(qidErrMsg(ccModData(U)))
+    fi .
+
+  op congClosure1 : Module QidSet PosEqConj -> CCResult .
+  eq congClosure1(U,IDS,PC) =
+    congClosure2(enrichModuleForCongClosure(U,| IDS |,vars(PC)),IDS,PC) .
+
+  op congClosure2 : CCResult QidSet PosEqConj -> CCResult .
+  eq congClosure2((UCC,S,ID-ES),IDS,PC) =
+    congClosure3(UCC,
+                 S,
+		 manysortify-1(UCC),
+		 init-acu-cc(
+		   manysortify(UCC),
+		   manysortify(UCC,ID-ES),
+		   manysortify(UCC,IDS),
+		   toMRules(manysortify(UCC),manysortify(UCC,PC << S)))) .
+
+  op congClosure3 : Module Substitution QidPairSet CCState -> CCResult .
+  eq congClosure3(UCC,S,M2OMap,[ES,N,MRL]) =
+    if MRL == nil
+      then (UCC,S,apply(M2OMap,true,ES))
+      else errCCResult('Congruence 'closure 'failed!)
+    fi .
+
+  op toMRules : Module PosEqConj -> List{MRule<} .
+  eq toMRules(U,T ?= T' /\ PC?) = make-rule(U,T,T') toMRules(U,PC?) .
+  eq toMRules(U,mtForm)         = nil .
+endfm
