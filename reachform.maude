@@ -709,22 +709,25 @@ fmod LCCRULE-NARROWING is
   ---         in them --- otherwise they could conflict with those produced
   ---         by the unification routine
   op top-narrow : Module LabelLCCRuleSet Term ~> LabelLCCRuleSubstPairSet .
-  eq top-narrow(U,AR | ARS,T) = $top-narrow1(U,AR,safeUnify(U,lhs(trans(AR)),T)) | top-narrow(U,ARS,T) .
-  eq top-narrow(U,empty,T) = empty .
+  eq top-narrow(U,ARS,T) = top-narrow(U,ARS,T,empty) .
 
-  op $top-narrow1 : Module LabelLCCRule SubstitutionSet ~> LabelLCCRuleSubstPairSet .
-  eq $top-narrow1(U,AR,S | SS) = (AR,S) | $top-narrow1(U,AR,SS) .
-  eq $top-narrow1(U,AR,empty) = empty .
-  eq $top-narrow1(U,AR,SK) = errLabelRuleSubstPair(errsubMsg(SK)) .
+  op top-narrow : Module LabelLCCRuleSet Term LabelLCCRuleSubstPairSet ~> LabelLCCRuleSubstPairSet .
+  eq top-narrow(U,AR | ARS,T,ARPS) = top-narrow(U,ARS,T,ARPS | $top-narrow1(U,AR,safeUnify(U,lhs(trans(AR)),T),empty)) .
+  eq top-narrow(U,empty,   T,ARPS) = ARPS .
+
+  op $top-narrow1 : Module LabelLCCRule SubstitutionSet LabelLCCRuleSubstPairSet ~> LabelLCCRuleSubstPairSet .
+  eq $top-narrow1(U,AR,S | SS,ARPS) = $top-narrow1(U,AR,SS,ARPS | (AR,S)) .
+  eq $top-narrow1(U,AR,empty, ARPS) = ARPS .
+  eq $top-narrow1(U,AR,SK,    ARPS) = errLabelRuleSubstPair(errsubMsg(SK)) .
 
   --- OUT: A wrapper, lifting the above functions to StepResultSets
   op #top-narrow : Module LabelLCCRuleSet ReachForm ~> StepResultSet .
-  eq #top-narrow(U,ARS,F) = #top-narrow(top-narrow(U,ARS,lhs(F)),F) .
+  eq #top-narrow(U,ARS,F) = #top-narrow(top-narrow(U,ARS,lhs(F)),F,noSteps) .
 
-  op #top-narrow : LabelLCCRuleSubstPairSet ReachForm ~> StepResultSet .
-  eq #top-narrow((AR,S) | ARPS,F) = (name(AR),S,set-conj-antc(F,succ(trans(AR))) << S) #top-narrow(ARPS,F) .
-  eq #top-narrow(empty,F) = noSteps .
-  eq #top-narrow(ARPSK,F) = errStepResultSet(errLabelRuleSubstPairMsg(ARPSK)) .
+  op #top-narrow : LabelLCCRuleSubstPairSet ReachForm StepResultSet ~> StepResultSet .
+  eq #top-narrow((AR,S) | ARPS,F,SRS) = #top-narrow(ARPS,F,SRS (name(AR),S,set-conj-antc(F,succ(trans(AR))) << S)) .
+  eq #top-narrow(empty,        F,SRS) = SRS .
+  eq #top-narrow(ARPSK,        F,SRS) = errStepResultSet(errLabelRuleSubstPairMsg(ARPSK)) .
 
   --- OUT: A wrapper, lifting the above functions to ReachFormSets
   op top-narrow : Module LabelLCCRuleSet ReachForm ~> ReachFormSet .
