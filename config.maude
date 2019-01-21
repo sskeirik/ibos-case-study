@@ -6,6 +6,7 @@ fmod RLTOOL-SWITCHES is
   op enableVarUnifSimp : -> Bool .
   op hideNonErrors : -> Bool .
   op printStepName : -> Bool .
+  op abstractRules : -> Bool .
 endfm
 
 fmod RLTOOL-DEFAULT-CONFIG is
@@ -16,6 +17,7 @@ fmod RLTOOL-DEFAULT-CONFIG is
   eq enableVarUnifSimp = true .
   eq hideNonErrors = true .
   eq printStepName = true .
+  eq abstractRules = true .
 endfm
 
 fmod RLTOOL-DEFAULT-CONFIG-NOVU is
@@ -26,6 +28,7 @@ fmod RLTOOL-DEFAULT-CONFIG-NOVU is
   eq enableVarUnifSimp = false .
   eq hideNonErrors = true .
   eq printStepName = false .
+  eq abstractRules = true .
 endfm
 
 fmod RLTOOL-DEBUG-CONFIG is
@@ -36,4 +39,16 @@ fmod RLTOOL-DEBUG-CONFIG is
   eq enableVarUnifSimp = true .
   eq hideNonErrors = false .
   eq printStepName = true .
+  eq abstractRules = true .
+endfm
+
+fmod RLTOOL-LARGE-MODULE is
+  pr RLTOOL-SWITCHES .
+  eq printStatusOnContinue = false .
+  eq printAxiomFailures = true .
+  eq skipQuantifierCheck = true .
+  eq enableVarUnifSimp = true .
+  eq hideNonErrors = true .
+  eq printStepName = true .
+  eq abstractRules = false .
 endfm

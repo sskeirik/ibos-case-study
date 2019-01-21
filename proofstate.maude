@@ -821,7 +821,7 @@ fmod REACH-PROOF-STATE-VALIDATION is
     if wellFormed(U)
       then if rules-share-kind(U) == true
         then if kinds?(true,U) == false
-          then if abstract-rules(U) :: LabelReachFormSet
+          then if abstract-rules(U,abstractRules) :: LabelReachFormSet
             then nil
             else 'Error: 'Module 'rule 'abstraction 'encountered 'an 'error '\n
           fi else 'Error: 'Module 'has 'ill-formed 'or 'kind-valued 'expressions '\n

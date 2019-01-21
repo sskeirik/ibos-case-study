@@ -471,39 +471,44 @@ fmod ABSTRACT-RULES is
   pr MAYBE-QID .
 
   --- create abstract rule set
-  op  abstract-rules  : Module                        ~> LabelLCCRuleSet .
-  op  abstract-rules  : Module RuleSet Constant       ~> LabelLCCRuleSet .
-  op $abs             : Module Rule Constant          ~> LabelLCCRule .
-  op $abs             : AbstractionData Rule Constant ~> LabelLCCRule .
-  op  get-label       : AttrSet                       -> MaybeQid .
+  op  abstract-rules  : Module Bool                             ~> LabelLCCRuleSet .
+  op  abstract-rules  : Module RuleSet Constant LabelLCCRuleSet ~> LabelLCCRuleSet .
+  op $abs             : Module Rule Constant                    ~> LabelLCCRule .
+  op $abs             : AbstractionData Rule Constant           ~> LabelLCCRule .
+  op  get-label       : AttrSet                                 -> MaybeQid .
   --- auxiliary operators
-  op  subst2Conj      : Substitution                  -> PosEqConj? .
-  op  eqCond2Conj     : EqCondition Constant          ~> EqConj? .
+  op  subst2Conj      : Substitution                            -> PosEqConj? .
+  op  eqCond2Conj     : EqCondition Constant EqConj?            ~> EqConj? .
+  op  toLabelLCCRuleSet : Constant RuleSet LabelLCCRuleSet      ~> LabelLCCRuleSet .
 
   var Q : Qid . var V : Variable . var RLS : RuleSet . var EC  : EqCondition .
   var N : Nat . var M : Module   . var AS  : AttrSet . var C P : EqConj? .
   var L R R' T T' : Term . var RL : Rule . var S S' : Substitution .
-  var K : Constant .
+  var K : Constant . var LRS : LabelLCCRuleSet . var B : Bool .
 
   --- Abstracts rewrite rules
-  eq  abstract-rules(M)                      = abstract-rules(M,getRls(M),'true.Bool) .
-  eq  abstract-rules(M,RL RLS,K)             = abstract-rules(M,RLS,K) | $abs(M,RL,K) .
-  eq  abstract-rules(M,none,K)               = empty .
-  eq $abs(M,rl L => R [AS].,K)               = $abs(defined-abs(M,R),rl L => R [AS].,K) .
-  eq $abs(M,crl L => R if EC [AS].,K)        = $abs(defined-abs(M,R),crl L => R if EC [AS].,K) .
-  eq $abs((N,R',S),rl L => R [AS].,K)        = (get-label(AS) : (L | tt) => (R' |      subst2Conj(S))) .
- ceq $abs((N,R',S),crl L => R if EC [AS].,K) = (get-label(AS) : (L | tt) => (R' | C /\ subst2Conj(S)))
-  if  C := eqCond2Conj(EC,K) .
+  eq  abstract-rules(M,true)                 = abstract-rules(M,getRls(M),'true.Bool,empty) .
+  eq  abstract-rules(M,false)                = toLabelLCCRuleSet('true.Bool,getRls(M),empty) .
+  eq  abstract-rules(M,RL RLS,K,LRS)         = abstract-rules(M,RLS,K,LRS | $abs(M,RL,K)) .
+  eq  abstract-rules(M,none,  K,LRS)         = LRS .
+  eq $abs(M,        rl L => R       [AS].,K) = $abs(defined-abs(M,R), rl L => R       [AS].,K) .
+  eq $abs(M,       crl L => R if EC [AS].,K) = $abs(defined-abs(M,R),crl L => R if EC [AS].,K) .
+  eq $abs((N,R',S), rl L => R       [AS].,K) = (get-label(AS) : (L | tt) => (R' |                             subst2Conj(S))) .
+  eq $abs((N,R',S),crl L => R if EC [AS].,K) = (get-label(AS) : (L | tt) => (R' | eqCond2Conj(EC,K,mtForm) /\ subst2Conj(S))) .
   eq  get-label(label(Q) AS)                 = Q .
   eq  get-label(AS)                          = noqid [owise] .
 
   --- Auxiliary operators
-  eq  eqCond2Conj('_=/=_[T,T'] = K /\ EC,K) = T != T' /\ eqCond2Conj(EC,K) .
-  eq  eqCond2Conj('_==_[T,T']  = K /\ EC,K) = T ?= T' /\ eqCond2Conj(EC,K) .
-  eq  eqCond2Conj(T = T' /\ EC,K)           = T ?= T' /\ eqCond2Conj(EC,K) [owise] .
-  eq  eqCond2Conj(nil,K)                    = mtForm .
-  eq  subst2Conj(V <- T ; S)                = V ?= T /\ subst2Conj(S) .
-  eq  subst2Conj(none)                      = mtForm .
+  eq  eqCond2Conj('_=/=_[T,T'] = K /\ EC,K,C) = eqCond2Conj(EC,K,C /\ T != T') .
+  eq  eqCond2Conj('_==_[T,T']  = K /\ EC,K,C) = eqCond2Conj(EC,K,C /\ T ?= T') .
+  eq  eqCond2Conj(T = T'           /\ EC,K,C) = eqCond2Conj(EC,K,C /\ T ?= T') [owise] .
+  eq  eqCond2Conj(nil,                   K,C) = C .
+
+  eq  subst2Conj(V <- T ; S) = V ?= T /\ subst2Conj(S) .
+  eq  subst2Conj(none)       = mtForm .
+
+  eq  toLabelLCCRuleSet(K, rl L => R       [AS]. RLS,LRS) = toLabelLCCRuleSet(K,RLS,LRS | (get-label(AS) : (L | tt) => (R | tt                      ))) .
+  eq  toLabelLCCRuleSet(K,crl L => R if EC [AS]. RLS,LRS) = toLabelLCCRuleSet(K,RLS,LRS | (get-label(AS) : (L | tt) => (R | eqCond2Conj(EC,K,mtForm)))) .
 endfm
 
 fmod TRANSITION-RENAME is

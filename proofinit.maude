@@ -39,7 +39,7 @@ fmod REACH-PROOF-INIT is
  ceq init(U,D) = set(D,rls(ARS') ; tst(TST') ; axs(AXL') ;  prf(GS) ;  cnt(N) ; gn(1 + size(GS)))
   if U               =/= noModule
   --- rename variables to be fresh with respect to each other
-  /\ ARS             := abstract-rules(U,getRls(U),'true.Bool)                                  --- abstracted rewrite rules
+  /\ ARS             := abstract-rules(U,abstractRules)                                         --- abstracted rewrite rules
   /\ termdata(T1,F1) := #renameAllVar(U,highestSVar(U,upTerm(getbody(get-prf(D)))),upTerm(ARS)) --- renamed abstracted rewrite rules
   /\ termdata(T2,F2) := #renameAllVar(U,F1,upTerm(get-tst(D)))                                  --- renamed final state pattern
   /\ termdata(T3,F3) := #renameAllVar(U,F2,upTerm(get-axs(D)))                                  --- renamed axioms
