@@ -1570,7 +1570,6 @@ fmod OP-FAMILY is
   op getOpFamilies : Module Bool -> OpFamilyMap .
   op getOpFamilies : Module Bool OpDeclSet -> OpFamilyMap [memo] .
   op $opF : Module Bool OpDeclSet OpFamilyMap -> OpFamilyMap .
-  op adhoc-overloaded? : OpFamilyMap -> Bool .
 
   var M : Module .
   var Q : Qid .
@@ -1595,9 +1594,11 @@ fmod OP-FAMILY is
 
   --- INP: OpFamilyMap
   --- PRE: OpFamilyMap is well-formed and sensible
-  --- OUT: true iff operators are adhoc-overloaded
- ceq adhoc-overloaded?(((Q,TYL) |-> OS) ((Q,TYL') |-> OS') OFM) = true if TYL =/= TYL' .
-  eq adhoc-overloaded?(OFM)                                 = false [owise] .
+  --- OUT: if Bool is true,  true iff operators are adhoc-overloaded
+  ---      if Bool is false, true iff operators with same # of args are adhoc-overloaded
+  op adhoc-overloaded? : OpFamilyMap Bool -> Bool .
+ ceq adhoc-overloaded?(((Q,TYL) |-> OS) ((Q,TYL') |-> OS') OFM,B) = true if TYL =/= TYL' and-then (B or-else size(TYL) == size(TYL')) .
+  eq adhoc-overloaded?(OFM,B)                                     = false [owise] .
 endfm
 
 fmod OP-FAMILY-AUX is
