@@ -2028,20 +2028,21 @@ fmod TOP-MODULE is
 
   var S S' : Sort   . var SS : SortSet .
   var K K' : Kind   . var KS : KindSet .
-  var Y    : Type   . var N  : Nat     .
+  var Y    : Type   . var YS : TypeList .
   var SR   : String . var M  : Module  .
+  var N    : Nat    .
 
   --- map kinds to sorts
-  op k2s-map   : Module         -> QidPairSet     [memo] .
-  op k2s-map   : KindSet        -> QidPairSet     .
-  op k2s       : KindSet        -> SortSet        .
-  op k2s       : Kind           -> Sort           .
-  op k2s       : String         -> Sort           .
-  op k2s-map   : Module Type    -> Type           .
+  op k2s-map   : Module          -> QidPairSet     [memo] .
+  op k2s-map   : KindSet         -> QidPairSet     .
+  op k2s       : KindSet         -> SortSet        .
+  op k2s       : Kind            -> Sort           .
+  op k2s       : String          -> Sort           .
+  op k2s-map   : Module TypeList -> Type           .
   --- abbreviated kind to identifier map
-  op k2s-map#  : Module         -> QidPairSet     [memo] .
-  op k2s-map#  : KindSet Nat    -> QidPairSet     .
-  op k2s-map#  : Module Type    -> Type           .
+  op k2s-map#  : Module          -> QidPairSet     [memo] .
+  op k2s-map#  : KindSet Nat     -> QidPairSet     .
+  op k2s-map#  : Module TypeList -> TypeList       .
   --- top the signature
   op top-subs  : Module KindSet -> SubsortDeclSet .
   op top-subs  : Sort SortSet   -> SubsortDeclSet .
@@ -2056,13 +2057,15 @@ fmod TOP-MODULE is
   eq k2s-map(K ; KS)     = qp(K,k2s(K)) | k2s-map(KS) .
   eq k2s-map(none)       = none .
 
-  eq k2s-map(M,Y)        = applyQPS!(getKind(M,Y),k2s-map(M)) .
+  eq k2s-map(M,Y YS)     = applyQPS!(getKind(M,Y),k2s-map(M)) k2s-map(M,YS) .
+  eq k2s-map(M,nil)      = nil .
 
   eq k2s-map#(M)         = k2s-map#(getKinds(M),0) .
   eq k2s-map#(K ; KS,N)  = qp(K,qid("Kind#" + string(N,10))) | k2s-map#(KS,s(N)) .
   eq k2s-map#(none,N)    = none .
 
-  eq k2s-map#(M,Y)       = applyQPS!(getKind(M,Y),k2s-map#(M)) .
+  eq k2s-map#(M,Y YS)    = applyQPS!(getKind(M,Y),k2s-map#(M)) k2s-map#(M,YS) .
+  eq k2s-map#(M,nil)     = nil .
 
   eq top(M)              = addSorts(k2s(getKinds(M)),addSubsorts(top-subs(M,getKinds(M)),M)) .
   eq top-subs(M,K ; KS)  = top-subs(k2s(K),lesserSorts(M,K)) top-subs(M,KS) .
