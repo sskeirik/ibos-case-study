@@ -2,15 +2,15 @@ set include BOOL off .
 
 --- The identity operators include:
 ---
---- a. 0      for _+_ (Nat)                [0]
---- b. none   for _,_ (AttributeSet)       [1]
---- c. none   for __  (Configuration)      [2]
---- d. mtLL   for _;_ (LabelList)          [3]
---- e. mtLS   for _&_ (LabelSet)           [4]
---- f. mt     for _;_ (MessageList)        [5]
---- g. mtPS   for _,_ (PolicySet)          [6]
---- h. mtWPIS for _,_ (WebappProcInfoSet)  [7]
---- i. mtNPIS for _,_ (NetworkProcInfoSet) [8]
+--- a. 0      for _+_   (Nat)                [0]
+--- b. none   for _,_   (AttributeSet)       [1]
+--- c. none   for __    (Configuration)      [2]
+--- d. mtLL   for _;_   (LabelList)          [3]
+--- e. mtLS   for _&_   (LabelSet)           [4]
+--- f. mt     for _@_   (MessageList)        [5]
+--- g. mtPS   for _,ps_ (PolicySet)          [6]
+--- h. mtWPIS for _,wp_ (WebappProcInfoSet)  [7]
+--- i. mtNPIS for _,np_ (NetworkProcInfoSet) [8]
 ---
 --- NOTE:
 ---  These operators must appear first in the ACRPO order!
@@ -33,8 +33,6 @@ fmod BOOL-NO-BUILTIN is
   op _and_ : Bool Bool -> Bool [assoc comm prec 50 metadata "11"] .
   op _or_  : Bool Bool -> Bool [assoc comm metadata "12"] .
   op not_  : Bool -> Bool [metadata "13"].
-  op _==_  : Bool Bool -> Bool [metadata "84"] . **** stub for real equality/disequality
-  op _=/=_ : Bool Bool -> Bool [metadata "85"] .
   vars B : Bool .
   eq B and true  = B     [variant] .
   eq B and false = false [variant] .
@@ -58,16 +56,14 @@ fmod NAT-NO-BUILTIN is
   pr NAT-CTOR-NO-BUILTIN .
   op _<_   : Nat Nat -> Bool [metadata "17"] .
   op _<=_  : Nat Nat -> Bool [metadata "18"] .
-  op _==_  : Nat Nat -> Bool [metadata "19"] .
-  op _=/=_ : Nat Nat -> Bool [metadata "20"] .
-  op _~_   : Nat Nat -> Bool [comm metadata "21"] .
+  op _~n_  : Nat Nat -> Bool [comm metadata "21"] .
   var N M : Nat . var P : NzNat .
   eq N     <  P + N = true  [variant] .
   eq N + M <  N     = false [variant] .
   eq P + N <= N     = false [variant] .
   eq N     <= N + M = true  [variant] .
-  eq N     ~  N     = true  [variant] .
-  eq N     ~  N + P = false [variant] .
+  eq N     ~n N     = true  [variant] .
+  eq N     ~n N + P = false [variant] .
 endfm
 
 fmod PROC-ID is
@@ -117,28 +113,28 @@ fmod PROC-ID is
   var  WAMId : WebAppMgrId .
   vars N N'  : Nat .
 
-  op _~_ : ProcessId ProcessId -> Bool [comm metadata "31"] .
-  eq PId ~ PId                = true   [variant] .
-  eq KeId ~ WAId              = false  [variant] .
-  eq KeId ~ NPId              = false  [variant] .
-  eq KeId ~ UiId              = false  [variant] .
-  eq KeId ~ DiId              = false  [variant] .
-  eq webapp ~ webapp(N)       = false  [variant] .
-  eq webapp(N) ~ webapp(N')   = N ~ N' [variant] .
-  eq WAId ~ NPId              = false  [variant] .
-  eq WAId ~ UiId              = false  [variant] .
-  eq WAId ~ DiId              = false  [variant] .
-  eq network ~ network(N)     = false  [variant] .
-  eq network(N) ~ network(N') = N ~ N' [variant] .
-  eq NPId ~ UiId              = false  [variant] .
-  eq NPId ~ DiId              = false  [variant] .
-  eq UiId ~ DiId              = false  [variant] .
-  eq WAMId ~ KeId             = false  [variant] .
-  eq WAMId ~ WAId             = false  [variant] .
-  eq WAMId ~ NPId             = false  [variant] .
-  eq WAMId ~ DiId             = false  [variant] .
-  eq WAMId ~ UiId             = false  [variant] .
-  eq WAMId ~ NPId             = false  [variant] .
+  op _~p_ : ProcessId ProcessId -> Bool [comm metadata "31"] .
+  eq PId ~p PId                = true    [variant] .
+  eq KeId ~p WAId              = false   [variant] .
+  eq KeId ~p NPId              = false   [variant] .
+  eq KeId ~p UiId              = false   [variant] .
+  eq KeId ~p DiId              = false   [variant] .
+  eq webapp ~p webapp(N)       = false   [variant] .
+  eq webapp(N) ~p webapp(N')   = N ~n N' [variant] .
+  eq WAId ~p NPId              = false   [variant] .
+  eq WAId ~p UiId              = false   [variant] .
+  eq WAId ~p DiId              = false   [variant] .
+  eq network ~p network(N)     = false   [variant] .
+  eq network(N) ~p network(N') = N ~n N' [variant] .
+  eq NPId ~p UiId              = false   [variant] .
+  eq NPId ~p DiId              = false   [variant] .
+  eq UiId ~p DiId              = false   [variant] .
+  eq WAMId ~p KeId             = false   [variant] .
+  eq WAMId ~p WAId             = false   [variant] .
+  eq WAMId ~p NPId             = false   [variant] .
+  eq WAMId ~p DiId             = false   [variant] .
+  eq WAMId ~p UiId             = false   [variant] .
+  eq WAMId ~p NPId             = false   [variant] .
 endfm
 
 fmod SYS is
@@ -167,15 +163,11 @@ fmod LABEL is pr NAT-NO-BUILTIN .
   op url         : Nat -> Label      [ctor metadata "37"] .
   op nolabel     :     -> MaybeLabel [ctor metadata "38"] .
 
-  **** use var-sat built-in equality/diseqaulity
-  op _==_  : Label Label -> Bool [metadata "39"] .
-  op _=/=_ : Label Label -> Bool [metadata "40"] .
-
   **** Equality enrichment (added by Camilo)
-  op _~_ : Label Label -> Bool [comm metadata "41"] .
-  eq L:Label ~ L:Label        = true           [variant] .
-  eq about-blank ~ url(N:Nat) = false          [variant] .
-  eq url(N:Nat) ~ url(N':Nat) = N:Nat ~ N':Nat [variant] .
+  op _~l_ : Label Label -> Bool [comm metadata "41"] .
+  eq L:Label ~l L:Label        = true            [variant] .
+  eq about-blank ~l url(N:Nat) = false           [variant] .
+  eq url(N:Nat) ~l url(N':Nat) = N:Nat ~n N':Nat [variant] .
 endfm
 
 fmod LABEL-LIST is pr LABEL .
@@ -208,7 +200,7 @@ fmod MSG-LIST is pr MSG .
   subsort Message < MessageList .
   op none : -> Message [ctor metadata "49"] .
   op mt   : -> MessageList [ctor metadata "5"] .
-  op _;_  : MessageList MessageList -> MessageList [ctor assoc id: mt metadata "50"] .
+  op _@_  : MessageList MessageList -> MessageList [ctor assoc id: mt metadata "50"] .
 endfm
 
 fmod PIPEPROC is inc MSG-LIST . inc SYS .
@@ -336,8 +328,8 @@ fmod KERNEL-POLICIES is
   sort Policy .
   sort PolicySet .
   subsort Policy < PolicySet .
-  op mtPS :                     -> PolicySet [ctor metadata "6"] .
-  op _,_  : PolicySet PolicySet -> PolicySet [ctor assoc comm id: mtPS metadata "63"] .
+  op mtPS :                       -> PolicySet [ctor metadata "6"] .
+  op _,ps_  : PolicySet PolicySet -> PolicySet [ctor assoc comm id: mtPS metadata "63"] .
 
   op msgPolicy        : PolicySet             -> Attribute [ctor metadata "64"] .  **** make the policylist an attribute with this wrapper
   op policy           : PipeId PipeId MsgType -> Policy    [ctor metadata "65"] .  **** a policy is a sender Id, receiver Id and MsgType (only PipeProcs can communicate with kernel)
@@ -350,7 +342,7 @@ fmod KERNEL-POLICIES is
   subsorts WebappProcInfo < WebappProcInfoSet .
   op pi        : WebAppId Label                      -> WebappProcInfo    [ctor metadata "68"] .
   op mtWPIS    :                                     -> WebappProcInfoSet [ctor metadata "7"] .
-  op _,_       : WebappProcInfoSet WebappProcInfoSet -> WebappProcInfoSet [ctor assoc comm id: mtWPIS metadata "69"] .
+  op _,wp_     : WebappProcInfoSet WebappProcInfoSet -> WebappProcInfoSet [ctor assoc comm id: mtWPIS metadata "69"] .
   op weblabels : WebappProcInfoSet                   -> Attribute         [ctor metadata "70"] .
   ****network proc info stored by kernel
   **** first label to identify related webapps, second label for whom
@@ -359,7 +351,7 @@ fmod KERNEL-POLICIES is
   subsorts NetworkProcInfo < NetworkProcInfoSet .
   op pi            : NetProcId Label Label                 -> NetworkProcInfo    [ctor metadata "71"] .
   op mtNPIS        :                                       -> NetworkProcInfoSet [ctor metadata "8"] .
-  op _,_           : NetworkProcInfoSet NetworkProcInfoSet -> NetworkProcInfoSet [ctor assoc comm id: mtNPIS metadata "72"] .
+  op _,np_         : NetworkProcInfoSet NetworkProcInfoSet -> NetworkProcInfoSet [ctor assoc comm id: mtNPIS metadata "72"] .
   op networklabels : NetworkProcInfoSet                    -> Attribute          [ctor metadata "73"] .
   **** These next two rules are what was promised above in the network
   **** process module above when referring to DMA rules.
@@ -423,30 +415,30 @@ fmod KERNEL-POLICIES is
 
   **** auxiliary function for checking that a network process links to a given label
   op networkproc-for-label : Label NetworkProcInfoSet -> Bool [metadata "78"] .
-  eq [nnpl] : networkproc-for-label(L',(pi(network(N),L,L'),NPIS)) = true [variant] .
- ceq [nnpl2] : networkproc-for-label(L',(pi(network(N),L,L''),NPIS)) = networkproc-for-label(L',NPIS) if L' ~ L'' = false .
+  eq [nnpl] : networkproc-for-label(L',(pi(network(N),L,L') ,np NPIS)) = true [variant] .
+ ceq [nnpl2] : networkproc-for-label(L',(pi(network(N),L,L'') ,np NPIS)) = networkproc-for-label(L',NPIS) if L' ~l L'' = false .
   eq [nnplf] : networkproc-for-label(L',mtNPIS) = false .
   **** auxiliary functions for checking connections for network procs and
   **** webapps in the information sets that are defined in the kernel
   **** checks if a particular network process exists in a kernel-maintained set of network information
   op networkproc : Nat NetworkProcInfoSet -> Bool [metadata "79"] .
-  eq [nnp] : networkproc(N,(pi(network(N),L,L'),NPIS)) = true [variant] .
- ceq [nnp2] : networkproc(N,(pi(network(N'),L,L'),NPIS)) = networkproc(N,NPIS) if N ~ N' = false .
+  eq [nnp] : networkproc(N,(pi(network(N),L,L') ,np NPIS)) = true [variant] .
+ ceq [nnp2] : networkproc(N,(pi(network(N'),L,L') ,np NPIS)) = networkproc(N,NPIS) if N ~n N' = false .
   eq [nnpf] : networkproc(N,mtNPIS) = false .
   **** checks if a particular web application exists in a kernel-maintained set of webapp information
   op webapp : Nat WebappProcInfoSet -> Bool [metadata "80"] .
-  eq [nwa] : webapp(N,(pi(webapp(N),L),WPIS)) = true [variant] .
- ceq [nwa2] : webapp(N,(pi(webapp(N'),L),WPIS)) = webapp(N,WPIS) if N ~ N' = false .
+  eq [nwa] : webapp(N,(pi(webapp(N),L) ,wp WPIS)) = true [variant] .
+ ceq [nwa2] : webapp(N,(pi(webapp(N'),L) ,wp WPIS)) = webapp(N,WPIS) if N ~n N' = false .
   eq [nwaf] : webapp(N,mtWPIS) = false .
 
   op matching-procs : NetProcId WebAppId WebappProcInfoSet NetworkProcInfoSet -> Bool [metadata "82"] .
-  eq matching-procs(NI,WI,(pi(WI,L),WPIS),NPIS) = matching-procs1(NI,L,NPIS) or matching-procs(NI,WI,WPIS,NPIS) .
- ceq matching-procs(NI,WI,(pi(WI',L),WPIS),NPIS) = matching-procs(NI,WI,WPIS,NPIS) if WI ~ WI' = false .
+  eq matching-procs(NI,WI,(pi(WI,L) ,wp WPIS),NPIS) = matching-procs1(NI,L,NPIS) or matching-procs(NI,WI,WPIS,NPIS) .
+ ceq matching-procs(NI,WI,(pi(WI',L) ,wp WPIS),NPIS) = matching-procs(NI,WI,WPIS,NPIS) if WI ~p WI' = false .
   eq matching-procs(NI,WI,mtWPIS,NPIS) = false .
 
   op matching-procs1 : NetProcId Label NetworkProcInfoSet -> Bool [metadata "81"] .
-  eq matching-procs1(NI,L,(pi(NI,L,L''),NPIS)) = true .
- ceq matching-procs1(NI,L,(pi(NI',L',L''),NPIS)) = matching-procs1(NI,L,NPIS) if NI ~ NI' and L ~ L' = false .
+  eq matching-procs1(NI,L,(pi(NI,L,L'') ,np NPIS)) = true .
+ ceq matching-procs1(NI,L,(pi(NI',L',L'') ,np NPIS)) = matching-procs1(NI,L,NPIS) if NI ~p NI' and L ~l L' = false .
   eq matching-procs1(NI,L,mtNPIS) = false .
 endfm
 
@@ -490,18 +482,18 @@ mod KERNEL is
   **** Made into a topmost labeled conditional rule from module WEBAPP
   rl [fetch] :
      { < WI | rendered(L) ,  URL(L') , loading(false) , toKernel(ML) ,                                    Att > Cnf }
-  => { < WI | rendered(L) ,  URL(L') , loading(true)  , toKernel(ML ; msg(WI,network,MSG-FETCH-URL,L')) , Att > Cnf } .
+  => { < WI | rendered(L) ,  URL(L') , loading(true)  , toKernel(ML @ msg(WI,network,MSG-FETCH-URL,L')) , Att > Cnf } .
 
   **** Made into a labeled topmost conditional rule from module WEBAPP
   rl [render] :
-     { < WI | rendered(L)  , URL(L') , loading(true) , fromKernel(msg(PI, WI, MSG-RETURN-URL,L2) ; ML) , Att > Cnf }
+     { < WI | rendered(L)  , URL(L') , loading(true) , fromKernel(msg(PI, WI, MSG-RETURN-URL,L2) @ ML) , Att > Cnf }
   => { < WI | rendered(L2) , URL(L') , loading(true) , fromKernel(ML) ,                                  Att > Cnf } .
 
   **** Made into a topmost rule from module NETWORK
   **** kernel tells network process to fetch data for a webapp
   **** TODO: check that returnTo does the right thing (it seems like returnTo should be stored per URL to fetch)
   rl [request-from-webapp] :
-     { < NI | returnTo(PI),  out(LL),     fromKernel(msg(PI', NI, MSG-FETCH-URL, L) ; ML'), Att > Cnf }
+     { < NI | returnTo(PI),  out(LL),     fromKernel(msg(PI', NI, MSG-FETCH-URL, L) @ ML'), Att > Cnf }
   => { < NI | returnTo(PI'), out(LL ; L), fromKernel(ML') ,                                 Att > Cnf } .
 
   **** Made into a labeled topmost rule from module NETWORK
@@ -524,68 +516,68 @@ mod KERNEL is
   **** network process hands data back to other process (in this case: webapp)
   rl [msg-to-kernel] :
      { < NI | returnTo(PI) , in(L ; LL), toKernel(ML) ,                                  Att > Cnf }
-  => { < NI | returnTo(PI) , in(LL)    , toKernel(ML ; msg(NI, PI, MSG-RETURN-URL, L)) , Att > Cnf } .
+  => { < NI | returnTo(PI) , in(LL)    , toKernel(ML @ msg(NI, PI, MSG-RETURN-URL, L)) , Att > Cnf } .
 
   **** Made into a topmost rule from module KERNEL-POLICIES
   **** kernel moves dma request from dma request buffer to NIC
   rl [mem-out] :
-     { < NI     | mem-out(L') ,                        Att  >
-       < kernel | networklabels(pi(NI, L, L'), NPIS) , Att2 >
-       < nic    | nic-out(LS) ,                        Att3 > Cnf }
-  => { < NI     | mem-out(nolabel) ,                   Att  >
-       < kernel | networklabels(pi(NI, L, L'), NPIS) , Att2 >
-       < nic    | nic-out(L' & LS) ,                   Att3 > Cnf } .
+     { < NI     | mem-out(L') ,                          Att  >
+       < kernel | networklabels(pi(NI, L, L'),np NPIS) , Att2 >
+       < nic    | nic-out(LS) ,                          Att3 > Cnf }
+  => { < NI     | mem-out(nolabel) ,                     Att  >
+       < kernel | networklabels(pi(NI, L, L'),np NPIS) , Att2 >
+       < nic    | nic-out(L' & LS) ,                     Att3 > Cnf } .
 
   **** Made into a topmost rule from module KERNEL-POLICIES
   **** kernel moves dma response from NIC to dma response buffer
   rl [mem-in] :
-     { < NI     | mem-in(nolabel) ,                    Att  >
-       < kernel | networklabels(pi(NI, L, L'), NPIS) , Att2 >
-       < nic    | in(L' ; LL) ,                        Att3 > Cnf }
-  => { < NI     | mem-in(L') ,                         Att  >
-       < kernel | networklabels(pi(NI, L, L'), NPIS) , Att2 >
-       < nic    | in(LL) ,                             Att3 > Cnf } .
+     { < NI     | mem-in(nolabel) ,                      Att  >
+       < kernel | networklabels(pi(NI, L, L'),np NPIS) , Att2 >
+       < nic    | in(L' ; LL) ,                          Att3 > Cnf }
+  => { < NI     | mem-in(L') ,                           Att  >
+       < kernel | networklabels(pi(NI, L, L'),np NPIS) , Att2 >
+       < nic    | in(LL) ,                               Att3 > Cnf } .
 
   **** the following [kernelReceviesOPMessage] rules all have a kernel object and a pipe
   **** policy allows message from PPI1 to PPI2 with MsgType
   rl [kernelReceivesOPMessage-pa1] :
-     { < kernel | handledCurrently(none), msgPolicy(policy(PPI1,PPI2,MT),MP), Att  >
-       < PPI1   | toKernel(msg(ORG,PPI2,MT,L) ; ML),                          Att2 > Cnf }
+     { < kernel | handledCurrently(none), msgPolicy(policy(PPI1,PPI2,MT),ps MP), Att  >
+       < PPI1   | toKernel(msg(ORG,PPI2,MT,L) @ ML),                             Att2 > Cnf }
   =>
-     { < kernel | handledCurrently(msg(PPI1, PPI2, MT, L)), msgPolicy(policy(PPI1,PPI2,MT),MP), Att  >
-       < PPI1   | toKernel(ML) ,                                                                Att2 > Cnf } .
+     { < kernel | handledCurrently(msg(PPI1, PPI2, MT, L)), msgPolicy(policy(PPI1,PPI2,MT),ps MP), Att  >
+       < PPI1   | toKernel(ML) ,                                                                   Att2 > Cnf } .
 
   **** policy allows message from webapp to NNPI2 (not network proc) with MT
   rl [kernelReceivesOPMessage-pa2] :
-     { < kernel | handledCurrently(none), msgPolicy(policy(webapp,NNPI2,MT),MP), Att  >
-       < WI     | toKernel(msg(ORG, NNPI2, MT, L) ; ML),                         Att2 > Cnf }
+     { < kernel | handledCurrently(none), msgPolicy(policy(webapp,NNPI2,MT),ps MP), Att  >
+       < WI     | toKernel(msg(ORG, NNPI2, MT, L) @ ML),                            Att2 > Cnf }
   =>
-     { < kernel | handledCurrently(msg(WI, NNPI2, MT, L)), msgPolicy(policy(webapp,NNPI2,MT),MP), Att  >
-       < WI     | toKernel(ML) ,                                                                  Att2 > Cnf } .
+     { < kernel | handledCurrently(msg(WI, NNPI2, MT, L)), msgPolicy(policy(webapp,NNPI2,MT),ps MP), Att  >
+       < WI     | toKernel(ML) ,                                                                     Att2 > Cnf } .
 
   **** policy allows message from NNPI1 (not network proc) to webapp with MT
   rl [kernelReceivesOPMessage-pa3] :
-     { < kernel | handledCurrently(none), msgPolicy(policy(NNPI1,webapp,MT),MP), Att  >
-       < NNPI1  | toKernel(msg(ORG, WI, MT, L) ; ML),                            Att2 > Cnf }
+     { < kernel | handledCurrently(none), msgPolicy(policy(NNPI1,webapp,MT),ps MP), Att  >
+       < NNPI1  | toKernel(msg(ORG, WI, MT, L) @ ML),                               Att2 > Cnf }
   =>
-     { < kernel | handledCurrently(msg(NNPI1, WI, MT, L)), msgPolicy(policy(NNPI1,webapp,MT),MP), Att  >
-       < NNPI1  | toKernel(ML) ,                                                                  Att2 > Cnf } .
+     { < kernel | handledCurrently(msg(NNPI1, WI, MT, L)), msgPolicy(policy(NNPI1,webapp,MT),ps MP), Att  >
+       < NNPI1  | toKernel(ML) ,                                                                     Att2 > Cnf } .
 
   **** policy allows message from network proc to NWPI2 (not webapp) with MT
   rl [kernelReceivesOPMessage-pa4] :
-     { < kernel | handledCurrently(none), msgPolicy(policy(network,NWPI2,MT),MP), Att  >
-       < NI     | toKernel(msg(ORG, NWPI2, MT, L) ; ML),                          Att2 > Cnf }
+     { < kernel | handledCurrently(none), msgPolicy(policy(network,NWPI2,MT),ps MP), Att  >
+       < NI     | toKernel(msg(ORG, NWPI2, MT, L) @ ML),                             Att2 > Cnf }
   =>
-     { < kernel | handledCurrently(msg(NI, NWPI2, MT, L)), msgPolicy(policy(network,NWPI2,MT),MP), Att  >
-       < NI     | toKernel(ML),                                                                    Att2 > Cnf } .
+     { < kernel | handledCurrently(msg(NI, NWPI2, MT, L)), msgPolicy(policy(network,NWPI2,MT),ps MP), Att  >
+       < NI     | toKernel(ML),                                                                       Att2 > Cnf } .
 
   **** policy allows message from NWPI1 (not webapp) to network proc with MT
   rl [kernelReceivesOPMessage-pa5] :
-     { < kernel | handledCurrently(none), msgPolicy(policy(NWPI1,network,MT),MP), Att  >
-       < NWPI1  | toKernel(msg(ORG, NI, MT, L) ; ML),                             Att2 > Cnf }
+     { < kernel | handledCurrently(none), msgPolicy(policy(NWPI1,network,MT),ps MP), Att  >
+       < NWPI1  | toKernel(msg(ORG, NI, MT, L) @ ML),                                Att2 > Cnf }
   =>
-     { < kernel | handledCurrently(msg(NWPI1, NI, MT, L)), msgPolicy(policy(NWPI1,network,MT),MP), Att  >
-       < NWPI1  | toKernel(ML) ,                                                                   Att2 > Cnf } .
+     { < kernel | handledCurrently(msg(NWPI1, NI, MT, L)), msgPolicy(policy(NWPI1,network,MT),ps MP), Att  >
+       < NWPI1  | toKernel(ML) ,                                                                      Att2 > Cnf } .
 
   **** policy allows message from webapp to network proc, but requires
   **** further checking of them being connected based on the label -
@@ -599,20 +591,20 @@ mod KERNEL is
   rl [kernelReceivesOPMessage-pa6-cc2a] :
      { < kernel |
            handledCurrently(none),
-           msgPolicy(policy(webapp,network,MT),MP),
-           weblabels(pi(WI,L),WPIS),
-           networklabels(pi(NI',L,L'),NPIS),
+           msgPolicy(policy(webapp,network,MT),ps MP),
+           weblabels(pi(WI,L),wp WPIS),
+           networklabels(pi(NI',L,L'),np NPIS),
            Att >
        < WI     |
-           toKernel(msg(ORG, NI, MT, L') ; ML),
+           toKernel(msg(ORG, NI, MT, L') @ ML),
            Att2 >
        Cnf }
   =>
      { < kernel |
            handledCurrently(msg(WI, NI', MT, L')),
-           msgPolicy(policy(webapp,network,MT),MP),
-           weblabels(pi(WI,L),WPIS),
-           networklabels(pi(NI',L,L'),NPIS),
+           msgPolicy(policy(webapp,network,MT),ps MP),
+           weblabels(pi(WI,L),wp WPIS),
+           networklabels(pi(NI',L,L'),np NPIS),
            Att >
        < WI     |
            toKernel(ML) ,
@@ -626,20 +618,20 @@ mod KERNEL is
  crl [kernelReceivesOPMessage-pa6-cc2b] :
      { < kernel |
            handledCurrently(none),
-           msgPolicy(policy(webapp,network,MT),MP),
-           weblabels(pi(WI, L), WPIS),
+           msgPolicy(policy(webapp,network,MT),ps MP),
+           weblabels(pi(WI, L),wp WPIS),
            networklabels(NPIS),
            nextNetworkProc(N),
            Att >
        < WI     |
-           toKernel(msg(ORG, NI, MT, L') ; ML),
+           toKernel(msg(ORG, NI, MT, L') @ ML),
            Att2 >
        Cnf }
   =>
      { < kernel |
            handledCurrently(msg(WI, network(N), MT, L')),
-           msgPolicy(policy(webapp,network,MT),MP),
-           weblabels(pi(WI, L), WPIS),
+           msgPolicy(policy(webapp,network,MT),ps MP),
+           weblabels(pi(WI, L),wp WPIS),
            networklabels(NPIS),
            nextNetworkProc(N + 1),
            Att >
@@ -660,20 +652,20 @@ mod KERNEL is
   rl [kernelReceivesOPMessage-pa7-cc1a] :
      { < kernel |
            handledCurrently(none),
-           msgPolicy(policy(network,webapp,MT),MP),
-           weblabels(pi(WI,L),WPIS),
-           networklabels(pi(NI,L,L'),NPIS),
+           msgPolicy(policy(network,webapp,MT),ps MP),
+           weblabels(pi(WI,L),wp WPIS),
+           networklabels(pi(NI,L,L'),np NPIS),
            Att >
        < NI     |
-           toKernel(msg(ORG, WI, MT, L'') ; ML),
+           toKernel(msg(ORG, WI, MT, L'') @ ML),
            Att2 >
        Cnf }
   =>
      { < kernel |
            handledCurrently(msg(NI, WI, MT, L'')),
-           msgPolicy(policy(network,webapp,MT),MP),
-           weblabels(pi(WI,L),WPIS),
-           networklabels(pi(NI,L,L'),NPIS),
+           msgPolicy(policy(network,webapp,MT),ps MP),
+           weblabels(pi(WI,L),wp WPIS),
+           networklabels(pi(NI,L,L'),np NPIS),
            Att >
        < NI     |
            toKernel(ML) ,
@@ -684,18 +676,18 @@ mod KERNEL is
  crl [kernelReceivesOPMessage-pa7-cc1b] :
      { < kernel     |
            handledCurrently(none),
-           msgPolicy(policy(network,webapp,MT),MP),
+           msgPolicy(policy(network,webapp,MT),ps MP),
            weblabels(WPIS),
            networklabels(NPIS),
            Att >
        < network(N) |
-           toKernel(msg(ORG, webapp(N'), MT, L'') ; ML),
+           toKernel(msg(ORG, webapp(N'), MT, L'') @ ML),
            Att2 > Cnf }
   =>
      { < kernel |
            --- handledCurrently(msg(network(N), webapp(N'), MT, L'')),
            handledCurrently(none),
-           msgPolicy(policy(network,webapp,MT),MP),
+           msgPolicy(policy(network,webapp,MT),ps MP),
            weblabels(WPIS),
            networklabels(NPIS),
            Att >
@@ -709,16 +701,16 @@ mod KERNEL is
   rl [kernelReceivesOPMessage-pa8] :
      { < kernel |
            handledCurrently(none),
-           msgPolicy(policy(ui,webapp,MSG-SWITCH-TAB),MP),
+           msgPolicy(policy(ui,webapp,MSG-SWITCH-TAB),ps MP),
            Att  >
        < ui     |
-           toKernel(msg(ORG, WI, MSG-SWITCH-TAB, L) ; ML),
+           toKernel(msg(ORG, WI, MSG-SWITCH-TAB, L) @ ML),
            Att2 >
        Cnf }
   =>
      { < kernel |
            handledCurrently(kernelDo(msg(ui,WI,MSG-SWITCH-TAB,L))),
-           msgPolicy(policy(ui,webapp,MSG-SWITCH-TAB),MP),
+           msgPolicy(policy(ui,webapp,MSG-SWITCH-TAB),ps MP),
            Att >
        < ui     |
            toKernel(ML),
@@ -727,13 +719,13 @@ mod KERNEL is
 
   **** policy allows message from UI to change current webapp to a new webapp loading URL with MSG-NEW-URL
   rl [kernelReceivesOPMessage-pa9] :
-     { < kernel | handledCurrently(none), msgPolicy(policy(ui,webapp,MSG-NEW-URL),MP), Att  >
-       < ui     | toKernel(msg(ORG,webapp, MSG-NEW-URL, L) ; ML),                      Att2 >
+     { < kernel | handledCurrently(none), msgPolicy(policy(ui,webapp,MSG-NEW-URL),ps MP), Att  >
+       < ui     | toKernel(msg(ORG,webapp, MSG-NEW-URL, L) @ ML),                         Att2 >
        Cnf }
   =>
      { < kernel |
            handledCurrently(kernelDo(msg(ui, webapp, MSG-NEW-URL, L))),
-           msgPolicy(policy(ui,webapp,MSG-NEW-URL),MP),
+           msgPolicy(policy(ui,webapp,MSG-NEW-URL),ps MP),
            Att >
        < ui     |
            toKernel(ML) ,
@@ -743,7 +735,7 @@ mod KERNEL is
   **** no policy allowed this, therefore implicitly disallowed and dropped
   rl [kernelReceivesOPMessage-pa10] :
      { < kernel | handledCurrently(none), msgPolicy(MP), Att  >
-       < PPI    | toKernel(msg(ORG, PPI', MT, L) ; ML),  Att2 > Cnf }
+       < PPI    | toKernel(msg(ORG, PPI', MT, L) @ ML),  Att2 > Cnf }
   =>
      { < kernel | handledCurrently(none), msgPolicy(MP), Att  >
        < PPI    | toKernel(ML),                          Att2 > Cnf } .
@@ -754,14 +746,14 @@ mod KERNEL is
        < PPI'   | fromKernel(ML) ,                          Att2 > Cnf }
   =>
      { < kernel | handledCurrently(none),                  Att  >
-       < PPI'   | fromKernel(ML ; msg(ORG, PPI', MT, L)) , Att2 > Cnf } .
+       < PPI'   | fromKernel(ML @ msg(ORG, PPI', MT, L)) , Att2 > Cnf } .
 
   **** Made into a topmost rule from module KERNEL-POLICIES
   rl [tab-change] :
      { < kernel  |
            handledCurrently(kernelDo(msg(ui, WI', MSG-SWITCH-TAB, L1))) ,
            displayedTopBar(L2),
-           weblabels(pi(WI', L'), WPIS) ,
+           weblabels(pi(WI', L'),wp WPIS) ,
            Att >
        < display |
            activeWebapp(WI),
@@ -772,7 +764,7 @@ mod KERNEL is
      { < kernel  |
            handledCurrently(none) ,
            displayedTopBar(L'),
-           weblabels(pi(WI', L'), WPIS) ,
+           weblabels(pi(WI', L'),wp WPIS) ,
            Att >
        < display |
            activeWebapp(WI'),
@@ -793,7 +785,7 @@ mod KERNEL is
        < WI      | rendered(L'),                           Att3 > Cnf }
   => { < display | activeWebapp(WI), displayedContent(L'), Att2 >
        < WI      | rendered(L'),                           Att3 > Cnf }
-   if L =/= L' .
+   if L ~l L' = false .
 
   **** Made into a topmost rule from module KERNEL-POLICIES
   rl [new-url] :
@@ -811,7 +803,7 @@ mod KERNEL is
      { < kernel    |
            handledCurrently(none) ,
            displayedTopBar(URL),
-           weblabels(pi(webapp(NewWA), URL), WPIS) ,
+           weblabels(pi(webapp(NewWA), URL),wp WPIS) ,
            Att >
        < display   |
            activeWebapp(webapp(NewWA)),
