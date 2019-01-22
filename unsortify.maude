@@ -113,3 +113,129 @@ fmod SORTIFY-AUX is
    eq sortify'(eq T = T' [AS]. ES,QS) = (eq sortify'(T,QS) = sortify'(T',QS) [AS].) sortify'(ES,QS) .
    eq sortify'((none).EquationSet,QS) = (none).EquationSet .
 endfm
+
+--- Complete solution for reducing a module into a many-sorted one
+--- NOTE: the underlying function is k2s-map#() which lifts a type
+---       into a unique corresponding sort
+fmod MANYSORTIFY is
+  pr TOP-MODULE .
+  pr META-LEVEL .
+
+  var M : Module .
+  var TY : Type .
+  var TYL : TypeList .
+  var ODS : OpDeclSet .
+  var EQS : EquationSet .
+  var RLS : RuleSet .
+  var AS : AttrSet .
+  var T T' : Term .
+  var TL : TermList .
+  var NTL : NeTermList .
+  var S : Sort .
+  var ECnD : EqCondition .
+  var CnD : Condition .
+  var HL : HookList .
+  var Q Q' : Qid .
+  var QL : QidList .
+  var C : Constant .
+  var V : Variable .
+  var N N' : Nat .
+  var NL : NatList .
+  var NNL : NeNatList .
+
+  op manysortify : Module -> Module [memo] .
+  op manysortify : Module OpDeclSet -> OpDeclSet .
+  op manysortify : Module EquationSet -> EquationSet .
+  op manysortify : Module RuleSet -> RuleSet .
+  op manysortify : Module Condition -> Condition .
+  op manysortify : Module TermList -> TermList .
+  op manysortify : Module AttrSet -> AttrSet .
+  op manysortify : Module HookList -> HookList .
+  --- handles poly() operators
+  op manysortify : Module Nat NatList TypeList -> TypeList .
+
+  eq manysortify(M) =
+    setRls(
+      setEqs(
+        setOps(
+	  setSubsorts(
+            setSorts(M,p2QPS(k2s-map#(M))),
+	    none),
+          manysortify(M,getOps(M))),
+        manysortify(M,getEqs(M))),
+      manysortify(M,getRls(M))) .
+
+  eq manysortify(M,op Q : TYL -> TY [poly(NNL) AS]. ODS) =
+    if last(NNL) == 0 then
+      (op Q : manysortify(M,1,front(NNL),TYL) -> 'Universal     [poly(NNL) manysortify(M,AS)].)
+    else
+      (op Q : manysortify(M,1,NNL,TYL)        -> k2s-map#(M,TY) [poly(NNL) manysortify(M,AS)].)
+    fi
+    manysortify(M,ODS) .
+  eq manysortify(M,op Q : TYL -> TY [AS]. ODS) =
+    (op Q : k2s-map#(M,TYL) -> k2s-map#(M,TY) [manysortify(M,AS)].)
+    manysortify(M,ODS) [owise] .
+  eq manysortify(M,(none).OpDeclSet) = none .
+
+  eq manysortify(M,eq T = T' [AS]. EQS) =
+    (eq manysortify(M,T) = manysortify(M,T') [AS] .)
+    manysortify(M,EQS) .
+  eq manysortify(M,ceq T = T' if ECnD [AS]. EQS) =
+    (ceq manysortify(M,T) = manysortify(M,T') if manysortify(M,ECnD) [AS] .)
+    manysortify(M,EQS) .
+  eq manysortify(M,(none).EquationSet) = none .
+
+  eq manysortify(M,rl T => T' [AS]. RLS) =
+    (rl manysortify(M,T) => manysortify(M,T') [AS] .)
+    manysortify(M,RLS) .
+  eq manysortify(M,crl T => T' if CnD [AS]. RLS) =
+    (crl manysortify(M,T) => manysortify(M,T') if manysortify(M,CnD) [AS] .)
+    manysortify(M,RLS) .
+  eq manysortify(M,(none).RuleSet) = none .
+
+  eq manysortify(M,T = T' /\ CnD) =
+    manysortify(M,T) = manysortify(M,T') /\
+    manysortify(M,CnD) .
+  eq manysortify(M,T := T' /\ CnD) =
+    manysortify(M,T) := manysortify(M,T') /\
+    manysortify(M,CnD) .
+  eq manysortify(M,T : S /\ CnD) =
+    manysortify(M,T) := k2s-map#(M,S) /\
+    manysortify(M,CnD) .
+  eq manysortify(M,T => T' /\ CnD) =
+    manysortify(M,T) := manysortify(M,T') /\
+    manysortify(M,CnD) .
+  eq manysortify(M,(nil).EqCondition) = nil .
+
+  eq manysortify(M,C)      = qid(string(getName(C)) + "." + string(k2s-map#(M,getType(C)))) .
+  eq manysortify(M,V)      = qid(string(getName(V)) + ":" + string(k2s-map#(M,getType(V)))) .
+  eq manysortify(M,Q[NTL]) = Q[manysortify(M,NTL)] .
+  eq manysortify(M,(T,TL)) = manysortify(M,T),manysortify(M,TL) .
+  eq manysortify(M,empty)  = empty .
+
+  eq manysortify(M,id(T) AS)       = id(manysortify(M,T)) manysortify(M,AS) .
+  eq manysortify(M,left-id(T) AS)  = left-id(manysortify(M,T)) manysortify(M,AS) .
+  eq manysortify(M,right-id(T) AS) = right-id(manysortify(M,T)) manysortify(M,AS) .
+  eq manysortify(M,special(HL) AS) = special(manysortify(M,HL)) manysortify(M,AS) .
+  eq manysortify(M,AS)             = AS [owise] .
+
+  eq manysortify(M,term-hook(Q,T) HL) =
+    term-hook(Q,manysortify(M,T))
+    manysortify(M,HL) .
+  eq manysortify(M,op-hook(Q,Q',TYL,TY) HL) =
+    op-hook(Q,Q',k2s-map#(M,TYL),k2s-map#(M,TY))
+    manysortify(M,HL) .
+  eq manysortify(M,id-hook(Q,QL) HL) =
+    id-hook(Q,QL)
+    manysortify(M,HL) .
+  eq manysortify(M,(nil).HookList) = nil .
+
+  --- handles poly() operators
+  eq manysortify(M,N,N' NL,TY TYL) =
+    if N == N'
+      then 'Universal manysortify(M,s(N),NL,TYL)
+      else k2s-map#(M,TY) manysortify(M,s(N),N' NL,TYL)
+    fi .
+  eq manysortify(M,N,nil,TYL) = k2s-map#(M,TYL) .
+  eq manysortify(M,N,nil,nil) = nil .
+endfm
