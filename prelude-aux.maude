@@ -52,10 +52,14 @@ fmod MAYBE-BOOL is
 endfm
 
 fmod MAYBE-QID is
-  pr QID .
+  pr QID-LIST .
   sort MaybeQid .
   subsort Qid < MaybeQid .
   op noqid : -> MaybeQid [ctor] .
+  op errQid : QidList -> [Qid] [ctor] .
+  op qidErrMsg : [Qid] -> QidList [ctor] .
+  eq qidErrMsg(MB:MaybeQid) = MB:MaybeQid .
+  eq qidErrMsg(errQid(QL:QidList)) = QL:QidList .
 endfm
 
 fmod BOUND-REFINEMENT is
