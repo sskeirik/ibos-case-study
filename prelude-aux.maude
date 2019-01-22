@@ -102,6 +102,7 @@ endfm
 
 fmod QIDTUPLESET is
   pr QID .
+  pr QID-SET * (op empty to none, op _,_ to _;_ [prec 43]) .
 
   var Q Q' : Qid . var QPS : QidPairSet .
 
@@ -122,6 +123,14 @@ fmod QIDTUPLESET is
 
   op applyQPS! : Qid QidPairSet ~> Qid .
   eq applyQPS!(Q,qp(Q,Q') | QPS) = Q' .
+
+  op p1QPS : QidPairSet -> QidSet .
+  eq p1QPS(qp(Q,Q') | QPS) = Q ; p1QPS(QPS) .
+  eq p1QPS(none) = none .
+
+  op p2QPS : QidPairSet -> QidSet .
+  eq p2QPS(qp(Q,Q') | QPS) = Q' ; p2QPS(QPS) .
+  eq p2QPS(none) = none .
 endfm
 
 fmod STRING-EXTRA is
