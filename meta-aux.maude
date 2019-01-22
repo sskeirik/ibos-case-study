@@ -1573,6 +1573,7 @@ fmod OP-FAMILY is
 
   var M : Module .
   var Q : Qid .
+  var QS : QidSet .
   var TYL TYL' : TypeList .
   var TY : Type .
   var AS : AttrSet .
@@ -1597,8 +1598,13 @@ fmod OP-FAMILY is
   --- OUT: if Bool is true,  true iff operators are adhoc-overloaded
   ---      if Bool is false, true iff operators with same # of args are adhoc-overloaded
   op adhoc-overloaded? : OpFamilyMap Bool -> Bool .
- ceq adhoc-overloaded?(((Q,TYL) |-> OS) ((Q,TYL') |-> OS') OFM,B) = true if TYL =/= TYL' and-then (B or-else size(TYL) == size(TYL')) .
-  eq adhoc-overloaded?(OFM,B)                                     = false [owise] .
+  eq adhoc-overloaded?(OFM,B) = adhoc-overloaded(OFM,B,none) =/= none .
+
+  op adhoc-overloaded : OpFamilyMap Bool QidSet -> QidSet .
+ ceq adhoc-overloaded(((Q,TYL) |-> OS) ((Q,TYL') |-> OS') OFM,B,QS) =
+    adhoc-overloaded(((Q,TYL) |-> OS) OFM,B,QS ; Q)
+  if TYL =/= TYL' and-then (B or-else size(TYL) == size(TYL')) .
+  eq adhoc-overloaded(OFM,B,QS) = QS [owise] .
 endfm
 
 fmod OP-FAMILY-AUX is
