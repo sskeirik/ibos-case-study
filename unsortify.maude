@@ -120,6 +120,8 @@ endfm
 fmod MANYSORTIFY is
   pr TOP-MODULE .
   pr META-LEVEL .
+  pr QID-JOIN   .
+  pr ATTR-EXTRA .
 
   var M : Module .
   var TY : Type .
@@ -144,6 +146,7 @@ fmod MANYSORTIFY is
   var N N' : Nat .
   var NL : NatList .
   var NNL : NeNatList .
+  var QPS : QidPairSet .
 
   op manysortify : Module -> Module [memo] .
   op manysortify : Module OpDeclSet -> OpDeclSet .
@@ -157,6 +160,10 @@ fmod MANYSORTIFY is
   op manysortify : Module TermQid -> TermQid .
   --- handles poly() operators
   op manysortify : Module Nat NatList TypeList -> TypeList .
+
+  --- inverse transform intermediate data struct
+  op ordersortify-table : Module -> QidPairSet .
+  op ordersortify-table : Module OpDeclSet QidPairSet -> QidPairSet .
 
   eq manysortify(M) =
     setRls(
@@ -245,4 +252,13 @@ fmod MANYSORTIFY is
 
   eq manysortify(M,TQ ; QS) = manysortify(M,TQ) ; manysortify(M,QS) .
   eq manysortify(M,(none).QidSet) = (none).QidSet .
+
+  eq ordersortify-table(M) = ordersortify-table(M,getOps(M),none) .
+  eq ordersortify-table(M,op Q : TYL -> TY [AS]. ODS,QPS) =
+    ordersortify-table(M,ODS,QPS |
+      if in(poly-attr,AS) or TYL =/= nil
+        then none
+	else qp(join(Q '. k2s-map#(M,TY)),join(Q '. TY))
+      fi) .
+  eq ordersortify-table(M,(none).OpDeclSet,QPS) = QPS .
 endfm
