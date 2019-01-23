@@ -1,117 +1,35 @@
 --- name: unsortify.maude
---- reqs: prelude.maude (META-LEVEL), prelude-aux.maude (QIDPAIRSET,OPDECLSET-EXTRA) full-maude.maude (UNIT)
---- note: This file implements two functions:
----       [1] unsortify(Module)     --- returns a Module with a single sort
----       [2] sortify(Term,TermSet) --- takes constants in a term that are unsorted and sorts them
----       unsortify() requires that the module to transformed has no:
----         [a] imports (can be achieved by module transformation)
----         [b] conditional equations
----         [c] memberships
----         [d] associative/id axioms
----       sortify() requires TermSet is actually a ConstantSet
 
-fmod UNSORTIFY is
+fmod QIDPAIRSET-TERMAPPLY is
   pr META-LEVEL .
-  pr ATTR-EXTRA .
-  pr TOP-MODULE .
-  pr QID-JOIN .
-
-  op unsortify       : Module                   -> [Module] .
-  op unsortify       : Module OpDeclSet         -> [OpDeclSet] .
-  op unsortify       : Module EquationSet       -> EquationSet .
-  op unsortify       : TypeList                 -> TypeList .
-  op unsortify       : Module Condition         -> Condition .
-  op unsortify       : Module Term              -> Term .
-  op unsortify       : Module TermList TermList -> TermList .
-  op unsortify-codom : Module Substitution      -> Substitution .
-  op unsortify-qids  : Module QidSet            -> QidSet .
-  op unsortify-safe  : AttrSet                  -> Bool .
-
-  var H  : Header    . var SS : SortSet . var SDS : SubsortDeclSet .
-  var OS : OpDeclSet . var ES : EquationSet . var RLS : RuleSet . var M : Module .
-  var TY : Type . var TYL : TypeList . var V : Variable . var C : Constant .
-  var Q : Qid . var T T' : Term . var NL : NeTermList . var TL TL' : TermList .
-  var TQ : TermQid . var QS : QidSet . var S : Substitution . var AS : AttrSet .
-  var D : EqCondition .
-
-  eq unsortify(M) =
-    setSubsorts(setEqs(setOps(setSorts(M,'U),unsortify(M,getOps(M))),unsortify(M,getEqs(M))),none) .
-
- ceq unsortify(M,op Q : TYL -> TY [AS]. OS)=
-   if TYL == nil
-     then op usn(M,Q,TY) : nil -> 'U [AS].
-     else op Q : unsortify(TYL) -> 'U [AS].
-   fi unsortify(M,OS)
-  if unsortify-safe(AS) .
-  eq unsortify(M,(none).OpDeclSet)         = (none).OpDeclSet .
-  eq unsortify(M,eq T = T' [AS]. ES)       = eq unsortify(M,T) = unsortify(M,T') [AS]. unsortify(M,ES) .
-  eq unsortify(M,ceq T = T' if D [AS]. ES) = ceq unsortify(M,T) = unsortify(M,T') if unsortify(M,D) [AS]. unsortify(M,ES) .
-  eq unsortify(M,(none).EquationSet)       = (none).EquationSet .
-
-  eq unsortify(TY TYL)                    = 'U unsortify(TYL) .
-  eq unsortify(nil)                       = nil .
-  eq unsortify(M,V)                       = join(usn(M,getName(V),getType(V)) ':U) .
-  eq unsortify(M,C)                       = join(usn(M,getName(C),getType(C)) '.U) .
-  eq unsortify(M,Q[NL])                   = Q[unsortify(M,NL,empty)] .
-  eq unsortify(M,(T,TL),TL')              = unsortify(M,TL,(TL',unsortify(M,T))) .
-  eq unsortify(M,empty,NL)                = NL .
-
-  eq unsortify(M,D)                       = nil .
-
-  eq unsortify-codom(M,V <- T ; S)        = V <- unsortify(M,T) ; unsortify-codom(M,S) .
-  eq unsortify-codom(M,none)              = none .
-
-  eq unsortify-qids(M,TQ ; QS)            = unsortify(M,TQ) ; unsortify-qids(M,QS) .
-  eq unsortify-qids(M,none)               = none .
-
-  eq unsortify-safe(id(T) AS)             = false .
-  eq unsortify-safe(right-id(T) AS)       = false .
-  eq unsortify-safe(left-id(T) AS)        = false .
-  eq unsortify-safe(AS)                   = true  . --- in(assoc,AS) implies in(comm,AS) .
-
-  op usn : Module Qid Type -> Qid .
-  eq usn(M,Q,TY) = join(Q k2s-map#(M,TY)) .
-endfm
-
-fmod SORTIFY is
-  pr META-LEVEL .
-  pr OPDECLSET-EXTRA .
   pr QIDTUPLESET .
-  pr UNSORTIFY .
+  pr QIDSET-REFINEMENT .
 
-  op sortify        : Term              QidPairSet -> Term .
-  op sortify'       : Term              QidPairSet -> Term .
-  op sortify'       : TermList TermList QidPairSet -> Term .
-  --- create qidpairset from module for use with sortify
-  op constsToQTS    : Module                         -> QidPairSet .
-  op constsToQTS    : Module OpDeclSet               -> QidPairSet .
+  var Q : Qid . var T T' : Term .
+  var TL TL' : TermList . var NL : NeTermList .
+  var TQ : TermQid . var TQS : TermQidSet .
+  var QPS : QidPairSet . var B : Bool .
+  var AS : AttrSet . var ES : EquationSet .
 
-  var T  : Term . var NL   : NeTermList . var TL TL' : TermList . var TQ : TermQid .
-  var Q K : Qid  . var C C' : Constant   . var V      : Variable .
-  var QS : QidPairSet . var S : Sort . var OD : OpDecl . var OS : OpDeclSet .
-  var VS : QidSet . var M : Module .
+  op apply : QidPairSet Bool Term -> Term .
+  eq apply(QPS,true,TQ)  = applyQPS!(TQ,QPS) .
+  eq apply(QPS,false,TQ) = applyQPS (TQ,QPS) .
+  eq apply(QPS,B,Q[NL])  = Q[apply(QPS,B,NL,empty)] .
 
-  eq sortify (T,QS)          = sortify'(T,QS) .
-  eq sortify'(TQ,QS)         = applyQPS!(getName(TQ),QS) .
-  eq sortify'(Q[NL],QS)      = Q[sortify'(NL,empty,QS)] .
-  eq sortify'((T,TL),TL',QS) = sortify'(TL,(TL',sortify'(T,QS)),QS) .
-  eq sortify'(empty,NL,QS)   = NL .
+  op apply : QidPairSet Bool TermList TermList -> Term .
+  eq apply(QPS,B,(T,TL),TL') = apply(QPS,B,TL,(TL',apply(QPS,B,T))) .
+  eq apply(QPS,B,empty,TL)   = TL .
 
-  eq constsToQTS(M)           = constsToQTS(M,constants(getOps(M))) .
-  eq constsToQTS(M,OD OS)     = qp(usn(M,qid(OD),resultType(OD)),join(qid(OD) '. resultType(OD))) | constsToQTS(M,OS) .
-  eq constsToQTS(M,none)      = none .
-endfm
+  op apply : QidPairSet Bool TermQid    -> TermQid .
+  op apply : QidPairSet Bool TermQidSet -> TermQidSet .
+  eq apply(QPS,B,TQ ; TQS)      = apply(QPS,B,TQ) ; apply(QPS,B,TQS) .
+  eq apply(QPS,B,(none).QidSet) = none .
 
-fmod SORTIFY-AUX is
-   pr SORTIFY .
-   pr META-LEVEL .
-
-   op sortify  : EquationSet QidPairSet -> EquationSet .
-   op sortify' : EquationSet QidPairSet -> EquationSet .
-   var T T' : Term . var AS : AttrSet . var ES : EquationSet . var QS : QidPairSet .
-   eq sortify(ES,QS) = sortify'(ES,QS) .
-   eq sortify'(eq T = T' [AS]. ES,QS) = (eq sortify'(T,QS) = sortify'(T',QS) [AS].) sortify'(ES,QS) .
-   eq sortify'((none).EquationSet,QS) = (none).EquationSet .
+  op apply : QidPairSet Bool EquationSet ~> EquationSet .
+  eq apply(QPS,B,eq T = T' [AS]. ES) =
+    (eq apply(QPS,B,T) = apply(QPS,B,T') [AS].)
+    apply(QPS,B,ES) .
+  eq apply(QPS,B,(none).EquationSet) = none .
 endfm
 
 --- Complete solution for reducing a module into a many-sorted one
@@ -162,8 +80,8 @@ fmod MANYSORTIFY is
   op manysortify : Module Nat NatList TypeList -> TypeList .
 
   --- inverse transform intermediate data struct
-  op ordersortify-table : Module -> QidPairSet .
-  op ordersortify-table : Module OpDeclSet QidPairSet -> QidPairSet .
+  op manysortify-1 : Module -> QidPairSet .
+  op manysortify-1 : Module OpDeclSet QidPairSet -> QidPairSet .
 
   eq manysortify(M) =
     setRls(
@@ -253,12 +171,12 @@ fmod MANYSORTIFY is
   eq manysortify(M,TQ ; QS) = manysortify(M,TQ) ; manysortify(M,QS) .
   eq manysortify(M,(none).QidSet) = (none).QidSet .
 
-  eq ordersortify-table(M) = ordersortify-table(M,getOps(M),none) .
-  eq ordersortify-table(M,op Q : TYL -> TY [AS]. ODS,QPS) =
-    ordersortify-table(M,ODS,QPS |
+  eq manysortify-1(M) = manysortify-1(M,getOps(M),none) .
+  eq manysortify-1(M,op Q : TYL -> TY [AS]. ODS,QPS) =
+    manysortify-1(M,ODS,QPS |
       if in(poly-attr,AS) or TYL =/= nil
         then none
 	else qp(join(Q '. k2s-map#(M,TY)),join(Q '. TY))
       fi) .
-  eq ordersortify-table(M,(none).OpDeclSet,QPS) = QPS .
+  eq manysortify-1(M,(none).OpDeclSet,QPS) = QPS .
 endfm
