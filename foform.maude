@@ -683,13 +683,14 @@ fmod FOFORM-CONSTS-TO-VARS is
   pr FOFORM .
   pr FOFORM-SUBSTITUTION .
   op constsToVars  : Substitution QFForm? -> QFForm? .
-  var S : Substitution . var F1 F2 : QFForm . var T T' : Term .
+  var S : Substitution . var F1 F2 : QFForm . var T T' : Term . var TA : TruthAtom .
   eq constsToVars(S,mtForm)   = mtForm .
   eq constsToVars(S,F1 /\ F2) = constsToVars(S,F1) /\ constsToVars(S,F2) .
   eq constsToVars(S,F1 \/ F2) = constsToVars(S,F1) \/ constsToVars(S,F2) .
   eq constsToVars(S,~ F1)     = ~ constsToVars(S,F1) .
   eq constsToVars(S,T ?= T')  = constsToVars(S,T) ?= constsToVars(S,T') .
   eq constsToVars(S,T != T')  = constsToVars(S,T) != constsToVars(S,T') .
+  eq constsToVars(S,TA)       = TA .
 endfm
 
 fmod FOFORMSET-CONSTS-TO-VARS is
