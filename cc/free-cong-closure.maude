@@ -30,29 +30,29 @@
 fmod FREE-CONG-CLOSURE is
   pr CONG-CLOSURE-SHARED .
 
-  op [_,_,_,_,_,_] : Module Term List{IMRule} EquationSet Process Nat -> FreeCCState .
+  op [_,_,_,_,_,_] : Module List{MRule<} List{IMRule} EquationSet Process Nat -> CCState .
 
-  op init-free-cc : Module Term -> FreeCCState .
+  op init-free-cc : Module List{MRule<} -> CCState .
 
-  vars T T' T'' T''' TES : GroundTerm .  var ES : EquationSet .  var AS : AttrSet .
-  vars i j n m k l : Nat .  vars S S' S'' S''' : SetM{Qid} .  var f : Qid .
-  var MR : MRule .  var IMR : IMRule .  var MRL : List{MRule<} . var IMRL : List{IMRule} . var RS : Results .
+  vars T T' : GroundTerm .  var ES : EquationSet .  var AS : AttrSet .
+  vars i j n m k l : Nat .  vars S S' : SetM{Qid} .  var f : Qid .
+  var MR : MRule .  var IMR : IMRule .  var ORG MRL : List{MRule<} . var IMRL : List{IMRule} . var RS : Results .
   var U : Module .
 
-  eq init-free-cc(U,TES) = [U,TES,nil,none,rules(U,TES),1] .
+  eq init-free-cc(U,ORG) = [U,ORG,nil,none,process-rules(ORG),1] .
 
-  eq [U,TES,IMRL,ES,MR MRL,j] =
+  eq [U,ORG,IMRL,ES,MR MRL,j] =
        if sm(U,ES,MR) == mt-mrule
-       then [U,TES,IMRL,ES,MRL,j]
-       else [U,TES,IMRL ([j] sm(U,ES,MR)),(eq left(sm(U,ES,MR)) = right(sm(U,ES,MR)) [meta(j)] .) ES,ri(U,sm(U,ES,MR),IMRL) # MRL,s(j)]
+       then [U,ORG,IMRL,ES,MRL,j]
+       else [U,ORG,IMRL ([j] sm(U,ES,MR)),(eq left(sm(U,ES,MR)) = right(sm(U,ES,MR)) [meta(j)] .) ES,ri(U,sm(U,ES,MR),IMRL) # MRL,s(j)]
        fi .
 
-  eq [U,TES,IMRL,ES,{i} RS # MRL,j] = [U,TES,IMRL,ES, RS # MRL,j] .
+  eq [U,ORG,IMRL,ES,{i} RS # MRL,j] = [U,ORG,IMRL,ES, RS # MRL,j] .
 
-  eq [U,TES,IMRL,ES,{f,[i] mt-mrule} RS # MRL,j] = [U,TES,remove(i,IMRL),rem-att(i,ES), RS # MRL,j] .
+  eq [U,ORG,IMRL,ES,{f,[i] mt-mrule} RS # MRL,j] = [U,ORG,remove(i,IMRL),rem-att(i,ES), RS # MRL,j] .
 
-  eq [U,TES,IMRL,ES,{f,[i] T [n,S] => T' [m,S']} RS # MRL,j] =
-       [U,TES,remove(i,IMRL),rem-att(i,ES), RS # ins(T [n,S] => T' [m,S'],MRL),j] .
+  eq [U,ORG,IMRL,ES,{f,[i] T [n,S] => T' [m,S']} RS # MRL,j] =
+       [U,ORG,remove(i,IMRL),rem-att(i,ES), RS # ins(T [n,S] => T' [m,S'],MRL),j] .
 
-  eq [U,TES,IMRL,ES,nil,j] = [ES,rewWithEqs(U,ES,TES)] .
+  eq [U,ORG,IMRL,ES,nil,j] = [ES,0,rewWithEqs(U,ES,ORG)] .
 endfm

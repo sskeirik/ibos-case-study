@@ -1,20 +1,19 @@
 fmod CONG-CLOSURE-SHARED-IMPL is
   pr PROCESS .
   pr CRITICAL-PAIR .
-  pr EQUATIONSET-FUNCTOR . --- NB: this dependency is not located in this module
 
   var AS : AttrSet .
   var E : Equation .
   var ES : EquationSet .
   var T T' TES : Term .
   var U : Module .
-  var MR : MRule .
+  var M M' : Marking .
+  var MRL : List{MRule<} .
   var P : Parent .
   var N : Nat .
 
-  sort FreeCCState AxCCState .
-  op [_,_] : EquationSet GroundTerm -> FreeCCState [ctor] .
-  op [_,_,_] : EquationSet Nat GroundTerm -> AxCCState [ctor] .
+  sort CCState .
+  op [_,_,_] : EquationSet Nat List{MRule<} -> CCState [ctor] .
 
   op rem-att : Nat EquationSet -> EquationSet .
   eq rem-att(N,ES) = rem-att(meta(N),ES) .
@@ -23,10 +22,18 @@ fmod CONG-CLOSURE-SHARED-IMPL is
   eq rem-att(AS,(eq T = T' [AS] .) ES) = ES .
   eq rem-att(AS,ES) = ES [owise] .
 
-  --- OUT: return term T rewritten by module U with equations ES added
-  op rewWithEqs : Module EquationSet Term -> Term .
-  eq rewWithEqs(U,ES,TES) = getTerm(metaReduce(addEqs(ES,eqset-func(U)),TES)) .
-  eq rewWithEqs(U:[Module],EK:[EquationSet],TES:[Term]) = 'error [label rewWithEqs!] .
+  --- OUT: return List{MRule<} rewritten by module U with equations ES added
+  op rewWithEqs : Module EquationSet List{MRule<} -> List{MRule<} .
+  eq rewWithEqs(U,ES,MRL) = rewWithEqs(setEqs(U,ES),MRL) .
+
+  op rewWithEqs : Module List{MRule<} -> List{MRule<} .
+  eq rewWithEqs(U,(T M => T' M') MRL) =
+    if getTerm(metaReduce(U,T)) == getTerm(metaReduce(U,T'))
+      then nil
+      else getTerm(metaReduce(U,T)) [0,'Q] =>  getTerm(metaReduce(U,T')) [0,'Q]
+    fi rewWithEqs(U,MRL) .
+  eq rewWithEqs(U,mt-mrule MRL) = rewWithEqs(U,MRL) .
+  eq rewWithEqs(U,nil) = nil .
 
   op meta : Parent -> AttrSet .
   eq meta(none) = none .
