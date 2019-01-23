@@ -137,8 +137,10 @@ fmod MANYSORTIFY is
   var HL : HookList .
   var Q Q' : Qid .
   var QL : QidList .
+  var QS : QidSet .
   var C : Constant .
   var V : Variable .
+  var TQ : TermQid .
   var N N' : Nat .
   var NL : NatList .
   var NNL : NeNatList .
@@ -151,6 +153,8 @@ fmod MANYSORTIFY is
   op manysortify : Module TermList -> TermList .
   op manysortify : Module AttrSet -> AttrSet .
   op manysortify : Module HookList -> HookList .
+  op manysortify : Module QidSet -> QidSet .
+  op manysortify : Module TermQid -> TermQid .
   --- handles poly() operators
   op manysortify : Module Nat NatList TypeList -> TypeList .
 
@@ -238,4 +242,7 @@ fmod MANYSORTIFY is
     fi .
   eq manysortify(M,N,nil,TYL) = k2s-map#(M,TYL) .
   eq manysortify(M,N,nil,nil) = nil .
+
+  eq manysortify(M,TQ ; QS) = manysortify(M,TQ) ; manysortify(M,QS) .
+  eq manysortify(M,(none).QidSet) = (none).QidSet .
 endfm
