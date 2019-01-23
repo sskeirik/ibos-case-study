@@ -381,10 +381,13 @@ fmod FOFORMSIMPLIFY-IMPL is
   var F G H K : FOForm . var K? : FOForm? .
   var C : Conj . var D : Disj . var T T' : Term . var NTL : NeTermList .
 
-  eq F /\ F = F .
-  eq F \/ F = F .
+  eq ~ (T ?= T') = T != T' .
+  eq ~ (T != T') = T ?= T' .
   eq ~ tt = ff .
   eq ~ ff = tt .
+
+  eq F /\ F = F .
+  eq F \/ F = F .
   eq tt /\ F = F  .
   eq ff \/ F = F  .
 
@@ -399,24 +402,32 @@ fmod FOFORMSIMPLIFY-IMPL is
 
   eq T ?= T = tt .
   eq T != T = ff .
-
-  --- this is just a lifting of standard booleans
-  eq 'true.Bool ?= '_o_[T,NTL] = 'true.Bool ?= T \/ 'true.Bool ?= '_o_[NTL] .
-  eq 'true.Bool ?= '_a_[T,NTL] = 'true.Bool ?= T /\ 'true.Bool ?= '_a_[NTL] .
-  eq 'true.Bool ?= '_o_[T]     = 'true.Bool ?= T .
-  eq 'true.Bool ?= '_a_[T]     = 'true.Bool ?= T .
-
-  eq 'true.Bool ?= '_~_[T,T'] = T ?= T' .
 endfm
 
 fmod FOFORMSIMPLIFY-IMP-IMPL is
-  pr FOFORMSIMPLIFY-IMPL .
+  pr FOFORM .
   var F G H K : FOForm . var K? : FOForm? .
   var C : Conj . var D : Disj . var T T' : Term .
 
-  --- Repeated Subformula
+  eq ~ tt = ff .
+  eq ~ ff = tt .
+
   eq F /\ F = F .
   eq F \/ F = F .
+  eq tt /\ F = F  .
+  eq ff \/ F = F  .
+
+  eq ff /\ F = ff .
+  eq tt \/ F = tt .
+
+  eq F  \/ ~ F = tt .
+  eq F  /\ ~ F = ff .
+
+  eq (T ?= T' /\ T != T') = ff .
+  eq (T ?= T' \/ T != T') = tt .
+
+  eq T ?= T = tt .
+  eq T != T = ff .
 
   --- Implication
   eq (~ (F /\ G)) \/  F               = tt .
