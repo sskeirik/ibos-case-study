@@ -4,13 +4,13 @@ fmod CONG-CLOSURE-SHARED-IMPL is
 
   var AS : AttrSet .
   var E : Equation .
-  var ES : EquationSet .
+  var ES ES' : EquationSet .
   var T T' TES : Term .
   var U : Module .
   var M M' : Marking .
-  var MRL : List{MRule<} .
+  var MRL MRL' : List{MRule<} .
   var P : Parent .
-  var N : Nat .
+  var N N' : Nat .
 
   sort CCState .
   op [_,_,_] : EquationSet Nat List{MRule<} -> CCState [ctor] .
@@ -47,6 +47,19 @@ fmod CONG-CLOSURE-SHARED-IMPL is
     (eq getTerm(metaReduce(U,T)) = T' [AS] .)
     left-simplify(U,ES) .
   eq left-simplify(U,none) = none .
+
+  op rem-metadata-attr : EquationSet -> EquationSet .
+  eq rem-metadata-attr(eq T = T' [AS]. ES) =
+    eq T = T' [none].
+    rem-metadata-attr(ES) .
+  eq rem-metadata-attr(none) = none .
+
+  op _state-equality_ : CCState CCState -> Bool .
+  eq [ES,N,MRL] state-equality [ES',N',MRL'] =
+    N   == N'   and-then
+    MRL == MRL' and-then
+    MRL == nil  and-then
+    rem-metadata-attr(ES) == rem-metadata-attr(ES') .
 endfm
 
 fmod CONG-CLOSURE-SHARED is
