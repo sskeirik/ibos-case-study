@@ -180,3 +180,140 @@ fmod MANYSORTIFY is
       fi) .
   eq manysortify-1(M,(none).OpDeclSet,QPS) = QPS .
 endfm
+
+fmod UNSORTIFY is
+  pr META-LEVEL .
+  pr QID-JOIN   .
+  pr ATTR-EXTRA .
+  pr QIDTUPLESET .
+  pr UNIT-FM .
+
+  var M : Module .
+  var TY : Type .
+  var TYL : TypeList .
+  var ODS : OpDeclSet .
+  var EQS : EquationSet .
+  var RLS : RuleSet .
+  var AS : AttrSet .
+  var T T' : Term .
+  var TL : TermList .
+  var NTL : NeTermList .
+  var S : Sort .
+  var ECnD : EqCondition .
+  var CnD : Condition .
+  var HL : HookList .
+  var Q Q' : Qid .
+  var QL : QidList .
+  var QS : QidSet .
+  var C : Constant .
+  var V : Variable .
+  var TQ : TermQid .
+  var N N' : Nat .
+  var NL : NatList .
+  var NNL : NeNatList .
+  var QPS : QidPairSet .
+
+  op unsortify : Module -> Module [memo] .
+  op unsortify : OpDeclSet -> OpDeclSet .
+  op unsortify : EquationSet -> EquationSet .
+  op unsortify : RuleSet -> RuleSet .
+  op unsortify : Condition -> Condition .
+  op unsortify : TermList -> TermList .
+  op unsortify : AttrSet -> AttrSet .
+  op unsortify : HookList -> HookList .
+  op unsortify : QidSet -> QidSet .
+  op unsortify : TermQid -> TermQid .
+  op unsortify : Type -> Type .
+  op unsortify : TypeList -> TypeList .
+
+  --- inverse transform intermediate data struct
+  op unsortify-1 : Module -> QidPairSet .
+  op unsortify-1 : Module OpDeclSet QidPairSet -> QidPairSet .
+
+  eq unsortify(M) =
+    setRls(
+      setEqs(
+        setOps(
+	  setSubsorts(
+            setSorts(M,'U),
+	    none),
+          unsortify(getOps(M))),
+        unsortify(getEqs(M))),
+      unsortify(getRls(M))) .
+
+  eq unsortify(op Q : TYL -> TY [poly(NNL) AS]. ODS) =
+    (op Q : unsortify(TYL) -> 'U [unsortify(AS)].)
+    unsortify(ODS) .
+  eq unsortify(op Q : TYL -> TY [AS]. ODS) =
+    (op Q : unsortify(TYL) -> 'U [unsortify(AS)].)
+    unsortify(ODS) [owise] .
+  eq unsortify((none).OpDeclSet) = none .
+
+  eq unsortify(eq T = T' [AS]. EQS) =
+    (eq unsortify(T) = unsortify(T') [AS] .)
+    unsortify(EQS) .
+  eq unsortify(ceq T = T' if ECnD [AS]. EQS) =
+    (ceq unsortify(T) = unsortify(T') if unsortify(ECnD) [AS] .)
+    unsortify(EQS) .
+  eq unsortify((none).EquationSet) = none .
+
+  eq unsortify(rl T => T' [AS]. RLS) =
+    (rl unsortify(T) => unsortify(T') [AS] .)
+    unsortify(RLS) .
+  eq unsortify(crl T => T' if CnD [AS]. RLS) =
+    (crl unsortify(T) => unsortify(T') if unsortify(CnD) [AS] .)
+    unsortify(RLS) .
+  eq unsortify((none).RuleSet) = none .
+
+  eq unsortify(T = T' /\ CnD) =
+    unsortify(T) = unsortify(T') /\
+    unsortify(CnD) .
+  eq unsortify(T := T' /\ CnD) =
+    unsortify(T) := unsortify(T') /\
+    unsortify(CnD) .
+  eq unsortify(T : S /\ CnD) =
+    unsortify(T) : 'U  /\
+    unsortify(CnD) .
+  eq unsortify(T => T' /\ CnD) =
+    unsortify(T) => unsortify(T') /\
+    unsortify(CnD) .
+  eq unsortify((nil).EqCondition) = nil .
+
+  eq unsortify(C)      = qid(string(getName(C)) + ".U") .
+  eq unsortify(V)      = qid(string(getName(V)) + ":U") .
+  eq unsortify(Q[NTL]) = Q[unsortify(NTL)] .
+  eq unsortify((T,TL)) = unsortify(T),unsortify(TL) .
+  eq unsortify(empty)  = empty .
+
+  eq unsortify(id(T) AS)       = id(unsortify(T)) unsortify(AS) .
+  eq unsortify(left-id(T) AS)  = left-id(unsortify(T)) unsortify(AS) .
+  eq unsortify(right-id(T) AS) = right-id(unsortify(T)) unsortify(AS) .
+  eq unsortify(special(HL) AS) = special(unsortify(HL)) unsortify(AS) .
+  eq unsortify(AS)             = AS [owise] .
+
+  eq unsortify(term-hook(Q,T) HL) =
+    term-hook(Q,unsortify(T))
+    unsortify(HL) .
+  eq unsortify(op-hook(Q,Q',TYL,TY) HL) =
+    op-hook(Q,Q',unsortify(TYL),'U)
+    unsortify(HL) .
+  eq unsortify(id-hook(Q,QL) HL) =
+    id-hook(Q,QL)
+    unsortify(HL) .
+  eq unsortify((nil).HookList) = nil .
+
+  eq unsortify(TQ ; QS) = unsortify(TQ) ; unsortify(QS) .
+  eq unsortify((none).QidSet) = (none).QidSet .
+
+  eq unsortify(TY TYL) = 'U unsortify(TYL) .
+  eq unsortify((nil).TypeList) = nil .
+
+  eq unsortify-1(M) = unsortify-1(M,getOps(M),none) .
+  eq unsortify-1(M,op Q : TYL -> TY [AS]. ODS,QPS) =
+    unsortify-1(M,ODS,QPS |
+      if TYL =/= nil
+        then none
+	else qp(join(Q '.U),join(Q '. TY))
+      fi) .
+  eq unsortify-1(M,(none).OpDeclSet,QPS) = QPS .
+endfm
