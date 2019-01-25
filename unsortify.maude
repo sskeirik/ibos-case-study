@@ -129,10 +129,10 @@ fmod MANYSORTIFY is
     manysortify(M,T) := manysortify(M,T') /\
     manysortify(M,CnD) .
   eq manysortify(M,T : S /\ CnD) =
-    manysortify(M,T) := k2s-map#(M,S) /\
+    manysortify(M,T) : k2s-map#(M,S) /\
     manysortify(M,CnD) .
   eq manysortify(M,T => T' /\ CnD) =
-    manysortify(M,T) := manysortify(M,T') /\
+    manysortify(M,T) => manysortify(M,T') /\
     manysortify(M,CnD) .
   eq manysortify(M,(nil).EqCondition) = nil .
 
