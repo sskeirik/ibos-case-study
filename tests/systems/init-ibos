@@ -2,8 +2,8 @@
 
 FILE_PATH="./ibos-sop-base.maude"
 FULL_MAUDE_PATH="../../../full-maude/full-maude-removeids.maude"
-MODULE_NAME="IBOS-SOP"
-OUTPUT_FILE_NAME="ibos-sop-removeid"
+MODULE_NAME="IBOS-SOP-PRED"
+OUTPUT_FILE_NAME="ibos-sop-base-noid"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$DIR"
@@ -20,4 +20,4 @@ loop init .
 (remove identity attributes ${MODULE_NAME} .)
 quit
 INPUT
-tail -n+4 | head -n-2 | sed '1s/^/set include BOOL off .\n\n/' > "${OUTPUT_FILE_NAME}.maude"
+tail -n+4 | head -n-2 | sed -E '1s/^fmod (\S+) is/set include BOOL off .\n\nfmod \1-NOID is/' > "${OUTPUT_FILE_NAME}.maude"

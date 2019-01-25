@@ -1,0 +1,1839 @@
+set include BOOL off .
+
+fmod IBOS-SOP-PRED-NOID is
+  sorts Attribute AttributeSet Bool Configuration DisplayId EmptyAttributeSet KernelId Label LabelList LabelSet MaybeLabel Message MessageList MsgType NICId Nat NeAttributeSet NeConfiguration NetProcId NetworkProcInfo NetworkProcInfoSet NonFetchMsg NonNetPipeId NonNetProcId NonPipeId NonRetFetchMsg NonRetMsg NonWebAppId NonWebPipeId NzNat Object PipeId Policy PolicySet ProcessId State UIId WebAppId WebAppMgrId WebappProcInfo WebappProcInfoSet .
+  subsort Attribute < NeAttributeSet .
+  subsort DisplayId < NonPipeId .
+  subsort EmptyAttributeSet < AttributeSet .
+  subsort KernelId < NonPipeId .
+  subsort Label < LabelList .
+  subsort Label < LabelSet .
+  subsort Label < MaybeLabel .
+  subsort Message < MessageList .
+  subsort NICId < NonPipeId .
+  subsort NeAttributeSet < AttributeSet .
+  subsort NeConfiguration < Configuration .
+  subsort NetProcId < NonWebPipeId .
+  subsort NetProcId < PipeId .
+  subsort NetworkProcInfo < NetworkProcInfoSet .
+  subsort NonFetchMsg < MsgType .
+  subsort NonNetPipeId < NonNetProcId .
+  subsort NonNetPipeId < PipeId .
+  subsort NonNetProcId < ProcessId .
+  subsort NonPipeId < NonNetProcId .
+  subsort NonPipeId < NonWebAppId .
+  subsort NonPipeId < ProcessId .
+  subsort NonRetFetchMsg < NonFetchMsg .
+  subsort NonRetFetchMsg < NonRetMsg .
+  subsort NonRetMsg < MsgType .
+  subsort NonWebAppId < ProcessId .
+  subsort NonWebPipeId < NonWebAppId .
+  subsort NonWebPipeId < PipeId .
+  subsort NzNat < Nat .
+  subsort Object < NeConfiguration .
+  subsort PipeId < ProcessId .
+  subsort Policy < PolicySet .
+  subsort UIId < NonNetPipeId .
+  subsort UIId < NonWebPipeId .
+  subsort UIId < PipeId .
+  subsort WebAppId < NonNetPipeId .
+  subsort WebAppId < PipeId .
+  subsort WebAppMgrId < NonPipeId .
+  subsort WebappProcInfo < WebappProcInfoSet .
+  op 0 : -> Nat
+    [ctor metadata "0"] .
+  op 1 : -> NzNat
+    [ctor metadata "14"] .
+  op <_|_> : ProcessId AttributeSet -> Object
+    [ctor metadata "32"] .
+  op MSG-FETCH-URL : -> MsgType
+    [ctor metadata "45"] .
+  op MSG-FETCH-URL : -> NonRetMsg
+    [ctor metadata "45"] .
+  op MSG-NEW-URL : -> MsgType
+    [ctor metadata "44"] .
+  op MSG-NEW-URL : -> NonRetFetchMsg
+    [ctor metadata "44"] .
+  op MSG-RETURN-URL : -> MsgType
+    [ctor metadata "46"] .
+  op MSG-RETURN-URL : -> NonFetchMsg
+    [ctor metadata "46"] .
+  op MSG-SWITCH-TAB : -> MsgType
+    [ctor metadata "47"] .
+  op MSG-SWITCH-TAB : -> NonRetFetchMsg
+    [ctor metadata "47"] .
+  op URL : Label -> Attribute
+    [ctor metadata "55"] .
+  op _&_ : LabelSet LabelSet -> LabelSet
+    [assoc comm ctor metadata "43 mtLS.LabelSet"] .
+  op _+_ : Nat Nat -> Nat
+    [assoc comm ctor metadata "15 0.Nat"] .
+  op _+_ : NzNat Nat -> NzNat
+    [assoc comm ctor metadata "15 0.Nat"] .
+  op _;_ : LabelList LabelList -> LabelList
+    [assoc ctor metadata "42 mtLL.LabelList"] .
+  op _<=_ : Nat Nat -> Bool
+    [metadata "18"] .
+  op _<_ : Nat Nat -> Bool
+    [metadata "17"] .
+  op _@_ : MessageList MessageList -> MessageList
+    [assoc ctor metadata "50 mt.MessageList"] .
+  op __ : Configuration Configuration -> Configuration
+    [assoc comm ctor metadata "34 none.Configuration"] .
+  op __ : NeConfiguration Configuration -> NeConfiguration
+    [assoc comm ctor metadata "34 none.Configuration"] .
+  op _`,_ : AttributeSet AttributeSet -> AttributeSet
+    [assoc comm ctor metadata "33 none.EmptyAttributeSet"] .
+  op _`,_ : AttributeSet NeAttributeSet -> NeAttributeSet
+    [assoc comm ctor metadata "33 none.EmptyAttributeSet"] .
+  op _`,_ : EmptyAttributeSet EmptyAttributeSet -> EmptyAttributeSet
+    [assoc comm ctor metadata "33 none.EmptyAttributeSet"] .
+  op _`,np_ : NetworkProcInfoSet NetworkProcInfoSet -> NetworkProcInfoSet
+    [assoc comm ctor metadata "73 mtNPIS.NetworkProcInfoSet"] .
+  op _`,ps_ : PolicySet PolicySet -> PolicySet
+    [assoc comm ctor metadata "64 mtPS.PolicySet"] .
+  op _`,wp_ : WebappProcInfoSet WebappProcInfoSet -> WebappProcInfoSet
+    [assoc comm ctor metadata "70 mtWPIS.WebappProcInfoSet"] .
+  op _and_ : Bool Bool -> Bool
+    [assoc comm prec 50 metadata "11"] .
+  op _or_ : Bool Bool -> Bool
+    [assoc comm metadata "12"] .
+  op _~l_ : Label Label -> Bool
+    [comm metadata "41"] .
+  op _~m_ : MsgType MsgType -> Bool
+    [comm metadata "86"] .
+  op _~n_ : Nat Nat -> Bool
+    [comm metadata "21"] .
+  op _~p_ : ProcessId ProcessId -> Bool
+    [comm metadata "31"] .
+  op `{_`} : Configuration -> State
+    [ctor metadata "35"] .
+  op about-blank : -> Label
+    [ctor metadata "36"] .
+  op activeWebapp : WebAppId -> Attribute
+    [ctor metadata "76"] .
+  op ch-p14 : Message WebappProcInfoSet NetworkProcInfoSet Nat -> Bool
+    [metadata "93"] .
+  op display : -> DisplayId
+    [ctor metadata "28"] .
+  op displayedContent : Label -> Attribute
+    [ctor metadata "77"] .
+  op displayedTopBar : Label -> Attribute
+    [ctor metadata "75"] .
+  op dupl : Configuration -> Bool
+    [metadata "87"] .
+  op false : -> Bool
+    [ctor special(id-hook SystemFalse)metadata "10"] .
+  op fresh-np-id : Nat Configuration -> Bool
+    [metadata "88"] .
+  op fresh-wa-id : Nat Configuration -> Bool
+    [metadata "89"] .
+  op fromKernel : MessageList -> Attribute
+    [ctor metadata "51"] .
+  op handledCurrently : Message -> Attribute
+    [ctor metadata "68"] .
+  op in : LabelList -> Attribute
+    [ctor metadata "58"] .
+  op kernel : -> KernelId
+    [ctor metadata "22"] .
+  op kernelDo : Message -> Message
+    [ctor metadata "78"] .
+  op label-for-netproc : NetProcId NetworkProcInfoSet -> Label
+    [metadata "94"] .
+  op loading : Bool -> Attribute
+    [ctor metadata "56"] .
+  op matching-procs : NetProcId WebAppId WebappProcInfoSet NetworkProcInfoSet -> Bool
+    [metadata "83"] .
+  op matching-procs1 : NetProcId Label NetworkProcInfoSet -> Bool
+    [metadata "82"] .
+  op mem-in : MaybeLabel -> Attribute
+    [ctor metadata "61"] .
+  op mem-out : MaybeLabel -> Attribute
+    [ctor metadata "60"] .
+  op msg : ProcessId ProcessId MsgType Label -> Message
+    [ctor metadata "48"] .
+  op msgPolicy : PolicySet -> Attribute
+    [ctor metadata "65"] .
+  op mt : -> MessageList
+    [ctor metadata "5"] .
+  op mtLL : -> LabelList
+    [ctor metadata "3"] .
+  op mtLS : -> LabelSet
+    [ctor metadata "4"] .
+  op mtNPIS : -> NetworkProcInfoSet
+    [ctor metadata "8"] .
+  op mtPS : -> PolicySet
+    [ctor metadata "6"] .
+  op mtWPIS : -> WebappProcInfoSet
+    [ctor metadata "7"] .
+  op network : Nat -> NetProcId
+    [ctor metadata "26"] .
+  op network : -> NetProcId
+    [ctor metadata "25"] .
+  op networklabels : NetworkProcInfoSet -> Attribute
+    [ctor metadata "74"] .
+  op networkproc : Nat NetworkProcInfoSet -> Bool
+    [metadata "80"] .
+  op networkproc-for-label : Label NetworkProcInfoSet -> Bool
+    [metadata "79"] .
+  op nextNetworkProc : Nat -> Attribute
+    [ctor metadata "67"] .
+  op nextWAN : Nat -> Attribute
+    [ctor metadata "53"] .
+  op nic : -> NICId
+    [ctor metadata "29"] .
+  op nic-in : LabelList -> Attribute
+    [ctor metadata "63"] .
+  op nic-out : LabelSet -> Attribute
+    [ctor metadata "62"] .
+  op nolabel : -> MaybeLabel
+    [ctor metadata "38"] .
+  op none : -> Configuration
+    [ctor metadata "2"] .
+  op none : -> EmptyAttributeSet
+    [ctor metadata "1"] .
+  op none : -> Message
+    [ctor metadata "49"] .
+  op not_ : Bool -> Bool
+    [metadata "13"] .
+  op out : LabelList -> Attribute
+    [ctor metadata "59"] .
+  op p1 : Configuration WebappProcInfoSet NetworkProcInfoSet -> Bool
+    [metadata "90"] .
+  op p4 : Configuration WebappProcInfoSet NetworkProcInfoSet -> Bool
+    [metadata "91"] .
+  op p5 : Configuration WebappProcInfoSet NetworkProcInfoSet -> Bool
+    [metadata "92"] .
+  op pi : WebAppId Label -> WebappProcInfo
+    [ctor metadata "69"] .
+  op pi : NetProcId Label Label -> NetworkProcInfo
+    [ctor metadata "72"] .
+  op policy : PipeId PipeId MsgType -> Policy
+    [ctor metadata "66"] .
+  op rendered : Label -> Attribute
+    [ctor metadata "54"] .
+  op returnTo : ProcessId -> Attribute
+    [ctor metadata "57"] .
+  op toKernel : MessageList -> Attribute
+    [ctor metadata "52"] .
+  op true : -> Bool
+    [ctor special(id-hook SystemTrue)metadata "9"] .
+  op ui : -> UIId
+    [ctor metadata "27"] .
+  op url : Nat -> Label
+    [ctor metadata "37"] .
+  op webapp : Nat -> WebAppId
+    [ctor metadata "24"] .
+  op webapp : -> WebAppId
+    [ctor metadata "23"] .
+  op webapp : Nat WebappProcInfoSet -> Bool
+    [metadata "81"] .
+  op webappmgr : -> WebAppMgrId
+    [ctor metadata "30"] .
+  op weblabels : WebappProcInfoSet -> Attribute
+    [ctor metadata "71"] .
+  eq X@@@:[LabelList,LabelSet,MaybeLabel]& label-for-netproc(NI:NetProcId,NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = IN:Label & X@@@:[LabelList,LabelSet,MaybeLabel] .
+  eq X@@@:[LabelList,LabelSet,MaybeLabel]& label-for-netproc(NI:NetProcId,pi(NI:NetProcId,IN:Label,OUT:Label))
+    = IN:Label & X@@@:[LabelList,LabelSet,MaybeLabel] .
+  eq mtLL & label-for-netproc(NI:NetProcId,NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = mtLL & IN:Label .
+  eq mtLL & label-for-netproc(NI:NetProcId,pi(NI:NetProcId,IN:Label,OUT:Label))
+    = mtLL & IN:Label .
+  eq MSG-FETCH-URL ~m M:NonFetchMsg
+    = false .
+  eq MSG-FETCH-URL ~m MSG-NEW-URL
+    = false .
+  eq MSG-FETCH-URL ~m MSG-SWITCH-TAB
+    = false .
+  eq MSG-NEW-URL ~m MSG-SWITCH-TAB
+    = false .
+  eq MSG-RETURN-URL ~m M:NonRetMsg
+    = false .
+  eq MSG-RETURN-URL ~m MSG-SWITCH-TAB
+    = false .
+  eq X:MsgType ~m X:MsgType
+    = true .
+  eq ch-p14(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,N:Nat)
+    = true .
+  eq ch-p14(none,WIS:WebappProcInfoSet,mtNPIS,N:Nat)
+    = true .
+  eq ch-p14(none,mtWPIS,NIS:NetworkProcInfoSet,N:Nat)
+    = true .
+  eq ch-p14(none,mtWPIS,mtNPIS,N:Nat)
+    = true .
+  eq ch-p14(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label),WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label),N:Nat)
+    = true .
+  eq ch-p14(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label),WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label),N:Nat)
+    = true .
+  eq ch-p14(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label),pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label),N:Nat)
+    = true .
+  eq ch-p14(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label),pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label),N:Nat)
+    = true .
+  eq ch-p14(msg(NI:NetProcId,WI:WebAppId,NonRetMT:NonRetMsg,OUT:Label),WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,N:Nat)
+    = true .
+  eq ch-p14(msg(NI:NetProcId,WI:WebAppId,NonRetMT:NonRetMsg,OUT:Label),WIS:WebappProcInfoSet,mtNPIS,N:Nat)
+    = true .
+  eq ch-p14(msg(NI:NetProcId,WI:WebAppId,NonRetMT:NonRetMsg,OUT:Label),mtWPIS,NIS:NetworkProcInfoSet,N:Nat)
+    = true .
+  eq ch-p14(msg(NI:NetProcId,WI:WebAppId,NonRetMT:NonRetMsg,OUT:Label),mtWPIS,mtNPIS,N:Nat)
+    = true .
+  eq dupl(none)
+    = false .
+  eq dupl(< PI:ProcessId | A:AttributeSet >)
+    = false .
+  eq dupl(< PI:ProcessId | none >)
+    = false .
+  eq dupl(< PI:ProcessId | A:AttributeSet,activeWebapp(WAI:WebAppId)>)
+    = dupl(< PI:ProcessId | A:AttributeSet >) .
+  eq dupl(< PI:ProcessId | A:AttributeSet,displayedContent(L:Label)>)
+    = dupl(< PI:ProcessId | A:AttributeSet >) .
+  eq dupl(< PI:ProcessId | A:AttributeSet,fromKernel(X@11:MessageList)>)
+    = dupl(< PI:ProcessId | A:AttributeSet >) .
+  eq dupl(< PI:ProcessId | A:AttributeSet,fromKernel(mt)>)
+    = dupl(< PI:ProcessId | A:AttributeSet >) .
+  eq dupl(< PI:ProcessId | A:AttributeSet,toKernel(X@11:MessageList)>)
+    = dupl(< PI:ProcessId | A:AttributeSet >) .
+  eq dupl(< PI:ProcessId | A:AttributeSet,toKernel(mt)>)
+    = dupl(< PI:ProcessId | A:AttributeSet >) .
+  eq dupl(< PI:ProcessId | activeWebapp(WAI:WebAppId)>)
+    = dupl(< PI:ProcessId | none >) .
+  eq dupl(< PI:ProcessId | displayedContent(L:Label)>)
+    = dupl(< PI:ProcessId | none >) .
+  eq dupl(< PI:ProcessId | fromKernel(X@11:MessageList)>)
+    = dupl(< PI:ProcessId | none >) .
+  eq dupl(< PI:ProcessId | fromKernel(mt)>)
+    = dupl(< PI:ProcessId | none >) .
+  eq dupl(< PI:ProcessId | toKernel(X@11:MessageList)>)
+    = dupl(< PI:ProcessId | none >) .
+  eq dupl(< PI:ProcessId | toKernel(mt)>)
+    = dupl(< PI:ProcessId | none >) .
+  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet,activeWebapp(WAI:WebAppId)>)
+    = dupl(C:Configuration < PI:ProcessId | A:AttributeSet >) .
+  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet,displayedContent(L:Label)>)
+    = dupl(C:Configuration < PI:ProcessId | A:AttributeSet >) .
+  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet,fromKernel(X@11:MessageList)>)
+    = dupl(C:Configuration < PI:ProcessId | A:AttributeSet >) .
+  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet,fromKernel(mt)>)
+    = dupl(C:Configuration < PI:ProcessId | A:AttributeSet >) .
+  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet,toKernel(X@11:MessageList)>)
+    = dupl(C:Configuration < PI:ProcessId | A:AttributeSet >) .
+  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet,toKernel(mt)>)
+    = dupl(C:Configuration < PI:ProcessId | A:AttributeSet >) .
+  eq dupl(C:Configuration < PI:ProcessId | activeWebapp(WAI:WebAppId)>)
+    = dupl(C:Configuration < PI:ProcessId | none >) .
+  eq dupl(C:Configuration < PI:ProcessId | displayedContent(L:Label)>)
+    = dupl(C:Configuration < PI:ProcessId | none >) .
+  eq dupl(C:Configuration < PI:ProcessId | fromKernel(X@11:MessageList)>)
+    = dupl(C:Configuration < PI:ProcessId | none >) .
+  eq dupl(C:Configuration < PI:ProcessId | fromKernel(mt)>)
+    = dupl(C:Configuration < PI:ProcessId | none >) .
+  eq dupl(C:Configuration < PI:ProcessId | toKernel(X@11:MessageList)>)
+    = dupl(C:Configuration < PI:ProcessId | none >) .
+  eq dupl(C:Configuration < PI:ProcessId | toKernel(mt)>)
+    = dupl(C:Configuration < PI:ProcessId | none >) .
+  eq dupl(< PI:ProcessId | A:AttributeSet > < PI:ProcessId | A':AttributeSet >)
+    = true .
+  eq dupl(< PI:ProcessId | none > < PI:ProcessId | A:AttributeSet >)
+    = true .
+  eq dupl(< PI:ProcessId | none > < PI:ProcessId | none >)
+    = true .
+  eq dupl(< kernel | A':AttributeSet,nextNetworkProc(1)> < network(0)| A:AttributeSet >)
+    = dupl(< kernel | A':AttributeSet,nextNetworkProc(0)>) .
+  eq dupl(< kernel | A':AttributeSet,nextNetworkProc(1)> < network(0)| none >)
+    = dupl(< kernel | A':AttributeSet,nextNetworkProc(0)>) .
+  eq dupl(< kernel | A':AttributeSet,nextNetworkProc(1 + N:Nat)> < network(N:Nat)| A:AttributeSet >)
+    = dupl(< kernel | A':AttributeSet,nextNetworkProc(N:Nat)>) .
+  eq dupl(< kernel | A':AttributeSet,nextNetworkProc(1 + N:Nat)> < network(N:Nat)| none >)
+    = dupl(< kernel | A':AttributeSet,nextNetworkProc(N:Nat)>) .
+  eq dupl(< kernel | nextNetworkProc(1)> < network(0)| A:AttributeSet >)
+    = dupl(< kernel | nextNetworkProc(0)>) .
+  eq dupl(< kernel | nextNetworkProc(1)> < network(0)| none >)
+    = dupl(< kernel | nextNetworkProc(0)>) .
+  eq dupl(< kernel | nextNetworkProc(1 + N:Nat)> < network(N:Nat)| A:AttributeSet >)
+    = dupl(< kernel | nextNetworkProc(N:Nat)>) .
+  eq dupl(< kernel | nextNetworkProc(1 + N:Nat)> < network(N:Nat)| none >)
+    = dupl(< kernel | nextNetworkProc(N:Nat)>) .
+  eq dupl(< webappmgr | A':AttributeSet,nextWAN(1)> < webapp(0)| A:AttributeSet >)
+    = dupl(< webappmgr | A':AttributeSet,nextWAN(0)>) .
+  eq dupl(< webappmgr | A':AttributeSet,nextWAN(1)> < webapp(0)| none >)
+    = dupl(< webappmgr | A':AttributeSet,nextWAN(0)>) .
+  eq dupl(< webappmgr | A':AttributeSet,nextWAN(1 + W:Nat)> < webapp(W:Nat)| A:AttributeSet >)
+    = dupl(< webappmgr | A':AttributeSet,nextWAN(W:Nat)>) .
+  eq dupl(< webappmgr | A':AttributeSet,nextWAN(1 + W:Nat)> < webapp(W:Nat)| none >)
+    = dupl(< webappmgr | A':AttributeSet,nextWAN(W:Nat)>) .
+  eq dupl(< webappmgr | nextWAN(1)> < webapp(0)| A:AttributeSet >)
+    = dupl(< webappmgr | nextWAN(0)>) .
+  eq dupl(< webappmgr | nextWAN(1)> < webapp(0)| none >)
+    = dupl(< webappmgr | nextWAN(0)>) .
+  eq dupl(< webappmgr | nextWAN(1 + W:Nat)> < webapp(W:Nat)| A:AttributeSet >)
+    = dupl(< webappmgr | nextWAN(W:Nat)>) .
+  eq dupl(< webappmgr | nextWAN(1 + W:Nat)> < webapp(W:Nat)| none >)
+    = dupl(< webappmgr | nextWAN(W:Nat)>) .
+  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet > < PI:ProcessId | A':AttributeSet >)
+    = true .
+  eq dupl(C:Configuration < PI:ProcessId | none > < PI:ProcessId | A:AttributeSet >)
+    = true .
+  eq dupl(C:Configuration < PI:ProcessId | none > < PI:ProcessId | none >)
+    = true .
+  eq dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(1)> < network(0)| A:AttributeSet >)
+    = dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(0)>) .
+  eq dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(1)> < network(0)| none >)
+    = dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(0)>) .
+  eq dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(1 + N:Nat)> < network(N:Nat)| A:AttributeSet >)
+    = dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(N:Nat)>) .
+  eq dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(1 + N:Nat)> < network(N:Nat)| none >)
+    = dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(N:Nat)>) .
+  eq dupl(C:Configuration < kernel | nextNetworkProc(1)> < network(0)| A:AttributeSet >)
+    = dupl(C:Configuration < kernel | nextNetworkProc(0)>) .
+  eq dupl(C:Configuration < kernel | nextNetworkProc(1)> < network(0)| none >)
+    = dupl(C:Configuration < kernel | nextNetworkProc(0)>) .
+  eq dupl(C:Configuration < kernel | nextNetworkProc(1 + N:Nat)> < network(N:Nat)| A:AttributeSet >)
+    = dupl(C:Configuration < kernel | nextNetworkProc(N:Nat)>) .
+  eq dupl(C:Configuration < kernel | nextNetworkProc(1 + N:Nat)> < network(N:Nat)| none >)
+    = dupl(C:Configuration < kernel | nextNetworkProc(N:Nat)>) .
+  eq dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(1)> < webapp(0)| A:AttributeSet >)
+    = dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(0)>) .
+  eq dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(1)> < webapp(0)| none >)
+    = dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(0)>) .
+  eq dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(1 + W:Nat)> < webapp(W:Nat)| A:AttributeSet >)
+    = dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(W:Nat)>) .
+  eq dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(1 + W:Nat)> < webapp(W:Nat)| none >)
+    = dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(W:Nat)>) .
+  eq dupl(C:Configuration < webappmgr | nextWAN(1)> < webapp(0)| A:AttributeSet >)
+    = dupl(C:Configuration < webappmgr | nextWAN(0)>) .
+  eq dupl(C:Configuration < webappmgr | nextWAN(1)> < webapp(0)| none >)
+    = dupl(C:Configuration < webappmgr | nextWAN(0)>) .
+  eq dupl(C:Configuration < webappmgr | nextWAN(1 + W:Nat)> < webapp(W:Nat)| A:AttributeSet >)
+    = dupl(C:Configuration < webappmgr | nextWAN(W:Nat)>) .
+  eq dupl(C:Configuration < webappmgr | nextWAN(1 + W:Nat)> < webapp(W:Nat)| none >)
+    = dupl(C:Configuration < webappmgr | nextWAN(W:Nat)>) .
+  eq fresh-np-id(0,< network(M:Nat)| A:AttributeSet >)
+    = false .
+  eq fresh-np-id(0,< network(M:Nat)| none >)
+    = false .
+  eq fresh-np-id(0,C:Configuration < network(M:Nat)| A:AttributeSet >)
+    = false .
+  eq fresh-np-id(0,C:Configuration < network(M:Nat)| none >)
+    = false .
+  eq fresh-np-id(N:Nat,none)
+    = true .
+  eq fresh-np-id(N:Nat,< NNPI:NonNetProcId | A:AttributeSet >)
+    = fresh-np-id(N:Nat,none) .
+  eq fresh-np-id(N:Nat,< NNPI:NonNetProcId | none >)
+    = fresh-np-id(N:Nat,none) .
+  eq fresh-np-id(N:Nat,< network | A:AttributeSet >)
+    = fresh-np-id(N:Nat,none) .
+  eq fresh-np-id(N:Nat,< network | none >)
+    = fresh-np-id(N:Nat,none) .
+  eq fresh-np-id(N:Nat,< network(N:Nat)| A:AttributeSet >)
+    = false .
+  eq fresh-np-id(N:Nat,< network(N:Nat)| none >)
+    = false .
+  eq fresh-np-id(N:Nat,< network(N:Nat + M:Nat)| A:AttributeSet >)
+    = false .
+  eq fresh-np-id(N:Nat,< network(N:Nat + M:Nat)| none >)
+    = false .
+  eq fresh-np-id(N:Nat,C:Configuration < NNPI:NonNetProcId | A:AttributeSet >)
+    = fresh-np-id(N:Nat,C:Configuration) .
+  eq fresh-np-id(N:Nat,C:Configuration < NNPI:NonNetProcId | none >)
+    = fresh-np-id(N:Nat,C:Configuration) .
+  eq fresh-np-id(N:Nat,C:Configuration < network | A:AttributeSet >)
+    = fresh-np-id(N:Nat,C:Configuration) .
+  eq fresh-np-id(N:Nat,C:Configuration < network | none >)
+    = fresh-np-id(N:Nat,C:Configuration) .
+  eq fresh-np-id(N:Nat,C:Configuration < network(N:Nat)| A:AttributeSet >)
+    = false .
+  eq fresh-np-id(N:Nat,C:Configuration < network(N:Nat)| none >)
+    = false .
+  eq fresh-np-id(N:Nat,C:Configuration < network(N:Nat + M:Nat)| A:AttributeSet >)
+    = false .
+  eq fresh-np-id(N:Nat,C:Configuration < network(N:Nat + M:Nat)| none >)
+    = false .
+  eq fresh-np-id(P:NzNat,< network(0)| A:AttributeSet >)
+    = fresh-np-id(P:NzNat,none) .
+  eq fresh-np-id(P:NzNat,< network(0)| none >)
+    = fresh-np-id(P:NzNat,none) .
+  eq fresh-np-id(P:NzNat,C:Configuration < network(0)| A:AttributeSet >)
+    = fresh-np-id(P:NzNat,C:Configuration) .
+  eq fresh-np-id(P:NzNat,C:Configuration < network(0)| none >)
+    = fresh-np-id(P:NzNat,C:Configuration) .
+  eq fresh-np-id(N:Nat + P:NzNat,< network(N:Nat)| A:AttributeSet >)
+    = fresh-np-id(N:Nat + P:NzNat,none) .
+  eq fresh-np-id(N:Nat + P:NzNat,< network(N:Nat)| none >)
+    = fresh-np-id(N:Nat + P:NzNat,none) .
+  eq fresh-np-id(N:Nat + P:NzNat,C:Configuration < network(N:Nat)| A:AttributeSet >)
+    = fresh-np-id(N:Nat + P:NzNat,C:Configuration) .
+  eq fresh-np-id(N:Nat + P:NzNat,C:Configuration < network(N:Nat)| none >)
+    = fresh-np-id(N:Nat + P:NzNat,C:Configuration) .
+  eq fresh-wa-id(0,< webapp(M:Nat)| A:AttributeSet >)
+    = false .
+  eq fresh-wa-id(0,< webapp(M:Nat)| none >)
+    = false .
+  eq fresh-wa-id(0,C:Configuration < webapp(M:Nat)| A:AttributeSet >)
+    = false .
+  eq fresh-wa-id(0,C:Configuration < webapp(M:Nat)| none >)
+    = false .
+  eq fresh-wa-id(N:Nat,none)
+    = true .
+  eq fresh-wa-id(N:Nat,< NWAI:NonWebAppId | A:AttributeSet >)
+    = fresh-wa-id(N:Nat,none) .
+  eq fresh-wa-id(N:Nat,< NWAI:NonWebAppId | none >)
+    = fresh-wa-id(N:Nat,none) .
+  eq fresh-wa-id(N:Nat,< webapp | A:AttributeSet >)
+    = fresh-wa-id(N:Nat,none) .
+  eq fresh-wa-id(N:Nat,< webapp | none >)
+    = fresh-wa-id(N:Nat,none) .
+  eq fresh-wa-id(N:Nat,< webapp(N:Nat)| A:AttributeSet >)
+    = false .
+  eq fresh-wa-id(N:Nat,< webapp(N:Nat)| none >)
+    = false .
+  eq fresh-wa-id(N:Nat,< webapp(N:Nat + M:Nat)| A:AttributeSet >)
+    = false .
+  eq fresh-wa-id(N:Nat,< webapp(N:Nat + M:Nat)| none >)
+    = false .
+  eq fresh-wa-id(N:Nat,C:Configuration < NWAI:NonWebAppId | A:AttributeSet >)
+    = fresh-wa-id(N:Nat,C:Configuration) .
+  eq fresh-wa-id(N:Nat,C:Configuration < NWAI:NonWebAppId | none >)
+    = fresh-wa-id(N:Nat,C:Configuration) .
+  eq fresh-wa-id(N:Nat,C:Configuration < webapp | A:AttributeSet >)
+    = fresh-wa-id(N:Nat,C:Configuration) .
+  eq fresh-wa-id(N:Nat,C:Configuration < webapp | none >)
+    = fresh-wa-id(N:Nat,C:Configuration) .
+  eq fresh-wa-id(N:Nat,C:Configuration < webapp(N:Nat)| A:AttributeSet >)
+    = false .
+  eq fresh-wa-id(N:Nat,C:Configuration < webapp(N:Nat)| none >)
+    = false .
+  eq fresh-wa-id(N:Nat,C:Configuration < webapp(N:Nat + M:Nat)| A:AttributeSet >)
+    = false .
+  eq fresh-wa-id(N:Nat,C:Configuration < webapp(N:Nat + M:Nat)| none >)
+    = false .
+  eq fresh-wa-id(P:NzNat,< webapp(0)| A:AttributeSet >)
+    = fresh-wa-id(P:NzNat,none) .
+  eq fresh-wa-id(P:NzNat,< webapp(0)| none >)
+    = fresh-wa-id(P:NzNat,none) .
+  eq fresh-wa-id(P:NzNat,C:Configuration < webapp(0)| A:AttributeSet >)
+    = fresh-wa-id(P:NzNat,C:Configuration) .
+  eq fresh-wa-id(P:NzNat,C:Configuration < webapp(0)| none >)
+    = fresh-wa-id(P:NzNat,C:Configuration) .
+  eq fresh-wa-id(N:Nat + P:NzNat,< webapp(N:Nat)| A:AttributeSet >)
+    = fresh-wa-id(N:Nat + P:NzNat,none) .
+  eq fresh-wa-id(N:Nat + P:NzNat,< webapp(N:Nat)| none >)
+    = fresh-wa-id(N:Nat + P:NzNat,none) .
+  eq fresh-wa-id(N:Nat + P:NzNat,C:Configuration < webapp(N:Nat)| A:AttributeSet >)
+    = fresh-wa-id(N:Nat + P:NzNat,C:Configuration) .
+  eq fresh-wa-id(N:Nat + P:NzNat,C:Configuration < webapp(N:Nat)| none >)
+    = fresh-wa-id(N:Nat + P:NzNat,C:Configuration) .
+  eq label-for-netproc(NI:NetProcId,NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = IN:Label .
+  eq label-for-netproc(NI:NetProcId,pi(NI:NetProcId,IN:Label,OUT:Label))
+    = IN:Label .
+  eq matching-procs(NI:NetProcId,WI:WebAppId,mtWPIS,NPIS:NetworkProcInfoSet)
+    = false .
+  eq matching-procs(NI:NetProcId,WI:WebAppId,mtWPIS,mtNPIS)
+    = false .
+  eq matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI:WebAppId,L:Label),NPIS:NetworkProcInfoSet)
+    = matching-procs1(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet)or matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,NPIS:NetworkProcInfoSet) .
+  eq matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI:WebAppId,L:Label),mtNPIS)
+    = matching-procs1(NI:NetProcId,L:Label,mtNPIS)or matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,mtNPIS) .
+  eq matching-procs(NI:NetProcId,WI:WebAppId,pi(WI:WebAppId,L:Label),NPIS:NetworkProcInfoSet)
+    = matching-procs1(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet)or matching-procs(NI:NetProcId,WI:WebAppId,mtWPIS,NPIS:NetworkProcInfoSet) .
+  eq matching-procs(NI:NetProcId,WI:WebAppId,pi(WI:WebAppId,L:Label),mtNPIS)
+    = matching-procs1(NI:NetProcId,L:Label,mtNPIS)or matching-procs(NI:NetProcId,WI:WebAppId,mtWPIS,mtNPIS) .
+  eq matching-procs1(NI:NetProcId,L:Label,mtNPIS)
+    = false .
+  eq matching-procs1(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet,np pi(NI:NetProcId,L:Label,L'':Label))
+    = true .
+  eq matching-procs1(NI:NetProcId,L:Label,pi(NI:NetProcId,L:Label,L'':Label))
+    = true .
+  ceq ch-p14(msg(WI:WebAppId,NI:NetProcId,MT:MsgType,OUT:Label),WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,N:Nat)
+    = true
+    if not networkproc-for-label(IN:Label,NIS:NetworkProcInfoSet)or IN:Label ~l label-for-netproc(NI:NetProcId,NIS:NetworkProcInfoSet)= true .
+  ceq ch-p14(msg(WI:WebAppId,NI:NetProcId,MT:MsgType,OUT:Label),WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),mtNPIS,N:Nat)
+    = true
+    if not networkproc-for-label(IN:Label,mtNPIS)or IN:Label ~l label-for-netproc(NI:NetProcId,mtNPIS)= true .
+  ceq ch-p14(msg(WI:WebAppId,NI:NetProcId,MT:MsgType,OUT:Label),pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,N:Nat)
+    = true
+    if not networkproc-for-label(IN:Label,NIS:NetworkProcInfoSet)or IN:Label ~l label-for-netproc(NI:NetProcId,NIS:NetworkProcInfoSet)= true .
+  ceq ch-p14(msg(WI:WebAppId,NI:NetProcId,MT:MsgType,OUT:Label),pi(WI:WebAppId,IN:Label),mtNPIS,N:Nat)
+    = true
+    if not networkproc-for-label(IN:Label,mtNPIS)or IN:Label ~l label-for-netproc(NI:NetProcId,mtNPIS)= true .
+  ceq dupl(< PI:ProcessId | none > < PI':ProcessId | none >)
+    = dupl(< PI:ProcessId | none >)and dupl(< PI':ProcessId | none >)
+    if PI:ProcessId ~p PI':ProcessId = false .
+  ceq dupl(C:Configuration < PI:ProcessId | none > < PI':ProcessId | none >)
+    = dupl(C:Configuration < PI:ProcessId | none >)and dupl(C:Configuration < PI':ProcessId | none >)
+    if PI:ProcessId ~p PI':ProcessId = false .
+  ceq matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI':WebAppId,L:Label),NPIS:NetworkProcInfoSet)
+    = matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,NPIS:NetworkProcInfoSet)
+    if WI:WebAppId ~p WI':WebAppId = false .
+  ceq matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI':WebAppId,L:Label),mtNPIS)
+    = matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,mtNPIS)
+    if WI:WebAppId ~p WI':WebAppId = false .
+  ceq matching-procs(NI:NetProcId,WI:WebAppId,pi(WI':WebAppId,L:Label),NPIS:NetworkProcInfoSet)
+    = matching-procs(NI:NetProcId,WI:WebAppId,mtWPIS,NPIS:NetworkProcInfoSet)
+    if WI:WebAppId ~p WI':WebAppId = false .
+  ceq matching-procs(NI:NetProcId,WI:WebAppId,pi(WI':WebAppId,L:Label),mtNPIS)
+    = matching-procs(NI:NetProcId,WI:WebAppId,mtWPIS,mtNPIS)
+    if WI:WebAppId ~p WI':WebAppId = false .
+  ceq matching-procs1(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet,np pi(NI':NetProcId,L':Label,L'':Label))
+    = matching-procs1(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet)
+    if NI:NetProcId ~p NI':NetProcId and L:Label ~l L':Label = false .
+  ceq matching-procs1(NI:NetProcId,L:Label,pi(NI':NetProcId,L':Label,L'':Label))
+    = matching-procs1(NI:NetProcId,L:Label,mtNPIS)
+    if NI:NetProcId ~p NI':NetProcId and L:Label ~l L':Label = false .
+  eq mtLS & X:[LabelList,LabelSet,MaybeLabel]
+    = X:[LabelList,LabelSet,MaybeLabel] [metadata "id comm" variant] .
+  eq 0 + X:[Nat]
+    = X:[Nat] [metadata "id comm" variant] .
+  eq X:[LabelList,LabelSet,MaybeLabel]; mtLL
+    = X:[LabelList,LabelSet,MaybeLabel] [metadata "id right" variant] .
+  eq X:[LabelList,LabelSet,MaybeLabel]; mtLL ; Y:[LabelList,LabelSet,MaybeLabel]
+    = X:[LabelList,LabelSet,MaybeLabel]; Y:[LabelList,LabelSet,MaybeLabel] [metadata "id assoc-left" variant] .
+  eq mtLL ; X:[LabelList,LabelSet,MaybeLabel]
+    = X:[LabelList,LabelSet,MaybeLabel] [metadata "id left" variant] .
+  eq (X:[LabelList,LabelSet,MaybeLabel]; mtLL); Y:[LabelList,LabelSet,MaybeLabel]
+    = X:[LabelList,LabelSet,MaybeLabel]; Y:[LabelList,LabelSet,MaybeLabel] [metadata "id assoc-right" variant] .
+  eq 0 <= M:Nat
+    = true [variant] .
+  eq N:Nat <= N:Nat
+    = true [variant] .
+  eq N:Nat <= N:Nat + M:Nat
+    = true [variant] .
+  eq P:NzNat <= 0
+    = false [variant] .
+  eq (N:Nat + P:NzNat)<= N:Nat
+    = false [variant] .
+  eq 0 < P:NzNat
+    = true [variant] .
+  eq M:Nat < 0
+    = false [variant] .
+  eq N:Nat < N:Nat
+    = false [variant] .
+  eq N:Nat < N:Nat + P:NzNat
+    = true [variant] .
+  eq (N:Nat + M:Nat)< N:Nat
+    = false [variant] .
+  eq X:[MessageList]@ mt
+    = X:[MessageList] [metadata "id right" variant] .
+  eq X:[MessageList]@ mt @ Y:[MessageList]
+    = X:[MessageList]@ Y:[MessageList] [metadata "id assoc-left" variant] .
+  eq mt @ X:[MessageList]
+    = X:[MessageList] [metadata "id left" variant] .
+  eq (X:[MessageList]@ mt)@ Y:[MessageList]
+    = X:[MessageList]@ Y:[MessageList] [metadata "id assoc-right" variant] .
+  eq none X:[Configuration]
+    = X:[Configuration] [metadata "id comm" variant] .
+  eq none,X:[AttributeSet]
+    = X:[AttributeSet] [metadata "id comm" variant] .
+  eq mtNPIS,np X:[NetworkProcInfoSet]
+    = X:[NetworkProcInfoSet] [metadata "id comm" variant] .
+  eq mtPS,ps X:[PolicySet]
+    = X:[PolicySet] [metadata "id comm" variant] .
+  eq mtWPIS,wp X:[WebappProcInfoSet]
+    = X:[WebappProcInfoSet] [metadata "id comm" variant] .
+  eq false and B:Bool
+    = false [variant] .
+  eq true and B:Bool
+    = B:Bool [variant] .
+  eq false and B:Bool and X@@@:[Bool]
+    = false and X@@@:[Bool] [variant] .
+  eq true and B:Bool and X@@@:[Bool]
+    = B:Bool and X@@@:[Bool] [variant] .
+  eq false or B:Bool
+    = B:Bool [variant] .
+  eq true or B:Bool
+    = true [variant] .
+  eq false or B:Bool or X@@@:[Bool]
+    = B:Bool or X@@@:[Bool] [variant] .
+  eq true or B:Bool or X@@@:[Bool]
+    = true or X@@@:[Bool] [variant] .
+  eq L:Label ~l L:Label
+    = true [variant] .
+  eq about-blank ~l url(N:Nat)
+    = false [variant] .
+  eq url(N:Nat)~l url(N':Nat)
+    = N:Nat ~n N':Nat [variant] .
+  eq 0 ~n P:NzNat
+    = false [variant] .
+  eq N:Nat ~n N:Nat
+    = true [variant] .
+  eq N:Nat ~n N:Nat + P:NzNat
+    = false [variant] .
+  eq DiId:DisplayId ~p KeId:KernelId
+    = false [variant] .
+  eq DiId:DisplayId ~p UiId:UIId
+    = false [variant] .
+  eq DiId:DisplayId ~p WAId:WebAppId
+    = false [variant] .
+  eq DiId:DisplayId ~p WAMId:WebAppMgrId
+    = false [variant] .
+  eq KeId:KernelId ~p UiId:UIId
+    = false [variant] .
+  eq KeId:KernelId ~p WAId:WebAppId
+    = false [variant] .
+  eq NPId:NetProcId ~p DiId:DisplayId
+    = false [variant] .
+  eq NPId:NetProcId ~p KeId:KernelId
+    = false [variant] .
+  eq NPId:NetProcId ~p UiId:UIId
+    = false [variant] .
+  eq NPId:NetProcId ~p WAId:WebAppId
+    = false [variant] .
+  eq NPId:NetProcId ~p WAMId:WebAppMgrId
+    = false [variant] .
+  eq PId:ProcessId ~p PId:ProcessId
+    = true [variant] .
+  eq UiId:UIId ~p WAId:WebAppId
+    = false [variant] .
+  eq WAMId:WebAppMgrId ~p KeId:KernelId
+    = false [variant] .
+  eq WAMId:WebAppMgrId ~p UiId:UIId
+    = false [variant] .
+  eq WAMId:WebAppMgrId ~p WAId:WebAppId
+    = false [variant] .
+  eq network ~p network(N:Nat)
+    = false [variant] .
+  eq webapp ~p webapp(N:Nat)
+    = false [variant] .
+  eq network(N:Nat)~p network(N':Nat)
+    = N:Nat ~n N':Nat [variant] .
+  eq webapp(N:Nat)~p webapp(N':Nat)
+    = N:Nat ~n N':Nat [variant] .
+  eq networkproc(N:Nat,mtNPIS)
+    = false [label nnpf] .
+  eq networkproc(N:Nat,NPIS:NetworkProcInfoSet,np pi(network(N:Nat),L:Label,L':Label))
+    = true [label nnp variant] .
+  eq networkproc(N:Nat,pi(network(N:Nat),L:Label,L':Label))
+    = true [label nnp variant] .
+  eq networkproc-for-label(L':Label,mtNPIS)
+    = false [label nnplf] .
+  eq networkproc-for-label(L':Label,NPIS:NetworkProcInfoSet,np pi(network(N:Nat),L:Label,L':Label))
+    = true [label nnpl variant] .
+  eq networkproc-for-label(L':Label,pi(network(N:Nat),L:Label,L':Label))
+    = true [label nnpl variant] .
+  eq not false
+    = true [variant] .
+  eq not true
+    = false [variant] .
+  eq p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = true [label p1-8] .
+  eq p1(none,WIS:WebappProcInfoSet,mtNPIS)
+    = true [label p1-8] .
+  eq p1(none,mtWPIS,NIS:NetworkProcInfoSet)
+    = true [label p1-8] .
+  eq p1(none,mtWPIS,mtNPIS)
+    = true [label p1-8] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-5] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(none,WIS:WebappProcInfoSet,mtNPIS) [label p1-5] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(none,mtWPIS,NIS:NetworkProcInfoSet) [label p1-5] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(mt)>,mtWPIS,mtNPIS)
+    = p1(none,mtWPIS,mtNPIS) [label p1-5] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS) [label p1-3] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,mtWPIS,mtNPIS) [label p1-3] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-4] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(none,WIS:WebappProcInfoSet,mtNPIS) [label p1-4] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS) [label p1-3] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(none,mtWPIS,NIS:NetworkProcInfoSet) [label p1-4] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p1(none,mtWPIS,mtNPIS) [label p1-4] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(mt)>,mtWPIS,mtNPIS) [label p1-3] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(none,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(none,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(none,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(mt)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(none,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(< NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | A:AttributeSet,fromKernel(mt)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-5] .
+  eq p1(< NI:NetProcId | fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(none,WIS:WebappProcInfoSet,mtNPIS) [label p1-5] .
+  eq p1(< NI:NetProcId | fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(none,mtWPIS,NIS:NetworkProcInfoSet) [label p1-5] .
+  eq p1(< NI:NetProcId | fromKernel(mt)>,mtWPIS,mtNPIS)
+    = p1(none,mtWPIS,mtNPIS) [label p1-5] .
+  eq p1(< NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(< NI:NetProcId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(< NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(< NI:NetProcId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS) [label p1-3] .
+  eq p1(< NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(< NI:NetProcId | fromKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(< NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p1(< NI:NetProcId | fromKernel(X@11:MessageList)>,mtWPIS,mtNPIS) [label p1-3] .
+  eq p1(< NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-4] .
+  eq p1(< NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(< NI:NetProcId | fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(< NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(none,WIS:WebappProcInfoSet,mtNPIS) [label p1-4] .
+  eq p1(< NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(< NI:NetProcId | fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS) [label p1-3] .
+  eq p1(< NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(none,mtWPIS,NIS:NetworkProcInfoSet) [label p1-4] .
+  eq p1(< NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(< NI:NetProcId | fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(< NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p1(none,mtWPIS,mtNPIS) [label p1-4] .
+  eq p1(< NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p1(< NI:NetProcId | fromKernel(mt)>,mtWPIS,mtNPIS) [label p1-3] .
+  eq p1(< NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(none,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(< NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(none,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(< NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(none,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(< NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | fromKernel(mt)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(none,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(< NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(< NI:NetProcId | fromKernel(mt)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(< NNPI:NonNetProcId | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-7] .
+  eq p1(< NNPI:NonNetProcId | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(none,WIS:WebappProcInfoSet,mtNPIS) [label p1-7] .
+  eq p1(< NNPI:NonNetProcId | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(none,mtWPIS,NIS:NetworkProcInfoSet) [label p1-7] .
+  eq p1(< NNPI:NonNetProcId | A:AttributeSet >,mtWPIS,mtNPIS)
+    = p1(none,mtWPIS,mtNPIS) [label p1-7] .
+  eq p1(< NNPI:NonNetProcId | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-7] .
+  eq p1(< NNPI:NonNetProcId | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(none,WIS:WebappProcInfoSet,mtNPIS) [label p1-7] .
+  eq p1(< NNPI:NonNetProcId | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(none,mtWPIS,NIS:NetworkProcInfoSet) [label p1-7] .
+  eq p1(< NNPI:NonNetProcId | none >,mtWPIS,mtNPIS)
+    = p1(none,mtWPIS,mtNPIS) [label p1-7] .
+  eq p1(< network | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-6] .
+  eq p1(< network | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(none,WIS:WebappProcInfoSet,mtNPIS) [label p1-6] .
+  eq p1(< network | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(none,mtWPIS,NIS:NetworkProcInfoSet) [label p1-6] .
+  eq p1(< network | A:AttributeSet >,mtWPIS,mtNPIS)
+    = p1(none,mtWPIS,mtNPIS) [label p1-6] .
+  eq p1(< network | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-6] .
+  eq p1(< network | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(none,WIS:WebappProcInfoSet,mtNPIS) [label p1-6] .
+  eq p1(< network | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(none,mtWPIS,NIS:NetworkProcInfoSet) [label p1-6] .
+  eq p1(< network | none >,mtWPIS,mtNPIS)
+    = p1(none,mtWPIS,mtNPIS) [label p1-6] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-5] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p1-5] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p1-5] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(mt)>,mtWPIS,mtNPIS)
+    = p1(C:Configuration,mtWPIS,mtNPIS) [label p1-5] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,mtWPIS,mtNPIS) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-4] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p1-4] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p1-4] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p1(C:Configuration,mtWPIS,mtNPIS) [label p1-4] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(mt)>,mtWPIS,mtNPIS) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(mt)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | A:AttributeSet,fromKernel(mt)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-5] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p1-5] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p1-5] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(mt)>,mtWPIS,mtNPIS)
+    = p1(C:Configuration,mtWPIS,mtNPIS) [label p1-5] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration < NI:NetProcId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(C:Configuration < NI:NetProcId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration < NI:NetProcId | fromKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p1(C:Configuration < NI:NetProcId | fromKernel(X@11:MessageList)>,mtWPIS,mtNPIS) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-4] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration < NI:NetProcId | fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p1-4] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(C:Configuration < NI:NetProcId | fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p1-4] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration < NI:NetProcId | fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p1(C:Configuration,mtWPIS,mtNPIS) [label p1-4] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(PI:PipeId,PI':PipeId,NonFetchMT:NonFetchMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p1(C:Configuration < NI:NetProcId | fromKernel(mt)>,mtWPIS,mtNPIS) [label p1-3] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | fromKernel(mt)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-2] .
+  eq p1(C:Configuration < NI:NetProcId | fromKernel(msg(WI:WebAppId,NI:NetProcId,MSG-FETCH-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p1(C:Configuration < NI:NetProcId | fromKernel(mt)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p1-1] .
+  eq p1(C:Configuration < NNPI:NonNetProcId | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-7] .
+  eq p1(C:Configuration < NNPI:NonNetProcId | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p1-7] .
+  eq p1(C:Configuration < NNPI:NonNetProcId | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p1-7] .
+  eq p1(C:Configuration < NNPI:NonNetProcId | A:AttributeSet >,mtWPIS,mtNPIS)
+    = p1(C:Configuration,mtWPIS,mtNPIS) [label p1-7] .
+  eq p1(C:Configuration < NNPI:NonNetProcId | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-7] .
+  eq p1(C:Configuration < NNPI:NonNetProcId | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p1-7] .
+  eq p1(C:Configuration < NNPI:NonNetProcId | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p1-7] .
+  eq p1(C:Configuration < NNPI:NonNetProcId | none >,mtWPIS,mtNPIS)
+    = p1(C:Configuration,mtWPIS,mtNPIS) [label p1-7] .
+  eq p1(C:Configuration < network | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-6] .
+  eq p1(C:Configuration < network | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p1-6] .
+  eq p1(C:Configuration < network | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p1-6] .
+  eq p1(C:Configuration < network | A:AttributeSet >,mtWPIS,mtNPIS)
+    = p1(C:Configuration,mtWPIS,mtNPIS) [label p1-6] .
+  eq p1(C:Configuration < network | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p1-6] .
+  eq p1(C:Configuration < network | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p1-6] .
+  eq p1(C:Configuration < network | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p1-6] .
+  eq p1(C:Configuration < network | none >,mtWPIS,mtNPIS)
+    = p1(C:Configuration,mtWPIS,mtNPIS) [label p1-6] .
+  eq p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = true [label p4-8] .
+  eq p4(none,WIS:WebappProcInfoSet,mtNPIS)
+    = true [label p4-8] .
+  eq p4(none,mtWPIS,NIS:NetworkProcInfoSet)
+    = true [label p4-8] .
+  eq p4(none,mtWPIS,mtNPIS)
+    = true [label p4-8] .
+  eq p4(< NWAI:NonWebAppId | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-7] .
+  eq p4(< NWAI:NonWebAppId | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(none,WIS:WebappProcInfoSet,mtNPIS) [label p4-7] .
+  eq p4(< NWAI:NonWebAppId | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(none,mtWPIS,NIS:NetworkProcInfoSet) [label p4-7] .
+  eq p4(< NWAI:NonWebAppId | A:AttributeSet >,mtWPIS,mtNPIS)
+    = p4(none,mtWPIS,mtNPIS) [label p4-7] .
+  eq p4(< NWAI:NonWebAppId | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-7] .
+  eq p4(< NWAI:NonWebAppId | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(none,WIS:WebappProcInfoSet,mtNPIS) [label p4-7] .
+  eq p4(< NWAI:NonWebAppId | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(none,mtWPIS,NIS:NetworkProcInfoSet) [label p4-7] .
+  eq p4(< NWAI:NonWebAppId | none >,mtWPIS,mtNPIS)
+    = p4(none,mtWPIS,mtNPIS) [label p4-7] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-5] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(none,WIS:WebappProcInfoSet,mtNPIS) [label p4-5] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(none,mtWPIS,NIS:NetworkProcInfoSet) [label p4-5] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(mt)>,mtWPIS,mtNPIS)
+    = p4(none,mtWPIS,mtNPIS) [label p4-5] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS) [label p4-3] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,mtWPIS,mtNPIS) [label p4-3] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(none,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(none,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(none,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(mt)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(none,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(mt)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-4] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(none,WIS:WebappProcInfoSet,mtNPIS) [label p4-4] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS) [label p4-3] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(none,mtWPIS,NIS:NetworkProcInfoSet) [label p4-4] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p4(none,mtWPIS,mtNPIS) [label p4-4] .
+  eq p4(< WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p4(< WI:WebAppId | A:AttributeSet,fromKernel(mt)>,mtWPIS,mtNPIS) [label p4-3] .
+  eq p4(< WI:WebAppId | A:AttributeSet,toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(< WI:WebAppId | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS) [label p4-I1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,toKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,toKernel(X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p4(< WI:WebAppId | A:AttributeSet >,mtWPIS,mtNPIS) [label p4-I1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(< WI:WebAppId | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS) [label p4-I1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,toKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(< WI:WebAppId | A:AttributeSet,toKernel(mt)>,mtWPIS,mtNPIS)
+    = p4(< WI:WebAppId | A:AttributeSet >,mtWPIS,mtNPIS) [label p4-I1] .
+  eq p4(< WI:WebAppId | fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-5] .
+  eq p4(< WI:WebAppId | fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(none,WIS:WebappProcInfoSet,mtNPIS) [label p4-5] .
+  eq p4(< WI:WebAppId | fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(none,mtWPIS,NIS:NetworkProcInfoSet) [label p4-5] .
+  eq p4(< WI:WebAppId | fromKernel(mt)>,mtWPIS,mtNPIS)
+    = p4(none,mtWPIS,mtNPIS) [label p4-5] .
+  eq p4(< WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(< WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(< WI:WebAppId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS) [label p4-3] .
+  eq p4(< WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | fromKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(< WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p4(< WI:WebAppId | fromKernel(X@11:MessageList)>,mtWPIS,mtNPIS) [label p4-3] .
+  eq p4(< WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(none,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(< WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(none,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(< WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(none,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(< WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | fromKernel(mt)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(none,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(< WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(< WI:WebAppId | fromKernel(mt)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(< WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-4] .
+  eq p4(< WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(< WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(none,WIS:WebappProcInfoSet,mtNPIS) [label p4-4] .
+  eq p4(< WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(< WI:WebAppId | fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS) [label p4-3] .
+  eq p4(< WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(none,mtWPIS,NIS:NetworkProcInfoSet) [label p4-4] .
+  eq p4(< WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(< WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p4(none,mtWPIS,mtNPIS) [label p4-4] .
+  eq p4(< WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p4(< WI:WebAppId | fromKernel(mt)>,mtWPIS,mtNPIS) [label p4-3] .
+  eq p4(< WI:WebAppId | toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(< WI:WebAppId | toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(< WI:WebAppId | none >,WIS:WebappProcInfoSet,mtNPIS) [label p4-I1] .
+  eq p4(< WI:WebAppId | toKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | none >,mtWPIS,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(< WI:WebAppId | toKernel(X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p4(< WI:WebAppId | none >,mtWPIS,mtNPIS) [label p4-I1] .
+  eq p4(< WI:WebAppId | toKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(< WI:WebAppId | toKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(< WI:WebAppId | none >,WIS:WebappProcInfoSet,mtNPIS) [label p4-I1] .
+  eq p4(< WI:WebAppId | toKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(< WI:WebAppId | none >,mtWPIS,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(< WI:WebAppId | toKernel(mt)>,mtWPIS,mtNPIS)
+    = p4(< WI:WebAppId | none >,mtWPIS,mtNPIS) [label p4-I1] .
+  eq p4(< webapp | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-6] .
+  eq p4(< webapp | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(none,WIS:WebappProcInfoSet,mtNPIS) [label p4-6] .
+  eq p4(< webapp | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(none,mtWPIS,NIS:NetworkProcInfoSet) [label p4-6] .
+  eq p4(< webapp | A:AttributeSet >,mtWPIS,mtNPIS)
+    = p4(none,mtWPIS,mtNPIS) [label p4-6] .
+  eq p4(< webapp | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-6] .
+  eq p4(< webapp | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(none,WIS:WebappProcInfoSet,mtNPIS) [label p4-6] .
+  eq p4(< webapp | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(none,mtWPIS,NIS:NetworkProcInfoSet) [label p4-6] .
+  eq p4(< webapp | none >,mtWPIS,mtNPIS)
+    = p4(none,mtWPIS,mtNPIS) [label p4-6] .
+  eq p4(C:Configuration < NWAI:NonWebAppId | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-7] .
+  eq p4(C:Configuration < NWAI:NonWebAppId | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p4-7] .
+  eq p4(C:Configuration < NWAI:NonWebAppId | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p4-7] .
+  eq p4(C:Configuration < NWAI:NonWebAppId | A:AttributeSet >,mtWPIS,mtNPIS)
+    = p4(C:Configuration,mtWPIS,mtNPIS) [label p4-7] .
+  eq p4(C:Configuration < NWAI:NonWebAppId | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-7] .
+  eq p4(C:Configuration < NWAI:NonWebAppId | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p4-7] .
+  eq p4(C:Configuration < NWAI:NonWebAppId | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p4-7] .
+  eq p4(C:Configuration < NWAI:NonWebAppId | none >,mtWPIS,mtNPIS)
+    = p4(C:Configuration,mtWPIS,mtNPIS) [label p4-7] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-5] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p4-5] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p4-5] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(mt)>,mtWPIS,mtNPIS)
+    = p4(C:Configuration,mtWPIS,mtNPIS) [label p4-5] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(X@11:MessageList)>,mtWPIS,mtNPIS) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(mt)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(mt)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-4] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p4-4] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p4-4] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p4(C:Configuration,mtWPIS,mtNPIS) [label p4-4] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet,fromKernel(mt)>,mtWPIS,mtNPIS) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,toKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,toKernel(X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet >,mtWPIS,mtNPIS) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,toKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | A:AttributeSet,toKernel(mt)>,mtWPIS,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | A:AttributeSet >,mtWPIS,mtNPIS) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-5] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p4-5] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p4-5] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(mt)>,mtWPIS,mtNPIS)
+    = p4(C:Configuration,mtWPIS,mtNPIS) [label p4-5] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | fromKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | fromKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | fromKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | fromKernel(X@11:MessageList)>,mtWPIS,mtNPIS) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | fromKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | fromKernel(mt)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-2] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(NI:NetProcId,WI:WebAppId,MSG-RETURN-URL,OUT:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p4(C:Configuration < WI:WebAppId | fromKernel(mt)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p4-1] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-4] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | fromKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p4-4] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | fromKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p4-4] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | fromKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p4(C:Configuration,mtWPIS,mtNPIS) [label p4-4] .
+  eq p4(C:Configuration < WI:WebAppId | fromKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | fromKernel(mt)>,mtWPIS,mtNPIS) [label p4-3] .
+  eq p4(C:Configuration < WI:WebAppId | toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | none >,WIS:WebappProcInfoSet,mtNPIS) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | toKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | none >,mtWPIS,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | toKernel(X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | none >,mtWPIS,mtNPIS) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | toKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | toKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | none >,WIS:WebappProcInfoSet,mtNPIS) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | toKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration < WI:WebAppId | none >,mtWPIS,NIS:NetworkProcInfoSet) [label p4-I1] .
+  eq p4(C:Configuration < WI:WebAppId | toKernel(mt)>,mtWPIS,mtNPIS)
+    = p4(C:Configuration < WI:WebAppId | none >,mtWPIS,mtNPIS) [label p4-I1] .
+  eq p4(C:Configuration < webapp | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-6] .
+  eq p4(C:Configuration < webapp | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p4-6] .
+  eq p4(C:Configuration < webapp | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p4-6] .
+  eq p4(C:Configuration < webapp | A:AttributeSet >,mtWPIS,mtNPIS)
+    = p4(C:Configuration,mtWPIS,mtNPIS) [label p4-6] .
+  eq p4(C:Configuration < webapp | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p4-6] .
+  eq p4(C:Configuration < webapp | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p4-6] .
+  eq p4(C:Configuration < webapp | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p4-6] .
+  eq p4(C:Configuration < webapp | none >,mtWPIS,mtNPIS)
+    = p4(C:Configuration,mtWPIS,mtNPIS) [label p4-6] .
+  eq p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = true [label p5-8] .
+  eq p5(none,WIS:WebappProcInfoSet,mtNPIS)
+    = true [label p5-8] .
+  eq p5(none,mtWPIS,NIS:NetworkProcInfoSet)
+    = true [label p5-8] .
+  eq p5(none,mtWPIS,mtNPIS)
+    = true [label p5-8] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-5] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(none,WIS:WebappProcInfoSet,mtNPIS) [label p5-5] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(none,mtWPIS,NIS:NetworkProcInfoSet) [label p5-5] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(mt)>,mtWPIS,mtNPIS)
+    = p5(none,mtWPIS,mtNPIS) [label p5-5] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS) [label p5-3] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,mtWPIS,mtNPIS) [label p5-3] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-4] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(none,WIS:WebappProcInfoSet,mtNPIS) [label p5-4] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS) [label p5-3] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(none,mtWPIS,NIS:NetworkProcInfoSet) [label p5-4] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p5(none,mtWPIS,mtNPIS) [label p5-4] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(mt)>,mtWPIS,mtNPIS) [label p5-3] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(none,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(none,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(none,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(mt)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(none,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | A:AttributeSet,toKernel(mt)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | toKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-5] .
+  eq p5(< NI:NetProcId | toKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(none,WIS:WebappProcInfoSet,mtNPIS) [label p5-5] .
+  eq p5(< NI:NetProcId | toKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(none,mtWPIS,NIS:NetworkProcInfoSet) [label p5-5] .
+  eq p5(< NI:NetProcId | toKernel(mt)>,mtWPIS,mtNPIS)
+    = p5(none,mtWPIS,mtNPIS) [label p5-5] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(< NI:NetProcId | toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(< NI:NetProcId | toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS) [label p5-3] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(< NI:NetProcId | toKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p5(< NI:NetProcId | toKernel(X@11:MessageList)>,mtWPIS,mtNPIS) [label p5-3] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | toKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | toKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-4] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(< NI:NetProcId | toKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(none,WIS:WebappProcInfoSet,mtNPIS) [label p5-4] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(< NI:NetProcId | toKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS) [label p5-3] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(none,mtWPIS,NIS:NetworkProcInfoSet) [label p5-4] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(< NI:NetProcId | toKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p5(none,mtWPIS,mtNPIS) [label p5-4] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p5(< NI:NetProcId | toKernel(mt)>,mtWPIS,mtNPIS) [label p5-3] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(none,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | toKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(none,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | toKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(none,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | toKernel(mt)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(none,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(< NI:NetProcId | toKernel(mt)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(< NNPI:NonNetProcId | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-7] .
+  eq p5(< NNPI:NonNetProcId | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(none,WIS:WebappProcInfoSet,mtNPIS) [label p5-7] .
+  eq p5(< NNPI:NonNetProcId | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(none,mtWPIS,NIS:NetworkProcInfoSet) [label p5-7] .
+  eq p5(< NNPI:NonNetProcId | A:AttributeSet >,mtWPIS,mtNPIS)
+    = p5(none,mtWPIS,mtNPIS) [label p5-7] .
+  eq p5(< NNPI:NonNetProcId | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-7] .
+  eq p5(< NNPI:NonNetProcId | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(none,WIS:WebappProcInfoSet,mtNPIS) [label p5-7] .
+  eq p5(< NNPI:NonNetProcId | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(none,mtWPIS,NIS:NetworkProcInfoSet) [label p5-7] .
+  eq p5(< NNPI:NonNetProcId | none >,mtWPIS,mtNPIS)
+    = p5(none,mtWPIS,mtNPIS) [label p5-7] .
+  eq p5(< network | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-6] .
+  eq p5(< network | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(none,WIS:WebappProcInfoSet,mtNPIS) [label p5-6] .
+  eq p5(< network | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(none,mtWPIS,NIS:NetworkProcInfoSet) [label p5-6] .
+  eq p5(< network | A:AttributeSet >,mtWPIS,mtNPIS)
+    = p5(none,mtWPIS,mtNPIS) [label p5-6] .
+  eq p5(< network | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-6] .
+  eq p5(< network | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(none,WIS:WebappProcInfoSet,mtNPIS) [label p5-6] .
+  eq p5(< network | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(none,mtWPIS,NIS:NetworkProcInfoSet) [label p5-6] .
+  eq p5(< network | none >,mtWPIS,mtNPIS)
+    = p5(none,mtWPIS,mtNPIS) [label p5-6] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-5] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p5-5] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p5-5] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(mt)>,mtWPIS,mtNPIS)
+    = p5(C:Configuration,mtWPIS,mtNPIS) [label p5-5] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,mtWPIS,mtNPIS) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-4] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p5-4] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p5-4] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p5(C:Configuration,mtWPIS,mtNPIS) [label p5-4] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(mt)>,mtWPIS,mtNPIS) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(mt)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(mt)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-5] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p5-5] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p5-5] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(mt)>,mtWPIS,mtNPIS)
+    = p5(C:Configuration,mtWPIS,mtNPIS) [label p5-5] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration < NI:NetProcId | toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(C:Configuration < NI:NetProcId | toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration < NI:NetProcId | toKernel(X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = p5(C:Configuration < NI:NetProcId | toKernel(X@11:MessageList)>,mtWPIS,mtNPIS) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | toKernel(X@11:MessageList)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | toKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label)@ X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | toKernel(X@11:MessageList)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-4] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration < NI:NetProcId | toKernel(mt)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p5-4] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(C:Configuration < NI:NetProcId | toKernel(mt)>,WIS:WebappProcInfoSet,mtNPIS) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p5-4] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration < NI:NetProcId | toKernel(mt)>,mtWPIS,NIS:NetworkProcInfoSet) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p5(C:Configuration,mtWPIS,mtNPIS) [label p5-4] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,PI':PipeId,NonRetMT:NonRetMsg,OUT:Label))>,mtWPIS,mtNPIS)
+    = p5(C:Configuration < NI:NetProcId | toKernel(mt)>,mtWPIS,mtNPIS) [label p5-3] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | toKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | toKernel(mt)>,WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | toKernel(mt)>,pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-2] .
+  eq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MSG-RETURN-URL,OUT2:Label))>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label))
+    = p5(C:Configuration < NI:NetProcId | toKernel(mt)>,pi(WI:WebAppId,IN:Label),pi(NI:NetProcId,IN:Label,OUT:Label)) [label p5-1] .
+  eq p5(C:Configuration < NNPI:NonNetProcId | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-7] .
+  eq p5(C:Configuration < NNPI:NonNetProcId | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p5-7] .
+  eq p5(C:Configuration < NNPI:NonNetProcId | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p5-7] .
+  eq p5(C:Configuration < NNPI:NonNetProcId | A:AttributeSet >,mtWPIS,mtNPIS)
+    = p5(C:Configuration,mtWPIS,mtNPIS) [label p5-7] .
+  eq p5(C:Configuration < NNPI:NonNetProcId | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-7] .
+  eq p5(C:Configuration < NNPI:NonNetProcId | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p5-7] .
+  eq p5(C:Configuration < NNPI:NonNetProcId | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p5-7] .
+  eq p5(C:Configuration < NNPI:NonNetProcId | none >,mtWPIS,mtNPIS)
+    = p5(C:Configuration,mtWPIS,mtNPIS) [label p5-7] .
+  eq p5(C:Configuration < network | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-6] .
+  eq p5(C:Configuration < network | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p5-6] .
+  eq p5(C:Configuration < network | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p5-6] .
+  eq p5(C:Configuration < network | A:AttributeSet >,mtWPIS,mtNPIS)
+    = p5(C:Configuration,mtWPIS,mtNPIS) [label p5-6] .
+  eq p5(C:Configuration < network | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet) [label p5-6] .
+  eq p5(C:Configuration < network | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,mtNPIS) [label p5-6] .
+  eq p5(C:Configuration < network | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p5-6] .
+  eq p5(C:Configuration < network | none >,mtWPIS,mtNPIS)
+    = p5(C:Configuration,mtWPIS,mtNPIS) [label p5-6] .
+  eq webapp(N:Nat,mtWPIS)
+    = false [label nwaf] .
+  eq webapp(N:Nat,WPIS:WebappProcInfoSet,wp pi(webapp(N:Nat),L:Label))
+    = true [label nwa variant] .
+  eq webapp(N:Nat,pi(webapp(N:Nat),L:Label))
+    = true [label nwa variant] .
+  ceq networkproc(N:Nat,NPIS:NetworkProcInfoSet,np pi(network(N':Nat),L:Label,L':Label))
+    = networkproc(N:Nat,NPIS:NetworkProcInfoSet)
+    if N:Nat ~n N':Nat = false [label nnp2] .
+  ceq networkproc(N:Nat,pi(network(N':Nat),L:Label,L':Label))
+    = networkproc(N:Nat,mtNPIS)
+    if N:Nat ~n N':Nat = false [label nnp2] .
+  ceq networkproc-for-label(L':Label,NPIS:NetworkProcInfoSet,np pi(network(N:Nat),L:Label,L'':Label))
+    = networkproc-for-label(L':Label,NPIS:NetworkProcInfoSet)
+    if L':Label ~l L'':Label = false [label nnpl2] .
+  ceq networkproc-for-label(L':Label,pi(network(N:Nat),L:Label,L'':Label))
+    = networkproc-for-label(L':Label,mtNPIS)
+    if L':Label ~l L'':Label = false [label nnpl2] .
+  ceq p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
+    = p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    if fresh-np-id(N:Nat,C:Configuration)= true [label p1-A] .
+  ceq p1(C:Configuration,WIS:WebappProcInfoSet,pi(network(N:Nat),IN:Label,OUT:Label))
+    = p1(C:Configuration,WIS:WebappProcInfoSet,mtNPIS)
+    if fresh-np-id(N:Nat,C:Configuration)= true [label p1-A] .
+  ceq p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
+    = p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet)
+    if fresh-np-id(N:Nat,C:Configuration)= true [label p1-A] .
+  ceq p1(C:Configuration,mtWPIS,pi(network(N:Nat),IN:Label,OUT:Label))
+    = p1(C:Configuration,mtWPIS,mtNPIS)
+    if fresh-np-id(N:Nat,C:Configuration)= true [label p1-A] .
+  ceq p1(C:Configuration,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    if fresh-wa-id(W:Nat,C:Configuration)= true [label p1-9] .
+  ceq p1(C:Configuration,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),mtNPIS)
+    = p1(C:Configuration,WIS:WebappProcInfoSet,mtNPIS)
+    if fresh-wa-id(W:Nat,C:Configuration)= true [label p1-9] .
+  ceq p1(C:Configuration,pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
+    = p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet)
+    if fresh-wa-id(W:Nat,C:Configuration)= true [label p1-9] .
+  ceq p1(C:Configuration,pi(webapp(W:Nat),IN:Label),mtNPIS)
+    = p1(C:Configuration,mtWPIS,mtNPIS)
+    if fresh-wa-id(W:Nat,C:Configuration)= true [label p1-9] .
+  ceq p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
+    = p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    if fresh-np-id(N:Nat,none)= true [label p1-A] .
+  ceq p1(none,WIS:WebappProcInfoSet,pi(network(N:Nat),IN:Label,OUT:Label))
+    = p1(none,WIS:WebappProcInfoSet,mtNPIS)
+    if fresh-np-id(N:Nat,none)= true [label p1-A] .
+  ceq p1(none,mtWPIS,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
+    = p1(none,mtWPIS,NIS:NetworkProcInfoSet)
+    if fresh-np-id(N:Nat,none)= true [label p1-A] .
+  ceq p1(none,mtWPIS,pi(network(N:Nat),IN:Label,OUT:Label))
+    = p1(none,mtWPIS,mtNPIS)
+    if fresh-np-id(N:Nat,none)= true [label p1-A] .
+  ceq p1(none,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
+    = p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    if fresh-wa-id(W:Nat,none)= true [label p1-9] .
+  ceq p1(none,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),mtNPIS)
+    = p1(none,WIS:WebappProcInfoSet,mtNPIS)
+    if fresh-wa-id(W:Nat,none)= true [label p1-9] .
+  ceq p1(none,pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
+    = p1(none,mtWPIS,NIS:NetworkProcInfoSet)
+    if fresh-wa-id(W:Nat,none)= true [label p1-9] .
+  ceq p1(none,pi(webapp(W:Nat),IN:Label),mtNPIS)
+    = p1(none,mtWPIS,mtNPIS)
+    if fresh-wa-id(W:Nat,none)= true [label p1-9] .
+  ceq p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
+    = p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    if fresh-np-id(N:Nat,C:Configuration)= true [label p4-A] .
+  ceq p4(C:Configuration,WIS:WebappProcInfoSet,pi(network(N:Nat),IN:Label,OUT:Label))
+    = p4(C:Configuration,WIS:WebappProcInfoSet,mtNPIS)
+    if fresh-np-id(N:Nat,C:Configuration)= true [label p4-A] .
+  ceq p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
+    = p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet)
+    if fresh-np-id(N:Nat,C:Configuration)= true [label p4-A] .
+  ceq p4(C:Configuration,mtWPIS,pi(network(N:Nat),IN:Label,OUT:Label))
+    = p4(C:Configuration,mtWPIS,mtNPIS)
+    if fresh-np-id(N:Nat,C:Configuration)= true [label p4-A] .
+  ceq p4(C:Configuration,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    if fresh-wa-id(W:Nat,C:Configuration)= true [label p4-9] .
+  ceq p4(C:Configuration,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),mtNPIS)
+    = p4(C:Configuration,WIS:WebappProcInfoSet,mtNPIS)
+    if fresh-wa-id(W:Nat,C:Configuration)= true [label p4-9] .
+  ceq p4(C:Configuration,pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
+    = p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet)
+    if fresh-wa-id(W:Nat,C:Configuration)= true [label p4-9] .
+  ceq p4(C:Configuration,pi(webapp(W:Nat),IN:Label),mtNPIS)
+    = p4(C:Configuration,mtWPIS,mtNPIS)
+    if fresh-wa-id(W:Nat,C:Configuration)= true [label p4-9] .
+  ceq p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
+    = p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    if fresh-np-id(N:Nat,none)= true [label p4-A] .
+  ceq p4(none,WIS:WebappProcInfoSet,pi(network(N:Nat),IN:Label,OUT:Label))
+    = p4(none,WIS:WebappProcInfoSet,mtNPIS)
+    if fresh-np-id(N:Nat,none)= true [label p4-A] .
+  ceq p4(none,mtWPIS,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
+    = p4(none,mtWPIS,NIS:NetworkProcInfoSet)
+    if fresh-np-id(N:Nat,none)= true [label p4-A] .
+  ceq p4(none,mtWPIS,pi(network(N:Nat),IN:Label,OUT:Label))
+    = p4(none,mtWPIS,mtNPIS)
+    if fresh-np-id(N:Nat,none)= true [label p4-A] .
+  ceq p4(none,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
+    = p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    if fresh-wa-id(W:Nat,none)= true [label p4-9] .
+  ceq p4(none,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),mtNPIS)
+    = p4(none,WIS:WebappProcInfoSet,mtNPIS)
+    if fresh-wa-id(W:Nat,none)= true [label p4-9] .
+  ceq p4(none,pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
+    = p4(none,mtWPIS,NIS:NetworkProcInfoSet)
+    if fresh-wa-id(W:Nat,none)= true [label p4-9] .
+  ceq p4(none,pi(webapp(W:Nat),IN:Label),mtNPIS)
+    = p4(none,mtWPIS,mtNPIS)
+    if fresh-wa-id(W:Nat,none)= true [label p4-9] .
+  ceq p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
+    = p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    if fresh-np-id(N:Nat,C:Configuration)= true [label p5-A] .
+  ceq p5(C:Configuration,WIS:WebappProcInfoSet,pi(network(N:Nat),IN:Label,OUT:Label))
+    = p5(C:Configuration,WIS:WebappProcInfoSet,mtNPIS)
+    if fresh-np-id(N:Nat,C:Configuration)= true [label p5-A] .
+  ceq p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
+    = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet)
+    if fresh-np-id(N:Nat,C:Configuration)= true [label p5-A] .
+  ceq p5(C:Configuration,mtWPIS,pi(network(N:Nat),IN:Label,OUT:Label))
+    = p5(C:Configuration,mtWPIS,mtNPIS)
+    if fresh-np-id(N:Nat,C:Configuration)= true [label p5-A] .
+  ceq p5(C:Configuration,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    if fresh-wa-id(W:Nat,C:Configuration)= true [label p5-9] .
+  ceq p5(C:Configuration,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),mtNPIS)
+    = p5(C:Configuration,WIS:WebappProcInfoSet,mtNPIS)
+    if fresh-wa-id(W:Nat,C:Configuration)= true [label p5-9] .
+  ceq p5(C:Configuration,pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
+    = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet)
+    if fresh-wa-id(W:Nat,C:Configuration)= true [label p5-9] .
+  ceq p5(C:Configuration,pi(webapp(W:Nat),IN:Label),mtNPIS)
+    = p5(C:Configuration,mtWPIS,mtNPIS)
+    if fresh-wa-id(W:Nat,C:Configuration)= true [label p5-9] .
+  ceq p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
+    = p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    if fresh-np-id(N:Nat,none)= true [label p5-A] .
+  ceq p5(none,WIS:WebappProcInfoSet,pi(network(N:Nat),IN:Label,OUT:Label))
+    = p5(none,WIS:WebappProcInfoSet,mtNPIS)
+    if fresh-np-id(N:Nat,none)= true [label p5-A] .
+  ceq p5(none,mtWPIS,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
+    = p5(none,mtWPIS,NIS:NetworkProcInfoSet)
+    if fresh-np-id(N:Nat,none)= true [label p5-A] .
+  ceq p5(none,mtWPIS,pi(network(N:Nat),IN:Label,OUT:Label))
+    = p5(none,mtWPIS,mtNPIS)
+    if fresh-np-id(N:Nat,none)= true [label p5-A] .
+  ceq p5(none,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
+    = p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    if fresh-wa-id(W:Nat,none)= true [label p5-9] .
+  ceq p5(none,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),mtNPIS)
+    = p5(none,WIS:WebappProcInfoSet,mtNPIS)
+    if fresh-wa-id(W:Nat,none)= true [label p5-9] .
+  ceq p5(none,pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
+    = p5(none,mtWPIS,NIS:NetworkProcInfoSet)
+    if fresh-wa-id(W:Nat,none)= true [label p5-9] .
+  ceq p5(none,pi(webapp(W:Nat),IN:Label),mtNPIS)
+    = p5(none,mtWPIS,mtNPIS)
+    if fresh-wa-id(W:Nat,none)= true [label p5-9] .
+  ceq webapp(N:Nat,WPIS:WebappProcInfoSet,wp pi(webapp(N':Nat),L:Label))
+    = webapp(N:Nat,WPIS:WebappProcInfoSet)
+    if N:Nat ~n N':Nat = false [label nwa2] .
+  ceq webapp(N:Nat,pi(webapp(N':Nat),L:Label))
+    = webapp(N:Nat,mtWPIS)
+    if N:Nat ~n N':Nat = false [label nwa2] .
+endfm

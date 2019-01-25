@@ -1,4 +1,5 @@
-load ibos-sop-removeid.maude
+load ibos-sop-base.maude
+load ibos-sop-base-noid.maude
 
 set show advisories off .
 set print attribute on .
