@@ -39,8 +39,8 @@ load ../../systems/ibos.maude
 ---     us is that if the message is received by a real webapp, then it will satisfy the
 ---     conditions above
 
-mod IBOS-EXT is
-  pr IBOS-STOP .
+fmod KERNEL-POLICIES-NONFVP-EXT is
+  pr KERNEL-POLICIES-NONFVP .
 
   var C : Configuration .
   var W N M : Nat .
@@ -101,10 +101,10 @@ mod IBOS-EXT is
   eq fresh-wa-id(N,     < webapp        | A > C) = fresh-wa-id(N,C) .
   eq fresh-wa-id(N,     < NWAI          | A > C) = fresh-wa-id(N,C) .
   eq fresh-wa-id(N,     none                   ) = true .
-endm
+endfm
 
-mod IBOS-SOP is
-  pr IBOS-EXT .
+fmod IBOS-SOP-PRED is
+  pr KERNEL-POLICIES-NONFVP-EXT .
 
   var C : Configuration .
   var W N : Nat .
@@ -234,4 +234,9 @@ mod IBOS-SOP is
 
   op label-for-netproc : NetProcId NetworkProcInfoSet -> Label [metadata "94"] .
   eq label-for-netproc(NI,(pi(NI,IN,OUT),np NIS)) = IN .
+endfm
+
+mod IBOS-SOP is
+  pr IBOS-SOP-PRED .
+  pr IBOS-STOP .
 endm

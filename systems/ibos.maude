@@ -301,7 +301,7 @@ fmod NIC is inc SYS . inc LABEL-SET . inc LABEL-LIST .
   op nic-in  : LabelList -> Attribute [ctor metadata "63"] .
 endfm
 
-fmod KERNEL-POLICIES is
+fmod KERNEL-POLICIES-FVP is
   inc SYS             .
   inc BOOL-NO-BUILTIN .
   inc MSG             .
@@ -410,6 +410,11 @@ fmod KERNEL-POLICIES is
   **** message to be sent - initial policy set defined in RUN
   **** Transformed into labeled conditional rules in module KERNEL
   ****
+endfm
+
+fmod KERNEL-POLICIES-NONFVP is
+  pr KERNEL-POLICIES-FVP .
+
   var L L' L'' : Label . var N N' : Nat .
   var NI NI' : NetProcId . var WI WI' : WebAppId .
   var NPIS : NetworkProcInfoSet . var WPIS : WebappProcInfoSet .
@@ -445,7 +450,7 @@ endfm
 
 mod KERNEL is
   **** A lot of the 'kernel' things are found above in 'KERNEL-POLICIES' instead
-  inc KERNEL-POLICIES .
+  inc KERNEL-POLICIES-NONFVP .
 
   var Att Att2    : AttributeSet .
   var Att3        : AttributeSet .
