@@ -1660,6 +1660,7 @@ endfm
 
 fmod STMT-EXTRA is
   pr META-LEVEL .
+  pr TERM-EXTRA .
 
   var M : Module . var R R' : Rule . var RS : RuleSet . var Q : Qid . var Y : Sort .
   var U V : Term . var A : AttrSet . var C : Condition . var EC : EqCondition .
@@ -1706,6 +1707,28 @@ fmod STMT-EXTRA is
   op _-_ : EquationSet EquationSet -> EquationSet .
   eq (E ES) - (E ES') = ES - (E ES') .
   eq ES - ES'         = ES [owise] .
+
+  op vars : RuleSet -> QidSet .
+  eq vars(rl U => V [A]. RS) = vars(U) ; vars(V) ; vars(RS) .
+  eq vars(crl U => V if C [A]. RS) = vars(U) ; vars(V) ; vars(C) ; vars(RS) .
+  eq vars((none).RuleSet) = (none).QidSet .
+
+  op vars : EquationSet -> QidSet .
+  eq vars(eq U = V [A]. ES) = vars(U) ; vars(V) ; vars(ES) .
+  eq vars(ceq U = V if EC [A]. ES) = vars(U) ; vars(V) ; vars(EC) ; vars(ES) .
+  eq vars((none).EquationSet) = (none).QidSet .
+
+  op vars : MembAxSet -> QidSet .
+  eq vars(mb U : Y [A]. BS) = vars(U) ; vars(BS) .
+  eq vars(cmb U : Y if EC [A]. BS) = vars(U) ; vars(EC) ; vars(BS) .
+  eq vars((none).MembAxSet) = (none).QidSet .
+
+  op vars : Condition -> QidSet .
+  eq vars(U = V  /\ C) = vars(U) ; vars(V) ; vars(C) .
+  eq vars(U := V /\ C) = vars(U) ; vars(V) ; vars(C) .
+  eq vars(U : Y  /\ C) = vars(U) ; vars(C) .
+  eq vars(U => V /\ C) = vars(U) ; vars(V) ; vars(C) .
+  eq vars((nil).EqCondition) = (none).QidSet .
 endfm
 
 --- this module has functionality to generate unique prefixes with
