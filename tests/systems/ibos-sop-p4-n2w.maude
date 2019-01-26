@@ -36,7 +36,8 @@ loop rltl-init .
 
 (select-rls new-url stop .)
 
-(use tool conrew for validity on IBOS-SOP with FOFORMSIMPLIFY-IMPL .)
+(use tool conrew for validity on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMPL .)
+(use tool varsat for validity on KERNEL-POLICIES-NONFVP .)
 (declare-vars (C:NeConfiguration) U (WPIS:WebappProcInfoSet) U (NPIS:NetworkProcInfoSet) U (MSG:Message) U
               (PS:PolicySet) U (NNP:Nat) U (NWA:Nat) U (U:Label) U (B:Bool) U (B':Bool) .)
 (def-term-set ([C]) | true .)
@@ -63,14 +64,5 @@ loop rltl-init .
 --- print conceal mod_is_sorts_._____endm fmod_is_sorts_.____endfm _;;_ ((_:_)) __ .
 --- break select simp-action step-action .
 (auto .)
----(
-(auto .)
----(cases ({< kernel | handledCurrently(msg(N:NetProcId,W:WebAppId,MT:MsgType,OUT:Label)), AS:AttributeSet > C}) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
----(cases+ ({C}) | ((true) = (B' a (B o (false ~ (MSG-RETURN-URL ~ MT:MsgType))))) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
---- set break on .
---- set print conceal on .
---- print conceal mod_is_sorts_._____endm fmod_is_sorts_.____endfm _;;_ ((_:_)) __ .
---- break select form-check .
-(auto .)
-(auto .)
----)
+--- (cases ({< kernel | handledCurrently(msg(N:NetProcId,W:WebAppId,MT:MsgType,OUT:Label)), AS:AttributeSet > C}) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
+--- (cases+ ({C}) | ((true) = (B' a (B o (false ~ (MSG-RETURN-URL ~ MT:MsgType))))) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
