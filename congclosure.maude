@@ -205,7 +205,7 @@ fmod CONG-CLOSURE-LIB is
   var PC : PosEqConj .
   var PC? : PosEqConj? .
   var S : Substitution .
-  var M2OMap : QidPairSet .
+  var U2OMap : QidPairSet .
   var MRL : List{MRule<} .
 
   op congClosure : Module PosEqConj -> CCResult .
@@ -219,11 +219,13 @@ fmod CONG-CLOSURE-LIB is
   eq congClosure1(U,IDS,PC) =
     congClosure2(enrichModuleForCongClosure(U,| IDS |,vars(PC)),IDS,PC) .
 
+  --- NOTE: two unsortify inverse maps below never conflict because:
+  ---       one maps only constants and the other only variables
   op congClosure2 : CCResult QidSet PosEqConj -> CCResult .
   eq congClosure2((UCC,S,ID-ES),IDS,PC) =
     congClosure3(UCC,
                  S,
-		 unsortify-1(UCC),
+		 unsortify-1(UCC) | unsortify-1(vars(ID-ES)),
 		 init-acu-cc(
 		   unsortify(getSig(UCC)),
 		   unsortify(ID-ES),
@@ -231,9 +233,9 @@ fmod CONG-CLOSURE-LIB is
 		   toMRules(unsortify(UCC),unsortify(PC << S)))) .
 
   op congClosure3 : Module Substitution QidPairSet CCState -> CCResult .
-  eq congClosure3(UCC,S,M2OMap,[ES,N,MRL]) =
+  eq congClosure3(UCC,S,U2OMap,[ES,N,MRL]) =
     if MRL == nil
-      then (UCC,S,apply(M2OMap,true,ES))
+      then (UCC,S,apply(U2OMap,true,ES))
       else errCCResult('Congruence 'closure 'failed!)
     fi .
 
