@@ -229,6 +229,7 @@ fmod UNSORTIFY is
   --- inverse transform intermediate data struct
   op unsortify-1 : Module -> QidPairSet .
   op unsortify-1 : Module OpDeclSet QidPairSet -> QidPairSet .
+  op unsortify-1 : QidSet -> QidPairSet .
 
   eq unsortify(M) =
     setRls(
@@ -316,4 +317,8 @@ fmod UNSORTIFY is
 	else qp(join(Q '.U),join(Q '. TY))
       fi) .
   eq unsortify-1(M,(none).OpDeclSet,QPS) = QPS .
+
+  eq unsortify-1(C ; QS) = qp(join(getName(C) '.U),C) | unsortify-1(QS) .
+  eq unsortify-1(V ; QS) = qp(join(getName(V) ':U),V) | unsortify-1(QS) .
+  eq unsortify-1(none)   = none .
 endfm
