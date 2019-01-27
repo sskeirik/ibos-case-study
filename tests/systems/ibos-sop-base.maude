@@ -54,55 +54,34 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var MSGL : MessageList .
   var L : Label .
 
-  --- equality predicate for message types
-  op _~m_ : MsgType MsgType -> Bool [comm metadata "86"] .
-  eq X:MsgType      ~m X:MsgType      = true .
-  eq MSG-NEW-URL    ~m MSG-FETCH-URL  = false .
-  eq MSG-NEW-URL    ~m MSG-RETURN-URL = false .
-  eq MSG-NEW-URL    ~m MSG-SWITCH-TAB = false .
-  eq MSG-FETCH-URL  ~m MSG-RETURN-URL = false .
-  eq MSG-FETCH-URL  ~m MSG-SWITCH-TAB = false .
-  eq MSG-RETURN-URL ~m MSG-SWITCH-TAB = false .
-
-  --- for simplified case analysis
-  sort NonRetFetchMsg NonRetMsg NonFetchMsg .
-  subsort NonRetFetchMsg < NonRetMsg NonFetchMsg < MsgType .
-  op MSG-NEW-URL    : -> NonRetFetchMsg [ctor metadata "44"] .
-  op MSG-FETCH-URL  : -> NonRetMsg      [ctor metadata "45"] .
-  op MSG-RETURN-URL : -> NonFetchMsg    [ctor metadata "46"] .
-  op MSG-SWITCH-TAB : -> NonRetFetchMsg [ctor metadata "47"] .
-  ----------------------------------------------------
-  eq MSG-RETURN-URL ~m M:NonRetMsg   = false .
-  eq MSG-FETCH-URL  ~m M:NonFetchMsg = false .
-
   --- duplicates can ignore attributes
-  op dupl : Configuration -> Bool [metadata "87"] .
-  eq dupl(< PI | A > < PI | A' > C) = true .
-  eq dupl(< PI | toKernel(MSGL),      A > C) = dupl(< PI | A > C) .
-  eq dupl(< PI | fromKernel(MSGL),    A > C) = dupl(< PI | A > C) .
-  eq dupl(< PI | activeWebapp(WAI),   A > C) = dupl(< PI | A > C) .
-  eq dupl(< PI | displayedContent(L), A > C) = dupl(< PI | A > C) .
-  eq dupl(< network(N) | A > < kernel    | nextNetworkProc(N + 1), A' > C) = dupl(< kernel    | nextNetworkProc(N), A' > C) .
-  eq dupl(< webapp(W)  | A > < webappmgr | nextWAN(W + 1),         A' > C) = dupl(< webappmgr | nextWAN(W),         A' > C) .
-  eq dupl(< PI | A >) = false .
-  eq dupl(none) = false .
- ceq dupl(< PI | none > < PI' | none > C) = dupl(< PI | none > C) and dupl(< PI' | none > C) if PI ~p PI' = false .
+  op dupl? : Configuration -> Bool [metadata "87"] .
+  eq dupl?(< PI | A > < PI | A' > C) = true .
+  eq dupl?(< PI | toKernel(MSGL),      A > C) = dupl?(< PI | A > C) .
+  eq dupl?(< PI | fromKernel(MSGL),    A > C) = dupl?(< PI | A > C) .
+  eq dupl?(< PI | activeWebapp(WAI),   A > C) = dupl?(< PI | A > C) .
+  eq dupl?(< PI | displayedContent(L), A > C) = dupl?(< PI | A > C) .
+  eq dupl?(< network(N) | A > < kernel    | nextNetworkProc(N + 1), A' > C) = dupl?(< kernel    | nextNetworkProc(N), A' > C) .
+  eq dupl?(< webapp(W)  | A > < webappmgr | nextWAN(W + 1),         A' > C) = dupl?(< webappmgr | nextWAN(W),         A' > C) .
+  eq dupl?(< PI | A >) = false .
+  eq dupl?(none) = false .
+ ceq dupl?(< PI | none > < PI' | none > C) = dupl?(< PI | none > C) and dupl?(< PI' | none > C) if PI ~p PI' = false .
 
-  op fresh-np-id : Nat Configuration -> Bool [metadata "88"] .
-  eq fresh-np-id(N,     < network(N + M) | A > C) = false .
-  eq fresh-np-id(N + P, < network(N)     | A > C) = fresh-np-id(N + P,C) .
-  eq fresh-np-id(N,     < network        | A > C) = fresh-np-id(N,C) .
-  eq fresh-np-id(N,     < NNPI           | A > C) = fresh-np-id(N,C) .
-  eq fresh-np-id(N,     none                    ) = true .
- ceq fresh-np-id(N + 1,                        C) = true if fresh-np-id(N,C) .
+  op fresh-np-id? : Nat Configuration -> Bool [metadata "88"] .
+  eq fresh-np-id?(N,     < network(N + M) | A > C) = false .
+  eq fresh-np-id?(N + P, < network(N)     | A > C) = fresh-np-id?(N + P,C) .
+  eq fresh-np-id?(N,     < network        | A > C) = fresh-np-id?(N,C) .
+  eq fresh-np-id?(N,     < NNPI           | A > C) = fresh-np-id?(N,C) .
+  eq fresh-np-id?(N,     none                    ) = true .
+ ceq fresh-np-id?(N + 1,                        C) = true if fresh-np-id?(N,C) .
 
-  op fresh-wa-id : Nat Configuration -> Bool [metadata "89"] .
-  eq fresh-wa-id(N,     < webapp(N + M) | A > C) = false .
-  eq fresh-wa-id(N + P, < webapp(N)     | A > C) = fresh-wa-id(N + P,C) .
-  eq fresh-wa-id(N,     < webapp        | A > C) = fresh-wa-id(N,C) .
-  eq fresh-wa-id(N,     < NWAI          | A > C) = fresh-wa-id(N,C) .
-  eq fresh-wa-id(N,     none                   ) = true .
- ceq fresh-wa-id(N + 1,                       C) = true if fresh-wa-id(N,C) .
+  op fresh-wa-id? : Nat Configuration -> Bool [metadata "89"] .
+  eq fresh-wa-id?(N,     < webapp(N + M) | A > C) = false .
+  eq fresh-wa-id?(N + P, < webapp(N)     | A > C) = fresh-wa-id?(N + P,C) .
+  eq fresh-wa-id?(N,     < webapp        | A > C) = fresh-wa-id?(N,C) .
+  eq fresh-wa-id?(N,     < NWAI          | A > C) = fresh-wa-id?(N,C) .
+  eq fresh-wa-id?(N,     none                   ) = true .
+ ceq fresh-wa-id?(N + 1,                       C) = true if fresh-wa-id?(N,C) .
 endfm
 
 fmod IBOS-SOP-PRED is
@@ -171,8 +150,8 @@ fmod IBOS-SOP-PRED is
 
   eq [p1-8] : p1(none, WIS, NIS) = true .
 
- ceq [p1-9] : p1(C,(pi(webapp(W),IN),wp WIS),                          NIS ) = p1(C,WIS,NIS) if fresh-wa-id(W,C) .
- ceq [p1-A] : p1(C,                     WIS ,(pi(network(N),IN,OUT),np NIS)) = p1(C,WIS,NIS) if fresh-np-id(N,C) .
+ ceq [p1-9] : p1(C,(pi(webapp(W),IN),wp WIS),                          NIS ) = p1(C,WIS,NIS) if fresh-wa-id?(W,C) .
+ ceq [p1-A] : p1(C,                     WIS ,(pi(network(N),IN,OUT),np NIS)) = p1(C,WIS,NIS) if fresh-np-id?(N,C) .
 
   -----------------------------------------------------------------------
   --- True if every RETURN-URL message sent to every webapp is consistent
@@ -193,8 +172,8 @@ fmod IBOS-SOP-PRED is
 
   eq [p4-8] : p4(none, WIS, NIS) = true .
 
- ceq [p4-9] : p4(C,(pi(webapp(W),IN),wp WIS),                          NIS ) = p4(C,WIS,NIS) if fresh-wa-id(W,C) .
- ceq [p4-A] : p4(C,                     WIS ,(pi(network(N),IN,OUT),np NIS)) = p4(C,WIS,NIS) if fresh-np-id(N,C) .
+ ceq [p4-9] : p4(C,(pi(webapp(W),IN),wp WIS),                          NIS ) = p4(C,WIS,NIS) if fresh-wa-id?(W,C) .
+ ceq [p4-A] : p4(C,                     WIS ,(pi(network(N),IN,OUT),np NIS)) = p4(C,WIS,NIS) if fresh-np-id?(N,C) .
 
   eq [p4-I1] : p4(C < WI | toKernel(ML), A >,WIS,NIS) = p4(C < WI | A >,WIS,NIS) .
 
@@ -219,8 +198,8 @@ fmod IBOS-SOP-PRED is
 
   eq [p5-8] : p5(none, WIS, NIS) = true .
 
- ceq [p5-9] : p5(C,(pi(webapp(W),IN),wp WIS),                          NIS ) = p5(C,WIS,NIS) if fresh-wa-id(W,C) .
- ceq [p5-A] : p5(C,                     WIS ,(pi(network(N),IN,OUT),np NIS)) = p5(C,WIS,NIS) if fresh-np-id(N,C) .
+ ceq [p5-9] : p5(C,(pi(webapp(W),IN),wp WIS),                          NIS ) = p5(C,WIS,NIS) if fresh-wa-id?(W,C) .
+ ceq [p5-A] : p5(C,                     WIS ,(pi(network(N),IN,OUT),np NIS)) = p5(C,WIS,NIS) if fresh-np-id?(N,C) .
 
   ------------------------------------------------------------------------------
   --- True if every RETURN-URL message currently handled by kernel is consistent
@@ -231,14 +210,15 @@ fmod IBOS-SOP-PRED is
   eq ch-p14(msg(NI,WI,MSG-RETURN-URL,OUT2), (pi(WI,IN),wp WIS), (pi(NI,IN,OUT),np NIS),N) = true .
   eq ch-p14(msg(NI,WI,NonRetMT,OUT), WIS, NIS, N) = true .
  ceq ch-p14(msg(WI,NI,MT,OUT), (pi(WI,IN),wp WIS), NIS, N) = true
-  if (not networkproc-for-label(IN,NIS)) or label-for-netproc(NI,NIS) ~l IN .
+  if (not networkproc-for-label?(IN,NIS)) or label-for-netproc?(NI,NIS) ~l IN .
   eq ch-p14(none,WIS,NIS,N) = true .
 
-  op label-for-netproc : NetProcId NetworkProcInfoSet -> Label [metadata "94"] .
-  eq label-for-netproc(NI,(pi(NI,IN,OUT),np NIS)) = IN .
+  op label-for-netproc? : NetProcId NetworkProcInfoSet -> Label [metadata "94"] .
+  eq label-for-netproc?(NI,(pi(NI,IN,OUT),np NIS)) = IN .
 endfm
 
 mod IBOS-SOP is
   pr IBOS-SOP-PRED .
   pr IBOS-STOP .
 endm
+

@@ -192,6 +192,27 @@ fmod MSG is pr PROC-ID . pr LABEL .
   op MSG-RETURN-URL : -> MsgType [ctor metadata "46"] . --- stores data that was fetched from internet by MSG-FETCH-URL
   op MSG-SWITCH-TAB : -> MsgType [ctor metadata "47"] . --- causes displayed tab to be switched
   op msg  : ProcessId ProcessId MsgType Label -> Message [ctor metadata "48"] .
+
+  --- equality predicate for message types
+  op _~m_ : MsgType MsgType -> Bool [comm metadata "86"] .
+  eq X:MsgType      ~m X:MsgType      = true .
+  eq MSG-NEW-URL    ~m MSG-FETCH-URL  = false .
+  eq MSG-NEW-URL    ~m MSG-RETURN-URL = false .
+  eq MSG-NEW-URL    ~m MSG-SWITCH-TAB = false .
+  eq MSG-FETCH-URL  ~m MSG-RETURN-URL = false .
+  eq MSG-FETCH-URL  ~m MSG-SWITCH-TAB = false .
+  eq MSG-RETURN-URL ~m MSG-SWITCH-TAB = false .
+
+  --- for simplified case analysis
+  sort NonRetFetchMsg NonRetMsg NonFetchMsg .
+  subsort NonRetFetchMsg < NonRetMsg NonFetchMsg < MsgType .
+  op MSG-NEW-URL    : -> NonRetFetchMsg [ctor metadata "44"] .
+  op MSG-FETCH-URL  : -> NonRetMsg      [ctor metadata "45"] .
+  op MSG-RETURN-URL : -> NonFetchMsg    [ctor metadata "46"] .
+  op MSG-SWITCH-TAB : -> NonRetFetchMsg [ctor metadata "47"] .
+  ----------------------------------------------------
+  eq MSG-RETURN-URL ~m M:NonRetMsg   = false .
+  eq MSG-FETCH-URL  ~m M:NonFetchMsg = false .
 endfm
 
 fmod MSG-LIST is pr MSG .
@@ -420,32 +441,32 @@ fmod KERNEL-POLICIES-NONFVP is
   var NPIS : NetworkProcInfoSet . var WPIS : WebappProcInfoSet .
 
   **** auxiliary function for checking that a network process links to a given label
-  op networkproc-for-label : Label NetworkProcInfoSet -> Bool [metadata "79"] .
-  eq [nnpl] : networkproc-for-label(L',(pi(network(N),L,L') ,np NPIS)) = true [variant] .
- ceq [nnpl2] : networkproc-for-label(L',(pi(network(N),L,L'') ,np NPIS)) = networkproc-for-label(L',NPIS) if L' ~l L'' = false .
-  eq [nnplf] : networkproc-for-label(L',mtNPIS) = false .
+  op networkproc-for-label? : Label NetworkProcInfoSet -> Bool [metadata "79"] .
+  eq [nnpl] : networkproc-for-label?(L',(pi(network(N),L,L') ,np NPIS)) = true [variant] .
+ ceq [nnpl2] : networkproc-for-label?(L',(pi(network(N),L,L'') ,np NPIS)) = networkproc-for-label?(L',NPIS) if L' ~l L'' = false .
+  eq [nnplf] : networkproc-for-label?(L',mtNPIS) = false .
   **** auxiliary functions for checking connections for network procs and
   **** webapps in the information sets that are defined in the kernel
   **** checks if a particular network process exists in a kernel-maintained set of network information
-  op networkproc : Nat NetworkProcInfoSet -> Bool [metadata "80"] .
-  eq [nnp] : networkproc(N,(pi(network(N),L,L') ,np NPIS)) = true [variant] .
- ceq [nnp2] : networkproc(N,(pi(network(N'),L,L') ,np NPIS)) = networkproc(N,NPIS) if N ~n N' = false .
-  eq [nnpf] : networkproc(N,mtNPIS) = false .
+  op networkproc? : Nat NetworkProcInfoSet -> Bool [metadata "80"] .
+  eq [nnp] : networkproc?(N,(pi(network(N),L,L') ,np NPIS)) = true [variant] .
+ ceq [nnp2] : networkproc?(N,(pi(network(N'),L,L') ,np NPIS)) = networkproc?(N,NPIS) if N ~n N' = false .
+  eq [nnpf] : networkproc?(N,mtNPIS) = false .
   **** checks if a particular web application exists in a kernel-maintained set of webapp information
-  op webapp : Nat WebappProcInfoSet -> Bool [metadata "81"] .
-  eq [nwa] : webapp(N,(pi(webapp(N),L) ,wp WPIS)) = true [variant] .
- ceq [nwa2] : webapp(N,(pi(webapp(N'),L) ,wp WPIS)) = webapp(N,WPIS) if N ~n N' = false .
-  eq [nwaf] : webapp(N,mtWPIS) = false .
+  op webapp? : Nat WebappProcInfoSet -> Bool [metadata "81"] .
+  eq [nwa] : webapp?(N,(pi(webapp(N),L) ,wp WPIS)) = true [variant] .
+ ceq [nwa2] : webapp?(N,(pi(webapp(N'),L) ,wp WPIS)) = webapp?(N,WPIS) if N ~n N' = false .
+  eq [nwaf] : webapp?(N,mtWPIS) = false .
 
-  op matching-procs : NetProcId WebAppId WebappProcInfoSet NetworkProcInfoSet -> Bool [metadata "83"] .
-  eq matching-procs(NI,WI,(pi(WI,L) ,wp WPIS),NPIS) = matching-procs1(NI,L,NPIS) or matching-procs(NI,WI,WPIS,NPIS) .
- ceq matching-procs(NI,WI,(pi(WI',L) ,wp WPIS),NPIS) = matching-procs(NI,WI,WPIS,NPIS) if WI ~p WI' = false .
-  eq matching-procs(NI,WI,mtWPIS,NPIS) = false .
+  op matching-procs? : NetProcId WebAppId WebappProcInfoSet NetworkProcInfoSet -> Bool [metadata "83"] .
+  eq matching-procs?(NI,WI,(pi(WI,L) ,wp WPIS),NPIS) = matching-procs1?(NI,L,NPIS) or matching-procs?(NI,WI,WPIS,NPIS) .
+ ceq matching-procs?(NI,WI,(pi(WI',L) ,wp WPIS),NPIS) = matching-procs?(NI,WI,WPIS,NPIS) if WI ~p WI' = false .
+  eq matching-procs?(NI,WI,mtWPIS,NPIS) = false .
 
-  op matching-procs1 : NetProcId Label NetworkProcInfoSet -> Bool [metadata "82"] .
-  eq matching-procs1(NI,L,(pi(NI,L,L'') ,np NPIS)) = true .
- ceq matching-procs1(NI,L,(pi(NI',L',L'') ,np NPIS)) = matching-procs1(NI,L,NPIS) if NI ~p NI' and L ~l L' = false .
-  eq matching-procs1(NI,L,mtNPIS) = false .
+  op matching-procs1? : NetProcId Label NetworkProcInfoSet -> Bool [metadata "82"] .
+  eq matching-procs1?(NI,L,(pi(NI,L,L'') ,np NPIS)) = true .
+ ceq matching-procs1?(NI,L,(pi(NI',L',L'') ,np NPIS)) = matching-procs1?(NI,L,NPIS) if NI ~p NI' and L ~l L' = false .
+  eq matching-procs1?(NI,L,mtNPIS) = false .
 endfm
 
 mod KERNEL is
@@ -650,7 +671,7 @@ mod KERNEL is
            mem-in(nolabel) , mem-out(nolabel) ,
            toKernel(mt)    , fromKernel(mt) >
            Cnf }
-  if networkproc-for-label(L,NPIS) = false .
+  if networkproc-for-label?(L,NPIS) = false .
 
   **** mirrored, for the reverse direction from network process to webapp:
   **** there is a connection, just forward the message
@@ -701,7 +722,7 @@ mod KERNEL is
            toKernel(ML) ,
            Att2 >
        Cnf }
-  if networkproc(N,NPIS) and webapp(N',WPIS) = false .
+  if networkproc?(N,NPIS) and webapp?(N',WPIS) = false .
 
   **** policy allows message from UI to change current webapp to webapp WI with MSG-SWITCH-TAB
   rl [kernelReceivesOPMessage-pa8] :

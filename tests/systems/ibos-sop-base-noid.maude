@@ -120,13 +120,13 @@ fmod IBOS-SOP-PRED-NOID is
     [ctor metadata "77"] .
   op displayedTopBar : Label -> Attribute
     [ctor metadata "75"] .
-  op dupl : Configuration -> Bool
+  op dupl? : Configuration -> Bool
     [metadata "87"] .
   op false : -> Bool
     [ctor special(id-hook SystemFalse)metadata "10"] .
-  op fresh-np-id : Nat Configuration -> Bool
+  op fresh-np-id? : Nat Configuration -> Bool
     [metadata "88"] .
-  op fresh-wa-id : Nat Configuration -> Bool
+  op fresh-wa-id? : Nat Configuration -> Bool
     [metadata "89"] .
   op fromKernel : MessageList -> Attribute
     [ctor metadata "51"] .
@@ -138,14 +138,14 @@ fmod IBOS-SOP-PRED-NOID is
     [ctor metadata "22"] .
   op kernelDo : Message -> Message
     [ctor metadata "78"] .
-  op label-for-netproc : NetProcId NetworkProcInfoSet -> Label
+  op label-for-netproc? : NetProcId NetworkProcInfoSet -> Label
     [metadata "94"] .
   op loading : Bool -> Attribute
     [ctor metadata "56"] .
-  op matching-procs : NetProcId WebAppId WebappProcInfoSet NetworkProcInfoSet -> Bool
-    [metadata "83"] .
-  op matching-procs1 : NetProcId Label NetworkProcInfoSet -> Bool
+  op matching-procs1? : NetProcId Label NetworkProcInfoSet -> Bool
     [metadata "82"] .
+  op matching-procs? : NetProcId WebAppId WebappProcInfoSet NetworkProcInfoSet -> Bool
+    [metadata "83"] .
   op mem-in : MaybeLabel -> Attribute
     [ctor metadata "61"] .
   op mem-out : MaybeLabel -> Attribute
@@ -172,10 +172,10 @@ fmod IBOS-SOP-PRED-NOID is
     [ctor metadata "25"] .
   op networklabels : NetworkProcInfoSet -> Attribute
     [ctor metadata "74"] .
-  op networkproc : Nat NetworkProcInfoSet -> Bool
-    [metadata "80"] .
-  op networkproc-for-label : Label NetworkProcInfoSet -> Bool
+  op networkproc-for-label? : Label NetworkProcInfoSet -> Bool
     [metadata "79"] .
+  op networkproc? : Nat NetworkProcInfoSet -> Bool
+    [metadata "80"] .
   op nextNetworkProc : Nat -> Attribute
     [ctor metadata "67"] .
   op nextWAN : Nat -> Attribute
@@ -226,19 +226,19 @@ fmod IBOS-SOP-PRED-NOID is
     [ctor metadata "24"] .
   op webapp : -> WebAppId
     [ctor metadata "23"] .
-  op webapp : Nat WebappProcInfoSet -> Bool
+  op webapp? : Nat WebappProcInfoSet -> Bool
     [metadata "81"] .
   op webappmgr : -> WebAppMgrId
     [ctor metadata "30"] .
   op weblabels : WebappProcInfoSet -> Attribute
     [ctor metadata "71"] .
-  eq X@@@:[LabelList,LabelSet,MaybeLabel]& label-for-netproc(NI:NetProcId,NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+  eq X@@@:[LabelList,LabelSet,MaybeLabel]& label-for-netproc?(NI:NetProcId,NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
     = IN:Label & X@@@:[LabelList,LabelSet,MaybeLabel] .
-  eq X@@@:[LabelList,LabelSet,MaybeLabel]& label-for-netproc(NI:NetProcId,pi(NI:NetProcId,IN:Label,OUT:Label))
+  eq X@@@:[LabelList,LabelSet,MaybeLabel]& label-for-netproc?(NI:NetProcId,pi(NI:NetProcId,IN:Label,OUT:Label))
     = IN:Label & X@@@:[LabelList,LabelSet,MaybeLabel] .
-  eq mtLL & label-for-netproc(NI:NetProcId,NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+  eq mtLL & label-for-netproc?(NI:NetProcId,NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
     = mtLL & IN:Label .
-  eq mtLL & label-for-netproc(NI:NetProcId,pi(NI:NetProcId,IN:Label,OUT:Label))
+  eq mtLL & label-for-netproc?(NI:NetProcId,pi(NI:NetProcId,IN:Label,OUT:Label))
     = mtLL & IN:Label .
   eq MSG-FETCH-URL ~m M:NonFetchMsg
     = false .
@@ -278,334 +278,334 @@ fmod IBOS-SOP-PRED-NOID is
     = true .
   eq ch-p14(msg(NI:NetProcId,WI:WebAppId,NonRetMT:NonRetMsg,OUT:Label),mtWPIS,mtNPIS,N:Nat)
     = true .
-  eq dupl(none)
+  eq dupl?(none)
     = false .
-  eq dupl(< PI:ProcessId | A:AttributeSet >)
+  eq dupl?(< PI:ProcessId | A:AttributeSet >)
     = false .
-  eq dupl(< PI:ProcessId | none >)
+  eq dupl?(< PI:ProcessId | none >)
     = false .
-  eq dupl(< PI:ProcessId | A:AttributeSet,activeWebapp(WAI:WebAppId)>)
-    = dupl(< PI:ProcessId | A:AttributeSet >) .
-  eq dupl(< PI:ProcessId | A:AttributeSet,displayedContent(L:Label)>)
-    = dupl(< PI:ProcessId | A:AttributeSet >) .
-  eq dupl(< PI:ProcessId | A:AttributeSet,fromKernel(X@11:MessageList)>)
-    = dupl(< PI:ProcessId | A:AttributeSet >) .
-  eq dupl(< PI:ProcessId | A:AttributeSet,fromKernel(mt)>)
-    = dupl(< PI:ProcessId | A:AttributeSet >) .
-  eq dupl(< PI:ProcessId | A:AttributeSet,toKernel(X@11:MessageList)>)
-    = dupl(< PI:ProcessId | A:AttributeSet >) .
-  eq dupl(< PI:ProcessId | A:AttributeSet,toKernel(mt)>)
-    = dupl(< PI:ProcessId | A:AttributeSet >) .
-  eq dupl(< PI:ProcessId | activeWebapp(WAI:WebAppId)>)
-    = dupl(< PI:ProcessId | none >) .
-  eq dupl(< PI:ProcessId | displayedContent(L:Label)>)
-    = dupl(< PI:ProcessId | none >) .
-  eq dupl(< PI:ProcessId | fromKernel(X@11:MessageList)>)
-    = dupl(< PI:ProcessId | none >) .
-  eq dupl(< PI:ProcessId | fromKernel(mt)>)
-    = dupl(< PI:ProcessId | none >) .
-  eq dupl(< PI:ProcessId | toKernel(X@11:MessageList)>)
-    = dupl(< PI:ProcessId | none >) .
-  eq dupl(< PI:ProcessId | toKernel(mt)>)
-    = dupl(< PI:ProcessId | none >) .
-  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet,activeWebapp(WAI:WebAppId)>)
-    = dupl(C:Configuration < PI:ProcessId | A:AttributeSet >) .
-  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet,displayedContent(L:Label)>)
-    = dupl(C:Configuration < PI:ProcessId | A:AttributeSet >) .
-  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet,fromKernel(X@11:MessageList)>)
-    = dupl(C:Configuration < PI:ProcessId | A:AttributeSet >) .
-  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet,fromKernel(mt)>)
-    = dupl(C:Configuration < PI:ProcessId | A:AttributeSet >) .
-  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet,toKernel(X@11:MessageList)>)
-    = dupl(C:Configuration < PI:ProcessId | A:AttributeSet >) .
-  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet,toKernel(mt)>)
-    = dupl(C:Configuration < PI:ProcessId | A:AttributeSet >) .
-  eq dupl(C:Configuration < PI:ProcessId | activeWebapp(WAI:WebAppId)>)
-    = dupl(C:Configuration < PI:ProcessId | none >) .
-  eq dupl(C:Configuration < PI:ProcessId | displayedContent(L:Label)>)
-    = dupl(C:Configuration < PI:ProcessId | none >) .
-  eq dupl(C:Configuration < PI:ProcessId | fromKernel(X@11:MessageList)>)
-    = dupl(C:Configuration < PI:ProcessId | none >) .
-  eq dupl(C:Configuration < PI:ProcessId | fromKernel(mt)>)
-    = dupl(C:Configuration < PI:ProcessId | none >) .
-  eq dupl(C:Configuration < PI:ProcessId | toKernel(X@11:MessageList)>)
-    = dupl(C:Configuration < PI:ProcessId | none >) .
-  eq dupl(C:Configuration < PI:ProcessId | toKernel(mt)>)
-    = dupl(C:Configuration < PI:ProcessId | none >) .
-  eq dupl(< PI:ProcessId | A:AttributeSet > < PI:ProcessId | A':AttributeSet >)
+  eq dupl?(< PI:ProcessId | A:AttributeSet,activeWebapp(WAI:WebAppId)>)
+    = dupl?(< PI:ProcessId | A:AttributeSet >) .
+  eq dupl?(< PI:ProcessId | A:AttributeSet,displayedContent(L:Label)>)
+    = dupl?(< PI:ProcessId | A:AttributeSet >) .
+  eq dupl?(< PI:ProcessId | A:AttributeSet,fromKernel(X@11:MessageList)>)
+    = dupl?(< PI:ProcessId | A:AttributeSet >) .
+  eq dupl?(< PI:ProcessId | A:AttributeSet,fromKernel(mt)>)
+    = dupl?(< PI:ProcessId | A:AttributeSet >) .
+  eq dupl?(< PI:ProcessId | A:AttributeSet,toKernel(X@11:MessageList)>)
+    = dupl?(< PI:ProcessId | A:AttributeSet >) .
+  eq dupl?(< PI:ProcessId | A:AttributeSet,toKernel(mt)>)
+    = dupl?(< PI:ProcessId | A:AttributeSet >) .
+  eq dupl?(< PI:ProcessId | activeWebapp(WAI:WebAppId)>)
+    = dupl?(< PI:ProcessId | none >) .
+  eq dupl?(< PI:ProcessId | displayedContent(L:Label)>)
+    = dupl?(< PI:ProcessId | none >) .
+  eq dupl?(< PI:ProcessId | fromKernel(X@11:MessageList)>)
+    = dupl?(< PI:ProcessId | none >) .
+  eq dupl?(< PI:ProcessId | fromKernel(mt)>)
+    = dupl?(< PI:ProcessId | none >) .
+  eq dupl?(< PI:ProcessId | toKernel(X@11:MessageList)>)
+    = dupl?(< PI:ProcessId | none >) .
+  eq dupl?(< PI:ProcessId | toKernel(mt)>)
+    = dupl?(< PI:ProcessId | none >) .
+  eq dupl?(C:Configuration < PI:ProcessId | A:AttributeSet,activeWebapp(WAI:WebAppId)>)
+    = dupl?(C:Configuration < PI:ProcessId | A:AttributeSet >) .
+  eq dupl?(C:Configuration < PI:ProcessId | A:AttributeSet,displayedContent(L:Label)>)
+    = dupl?(C:Configuration < PI:ProcessId | A:AttributeSet >) .
+  eq dupl?(C:Configuration < PI:ProcessId | A:AttributeSet,fromKernel(X@11:MessageList)>)
+    = dupl?(C:Configuration < PI:ProcessId | A:AttributeSet >) .
+  eq dupl?(C:Configuration < PI:ProcessId | A:AttributeSet,fromKernel(mt)>)
+    = dupl?(C:Configuration < PI:ProcessId | A:AttributeSet >) .
+  eq dupl?(C:Configuration < PI:ProcessId | A:AttributeSet,toKernel(X@11:MessageList)>)
+    = dupl?(C:Configuration < PI:ProcessId | A:AttributeSet >) .
+  eq dupl?(C:Configuration < PI:ProcessId | A:AttributeSet,toKernel(mt)>)
+    = dupl?(C:Configuration < PI:ProcessId | A:AttributeSet >) .
+  eq dupl?(C:Configuration < PI:ProcessId | activeWebapp(WAI:WebAppId)>)
+    = dupl?(C:Configuration < PI:ProcessId | none >) .
+  eq dupl?(C:Configuration < PI:ProcessId | displayedContent(L:Label)>)
+    = dupl?(C:Configuration < PI:ProcessId | none >) .
+  eq dupl?(C:Configuration < PI:ProcessId | fromKernel(X@11:MessageList)>)
+    = dupl?(C:Configuration < PI:ProcessId | none >) .
+  eq dupl?(C:Configuration < PI:ProcessId | fromKernel(mt)>)
+    = dupl?(C:Configuration < PI:ProcessId | none >) .
+  eq dupl?(C:Configuration < PI:ProcessId | toKernel(X@11:MessageList)>)
+    = dupl?(C:Configuration < PI:ProcessId | none >) .
+  eq dupl?(C:Configuration < PI:ProcessId | toKernel(mt)>)
+    = dupl?(C:Configuration < PI:ProcessId | none >) .
+  eq dupl?(< PI:ProcessId | A:AttributeSet > < PI:ProcessId | A':AttributeSet >)
     = true .
-  eq dupl(< PI:ProcessId | none > < PI:ProcessId | A:AttributeSet >)
+  eq dupl?(< PI:ProcessId | none > < PI:ProcessId | A:AttributeSet >)
     = true .
-  eq dupl(< PI:ProcessId | none > < PI:ProcessId | none >)
+  eq dupl?(< PI:ProcessId | none > < PI:ProcessId | none >)
     = true .
-  eq dupl(< kernel | A':AttributeSet,nextNetworkProc(1)> < network(0)| A:AttributeSet >)
-    = dupl(< kernel | A':AttributeSet,nextNetworkProc(0)>) .
-  eq dupl(< kernel | A':AttributeSet,nextNetworkProc(1)> < network(0)| none >)
-    = dupl(< kernel | A':AttributeSet,nextNetworkProc(0)>) .
-  eq dupl(< kernel | A':AttributeSet,nextNetworkProc(1 + N:Nat)> < network(N:Nat)| A:AttributeSet >)
-    = dupl(< kernel | A':AttributeSet,nextNetworkProc(N:Nat)>) .
-  eq dupl(< kernel | A':AttributeSet,nextNetworkProc(1 + N:Nat)> < network(N:Nat)| none >)
-    = dupl(< kernel | A':AttributeSet,nextNetworkProc(N:Nat)>) .
-  eq dupl(< kernel | nextNetworkProc(1)> < network(0)| A:AttributeSet >)
-    = dupl(< kernel | nextNetworkProc(0)>) .
-  eq dupl(< kernel | nextNetworkProc(1)> < network(0)| none >)
-    = dupl(< kernel | nextNetworkProc(0)>) .
-  eq dupl(< kernel | nextNetworkProc(1 + N:Nat)> < network(N:Nat)| A:AttributeSet >)
-    = dupl(< kernel | nextNetworkProc(N:Nat)>) .
-  eq dupl(< kernel | nextNetworkProc(1 + N:Nat)> < network(N:Nat)| none >)
-    = dupl(< kernel | nextNetworkProc(N:Nat)>) .
-  eq dupl(< webappmgr | A':AttributeSet,nextWAN(1)> < webapp(0)| A:AttributeSet >)
-    = dupl(< webappmgr | A':AttributeSet,nextWAN(0)>) .
-  eq dupl(< webappmgr | A':AttributeSet,nextWAN(1)> < webapp(0)| none >)
-    = dupl(< webappmgr | A':AttributeSet,nextWAN(0)>) .
-  eq dupl(< webappmgr | A':AttributeSet,nextWAN(1 + W:Nat)> < webapp(W:Nat)| A:AttributeSet >)
-    = dupl(< webappmgr | A':AttributeSet,nextWAN(W:Nat)>) .
-  eq dupl(< webappmgr | A':AttributeSet,nextWAN(1 + W:Nat)> < webapp(W:Nat)| none >)
-    = dupl(< webappmgr | A':AttributeSet,nextWAN(W:Nat)>) .
-  eq dupl(< webappmgr | nextWAN(1)> < webapp(0)| A:AttributeSet >)
-    = dupl(< webappmgr | nextWAN(0)>) .
-  eq dupl(< webappmgr | nextWAN(1)> < webapp(0)| none >)
-    = dupl(< webappmgr | nextWAN(0)>) .
-  eq dupl(< webappmgr | nextWAN(1 + W:Nat)> < webapp(W:Nat)| A:AttributeSet >)
-    = dupl(< webappmgr | nextWAN(W:Nat)>) .
-  eq dupl(< webappmgr | nextWAN(1 + W:Nat)> < webapp(W:Nat)| none >)
-    = dupl(< webappmgr | nextWAN(W:Nat)>) .
-  eq dupl(C:Configuration < PI:ProcessId | A:AttributeSet > < PI:ProcessId | A':AttributeSet >)
+  eq dupl?(< kernel | A':AttributeSet,nextNetworkProc(1)> < network(0)| A:AttributeSet >)
+    = dupl?(< kernel | A':AttributeSet,nextNetworkProc(0)>) .
+  eq dupl?(< kernel | A':AttributeSet,nextNetworkProc(1)> < network(0)| none >)
+    = dupl?(< kernel | A':AttributeSet,nextNetworkProc(0)>) .
+  eq dupl?(< kernel | A':AttributeSet,nextNetworkProc(1 + N:Nat)> < network(N:Nat)| A:AttributeSet >)
+    = dupl?(< kernel | A':AttributeSet,nextNetworkProc(N:Nat)>) .
+  eq dupl?(< kernel | A':AttributeSet,nextNetworkProc(1 + N:Nat)> < network(N:Nat)| none >)
+    = dupl?(< kernel | A':AttributeSet,nextNetworkProc(N:Nat)>) .
+  eq dupl?(< kernel | nextNetworkProc(1)> < network(0)| A:AttributeSet >)
+    = dupl?(< kernel | nextNetworkProc(0)>) .
+  eq dupl?(< kernel | nextNetworkProc(1)> < network(0)| none >)
+    = dupl?(< kernel | nextNetworkProc(0)>) .
+  eq dupl?(< kernel | nextNetworkProc(1 + N:Nat)> < network(N:Nat)| A:AttributeSet >)
+    = dupl?(< kernel | nextNetworkProc(N:Nat)>) .
+  eq dupl?(< kernel | nextNetworkProc(1 + N:Nat)> < network(N:Nat)| none >)
+    = dupl?(< kernel | nextNetworkProc(N:Nat)>) .
+  eq dupl?(< webappmgr | A':AttributeSet,nextWAN(1)> < webapp(0)| A:AttributeSet >)
+    = dupl?(< webappmgr | A':AttributeSet,nextWAN(0)>) .
+  eq dupl?(< webappmgr | A':AttributeSet,nextWAN(1)> < webapp(0)| none >)
+    = dupl?(< webappmgr | A':AttributeSet,nextWAN(0)>) .
+  eq dupl?(< webappmgr | A':AttributeSet,nextWAN(1 + W:Nat)> < webapp(W:Nat)| A:AttributeSet >)
+    = dupl?(< webappmgr | A':AttributeSet,nextWAN(W:Nat)>) .
+  eq dupl?(< webappmgr | A':AttributeSet,nextWAN(1 + W:Nat)> < webapp(W:Nat)| none >)
+    = dupl?(< webappmgr | A':AttributeSet,nextWAN(W:Nat)>) .
+  eq dupl?(< webappmgr | nextWAN(1)> < webapp(0)| A:AttributeSet >)
+    = dupl?(< webappmgr | nextWAN(0)>) .
+  eq dupl?(< webappmgr | nextWAN(1)> < webapp(0)| none >)
+    = dupl?(< webappmgr | nextWAN(0)>) .
+  eq dupl?(< webappmgr | nextWAN(1 + W:Nat)> < webapp(W:Nat)| A:AttributeSet >)
+    = dupl?(< webappmgr | nextWAN(W:Nat)>) .
+  eq dupl?(< webappmgr | nextWAN(1 + W:Nat)> < webapp(W:Nat)| none >)
+    = dupl?(< webappmgr | nextWAN(W:Nat)>) .
+  eq dupl?(C:Configuration < PI:ProcessId | A:AttributeSet > < PI:ProcessId | A':AttributeSet >)
     = true .
-  eq dupl(C:Configuration < PI:ProcessId | none > < PI:ProcessId | A:AttributeSet >)
+  eq dupl?(C:Configuration < PI:ProcessId | none > < PI:ProcessId | A:AttributeSet >)
     = true .
-  eq dupl(C:Configuration < PI:ProcessId | none > < PI:ProcessId | none >)
+  eq dupl?(C:Configuration < PI:ProcessId | none > < PI:ProcessId | none >)
     = true .
-  eq dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(1)> < network(0)| A:AttributeSet >)
-    = dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(0)>) .
-  eq dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(1)> < network(0)| none >)
-    = dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(0)>) .
-  eq dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(1 + N:Nat)> < network(N:Nat)| A:AttributeSet >)
-    = dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(N:Nat)>) .
-  eq dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(1 + N:Nat)> < network(N:Nat)| none >)
-    = dupl(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(N:Nat)>) .
-  eq dupl(C:Configuration < kernel | nextNetworkProc(1)> < network(0)| A:AttributeSet >)
-    = dupl(C:Configuration < kernel | nextNetworkProc(0)>) .
-  eq dupl(C:Configuration < kernel | nextNetworkProc(1)> < network(0)| none >)
-    = dupl(C:Configuration < kernel | nextNetworkProc(0)>) .
-  eq dupl(C:Configuration < kernel | nextNetworkProc(1 + N:Nat)> < network(N:Nat)| A:AttributeSet >)
-    = dupl(C:Configuration < kernel | nextNetworkProc(N:Nat)>) .
-  eq dupl(C:Configuration < kernel | nextNetworkProc(1 + N:Nat)> < network(N:Nat)| none >)
-    = dupl(C:Configuration < kernel | nextNetworkProc(N:Nat)>) .
-  eq dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(1)> < webapp(0)| A:AttributeSet >)
-    = dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(0)>) .
-  eq dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(1)> < webapp(0)| none >)
-    = dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(0)>) .
-  eq dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(1 + W:Nat)> < webapp(W:Nat)| A:AttributeSet >)
-    = dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(W:Nat)>) .
-  eq dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(1 + W:Nat)> < webapp(W:Nat)| none >)
-    = dupl(C:Configuration < webappmgr | A':AttributeSet,nextWAN(W:Nat)>) .
-  eq dupl(C:Configuration < webappmgr | nextWAN(1)> < webapp(0)| A:AttributeSet >)
-    = dupl(C:Configuration < webappmgr | nextWAN(0)>) .
-  eq dupl(C:Configuration < webappmgr | nextWAN(1)> < webapp(0)| none >)
-    = dupl(C:Configuration < webappmgr | nextWAN(0)>) .
-  eq dupl(C:Configuration < webappmgr | nextWAN(1 + W:Nat)> < webapp(W:Nat)| A:AttributeSet >)
-    = dupl(C:Configuration < webappmgr | nextWAN(W:Nat)>) .
-  eq dupl(C:Configuration < webappmgr | nextWAN(1 + W:Nat)> < webapp(W:Nat)| none >)
-    = dupl(C:Configuration < webappmgr | nextWAN(W:Nat)>) .
-  eq fresh-np-id(0,< network(M:Nat)| A:AttributeSet >)
+  eq dupl?(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(1)> < network(0)| A:AttributeSet >)
+    = dupl?(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(0)>) .
+  eq dupl?(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(1)> < network(0)| none >)
+    = dupl?(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(0)>) .
+  eq dupl?(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(1 + N:Nat)> < network(N:Nat)| A:AttributeSet >)
+    = dupl?(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(N:Nat)>) .
+  eq dupl?(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(1 + N:Nat)> < network(N:Nat)| none >)
+    = dupl?(C:Configuration < kernel | A':AttributeSet,nextNetworkProc(N:Nat)>) .
+  eq dupl?(C:Configuration < kernel | nextNetworkProc(1)> < network(0)| A:AttributeSet >)
+    = dupl?(C:Configuration < kernel | nextNetworkProc(0)>) .
+  eq dupl?(C:Configuration < kernel | nextNetworkProc(1)> < network(0)| none >)
+    = dupl?(C:Configuration < kernel | nextNetworkProc(0)>) .
+  eq dupl?(C:Configuration < kernel | nextNetworkProc(1 + N:Nat)> < network(N:Nat)| A:AttributeSet >)
+    = dupl?(C:Configuration < kernel | nextNetworkProc(N:Nat)>) .
+  eq dupl?(C:Configuration < kernel | nextNetworkProc(1 + N:Nat)> < network(N:Nat)| none >)
+    = dupl?(C:Configuration < kernel | nextNetworkProc(N:Nat)>) .
+  eq dupl?(C:Configuration < webappmgr | A':AttributeSet,nextWAN(1)> < webapp(0)| A:AttributeSet >)
+    = dupl?(C:Configuration < webappmgr | A':AttributeSet,nextWAN(0)>) .
+  eq dupl?(C:Configuration < webappmgr | A':AttributeSet,nextWAN(1)> < webapp(0)| none >)
+    = dupl?(C:Configuration < webappmgr | A':AttributeSet,nextWAN(0)>) .
+  eq dupl?(C:Configuration < webappmgr | A':AttributeSet,nextWAN(1 + W:Nat)> < webapp(W:Nat)| A:AttributeSet >)
+    = dupl?(C:Configuration < webappmgr | A':AttributeSet,nextWAN(W:Nat)>) .
+  eq dupl?(C:Configuration < webappmgr | A':AttributeSet,nextWAN(1 + W:Nat)> < webapp(W:Nat)| none >)
+    = dupl?(C:Configuration < webappmgr | A':AttributeSet,nextWAN(W:Nat)>) .
+  eq dupl?(C:Configuration < webappmgr | nextWAN(1)> < webapp(0)| A:AttributeSet >)
+    = dupl?(C:Configuration < webappmgr | nextWAN(0)>) .
+  eq dupl?(C:Configuration < webappmgr | nextWAN(1)> < webapp(0)| none >)
+    = dupl?(C:Configuration < webappmgr | nextWAN(0)>) .
+  eq dupl?(C:Configuration < webappmgr | nextWAN(1 + W:Nat)> < webapp(W:Nat)| A:AttributeSet >)
+    = dupl?(C:Configuration < webappmgr | nextWAN(W:Nat)>) .
+  eq dupl?(C:Configuration < webappmgr | nextWAN(1 + W:Nat)> < webapp(W:Nat)| none >)
+    = dupl?(C:Configuration < webappmgr | nextWAN(W:Nat)>) .
+  eq fresh-np-id?(0,< network(M:Nat)| A:AttributeSet >)
     = false .
-  eq fresh-np-id(0,< network(M:Nat)| none >)
+  eq fresh-np-id?(0,< network(M:Nat)| none >)
     = false .
-  eq fresh-np-id(0,C:Configuration < network(M:Nat)| A:AttributeSet >)
+  eq fresh-np-id?(0,C:Configuration < network(M:Nat)| A:AttributeSet >)
     = false .
-  eq fresh-np-id(0,C:Configuration < network(M:Nat)| none >)
+  eq fresh-np-id?(0,C:Configuration < network(M:Nat)| none >)
     = false .
-  eq fresh-np-id(N:Nat,none)
+  eq fresh-np-id?(N:Nat,none)
     = true .
-  eq fresh-np-id(N:Nat,< NNPI:NonNetProcId | A:AttributeSet >)
-    = fresh-np-id(N:Nat,none) .
-  eq fresh-np-id(N:Nat,< NNPI:NonNetProcId | none >)
-    = fresh-np-id(N:Nat,none) .
-  eq fresh-np-id(N:Nat,< network | A:AttributeSet >)
-    = fresh-np-id(N:Nat,none) .
-  eq fresh-np-id(N:Nat,< network | none >)
-    = fresh-np-id(N:Nat,none) .
-  eq fresh-np-id(N:Nat,< network(N:Nat)| A:AttributeSet >)
+  eq fresh-np-id?(N:Nat,< NNPI:NonNetProcId | A:AttributeSet >)
+    = fresh-np-id?(N:Nat,none) .
+  eq fresh-np-id?(N:Nat,< NNPI:NonNetProcId | none >)
+    = fresh-np-id?(N:Nat,none) .
+  eq fresh-np-id?(N:Nat,< network | A:AttributeSet >)
+    = fresh-np-id?(N:Nat,none) .
+  eq fresh-np-id?(N:Nat,< network | none >)
+    = fresh-np-id?(N:Nat,none) .
+  eq fresh-np-id?(N:Nat,< network(N:Nat)| A:AttributeSet >)
     = false .
-  eq fresh-np-id(N:Nat,< network(N:Nat)| none >)
+  eq fresh-np-id?(N:Nat,< network(N:Nat)| none >)
     = false .
-  eq fresh-np-id(N:Nat,< network(N:Nat + M:Nat)| A:AttributeSet >)
+  eq fresh-np-id?(N:Nat,< network(N:Nat + M:Nat)| A:AttributeSet >)
     = false .
-  eq fresh-np-id(N:Nat,< network(N:Nat + M:Nat)| none >)
+  eq fresh-np-id?(N:Nat,< network(N:Nat + M:Nat)| none >)
     = false .
-  eq fresh-np-id(N:Nat,C:Configuration < NNPI:NonNetProcId | A:AttributeSet >)
-    = fresh-np-id(N:Nat,C:Configuration) .
-  eq fresh-np-id(N:Nat,C:Configuration < NNPI:NonNetProcId | none >)
-    = fresh-np-id(N:Nat,C:Configuration) .
-  eq fresh-np-id(N:Nat,C:Configuration < network | A:AttributeSet >)
-    = fresh-np-id(N:Nat,C:Configuration) .
-  eq fresh-np-id(N:Nat,C:Configuration < network | none >)
-    = fresh-np-id(N:Nat,C:Configuration) .
-  eq fresh-np-id(N:Nat,C:Configuration < network(N:Nat)| A:AttributeSet >)
+  eq fresh-np-id?(N:Nat,C:Configuration < NNPI:NonNetProcId | A:AttributeSet >)
+    = fresh-np-id?(N:Nat,C:Configuration) .
+  eq fresh-np-id?(N:Nat,C:Configuration < NNPI:NonNetProcId | none >)
+    = fresh-np-id?(N:Nat,C:Configuration) .
+  eq fresh-np-id?(N:Nat,C:Configuration < network | A:AttributeSet >)
+    = fresh-np-id?(N:Nat,C:Configuration) .
+  eq fresh-np-id?(N:Nat,C:Configuration < network | none >)
+    = fresh-np-id?(N:Nat,C:Configuration) .
+  eq fresh-np-id?(N:Nat,C:Configuration < network(N:Nat)| A:AttributeSet >)
     = false .
-  eq fresh-np-id(N:Nat,C:Configuration < network(N:Nat)| none >)
+  eq fresh-np-id?(N:Nat,C:Configuration < network(N:Nat)| none >)
     = false .
-  eq fresh-np-id(N:Nat,C:Configuration < network(N:Nat + M:Nat)| A:AttributeSet >)
+  eq fresh-np-id?(N:Nat,C:Configuration < network(N:Nat + M:Nat)| A:AttributeSet >)
     = false .
-  eq fresh-np-id(N:Nat,C:Configuration < network(N:Nat + M:Nat)| none >)
+  eq fresh-np-id?(N:Nat,C:Configuration < network(N:Nat + M:Nat)| none >)
     = false .
-  eq fresh-np-id(P:NzNat,< network(0)| A:AttributeSet >)
-    = fresh-np-id(P:NzNat,none) .
-  eq fresh-np-id(P:NzNat,< network(0)| none >)
-    = fresh-np-id(P:NzNat,none) .
-  eq fresh-np-id(P:NzNat,C:Configuration < network(0)| A:AttributeSet >)
-    = fresh-np-id(P:NzNat,C:Configuration) .
-  eq fresh-np-id(P:NzNat,C:Configuration < network(0)| none >)
-    = fresh-np-id(P:NzNat,C:Configuration) .
-  eq fresh-np-id(N:Nat + P:NzNat,< network(N:Nat)| A:AttributeSet >)
-    = fresh-np-id(N:Nat + P:NzNat,none) .
-  eq fresh-np-id(N:Nat + P:NzNat,< network(N:Nat)| none >)
-    = fresh-np-id(N:Nat + P:NzNat,none) .
-  eq fresh-np-id(N:Nat + P:NzNat,C:Configuration < network(N:Nat)| A:AttributeSet >)
-    = fresh-np-id(N:Nat + P:NzNat,C:Configuration) .
-  eq fresh-np-id(N:Nat + P:NzNat,C:Configuration < network(N:Nat)| none >)
-    = fresh-np-id(N:Nat + P:NzNat,C:Configuration) .
-  eq fresh-wa-id(0,< webapp(M:Nat)| A:AttributeSet >)
+  eq fresh-np-id?(P:NzNat,< network(0)| A:AttributeSet >)
+    = fresh-np-id?(P:NzNat,none) .
+  eq fresh-np-id?(P:NzNat,< network(0)| none >)
+    = fresh-np-id?(P:NzNat,none) .
+  eq fresh-np-id?(P:NzNat,C:Configuration < network(0)| A:AttributeSet >)
+    = fresh-np-id?(P:NzNat,C:Configuration) .
+  eq fresh-np-id?(P:NzNat,C:Configuration < network(0)| none >)
+    = fresh-np-id?(P:NzNat,C:Configuration) .
+  eq fresh-np-id?(N:Nat + P:NzNat,< network(N:Nat)| A:AttributeSet >)
+    = fresh-np-id?(N:Nat + P:NzNat,none) .
+  eq fresh-np-id?(N:Nat + P:NzNat,< network(N:Nat)| none >)
+    = fresh-np-id?(N:Nat + P:NzNat,none) .
+  eq fresh-np-id?(N:Nat + P:NzNat,C:Configuration < network(N:Nat)| A:AttributeSet >)
+    = fresh-np-id?(N:Nat + P:NzNat,C:Configuration) .
+  eq fresh-np-id?(N:Nat + P:NzNat,C:Configuration < network(N:Nat)| none >)
+    = fresh-np-id?(N:Nat + P:NzNat,C:Configuration) .
+  eq fresh-wa-id?(0,< webapp(M:Nat)| A:AttributeSet >)
     = false .
-  eq fresh-wa-id(0,< webapp(M:Nat)| none >)
+  eq fresh-wa-id?(0,< webapp(M:Nat)| none >)
     = false .
-  eq fresh-wa-id(0,C:Configuration < webapp(M:Nat)| A:AttributeSet >)
+  eq fresh-wa-id?(0,C:Configuration < webapp(M:Nat)| A:AttributeSet >)
     = false .
-  eq fresh-wa-id(0,C:Configuration < webapp(M:Nat)| none >)
+  eq fresh-wa-id?(0,C:Configuration < webapp(M:Nat)| none >)
     = false .
-  eq fresh-wa-id(N:Nat,none)
+  eq fresh-wa-id?(N:Nat,none)
     = true .
-  eq fresh-wa-id(N:Nat,< NWAI:NonWebAppId | A:AttributeSet >)
-    = fresh-wa-id(N:Nat,none) .
-  eq fresh-wa-id(N:Nat,< NWAI:NonWebAppId | none >)
-    = fresh-wa-id(N:Nat,none) .
-  eq fresh-wa-id(N:Nat,< webapp | A:AttributeSet >)
-    = fresh-wa-id(N:Nat,none) .
-  eq fresh-wa-id(N:Nat,< webapp | none >)
-    = fresh-wa-id(N:Nat,none) .
-  eq fresh-wa-id(N:Nat,< webapp(N:Nat)| A:AttributeSet >)
+  eq fresh-wa-id?(N:Nat,< NWAI:NonWebAppId | A:AttributeSet >)
+    = fresh-wa-id?(N:Nat,none) .
+  eq fresh-wa-id?(N:Nat,< NWAI:NonWebAppId | none >)
+    = fresh-wa-id?(N:Nat,none) .
+  eq fresh-wa-id?(N:Nat,< webapp | A:AttributeSet >)
+    = fresh-wa-id?(N:Nat,none) .
+  eq fresh-wa-id?(N:Nat,< webapp | none >)
+    = fresh-wa-id?(N:Nat,none) .
+  eq fresh-wa-id?(N:Nat,< webapp(N:Nat)| A:AttributeSet >)
     = false .
-  eq fresh-wa-id(N:Nat,< webapp(N:Nat)| none >)
+  eq fresh-wa-id?(N:Nat,< webapp(N:Nat)| none >)
     = false .
-  eq fresh-wa-id(N:Nat,< webapp(N:Nat + M:Nat)| A:AttributeSet >)
+  eq fresh-wa-id?(N:Nat,< webapp(N:Nat + M:Nat)| A:AttributeSet >)
     = false .
-  eq fresh-wa-id(N:Nat,< webapp(N:Nat + M:Nat)| none >)
+  eq fresh-wa-id?(N:Nat,< webapp(N:Nat + M:Nat)| none >)
     = false .
-  eq fresh-wa-id(N:Nat,C:Configuration < NWAI:NonWebAppId | A:AttributeSet >)
-    = fresh-wa-id(N:Nat,C:Configuration) .
-  eq fresh-wa-id(N:Nat,C:Configuration < NWAI:NonWebAppId | none >)
-    = fresh-wa-id(N:Nat,C:Configuration) .
-  eq fresh-wa-id(N:Nat,C:Configuration < webapp | A:AttributeSet >)
-    = fresh-wa-id(N:Nat,C:Configuration) .
-  eq fresh-wa-id(N:Nat,C:Configuration < webapp | none >)
-    = fresh-wa-id(N:Nat,C:Configuration) .
-  eq fresh-wa-id(N:Nat,C:Configuration < webapp(N:Nat)| A:AttributeSet >)
+  eq fresh-wa-id?(N:Nat,C:Configuration < NWAI:NonWebAppId | A:AttributeSet >)
+    = fresh-wa-id?(N:Nat,C:Configuration) .
+  eq fresh-wa-id?(N:Nat,C:Configuration < NWAI:NonWebAppId | none >)
+    = fresh-wa-id?(N:Nat,C:Configuration) .
+  eq fresh-wa-id?(N:Nat,C:Configuration < webapp | A:AttributeSet >)
+    = fresh-wa-id?(N:Nat,C:Configuration) .
+  eq fresh-wa-id?(N:Nat,C:Configuration < webapp | none >)
+    = fresh-wa-id?(N:Nat,C:Configuration) .
+  eq fresh-wa-id?(N:Nat,C:Configuration < webapp(N:Nat)| A:AttributeSet >)
     = false .
-  eq fresh-wa-id(N:Nat,C:Configuration < webapp(N:Nat)| none >)
+  eq fresh-wa-id?(N:Nat,C:Configuration < webapp(N:Nat)| none >)
     = false .
-  eq fresh-wa-id(N:Nat,C:Configuration < webapp(N:Nat + M:Nat)| A:AttributeSet >)
+  eq fresh-wa-id?(N:Nat,C:Configuration < webapp(N:Nat + M:Nat)| A:AttributeSet >)
     = false .
-  eq fresh-wa-id(N:Nat,C:Configuration < webapp(N:Nat + M:Nat)| none >)
+  eq fresh-wa-id?(N:Nat,C:Configuration < webapp(N:Nat + M:Nat)| none >)
     = false .
-  eq fresh-wa-id(P:NzNat,< webapp(0)| A:AttributeSet >)
-    = fresh-wa-id(P:NzNat,none) .
-  eq fresh-wa-id(P:NzNat,< webapp(0)| none >)
-    = fresh-wa-id(P:NzNat,none) .
-  eq fresh-wa-id(P:NzNat,C:Configuration < webapp(0)| A:AttributeSet >)
-    = fresh-wa-id(P:NzNat,C:Configuration) .
-  eq fresh-wa-id(P:NzNat,C:Configuration < webapp(0)| none >)
-    = fresh-wa-id(P:NzNat,C:Configuration) .
-  eq fresh-wa-id(N:Nat + P:NzNat,< webapp(N:Nat)| A:AttributeSet >)
-    = fresh-wa-id(N:Nat + P:NzNat,none) .
-  eq fresh-wa-id(N:Nat + P:NzNat,< webapp(N:Nat)| none >)
-    = fresh-wa-id(N:Nat + P:NzNat,none) .
-  eq fresh-wa-id(N:Nat + P:NzNat,C:Configuration < webapp(N:Nat)| A:AttributeSet >)
-    = fresh-wa-id(N:Nat + P:NzNat,C:Configuration) .
-  eq fresh-wa-id(N:Nat + P:NzNat,C:Configuration < webapp(N:Nat)| none >)
-    = fresh-wa-id(N:Nat + P:NzNat,C:Configuration) .
-  eq label-for-netproc(NI:NetProcId,NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
+  eq fresh-wa-id?(P:NzNat,< webapp(0)| A:AttributeSet >)
+    = fresh-wa-id?(P:NzNat,none) .
+  eq fresh-wa-id?(P:NzNat,< webapp(0)| none >)
+    = fresh-wa-id?(P:NzNat,none) .
+  eq fresh-wa-id?(P:NzNat,C:Configuration < webapp(0)| A:AttributeSet >)
+    = fresh-wa-id?(P:NzNat,C:Configuration) .
+  eq fresh-wa-id?(P:NzNat,C:Configuration < webapp(0)| none >)
+    = fresh-wa-id?(P:NzNat,C:Configuration) .
+  eq fresh-wa-id?(N:Nat + P:NzNat,< webapp(N:Nat)| A:AttributeSet >)
+    = fresh-wa-id?(N:Nat + P:NzNat,none) .
+  eq fresh-wa-id?(N:Nat + P:NzNat,< webapp(N:Nat)| none >)
+    = fresh-wa-id?(N:Nat + P:NzNat,none) .
+  eq fresh-wa-id?(N:Nat + P:NzNat,C:Configuration < webapp(N:Nat)| A:AttributeSet >)
+    = fresh-wa-id?(N:Nat + P:NzNat,C:Configuration) .
+  eq fresh-wa-id?(N:Nat + P:NzNat,C:Configuration < webapp(N:Nat)| none >)
+    = fresh-wa-id?(N:Nat + P:NzNat,C:Configuration) .
+  eq label-for-netproc?(NI:NetProcId,NIS:NetworkProcInfoSet,np pi(NI:NetProcId,IN:Label,OUT:Label))
     = IN:Label .
-  eq label-for-netproc(NI:NetProcId,pi(NI:NetProcId,IN:Label,OUT:Label))
+  eq label-for-netproc?(NI:NetProcId,pi(NI:NetProcId,IN:Label,OUT:Label))
     = IN:Label .
-  eq matching-procs(NI:NetProcId,WI:WebAppId,mtWPIS,NPIS:NetworkProcInfoSet)
+  eq matching-procs1?(NI:NetProcId,L:Label,mtNPIS)
     = false .
-  eq matching-procs(NI:NetProcId,WI:WebAppId,mtWPIS,mtNPIS)
-    = false .
-  eq matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI:WebAppId,L:Label),NPIS:NetworkProcInfoSet)
-    = matching-procs1(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet)or matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,NPIS:NetworkProcInfoSet) .
-  eq matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI:WebAppId,L:Label),mtNPIS)
-    = matching-procs1(NI:NetProcId,L:Label,mtNPIS)or matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,mtNPIS) .
-  eq matching-procs(NI:NetProcId,WI:WebAppId,pi(WI:WebAppId,L:Label),NPIS:NetworkProcInfoSet)
-    = matching-procs1(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet)or matching-procs(NI:NetProcId,WI:WebAppId,mtWPIS,NPIS:NetworkProcInfoSet) .
-  eq matching-procs(NI:NetProcId,WI:WebAppId,pi(WI:WebAppId,L:Label),mtNPIS)
-    = matching-procs1(NI:NetProcId,L:Label,mtNPIS)or matching-procs(NI:NetProcId,WI:WebAppId,mtWPIS,mtNPIS) .
-  eq matching-procs1(NI:NetProcId,L:Label,mtNPIS)
-    = false .
-  eq matching-procs1(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet,np pi(NI:NetProcId,L:Label,L'':Label))
+  eq matching-procs1?(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet,np pi(NI:NetProcId,L:Label,L'':Label))
     = true .
-  eq matching-procs1(NI:NetProcId,L:Label,pi(NI:NetProcId,L:Label,L'':Label))
+  eq matching-procs1?(NI:NetProcId,L:Label,pi(NI:NetProcId,L:Label,L'':Label))
     = true .
+  eq matching-procs?(NI:NetProcId,WI:WebAppId,mtWPIS,NPIS:NetworkProcInfoSet)
+    = false .
+  eq matching-procs?(NI:NetProcId,WI:WebAppId,mtWPIS,mtNPIS)
+    = false .
+  eq matching-procs?(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI:WebAppId,L:Label),NPIS:NetworkProcInfoSet)
+    = matching-procs1?(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet)or matching-procs?(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,NPIS:NetworkProcInfoSet) .
+  eq matching-procs?(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI:WebAppId,L:Label),mtNPIS)
+    = matching-procs1?(NI:NetProcId,L:Label,mtNPIS)or matching-procs?(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,mtNPIS) .
+  eq matching-procs?(NI:NetProcId,WI:WebAppId,pi(WI:WebAppId,L:Label),NPIS:NetworkProcInfoSet)
+    = matching-procs1?(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet)or matching-procs?(NI:NetProcId,WI:WebAppId,mtWPIS,NPIS:NetworkProcInfoSet) .
+  eq matching-procs?(NI:NetProcId,WI:WebAppId,pi(WI:WebAppId,L:Label),mtNPIS)
+    = matching-procs1?(NI:NetProcId,L:Label,mtNPIS)or matching-procs?(NI:NetProcId,WI:WebAppId,mtWPIS,mtNPIS) .
   ceq ch-p14(msg(WI:WebAppId,NI:NetProcId,MT:MsgType,OUT:Label),WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,N:Nat)
     = true
-    if not networkproc-for-label(IN:Label,NIS:NetworkProcInfoSet)or IN:Label ~l label-for-netproc(NI:NetProcId,NIS:NetworkProcInfoSet)= true .
+    if not networkproc-for-label?(IN:Label,NIS:NetworkProcInfoSet)or IN:Label ~l label-for-netproc?(NI:NetProcId,NIS:NetworkProcInfoSet)= true .
   ceq ch-p14(msg(WI:WebAppId,NI:NetProcId,MT:MsgType,OUT:Label),WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),mtNPIS,N:Nat)
     = true
-    if not networkproc-for-label(IN:Label,mtNPIS)or IN:Label ~l label-for-netproc(NI:NetProcId,mtNPIS)= true .
+    if not networkproc-for-label?(IN:Label,mtNPIS)or IN:Label ~l label-for-netproc?(NI:NetProcId,mtNPIS)= true .
   ceq ch-p14(msg(WI:WebAppId,NI:NetProcId,MT:MsgType,OUT:Label),pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,N:Nat)
     = true
-    if not networkproc-for-label(IN:Label,NIS:NetworkProcInfoSet)or IN:Label ~l label-for-netproc(NI:NetProcId,NIS:NetworkProcInfoSet)= true .
+    if not networkproc-for-label?(IN:Label,NIS:NetworkProcInfoSet)or IN:Label ~l label-for-netproc?(NI:NetProcId,NIS:NetworkProcInfoSet)= true .
   ceq ch-p14(msg(WI:WebAppId,NI:NetProcId,MT:MsgType,OUT:Label),pi(WI:WebAppId,IN:Label),mtNPIS,N:Nat)
     = true
-    if not networkproc-for-label(IN:Label,mtNPIS)or IN:Label ~l label-for-netproc(NI:NetProcId,mtNPIS)= true .
-  ceq dupl(< PI:ProcessId | none > < PI':ProcessId | none >)
-    = dupl(< PI:ProcessId | none >)and dupl(< PI':ProcessId | none >)
+    if not networkproc-for-label?(IN:Label,mtNPIS)or IN:Label ~l label-for-netproc?(NI:NetProcId,mtNPIS)= true .
+  ceq dupl?(< PI:ProcessId | none > < PI':ProcessId | none >)
+    = dupl?(< PI:ProcessId | none >)and dupl?(< PI':ProcessId | none >)
     if PI:ProcessId ~p PI':ProcessId = false .
-  ceq dupl(C:Configuration < PI:ProcessId | none > < PI':ProcessId | none >)
-    = dupl(C:Configuration < PI:ProcessId | none >)and dupl(C:Configuration < PI':ProcessId | none >)
+  ceq dupl?(C:Configuration < PI:ProcessId | none > < PI':ProcessId | none >)
+    = dupl?(C:Configuration < PI:ProcessId | none >)and dupl?(C:Configuration < PI':ProcessId | none >)
     if PI:ProcessId ~p PI':ProcessId = false .
-  ceq fresh-np-id(1,C:Configuration)
+  ceq fresh-np-id?(1,C:Configuration)
     = true
-    if fresh-np-id(0,C:Configuration)= true .
-  ceq fresh-np-id(1,none)
+    if fresh-np-id?(0,C:Configuration)= true .
+  ceq fresh-np-id?(1,none)
     = true
-    if fresh-np-id(0,none)= true .
-  ceq fresh-np-id(1 + N:Nat,C:Configuration)
+    if fresh-np-id?(0,none)= true .
+  ceq fresh-np-id?(1 + N:Nat,C:Configuration)
     = true
-    if fresh-np-id(N:Nat,C:Configuration)= true .
-  ceq fresh-np-id(1 + N:Nat,none)
+    if fresh-np-id?(N:Nat,C:Configuration)= true .
+  ceq fresh-np-id?(1 + N:Nat,none)
     = true
-    if fresh-np-id(N:Nat,none)= true .
-  ceq fresh-wa-id(1,C:Configuration)
+    if fresh-np-id?(N:Nat,none)= true .
+  ceq fresh-wa-id?(1,C:Configuration)
     = true
-    if fresh-wa-id(0,C:Configuration)= true .
-  ceq fresh-wa-id(1,none)
+    if fresh-wa-id?(0,C:Configuration)= true .
+  ceq fresh-wa-id?(1,none)
     = true
-    if fresh-wa-id(0,none)= true .
-  ceq fresh-wa-id(1 + N:Nat,C:Configuration)
+    if fresh-wa-id?(0,none)= true .
+  ceq fresh-wa-id?(1 + N:Nat,C:Configuration)
     = true
-    if fresh-wa-id(N:Nat,C:Configuration)= true .
-  ceq fresh-wa-id(1 + N:Nat,none)
+    if fresh-wa-id?(N:Nat,C:Configuration)= true .
+  ceq fresh-wa-id?(1 + N:Nat,none)
     = true
-    if fresh-wa-id(N:Nat,none)= true .
-  ceq matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI':WebAppId,L:Label),NPIS:NetworkProcInfoSet)
-    = matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,NPIS:NetworkProcInfoSet)
-    if WI:WebAppId ~p WI':WebAppId = false .
-  ceq matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI':WebAppId,L:Label),mtNPIS)
-    = matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,mtNPIS)
-    if WI:WebAppId ~p WI':WebAppId = false .
-  ceq matching-procs(NI:NetProcId,WI:WebAppId,pi(WI':WebAppId,L:Label),NPIS:NetworkProcInfoSet)
-    = matching-procs(NI:NetProcId,WI:WebAppId,mtWPIS,NPIS:NetworkProcInfoSet)
-    if WI:WebAppId ~p WI':WebAppId = false .
-  ceq matching-procs(NI:NetProcId,WI:WebAppId,pi(WI':WebAppId,L:Label),mtNPIS)
-    = matching-procs(NI:NetProcId,WI:WebAppId,mtWPIS,mtNPIS)
-    if WI:WebAppId ~p WI':WebAppId = false .
-  ceq matching-procs1(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet,np pi(NI':NetProcId,L':Label,L'':Label))
-    = matching-procs1(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet)
+    if fresh-wa-id?(N:Nat,none)= true .
+  ceq matching-procs1?(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet,np pi(NI':NetProcId,L':Label,L'':Label))
+    = matching-procs1?(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet)
     if NI:NetProcId ~p NI':NetProcId and L:Label ~l L':Label = false .
-  ceq matching-procs1(NI:NetProcId,L:Label,pi(NI':NetProcId,L':Label,L'':Label))
-    = matching-procs1(NI:NetProcId,L:Label,mtNPIS)
+  ceq matching-procs1?(NI:NetProcId,L:Label,pi(NI':NetProcId,L':Label,L'':Label))
+    = matching-procs1?(NI:NetProcId,L:Label,mtNPIS)
     if NI:NetProcId ~p NI':NetProcId and L:Label ~l L':Label = false .
+  ceq matching-procs?(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI':WebAppId,L:Label),NPIS:NetworkProcInfoSet)
+    = matching-procs?(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,NPIS:NetworkProcInfoSet)
+    if WI:WebAppId ~p WI':WebAppId = false .
+  ceq matching-procs?(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI':WebAppId,L:Label),mtNPIS)
+    = matching-procs?(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,mtNPIS)
+    if WI:WebAppId ~p WI':WebAppId = false .
+  ceq matching-procs?(NI:NetProcId,WI:WebAppId,pi(WI':WebAppId,L:Label),NPIS:NetworkProcInfoSet)
+    = matching-procs?(NI:NetProcId,WI:WebAppId,mtWPIS,NPIS:NetworkProcInfoSet)
+    if WI:WebAppId ~p WI':WebAppId = false .
+  ceq matching-procs?(NI:NetProcId,WI:WebAppId,pi(WI':WebAppId,L:Label),mtNPIS)
+    = matching-procs?(NI:NetProcId,WI:WebAppId,mtWPIS,mtNPIS)
+    if WI:WebAppId ~p WI':WebAppId = false .
   eq mtLS & X0:[LabelList,LabelSet,MaybeLabel]
     = X0:[LabelList,LabelSet,MaybeLabel] [metadata "id" variant] .
   eq 0 + X1:[Nat]
@@ -724,18 +724,18 @@ fmod IBOS-SOP-PRED-NOID is
     = N:Nat ~n N':Nat [variant] .
   eq webapp(N:Nat)~p webapp(N':Nat)
     = N:Nat ~n N':Nat [variant] .
-  eq networkproc(N:Nat,mtNPIS)
-    = false [label nnpf] .
-  eq networkproc(N:Nat,NPIS:NetworkProcInfoSet,np pi(network(N:Nat),L:Label,L':Label))
-    = true [label nnp variant] .
-  eq networkproc(N:Nat,pi(network(N:Nat),L:Label,L':Label))
-    = true [label nnp variant] .
-  eq networkproc-for-label(L':Label,mtNPIS)
+  eq networkproc-for-label?(L':Label,mtNPIS)
     = false [label nnplf] .
-  eq networkproc-for-label(L':Label,NPIS:NetworkProcInfoSet,np pi(network(N:Nat),L:Label,L':Label))
+  eq networkproc-for-label?(L':Label,NPIS:NetworkProcInfoSet,np pi(network(N:Nat),L:Label,L':Label))
     = true [label nnpl variant] .
-  eq networkproc-for-label(L':Label,pi(network(N:Nat),L:Label,L':Label))
+  eq networkproc-for-label?(L':Label,pi(network(N:Nat),L:Label,L':Label))
     = true [label nnpl variant] .
+  eq networkproc?(N:Nat,mtNPIS)
+    = false [label nnpf] .
+  eq networkproc?(N:Nat,NPIS:NetworkProcInfoSet,np pi(network(N:Nat),L:Label,L':Label))
+    = true [label nnp variant] .
+  eq networkproc?(N:Nat,pi(network(N:Nat),L:Label,L':Label))
+    = true [label nnp variant] .
   eq not false
     = true [variant] .
   eq not true
@@ -1692,172 +1692,172 @@ fmod IBOS-SOP-PRED-NOID is
     = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet) [label p5-6] .
   eq p5(C:Configuration < network | none >,mtWPIS,mtNPIS)
     = p5(C:Configuration,mtWPIS,mtNPIS) [label p5-6] .
-  eq webapp(N:Nat,mtWPIS)
+  eq webapp?(N:Nat,mtWPIS)
     = false [label nwaf] .
-  eq webapp(N:Nat,WPIS:WebappProcInfoSet,wp pi(webapp(N:Nat),L:Label))
+  eq webapp?(N:Nat,WPIS:WebappProcInfoSet,wp pi(webapp(N:Nat),L:Label))
     = true [label nwa variant] .
-  eq webapp(N:Nat,pi(webapp(N:Nat),L:Label))
+  eq webapp?(N:Nat,pi(webapp(N:Nat),L:Label))
     = true [label nwa variant] .
-  ceq networkproc(N:Nat,NPIS:NetworkProcInfoSet,np pi(network(N':Nat),L:Label,L':Label))
-    = networkproc(N:Nat,NPIS:NetworkProcInfoSet)
-    if N:Nat ~n N':Nat = false [label nnp2] .
-  ceq networkproc(N:Nat,pi(network(N':Nat),L:Label,L':Label))
-    = networkproc(N:Nat,mtNPIS)
-    if N:Nat ~n N':Nat = false [label nnp2] .
-  ceq networkproc-for-label(L':Label,NPIS:NetworkProcInfoSet,np pi(network(N:Nat),L:Label,L'':Label))
-    = networkproc-for-label(L':Label,NPIS:NetworkProcInfoSet)
+  ceq networkproc-for-label?(L':Label,NPIS:NetworkProcInfoSet,np pi(network(N:Nat),L:Label,L'':Label))
+    = networkproc-for-label?(L':Label,NPIS:NetworkProcInfoSet)
     if L':Label ~l L'':Label = false [label nnpl2] .
-  ceq networkproc-for-label(L':Label,pi(network(N:Nat),L:Label,L'':Label))
-    = networkproc-for-label(L':Label,mtNPIS)
+  ceq networkproc-for-label?(L':Label,pi(network(N:Nat),L:Label,L'':Label))
+    = networkproc-for-label?(L':Label,mtNPIS)
     if L':Label ~l L'':Label = false [label nnpl2] .
+  ceq networkproc?(N:Nat,NPIS:NetworkProcInfoSet,np pi(network(N':Nat),L:Label,L':Label))
+    = networkproc?(N:Nat,NPIS:NetworkProcInfoSet)
+    if N:Nat ~n N':Nat = false [label nnp2] .
+  ceq networkproc?(N:Nat,pi(network(N':Nat),L:Label,L':Label))
+    = networkproc?(N:Nat,mtNPIS)
+    if N:Nat ~n N':Nat = false [label nnp2] .
   ceq p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
     = p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
-    if fresh-np-id(N:Nat,C:Configuration)= true [label p1-A] .
+    if fresh-np-id?(N:Nat,C:Configuration)= true [label p1-A] .
   ceq p1(C:Configuration,WIS:WebappProcInfoSet,pi(network(N:Nat),IN:Label,OUT:Label))
     = p1(C:Configuration,WIS:WebappProcInfoSet,mtNPIS)
-    if fresh-np-id(N:Nat,C:Configuration)= true [label p1-A] .
+    if fresh-np-id?(N:Nat,C:Configuration)= true [label p1-A] .
   ceq p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
     = p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet)
-    if fresh-np-id(N:Nat,C:Configuration)= true [label p1-A] .
+    if fresh-np-id?(N:Nat,C:Configuration)= true [label p1-A] .
   ceq p1(C:Configuration,mtWPIS,pi(network(N:Nat),IN:Label,OUT:Label))
     = p1(C:Configuration,mtWPIS,mtNPIS)
-    if fresh-np-id(N:Nat,C:Configuration)= true [label p1-A] .
+    if fresh-np-id?(N:Nat,C:Configuration)= true [label p1-A] .
   ceq p1(C:Configuration,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
     = p1(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
-    if fresh-wa-id(W:Nat,C:Configuration)= true [label p1-9] .
+    if fresh-wa-id?(W:Nat,C:Configuration)= true [label p1-9] .
   ceq p1(C:Configuration,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p1(C:Configuration,WIS:WebappProcInfoSet,mtNPIS)
-    if fresh-wa-id(W:Nat,C:Configuration)= true [label p1-9] .
+    if fresh-wa-id?(W:Nat,C:Configuration)= true [label p1-9] .
   ceq p1(C:Configuration,pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
     = p1(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet)
-    if fresh-wa-id(W:Nat,C:Configuration)= true [label p1-9] .
+    if fresh-wa-id?(W:Nat,C:Configuration)= true [label p1-9] .
   ceq p1(C:Configuration,pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p1(C:Configuration,mtWPIS,mtNPIS)
-    if fresh-wa-id(W:Nat,C:Configuration)= true [label p1-9] .
+    if fresh-wa-id?(W:Nat,C:Configuration)= true [label p1-9] .
   ceq p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
     = p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
-    if fresh-np-id(N:Nat,none)= true [label p1-A] .
+    if fresh-np-id?(N:Nat,none)= true [label p1-A] .
   ceq p1(none,WIS:WebappProcInfoSet,pi(network(N:Nat),IN:Label,OUT:Label))
     = p1(none,WIS:WebappProcInfoSet,mtNPIS)
-    if fresh-np-id(N:Nat,none)= true [label p1-A] .
+    if fresh-np-id?(N:Nat,none)= true [label p1-A] .
   ceq p1(none,mtWPIS,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
     = p1(none,mtWPIS,NIS:NetworkProcInfoSet)
-    if fresh-np-id(N:Nat,none)= true [label p1-A] .
+    if fresh-np-id?(N:Nat,none)= true [label p1-A] .
   ceq p1(none,mtWPIS,pi(network(N:Nat),IN:Label,OUT:Label))
     = p1(none,mtWPIS,mtNPIS)
-    if fresh-np-id(N:Nat,none)= true [label p1-A] .
+    if fresh-np-id?(N:Nat,none)= true [label p1-A] .
   ceq p1(none,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
     = p1(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
-    if fresh-wa-id(W:Nat,none)= true [label p1-9] .
+    if fresh-wa-id?(W:Nat,none)= true [label p1-9] .
   ceq p1(none,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p1(none,WIS:WebappProcInfoSet,mtNPIS)
-    if fresh-wa-id(W:Nat,none)= true [label p1-9] .
+    if fresh-wa-id?(W:Nat,none)= true [label p1-9] .
   ceq p1(none,pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
     = p1(none,mtWPIS,NIS:NetworkProcInfoSet)
-    if fresh-wa-id(W:Nat,none)= true [label p1-9] .
+    if fresh-wa-id?(W:Nat,none)= true [label p1-9] .
   ceq p1(none,pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p1(none,mtWPIS,mtNPIS)
-    if fresh-wa-id(W:Nat,none)= true [label p1-9] .
+    if fresh-wa-id?(W:Nat,none)= true [label p1-9] .
   ceq p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
     = p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
-    if fresh-np-id(N:Nat,C:Configuration)= true [label p4-A] .
+    if fresh-np-id?(N:Nat,C:Configuration)= true [label p4-A] .
   ceq p4(C:Configuration,WIS:WebappProcInfoSet,pi(network(N:Nat),IN:Label,OUT:Label))
     = p4(C:Configuration,WIS:WebappProcInfoSet,mtNPIS)
-    if fresh-np-id(N:Nat,C:Configuration)= true [label p4-A] .
+    if fresh-np-id?(N:Nat,C:Configuration)= true [label p4-A] .
   ceq p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
     = p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet)
-    if fresh-np-id(N:Nat,C:Configuration)= true [label p4-A] .
+    if fresh-np-id?(N:Nat,C:Configuration)= true [label p4-A] .
   ceq p4(C:Configuration,mtWPIS,pi(network(N:Nat),IN:Label,OUT:Label))
     = p4(C:Configuration,mtWPIS,mtNPIS)
-    if fresh-np-id(N:Nat,C:Configuration)= true [label p4-A] .
+    if fresh-np-id?(N:Nat,C:Configuration)= true [label p4-A] .
   ceq p4(C:Configuration,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
     = p4(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
-    if fresh-wa-id(W:Nat,C:Configuration)= true [label p4-9] .
+    if fresh-wa-id?(W:Nat,C:Configuration)= true [label p4-9] .
   ceq p4(C:Configuration,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p4(C:Configuration,WIS:WebappProcInfoSet,mtNPIS)
-    if fresh-wa-id(W:Nat,C:Configuration)= true [label p4-9] .
+    if fresh-wa-id?(W:Nat,C:Configuration)= true [label p4-9] .
   ceq p4(C:Configuration,pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
     = p4(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet)
-    if fresh-wa-id(W:Nat,C:Configuration)= true [label p4-9] .
+    if fresh-wa-id?(W:Nat,C:Configuration)= true [label p4-9] .
   ceq p4(C:Configuration,pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p4(C:Configuration,mtWPIS,mtNPIS)
-    if fresh-wa-id(W:Nat,C:Configuration)= true [label p4-9] .
+    if fresh-wa-id?(W:Nat,C:Configuration)= true [label p4-9] .
   ceq p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
     = p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
-    if fresh-np-id(N:Nat,none)= true [label p4-A] .
+    if fresh-np-id?(N:Nat,none)= true [label p4-A] .
   ceq p4(none,WIS:WebappProcInfoSet,pi(network(N:Nat),IN:Label,OUT:Label))
     = p4(none,WIS:WebappProcInfoSet,mtNPIS)
-    if fresh-np-id(N:Nat,none)= true [label p4-A] .
+    if fresh-np-id?(N:Nat,none)= true [label p4-A] .
   ceq p4(none,mtWPIS,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
     = p4(none,mtWPIS,NIS:NetworkProcInfoSet)
-    if fresh-np-id(N:Nat,none)= true [label p4-A] .
+    if fresh-np-id?(N:Nat,none)= true [label p4-A] .
   ceq p4(none,mtWPIS,pi(network(N:Nat),IN:Label,OUT:Label))
     = p4(none,mtWPIS,mtNPIS)
-    if fresh-np-id(N:Nat,none)= true [label p4-A] .
+    if fresh-np-id?(N:Nat,none)= true [label p4-A] .
   ceq p4(none,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
     = p4(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
-    if fresh-wa-id(W:Nat,none)= true [label p4-9] .
+    if fresh-wa-id?(W:Nat,none)= true [label p4-9] .
   ceq p4(none,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p4(none,WIS:WebappProcInfoSet,mtNPIS)
-    if fresh-wa-id(W:Nat,none)= true [label p4-9] .
+    if fresh-wa-id?(W:Nat,none)= true [label p4-9] .
   ceq p4(none,pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
     = p4(none,mtWPIS,NIS:NetworkProcInfoSet)
-    if fresh-wa-id(W:Nat,none)= true [label p4-9] .
+    if fresh-wa-id?(W:Nat,none)= true [label p4-9] .
   ceq p4(none,pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p4(none,mtWPIS,mtNPIS)
-    if fresh-wa-id(W:Nat,none)= true [label p4-9] .
+    if fresh-wa-id?(W:Nat,none)= true [label p4-9] .
   ceq p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
     = p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
-    if fresh-np-id(N:Nat,C:Configuration)= true [label p5-A] .
+    if fresh-np-id?(N:Nat,C:Configuration)= true [label p5-A] .
   ceq p5(C:Configuration,WIS:WebappProcInfoSet,pi(network(N:Nat),IN:Label,OUT:Label))
     = p5(C:Configuration,WIS:WebappProcInfoSet,mtNPIS)
-    if fresh-np-id(N:Nat,C:Configuration)= true [label p5-A] .
+    if fresh-np-id?(N:Nat,C:Configuration)= true [label p5-A] .
   ceq p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
     = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet)
-    if fresh-np-id(N:Nat,C:Configuration)= true [label p5-A] .
+    if fresh-np-id?(N:Nat,C:Configuration)= true [label p5-A] .
   ceq p5(C:Configuration,mtWPIS,pi(network(N:Nat),IN:Label,OUT:Label))
     = p5(C:Configuration,mtWPIS,mtNPIS)
-    if fresh-np-id(N:Nat,C:Configuration)= true [label p5-A] .
+    if fresh-np-id?(N:Nat,C:Configuration)= true [label p5-A] .
   ceq p5(C:Configuration,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
     = p5(C:Configuration,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
-    if fresh-wa-id(W:Nat,C:Configuration)= true [label p5-9] .
+    if fresh-wa-id?(W:Nat,C:Configuration)= true [label p5-9] .
   ceq p5(C:Configuration,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p5(C:Configuration,WIS:WebappProcInfoSet,mtNPIS)
-    if fresh-wa-id(W:Nat,C:Configuration)= true [label p5-9] .
+    if fresh-wa-id?(W:Nat,C:Configuration)= true [label p5-9] .
   ceq p5(C:Configuration,pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
     = p5(C:Configuration,mtWPIS,NIS:NetworkProcInfoSet)
-    if fresh-wa-id(W:Nat,C:Configuration)= true [label p5-9] .
+    if fresh-wa-id?(W:Nat,C:Configuration)= true [label p5-9] .
   ceq p5(C:Configuration,pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p5(C:Configuration,mtWPIS,mtNPIS)
-    if fresh-wa-id(W:Nat,C:Configuration)= true [label p5-9] .
+    if fresh-wa-id?(W:Nat,C:Configuration)= true [label p5-9] .
   ceq p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
     = p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
-    if fresh-np-id(N:Nat,none)= true [label p5-A] .
+    if fresh-np-id?(N:Nat,none)= true [label p5-A] .
   ceq p5(none,WIS:WebappProcInfoSet,pi(network(N:Nat),IN:Label,OUT:Label))
     = p5(none,WIS:WebappProcInfoSet,mtNPIS)
-    if fresh-np-id(N:Nat,none)= true [label p5-A] .
+    if fresh-np-id?(N:Nat,none)= true [label p5-A] .
   ceq p5(none,mtWPIS,NIS:NetworkProcInfoSet,np pi(network(N:Nat),IN:Label,OUT:Label))
     = p5(none,mtWPIS,NIS:NetworkProcInfoSet)
-    if fresh-np-id(N:Nat,none)= true [label p5-A] .
+    if fresh-np-id?(N:Nat,none)= true [label p5-A] .
   ceq p5(none,mtWPIS,pi(network(N:Nat),IN:Label,OUT:Label))
     = p5(none,mtWPIS,mtNPIS)
-    if fresh-np-id(N:Nat,none)= true [label p5-A] .
+    if fresh-np-id?(N:Nat,none)= true [label p5-A] .
   ceq p5(none,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
     = p5(none,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
-    if fresh-wa-id(W:Nat,none)= true [label p5-9] .
+    if fresh-wa-id?(W:Nat,none)= true [label p5-9] .
   ceq p5(none,WIS:WebappProcInfoSet,wp pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p5(none,WIS:WebappProcInfoSet,mtNPIS)
-    if fresh-wa-id(W:Nat,none)= true [label p5-9] .
+    if fresh-wa-id?(W:Nat,none)= true [label p5-9] .
   ceq p5(none,pi(webapp(W:Nat),IN:Label),NIS:NetworkProcInfoSet)
     = p5(none,mtWPIS,NIS:NetworkProcInfoSet)
-    if fresh-wa-id(W:Nat,none)= true [label p5-9] .
+    if fresh-wa-id?(W:Nat,none)= true [label p5-9] .
   ceq p5(none,pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p5(none,mtWPIS,mtNPIS)
-    if fresh-wa-id(W:Nat,none)= true [label p5-9] .
-  ceq webapp(N:Nat,WPIS:WebappProcInfoSet,wp pi(webapp(N':Nat),L:Label))
-    = webapp(N:Nat,WPIS:WebappProcInfoSet)
+    if fresh-wa-id?(W:Nat,none)= true [label p5-9] .
+  ceq webapp?(N:Nat,WPIS:WebappProcInfoSet,wp pi(webapp(N':Nat),L:Label))
+    = webapp?(N:Nat,WPIS:WebappProcInfoSet)
     if N:Nat ~n N':Nat = false [label nwa2] .
-  ceq webapp(N:Nat,pi(webapp(N':Nat),L:Label))
-    = webapp(N:Nat,mtWPIS)
+  ceq webapp?(N:Nat,pi(webapp(N':Nat),L:Label))
+    = webapp?(N:Nat,mtWPIS)
     if N:Nat ~n N':Nat = false [label nwa2] .
 endfm

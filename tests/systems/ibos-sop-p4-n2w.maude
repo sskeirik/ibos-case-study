@@ -1,4 +1,4 @@
-load ibos-sop-base.maude
+load ibos-sop-noau.maude
 load ibos-sop-base-noid.maude
 
 set show advisories off .
@@ -29,15 +29,16 @@ loop rltl-init .
 --- 2. kernelReceivesOPMessage-pa7-cc1a
 --- 3. kernelReceivesOPMessage-pa6-cc2b
 --- 4. kernelReceivesOPMessage-pa6-cc2a
+--- 5. new-url
 
----(select-rls new-url .)
----(select-rls stop .)
+--- Todo:
 ---(select-rls kernelForwardsOPMessage .)
 
-(select-rls new-url stop .)
+--- Usage: select-rls ...
+(select-rls kernelReceivesOPMessage-pa7-cc1b .)
 
 (use tool conrew for validity on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMPL .)
-(use tool varsat for validity on KERNEL-POLICIES-NONFVP .)
+(use tool varsat for validity on IBOS-SOP-FVP-EQS .)
 (declare-vars (C:NeConfiguration) U (WPIS:WebappProcInfoSet) U (NPIS:NetworkProcInfoSet) U (MSG:Message) U
               (PS:PolicySet) U (NNP:Nat) U (NWA:Nat) U (U:Label) U (B:Bool) U (B':Bool) .)
 (def-term-set ([C]) | true .)
@@ -53,16 +54,26 @@ loop rltl-init .
    (ch-p14(MSG,WPIS,NPIS,NNP))                    = (true)   /\
    --- these are strengthenings of the invariant above that allow the simplification rules to apply more often
    --- they are not strictly needed for correctness --- the invariant above should be enough
-   (fresh-np-id(NNP,C))                           = (true)   /\
-   (fresh-wa-id(NWA,C))                           = (true)   /\
-   (dupl(C < webappmgr | nextWAN(NWA)         >
-           < kernel    | nextNetworkProc(NNP) >)) = (false)
+   (fresh-np-id?(NNP,C))                          = (true)   /\
+   (fresh-wa-id?(NWA,C))                          = (true)   /\
+   (dupl?(C < webappmgr | nextWAN(NWA)      >
+            < kernel | nextNetworkProc(NNP) >))   = (false)
 .)
 (start-proof .)
 --- set break on .
 --- set print conceal on .
---- print conceal mod_is_sorts_._____endm fmod_is_sorts_.____endfm _;;_ ((_:_)) __ .
---- break select simp-action step-action .
+--- print conceal fmod_is_sorts_.____endfm _;;_ ((_:_)) .
+--- break select #top-narrow .
 (auto .)
+--- break select unifiers .
+--- resume .
+--- step .
+--- step .
+--- quit 
+---(
+--- (auto .)
+--- (list-goals .)
+--- quit .
 --- (cases ({< kernel | handledCurrently(msg(N:NetProcId,W:WebAppId,MT:MsgType,OUT:Label)), AS:AttributeSet > C}) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
 --- (cases+ ({C}) | ((true) = (B' a (B o (false ~ (MSG-RETURN-URL ~ MT:MsgType))))) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
+---)
