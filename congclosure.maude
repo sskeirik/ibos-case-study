@@ -156,7 +156,7 @@ fmod CONG-CLOSURE-ENRICHMENT is
   eq getTaggedIdEqs(U) = getTaggedIdEqs(getEqs(U)) .
 
   op getTaggedIdEqs : EquationSet -> EquationSet .
-  eq getTaggedIdEqs(E ES) = if substr(metadata(E),0,3) == "id " then E else none fi getTaggedIdEqs(ES) .
+  eq getTaggedIdEqs(E ES) = if substr(metadata(E),0,3) == "id" then E else none fi getTaggedIdEqs(ES) .
   eq getTaggedIdEqs(none) = none .
 endfm
 
