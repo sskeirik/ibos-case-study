@@ -564,6 +564,30 @@ fmod IBOS-SOP-PRED-NOID is
   ceq dupl(C:Configuration < PI:ProcessId | none > < PI':ProcessId | none >)
     = dupl(C:Configuration < PI:ProcessId | none >)and dupl(C:Configuration < PI':ProcessId | none >)
     if PI:ProcessId ~p PI':ProcessId = false .
+  ceq fresh-np-id(1,C:Configuration)
+    = true
+    if fresh-np-id(0,C:Configuration)= true .
+  ceq fresh-np-id(1,none)
+    = true
+    if fresh-np-id(0,none)= true .
+  ceq fresh-np-id(1 + N:Nat,C:Configuration)
+    = true
+    if fresh-np-id(N:Nat,C:Configuration)= true .
+  ceq fresh-np-id(1 + N:Nat,none)
+    = true
+    if fresh-np-id(N:Nat,none)= true .
+  ceq fresh-wa-id(1,C:Configuration)
+    = true
+    if fresh-wa-id(0,C:Configuration)= true .
+  ceq fresh-wa-id(1,none)
+    = true
+    if fresh-wa-id(0,none)= true .
+  ceq fresh-wa-id(1 + N:Nat,C:Configuration)
+    = true
+    if fresh-wa-id(N:Nat,C:Configuration)= true .
+  ceq fresh-wa-id(1 + N:Nat,none)
+    = true
+    if fresh-wa-id(N:Nat,none)= true .
   ceq matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,wp pi(WI':WebAppId,L:Label),NPIS:NetworkProcInfoSet)
     = matching-procs(NI:NetProcId,WI:WebAppId,WPIS:WebappProcInfoSet,NPIS:NetworkProcInfoSet)
     if WI:WebAppId ~p WI':WebAppId = false .
@@ -582,18 +606,18 @@ fmod IBOS-SOP-PRED-NOID is
   ceq matching-procs1(NI:NetProcId,L:Label,pi(NI':NetProcId,L':Label,L'':Label))
     = matching-procs1(NI:NetProcId,L:Label,mtNPIS)
     if NI:NetProcId ~p NI':NetProcId and L:Label ~l L':Label = false .
-  eq mtLS & X:[LabelList,LabelSet,MaybeLabel]
-    = X:[LabelList,LabelSet,MaybeLabel] [metadata "id comm" variant] .
-  eq 0 + X:[Nat]
-    = X:[Nat] [metadata "id comm" variant] .
-  eq X:[LabelList,LabelSet,MaybeLabel]; mtLL
-    = X:[LabelList,LabelSet,MaybeLabel] [metadata "id right" variant] .
-  eq X:[LabelList,LabelSet,MaybeLabel]; mtLL ; Y:[LabelList,LabelSet,MaybeLabel]
-    = X:[LabelList,LabelSet,MaybeLabel]; Y:[LabelList,LabelSet,MaybeLabel] [metadata "id assoc-left" variant] .
-  eq mtLL ; X:[LabelList,LabelSet,MaybeLabel]
-    = X:[LabelList,LabelSet,MaybeLabel] [metadata "id left" variant] .
-  eq (X:[LabelList,LabelSet,MaybeLabel]; mtLL); Y:[LabelList,LabelSet,MaybeLabel]
-    = X:[LabelList,LabelSet,MaybeLabel]; Y:[LabelList,LabelSet,MaybeLabel] [metadata "id assoc-right" variant] .
+  eq mtLS & X0:[LabelList,LabelSet,MaybeLabel]
+    = X0:[LabelList,LabelSet,MaybeLabel] [metadata "id" variant] .
+  eq 0 + X1:[Nat]
+    = X1:[Nat] [metadata "id" variant] .
+  eq X2:[LabelList,LabelSet,MaybeLabel]; mtLL
+    = X2:[LabelList,LabelSet,MaybeLabel] [metadata "id" variant] .
+  eq X2:[LabelList,LabelSet,MaybeLabel]; mtLL ; Y2:[LabelList,LabelSet,MaybeLabel]
+    = X2:[LabelList,LabelSet,MaybeLabel]; Y2:[LabelList,LabelSet,MaybeLabel] [metadata "id" variant] .
+  eq mtLL ; X2:[LabelList,LabelSet,MaybeLabel]
+    = X2:[LabelList,LabelSet,MaybeLabel] [metadata "id" variant] .
+  eq (X2:[LabelList,LabelSet,MaybeLabel]; mtLL); Y2:[LabelList,LabelSet,MaybeLabel]
+    = X2:[LabelList,LabelSet,MaybeLabel]; Y2:[LabelList,LabelSet,MaybeLabel] [metadata "id" variant] .
   eq 0 <= M:Nat
     = true [variant] .
   eq N:Nat <= N:Nat
@@ -614,24 +638,24 @@ fmod IBOS-SOP-PRED-NOID is
     = true [variant] .
   eq (N:Nat + M:Nat)< N:Nat
     = false [variant] .
-  eq X:[MessageList]@ mt
-    = X:[MessageList] [metadata "id right" variant] .
-  eq X:[MessageList]@ mt @ Y:[MessageList]
-    = X:[MessageList]@ Y:[MessageList] [metadata "id assoc-left" variant] .
-  eq mt @ X:[MessageList]
-    = X:[MessageList] [metadata "id left" variant] .
-  eq (X:[MessageList]@ mt)@ Y:[MessageList]
-    = X:[MessageList]@ Y:[MessageList] [metadata "id assoc-right" variant] .
-  eq none X:[Configuration]
-    = X:[Configuration] [metadata "id comm" variant] .
-  eq none,X:[AttributeSet]
-    = X:[AttributeSet] [metadata "id comm" variant] .
-  eq mtNPIS,np X:[NetworkProcInfoSet]
-    = X:[NetworkProcInfoSet] [metadata "id comm" variant] .
-  eq mtPS,ps X:[PolicySet]
-    = X:[PolicySet] [metadata "id comm" variant] .
-  eq mtWPIS,wp X:[WebappProcInfoSet]
-    = X:[WebappProcInfoSet] [metadata "id comm" variant] .
+  eq X3:[MessageList]@ mt
+    = X3:[MessageList] [metadata "id" variant] .
+  eq X3:[MessageList]@ mt @ Y3:[MessageList]
+    = X3:[MessageList]@ Y3:[MessageList] [metadata "id" variant] .
+  eq mt @ X3:[MessageList]
+    = X3:[MessageList] [metadata "id" variant] .
+  eq (X3:[MessageList]@ mt)@ Y3:[MessageList]
+    = X3:[MessageList]@ Y3:[MessageList] [metadata "id" variant] .
+  eq none X4:[Configuration]
+    = X4:[Configuration] [metadata "id" variant] .
+  eq none,X5:[AttributeSet]
+    = X5:[AttributeSet] [metadata "id" variant] .
+  eq mtNPIS,np X6:[NetworkProcInfoSet]
+    = X6:[NetworkProcInfoSet] [metadata "id" variant] .
+  eq mtPS,ps X7:[PolicySet]
+    = X7:[PolicySet] [metadata "id" variant] .
+  eq mtWPIS,wp X8:[WebappProcInfoSet]
+    = X8:[WebappProcInfoSet] [metadata "id" variant] .
   eq false and B:Bool
     = false [variant] .
   eq true and B:Bool
