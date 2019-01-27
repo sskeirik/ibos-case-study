@@ -256,7 +256,7 @@ endfm
 
 --- Example 1 (no id attributes, has conditional equations)
 red unsortify-1(ex1) .
-red unsortify(
+red unsortify(ex1,
   'sorted['__['N:Nat,'L:NeNatList]] != 'true.Bool \/
   'first ['__['N:Nat,'L:NeNatList]] ?= 'N:Nat) .
 
