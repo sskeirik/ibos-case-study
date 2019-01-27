@@ -5,15 +5,16 @@ fmod UNSORTIFY-FOFORM is
   var F1 F2 : QFForm .
   var T T' : Term .
   var QPS : QidPairSet .
+  var M : Module .
 
   --- lift unsorted/sorted conversions to modules
-  op unsortify : QFForm? -> QFForm? .
-  eq unsortify(mtForm)   = mtForm .
-  eq unsortify(F1 /\ F2) = unsortify(F1) /\ unsortify(F2) .
-  eq unsortify(F1 \/ F2) = unsortify(F1) \/ unsortify(F2) .
-  eq unsortify(~ F1)     = ~ unsortify(F1) .
-  eq unsortify(T ?= T')  = unsortify(T) ?= unsortify(T') .
-  eq unsortify(T != T')  = unsortify(T) != unsortify(T') .
+  op unsortify : Module QFForm? -> QFForm? .
+  eq unsortify(M,mtForm)   = mtForm .
+  eq unsortify(M,F1 /\ F2) = unsortify(M,F1) /\ unsortify(M,F2) .
+  eq unsortify(M,F1 \/ F2) = unsortify(M,F1) \/ unsortify(M,F2) .
+  eq unsortify(M,~ F1)     = ~ unsortify(M,F1) .
+  eq unsortify(M,T ?= T')  = unsortify(M,T) ?= unsortify(M,T') .
+  eq unsortify(M,T != T')  = unsortify(M,T) != unsortify(M,T') .
 endfm
 
 --- this module provides functions to check that a module is usuable for
@@ -225,12 +226,12 @@ fmod CONG-CLOSURE-LIB is
   eq congClosure2((UCC,S,ID-ES),IDS,PC) =
     congClosure3(UCC,
                  S,
-		 unsortify-1(getSig(UCC)) | unsortify-1(vars(ID-ES)),
+		 unsortify-1(getSig(UCC)) | unsortify-1(getSig(UCC),vars(ID-ES)),
 		 init-acu-cc(
 		   unsortify(getSig(UCC)),
-		   unsortify(ID-ES),
-		   unsortify(IDS),
-		   toMRules(unsortify(getSig(UCC)),unsortify(PC << S)))) .
+		   unsortify(getSig(UCC),ID-ES),
+		   unsortify(getSig(UCC),IDS),
+		   toMRules(unsortify(getSig(UCC)),unsortify(getSig(UCC),PC << S)))) .
 
   op congClosure3 : Module Substitution QidPairSet CCState -> CCResult .
   eq congClosure3(UCC,S,U2OMap,[ES,N,MRL]) =
