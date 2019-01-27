@@ -482,6 +482,11 @@ fmod REACH-PROOF-GOALSET is
   op renumberGoals : Nat ProofGoalSet -> ProofGoalSet .
   eq renumberGoals(N,G && GS) = addid(G,N) && renumberGoals(N,GS) .
   eq renumberGoals(N,mt) = mt .
+
+  --- OUT: Number of goals in the set
+  op numGoals : ProofGoalSet -> Nat .
+  eq numGoals(G && GS) = s(numGoals(GS)) .
+  eq numGoals(mt) = 0 .
 endfm
 
 fmod AXIOM-RESULT is

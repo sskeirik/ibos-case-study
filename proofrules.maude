@@ -284,9 +284,14 @@ fmod REACH-PROOF-RULES-AUX is
   op apply-proof-strat : ProofMetadata ProofGoal -> ProofMetadata? .
   eq apply-proof-strat(D,G) = lift-result(G,getstrat(G),D,apply-proof-action(D,nextaction(getstrat(G)),G)) .
 
-  op printStep : Bool String [ProofUpdate] -> ProofUpdate [strat (1 0)] .
-  eq printStep(true,STR,PU) = PU [print STR] .
+  op printStep : Bool String [ProofUpdate] -> ProofUpdate .
+  eq printStep(true, STR,(D')) = (D') [print STR " step checked failure"] .
+  eq printStep(true, STR,(D' || GS)) =  printStepNum(STR,numGoals(GS),(D' || GS)) .
+  eq printStep(true, STR,PU) = PU [print STR " ERROR step unchecked failure!" owise label printStepFail] .
   eq printStep(false,STR,PU) = PU .
+
+  op printStepNum : String Nat [ProofUpdate] -> ProofUpdate .
+  eq printStepNum(STR,GN,PU) = PU [print STR " step successors: " GN] .
 
   op apply-proof-action : ProofMetadata ProofStrat ProofGoal -> ProofUpdate .
   eq apply-proof-action(D,simplify(B),G)= printStep(printStepName,"simp-action",simp-action(D,get-mod(D),B,G)) .
