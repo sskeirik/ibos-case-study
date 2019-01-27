@@ -225,12 +225,12 @@ fmod CONG-CLOSURE-LIB is
   eq congClosure2((UCC,S,ID-ES),IDS,PC) =
     congClosure3(UCC,
                  S,
-		 unsortify-1(UCC) | unsortify-1(vars(ID-ES)),
+		 unsortify-1(getSig(UCC)) | unsortify-1(vars(ID-ES)),
 		 init-acu-cc(
 		   unsortify(getSig(UCC)),
 		   unsortify(ID-ES),
 		   unsortify(IDS),
-		   toMRules(unsortify(UCC),unsortify(PC << S)))) .
+		   toMRules(unsortify(getSig(UCC)),unsortify(PC << S)))) .
 
   op congClosure3 : Module Substitution QidPairSet CCState -> CCResult .
   eq congClosure3(UCC,S,U2OMap,[ES,N,MRL]) =
