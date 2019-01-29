@@ -51,6 +51,28 @@ fmod VAR-SAT-CLAUSE-SOLVER is
   eq vs-valid-clauses2(U,(mtForm,P2))       = nobool .
 endfm
 
+--- Performs to a search to see if an unordered pair can be rewritten to a different unordered pair
+--- Or if a term can be rewritten to another term using an equational module
+--- Note that this search is only
+fmod META-SEARCH-EXT is
+  pr RULIFY-FUNCTOR .
+  pr TERMSET-FM .
+  var U : Module .
+  var E1 E2 : Equation .
+  var T1 T2 : Term .
+
+  op pairSearch : Module Equation Equation -> Bool .
+  eq pairSearch(U,E1,E2) =
+    if lhs(E1) in (lhs(E2) | rhs(E2)) or-else
+       rhs(E1) in (lhs(E2) | rhs(E2))
+      then metaNormalForm?(rulify-func(U),toEqSetTerm(U,E1),toEqSetTerm(U,E2))
+      else false
+    fi .
+
+  op metaNormalForm? : Module Term Term -> Bool .
+  eq metaNormalForm?(U,T1,T2) = metaSearch(U,T1,T2,nil,'!,unbounded,0) :: ResultTriple .
+endfm
+
 --- Module provides the actual implemnation of contextual rewriting
 --- that will be used in the satisfiablity algorithm
 --- NOTE: no clause simplification is performed here
@@ -61,8 +83,9 @@ fmod CONTEXT-REW is
   pr FOFORM-CONSTS-TO-VARS . --- constsToVars()
   pr CNF                   . --- toCNF()
   pr CONG-CLOSURE-LIB      . --- congClosure()
+  pr META-SEARCH-EXT       .
 
-  var U UCC : Module . var ES : EquationSet .
+  var U UCC : Module . var ES : EquationSet . var E : Equation .
   var S : Substitution . var Sz : Nat .
   var ND  : NegDisj? . var PD : PosDisj? . var D? : Disj? .
   var NND : NegDisj . var NPD : PosDisj . var D : Disj .
@@ -86,7 +109,10 @@ fmod CONTEXT-REW is
       constsToVars(S,
         if size(reduce(setEqs(UCC,ES),PD << S)) < size(PD)
           then reduce(setEqs(UCC,ES),PD << S)
-          else reduce(addEqs(ES,UCC),PD << S)
+          else if truefalseContradict(addEqs(ES,UCC),ES)
+	    then mtForm
+	    else reduce(addEqs(ES,UCC),PD << S)
+          fi
         fi)) .
 
   --- OUT: simplify QFForm by contextual rewriting so that solved equalities become tt
@@ -103,6 +129,13 @@ fmod CONTEXT-REW is
   --- OUT: debugging printer
   op print-disj : PosDisj ~> PosDisj .
   eq print-disj(PD) = PD [print "RESULT: " PD] .
+
+  --- OUT: true iff true and false contradict
+  op truefalseContradict : Module EquationSet -> Bool .
+  eq truefalseContradict(U,E ES) =
+    pairSearch(U,E,eq 'true.Bool = 'false.Bool [none].)
+      or-else truefalseContradict(U,ES) .
+  eq truefalseContradict(U,none) = false .
 endfm
 
 --- Module provides an implementation of contextual-rewriting based satisfiability
