@@ -1,5 +1,6 @@
+load ibos-sop-fvp-noau.maude
 load ibos-sop-noau.maude
-load ibos-sop-base-noid.maude
+load ibos-sop-pred-nou.maude
 
 set show advisories off .
 set print attribute on .
@@ -14,9 +15,9 @@ fmod FOFORMSIMPLIFY-IMP-IMPL-EXT is
   var T T' : Term .
   var L L' : TermList .
 
-  --- these hold inductively
-  eq D \/ 'true.Bool != '_~_['false.Bool,'_bwa<=_[T,T']] \/ 'true.Bool ?= '_~_['false.Bool,'_bwa<=_['_+_['1.NzNat*,T],T']] = tt .
-  eq D \/ 'true.Bool != '_~_['false.Bool,'_bnp<=_[T,T']] \/ 'true.Bool ?= '_~_['false.Bool,'_bnp<=_['_+_['1.NzNat*,T],T']] = tt .
+  eq 'false.Bool ?= '_and_[T,T'] = 'false.Bool ?= T \/ 'false.Bool ?= T' .
+  eq 'false.Bool != '_and_[T,T'] = 'false.Bool != T /\ 'false.Bool != T' .
+  eq 'false.Bool ?= 'true.Bool = ff .
 endfm
 
 select RLTOOL .
@@ -35,10 +36,10 @@ loop rltl-init .
 ---(select-rls kernelForwardsOPMessage .)
 
 --- Usage: select-rls ...
-(select-rls kernelReceivesOPMessage-pa7-cc1b .)
+(select-rls kernelReceivesOPMessage-pa7-cc1a .)
 
-(use tool conrew for validity on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMPL .)
-(use tool varsat for validity on IBOS-SOP-FVP-EQS .)
+(use tool conrew for validity on IBOS-SOP-PRED-NOID       with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
+(use tool varsat for validity on KERNEL-POLICIES-FVP-NOID .)
 (declare-vars (C:NeConfiguration) U (WPIS:WebappProcInfoSet) U (NPIS:NetworkProcInfoSet) U (MSG:Message) U
               (PS:PolicySet) U (NNP:Nat) U (NWA:Nat) U (U:Label) U (B:Bool) U (B':Bool) .)
 (def-term-set ([C]) | true .)
@@ -49,9 +50,9 @@ loop rltl-init .
 ({ C
    < webappmgr | nextWAN(NWA) >
    < kernel | weblabels(WPIS), networklabels(NPIS), displayedTopBar(U), handledCurrently(MSG), msgPolicy(PS), nextNetworkProc(NNP) > } ) |
-   (p4(C,WPIS,NPIS))                              = (true)   /\
-   (p5(C,WPIS,NPIS))                              = (true)   /\
-   (ch-p14(MSG,WPIS,NPIS,NNP))                    = (true)   /\
+   --- p /\ p' encodes the SOP
+   (p (C,WPIS,NPIS))                              = (true)   /\
+   (mp(MSG,WPIS,NPIS,NNP,NWA))                    = (true)   /\
    --- these are strengthenings of the invariant above that allow the simplification rules to apply more often
    --- they are not strictly needed for correctness --- the invariant above should be enough
    (fresh-np-id?(NNP,C))                          = (true)   /\
@@ -60,20 +61,17 @@ loop rltl-init .
             < kernel | nextNetworkProc(NNP) >))   = (false)
 .)
 (start-proof .)
---- set break on .
---- set print conceal on .
---- print conceal fmod_is_sorts_.____endfm _;;_ ((_:_)) .
---- break select #top-narrow .
+set break on .
+break select simp-action .
+set print conceal on .
+print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm .
+--- Apparently, the kernel is duplicated in many matches, we could create a new subsort to solve that problem
 (auto .)
---- break select unifiers .
---- resume .
---- step .
---- step .
---- quit 
----(
+--- cc1a
+--- (cases ({< kernel | handledCurrently(msg(N:NetProcId,W:WebAppId,MT:MsgType,OUT:Label)), AS:AttributeSet > C}) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
 --- (auto .)
+---(
 --- (list-goals .)
 --- quit .
---- (cases ({< kernel | handledCurrently(msg(N:NetProcId,W:WebAppId,MT:MsgType,OUT:Label)), AS:AttributeSet > C}) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
 --- (cases+ ({C}) | ((true) = (B' a (B o (false ~ (MSG-RETURN-URL ~ MT:MsgType))))) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
 ---)
