@@ -53,6 +53,8 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var WAI : WebAppId .
   var MSGL : MessageList .
   var L : Label .
+  var NIS : NetworkProcInfoSet .
+  var WIS : WebappProcInfoSet .
 
   --- duplicates can ignore attributes
   op dupl? : Configuration -> Bool [metadata "87"] .
@@ -74,6 +76,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq fresh-np-id?(N,     < NNPI           | A > C) = fresh-np-id?(N,C) .
   eq fresh-np-id?(N,     none                    ) = true .
  ceq fresh-np-id?(N + 1,                        C) = true if fresh-np-id?(N,C) .
+  eq fresh-np-id?(M,     < network(N)    | NA > C) = fresh-np-id?(M, < network(N) | none > C) .
 
   op fresh-wa-id? : Nat Configuration -> Bool [metadata "89"] .
   eq fresh-wa-id?(N,     < webapp(N + M) | A > C) = false .
@@ -82,6 +85,15 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq fresh-wa-id?(N,     < NWAI          | A > C) = fresh-wa-id?(N,C) .
   eq fresh-wa-id?(N,     none                   ) = true .
  ceq fresh-wa-id?(N + 1,                       C) = true if fresh-wa-id?(N,C) .
+  eq fresh-wa-id?(M,     < webapp(N)    | NA > C) = fresh-wa-id?(M, < webapp(N) | none > C) .
+
+  op networkprocid? : NetProcId NetworkProcInfoSet -> Bool [metadata "95"] .
+  eq networkprocid?(network(N),NIS) = networkproc?(N,NIS) .
+  eq networkprocid?(network,   NIS) = false .
+
+  op webappid? : WebAppId WebappProcInfoSet -> Bool [metadata "96"] .
+  eq webappid?(webapp(N),WIS) = webapp?(N,WIS) .
+  eq webappid?(webapp,   WIS) = false .
 endfm
 
 fmod IBOS-SOP-PRED is
@@ -103,6 +115,7 @@ fmod IBOS-SOP-PRED is
   var MT : MsgType .
   var NonFetchMT : NonFetchMsg .
   var NonRetMT : NonRetMsg .
+  var AMsg : Message .
 
   ---
   --- Here, we prove two kinds of invariants:
@@ -200,6 +213,9 @@ fmod IBOS-SOP-PRED is
 
  ceq [p5-9] : p5(C,(pi(webapp(W),IN),wp WIS),                          NIS ) = p5(C,WIS,NIS) if fresh-wa-id?(W,C) .
  ceq [p5-A] : p5(C,                     WIS ,(pi(network(N),IN,OUT),np NIS)) = p5(C,WIS,NIS) if fresh-np-id?(N,C) .
+
+ ceq [p5-B] : p5(C < NI |                                      A >,WIS,NIS) = false if networkprocid?(NI,NIS) = false .
+ ceq [p5-C] : p5(C < NI | toKernel(msg(PI, WI, MT, OUT) @ ML), A >,WIS,NIS) = false if webappid?(WI,WIS)      = false .
 
   ------------------------------------------------------------------------------
   --- True if every RETURN-URL message currently handled by kernel is consistent
