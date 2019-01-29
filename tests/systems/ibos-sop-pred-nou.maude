@@ -176,6 +176,8 @@ fmod IBOS-SOP-PRED-NOID is
     [metadata "79"] .
   op networkproc? : Nat NetworkProcInfoSet -> Bool
     [metadata "80"] .
+  op networkprocid? : NetProcId NetworkProcInfoSet -> Bool
+    [metadata "95"] .
   op nextNetworkProc : Nat -> Attribute
     [ctor metadata "67"] .
   op nextWAN : Nat -> Attribute
@@ -228,6 +230,8 @@ fmod IBOS-SOP-PRED-NOID is
     [ctor metadata "23"] .
   op webapp? : Nat WebappProcInfoSet -> Bool
     [metadata "81"] .
+  op webappid? : WebAppId WebappProcInfoSet -> Bool
+    [metadata "96"] .
   op webappmgr : -> WebAppMgrId
     [ctor metadata "30"] .
   op weblabels : WebappProcInfoSet -> Attribute
@@ -416,6 +420,10 @@ fmod IBOS-SOP-PRED-NOID is
     = false .
   eq fresh-np-id?(0,C:Configuration < network(M:Nat)| none >)
     = false .
+  eq fresh-np-id?(M:Nat,< network(N:Nat)| NA:NeAttributeSet >)
+    = fresh-np-id?(M:Nat,< network(N:Nat)| none >) .
+  eq fresh-np-id?(M:Nat,C:Configuration < network(N:Nat)| NA:NeAttributeSet >)
+    = fresh-np-id?(M:Nat,C:Configuration < network(N:Nat)| none >) .
   eq fresh-np-id?(N:Nat,none)
     = true .
   eq fresh-np-id?(N:Nat,< NNPI:NonNetProcId | A:AttributeSet >)
@@ -474,6 +482,10 @@ fmod IBOS-SOP-PRED-NOID is
     = false .
   eq fresh-wa-id?(0,C:Configuration < webapp(M:Nat)| none >)
     = false .
+  eq fresh-wa-id?(M:Nat,< webapp(N:Nat)| NA:NeAttributeSet >)
+    = fresh-wa-id?(M:Nat,< webapp(N:Nat)| none >) .
+  eq fresh-wa-id?(M:Nat,C:Configuration < webapp(N:Nat)| NA:NeAttributeSet >)
+    = fresh-wa-id?(M:Nat,C:Configuration < webapp(N:Nat)| none >) .
   eq fresh-wa-id?(N:Nat,none)
     = true .
   eq fresh-wa-id?(N:Nat,< NWAI:NonWebAppId | A:AttributeSet >)
@@ -546,6 +558,22 @@ fmod IBOS-SOP-PRED-NOID is
     = matching-procs1?(NI:NetProcId,L:Label,NPIS:NetworkProcInfoSet)or matching-procs?(NI:NetProcId,WI:WebAppId,mtWPIS,NPIS:NetworkProcInfoSet) .
   eq matching-procs?(NI:NetProcId,WI:WebAppId,pi(WI:WebAppId,L:Label),mtNPIS)
     = matching-procs1?(NI:NetProcId,L:Label,mtNPIS)or matching-procs?(NI:NetProcId,WI:WebAppId,mtWPIS,mtNPIS) .
+  eq networkprocid?(network,NIS:NetworkProcInfoSet)
+    = false .
+  eq networkprocid?(network,mtNPIS)
+    = false .
+  eq networkprocid?(network(N:Nat),NIS:NetworkProcInfoSet)
+    = networkproc?(N:Nat,NIS:NetworkProcInfoSet) .
+  eq networkprocid?(network(N:Nat),mtNPIS)
+    = networkproc?(N:Nat,mtNPIS) .
+  eq webappid?(webapp,WIS:WebappProcInfoSet)
+    = false .
+  eq webappid?(webapp,mtWPIS)
+    = false .
+  eq webappid?(webapp(N:Nat),WIS:WebappProcInfoSet)
+    = webapp?(N:Nat,WIS:WebappProcInfoSet) .
+  eq webappid?(webapp(N:Nat),mtWPIS)
+    = webapp?(N:Nat,mtWPIS) .
   ceq ch-p14(msg(WI:WebAppId,NI:NetProcId,MT:MsgType,OUT:Label),WIS:WebappProcInfoSet,wp pi(WI:WebAppId,IN:Label),NIS:NetworkProcInfoSet,N:Nat)
     = true
     if not networkproc-for-label?(IN:Label,NIS:NetworkProcInfoSet)or IN:Label ~l label-for-netproc?(NI:NetProcId,NIS:NetworkProcInfoSet)= true .
@@ -1854,6 +1882,150 @@ fmod IBOS-SOP-PRED-NOID is
   ceq p5(none,pi(webapp(W:Nat),IN:Label),mtNPIS)
     = p5(none,mtWPIS,mtNPIS)
     if fresh-wa-id?(W:Nat,none)= true [label p5-9] .
+  ceq p5(< NI:NetProcId | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = false
+    if networkprocid?(NI:NetProcId,NIS:NetworkProcInfoSet)= false [label p5-B] .
+  ceq p5(< NI:NetProcId | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = false
+    if networkprocid?(NI:NetProcId,mtNPIS)= false [label p5-B] .
+  ceq p5(< NI:NetProcId | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = false
+    if networkprocid?(NI:NetProcId,NIS:NetworkProcInfoSet)= false [label p5-B] .
+  ceq p5(< NI:NetProcId | A:AttributeSet >,mtWPIS,mtNPIS)
+    = false
+    if networkprocid?(NI:NetProcId,mtNPIS)= false [label p5-B] .
+  ceq p5(< NI:NetProcId | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = false
+    if networkprocid?(NI:NetProcId,NIS:NetworkProcInfoSet)= false [label p5-B] .
+  ceq p5(< NI:NetProcId | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = false
+    if networkprocid?(NI:NetProcId,mtNPIS)= false [label p5-B] .
+  ceq p5(< NI:NetProcId | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = false
+    if networkprocid?(NI:NetProcId,NIS:NetworkProcInfoSet)= false [label p5-B] .
+  ceq p5(< NI:NetProcId | none >,mtWPIS,mtNPIS)
+    = false
+    if networkprocid?(NI:NetProcId,mtNPIS)= false [label p5-B] .
+  ceq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,mtWPIS,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(< NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,mtWPIS,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | A:AttributeSet >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = false
+    if networkprocid?(NI:NetProcId,NIS:NetworkProcInfoSet)= false [label p5-B] .
+  ceq p5(C:Configuration < NI:NetProcId | A:AttributeSet >,WIS:WebappProcInfoSet,mtNPIS)
+    = false
+    if networkprocid?(NI:NetProcId,mtNPIS)= false [label p5-B] .
+  ceq p5(C:Configuration < NI:NetProcId | A:AttributeSet >,mtWPIS,NIS:NetworkProcInfoSet)
+    = false
+    if networkprocid?(NI:NetProcId,NIS:NetworkProcInfoSet)= false [label p5-B] .
+  ceq p5(C:Configuration < NI:NetProcId | A:AttributeSet >,mtWPIS,mtNPIS)
+    = false
+    if networkprocid?(NI:NetProcId,mtNPIS)= false [label p5-B] .
+  ceq p5(C:Configuration < NI:NetProcId | none >,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = false
+    if networkprocid?(NI:NetProcId,NIS:NetworkProcInfoSet)= false [label p5-B] .
+  ceq p5(C:Configuration < NI:NetProcId | none >,WIS:WebappProcInfoSet,mtNPIS)
+    = false
+    if networkprocid?(NI:NetProcId,mtNPIS)= false [label p5-B] .
+  ceq p5(C:Configuration < NI:NetProcId | none >,mtWPIS,NIS:NetworkProcInfoSet)
+    = false
+    if networkprocid?(NI:NetProcId,NIS:NetworkProcInfoSet)= false [label p5-B] .
+  ceq p5(C:Configuration < NI:NetProcId | none >,mtWPIS,mtNPIS)
+    = false
+    if networkprocid?(NI:NetProcId,mtNPIS)= false [label p5-B] .
+  ceq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | A:AttributeSet,toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,mtWPIS,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,WIS:WebappProcInfoSet,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,mtWPIS,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label)@ X@11:MessageList)>,mtWPIS,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,WIS:WebappProcInfoSet,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,WIS:WebappProcInfoSet,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,WIS:WebappProcInfoSet)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,mtWPIS,NIS:NetworkProcInfoSet)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
+  ceq p5(C:Configuration < NI:NetProcId | toKernel(msg(PI:PipeId,WI:WebAppId,MT:MsgType,OUT:Label))>,mtWPIS,mtNPIS)
+    = false
+    if webappid?(WI:WebAppId,mtWPIS)= false [label p5-C] .
   ceq webapp?(N:Nat,WPIS:WebappProcInfoSet,wp pi(webapp(N':Nat),L:Label))
     = webapp?(N:Nat,WPIS:WebappProcInfoSet)
     if N:Nat ~n N':Nat = false [label nwa2] .

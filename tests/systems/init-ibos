@@ -1,23 +1,52 @@
 #!/bin/bash
 
-FILE_PATH="./ibos-sop-base.maude"
 FULL_MAUDE_PATH="../../../full-maude/full-maude-removeids.maude"
-MODULE_NAME="IBOS-SOP-PRED"
-OUTPUT_FILE_NAME="ibos-sop-base-noid"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$DIR"
 
-# note: the contextual rewriting backend doesn't care
-#       about what module it gets as long as the equational subtheory is:
-#       [1] ground convergent
-#       [2] compatible with the given ACRPO order
+function remove_all_ids() {
+if [ $# -ne 3 ]; then
+  echo "remove_ids() argument error"
+fi
+
+FILE_PATH=$1
+MODULE_NAME=$2
+OUTPUT_FILE_NAME=$3
+
+echo "Removing all identities from $1:$2"
 
 maude <<INPUT |
-load ${FILE_PATH}
+load ${FILE_PATH}.maude
 load ${FULL_MAUDE_PATH}
 loop init .
-(remove identity attributes ${MODULE_NAME} .)
+(remove ${ARGUMENT} identity attributes ${MODULE_NAME} .)
 quit
 INPUT
 tail -n+4 | head -n-2 | sed -E '1s/^fmod (\S+) is/set include BOOL off .\n\nfmod \1-NOID is/' > "${OUTPUT_FILE_NAME}.maude"
+}
+
+function remove_unhandled_ids() {
+if [ $# -ne 3 ]; then
+  echo "remove_ids() argument error"
+fi
+
+FILE_PATH=$1
+MODULE_NAME=$2
+OUTPUT_FILE_NAME=$3
+
+echo "Removing unhandled identities from $1:$2"
+
+maude <<INPUT |
+load ${FILE_PATH}.maude
+load ${FULL_MAUDE_PATH}
+loop init .
+(remove non-handled identity attributes ${MODULE_NAME} .)
+quit
+INPUT
+tail -n+4 | head -n-2 | sed -E '1s/^fmod (\S+) is/set include BOOL off .\n\nfmod \1-NOID is/' > "${OUTPUT_FILE_NAME}.maude"
+}
+
+remove_all_ids       "./ibos-sop-base" "IBOS-SOP-PRED"       "./ibos-sop-pred-nou"
+remove_unhandled_ids "./ibos-sop-base" "KERNEL-POLICIES-FVP" "./ibos-sop-fvp-noau"
+remove_unhandled_ids "./ibos-sop-base" "IBOS-SOP"            "./ibos-sop-noau"

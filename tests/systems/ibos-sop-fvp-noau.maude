@@ -1,0 +1,305 @@
+set include BOOL off .
+
+fmod KERNEL-POLICIES-FVP-NOID is
+  sorts Attribute AttributeSet Bool Configuration DisplayId EmptyAttributeSet KernelId Label LabelList LabelSet MaybeLabel Message MessageList MsgType NICId Nat NeAttributeSet NeConfiguration NetProcId NetworkProcInfo NetworkProcInfoSet NonFetchMsg NonNetPipeId NonNetProcId NonPipeId NonRetFetchMsg NonRetMsg NonWebAppId NonWebPipeId NzNat Object PipeId Policy PolicySet ProcessId State UIId WebAppId WebAppMgrId WebappProcInfo WebappProcInfoSet .
+  subsort Attribute < NeAttributeSet .
+  subsort DisplayId < NonPipeId .
+  subsort EmptyAttributeSet < AttributeSet .
+  subsort KernelId < NonPipeId .
+  subsort Label < LabelList .
+  subsort Label < LabelSet .
+  subsort Label < MaybeLabel .
+  subsort Message < MessageList .
+  subsort NICId < NonPipeId .
+  subsort NeAttributeSet < AttributeSet .
+  subsort NeConfiguration < Configuration .
+  subsort NetProcId < NonWebPipeId .
+  subsort NetProcId < PipeId .
+  subsort NetworkProcInfo < NetworkProcInfoSet .
+  subsort NonFetchMsg < MsgType .
+  subsort NonNetPipeId < NonNetProcId .
+  subsort NonNetPipeId < PipeId .
+  subsort NonNetProcId < ProcessId .
+  subsort NonPipeId < NonNetProcId .
+  subsort NonPipeId < NonWebAppId .
+  subsort NonPipeId < ProcessId .
+  subsort NonRetFetchMsg < NonFetchMsg .
+  subsort NonRetFetchMsg < NonRetMsg .
+  subsort NonRetMsg < MsgType .
+  subsort NonWebAppId < ProcessId .
+  subsort NonWebPipeId < NonWebAppId .
+  subsort NonWebPipeId < PipeId .
+  subsort NzNat < Nat .
+  subsort Object < NeConfiguration .
+  subsort PipeId < ProcessId .
+  subsort Policy < PolicySet .
+  subsort UIId < NonNetPipeId .
+  subsort UIId < NonWebPipeId .
+  subsort UIId < PipeId .
+  subsort WebAppId < NonNetPipeId .
+  subsort WebAppId < PipeId .
+  subsort WebAppMgrId < NonPipeId .
+  subsort WebappProcInfo < WebappProcInfoSet .
+  op 0 : -> Nat
+    [ctor metadata "0"] .
+  op 1 : -> NzNat
+    [ctor metadata "14"] .
+  op <_|_> : ProcessId AttributeSet -> Object
+    [ctor metadata "32"] .
+  op MSG-FETCH-URL : -> MsgType
+    [ctor metadata "45"] .
+  op MSG-FETCH-URL : -> NonRetMsg
+    [ctor metadata "45"] .
+  op MSG-NEW-URL : -> MsgType
+    [ctor metadata "44"] .
+  op MSG-NEW-URL : -> NonRetFetchMsg
+    [ctor metadata "44"] .
+  op MSG-RETURN-URL : -> MsgType
+    [ctor metadata "46"] .
+  op MSG-RETURN-URL : -> NonFetchMsg
+    [ctor metadata "46"] .
+  op MSG-SWITCH-TAB : -> MsgType
+    [ctor metadata "47"] .
+  op MSG-SWITCH-TAB : -> NonRetFetchMsg
+    [ctor metadata "47"] .
+  op URL : Label -> Attribute
+    [ctor metadata "55"] .
+  op _&_ : LabelSet LabelSet -> LabelSet
+    [assoc comm id: mtLS ctor metadata "43"] .
+  op _+_ : Nat Nat -> Nat
+    [assoc comm id: 0 ctor metadata "15"] .
+  op _+_ : NzNat Nat -> NzNat
+    [assoc comm id: 0 ctor metadata "15"] .
+  op _;_ : LabelList LabelList -> LabelList
+    [assoc ctor metadata "42 mtLL.LabelList"] .
+  op _<=_ : Nat Nat -> Bool
+    [metadata "18"] .
+  op _<_ : Nat Nat -> Bool
+    [metadata "17"] .
+  op _@_ : MessageList MessageList -> MessageList
+    [assoc ctor metadata "50 mt.MessageList"] .
+  op __ : Configuration Configuration -> Configuration
+    [assoc comm id:(none).Configuration ctor metadata "34"] .
+  op __ : NeConfiguration Configuration -> NeConfiguration
+    [assoc comm id:(none).Configuration ctor metadata "34"] .
+  op _`,_ : AttributeSet AttributeSet -> AttributeSet
+    [assoc comm id:(none).EmptyAttributeSet ctor metadata "33"] .
+  op _`,_ : AttributeSet NeAttributeSet -> NeAttributeSet
+    [assoc comm id:(none).EmptyAttributeSet ctor metadata "33"] .
+  op _`,_ : EmptyAttributeSet EmptyAttributeSet -> EmptyAttributeSet
+    [assoc comm id:(none).EmptyAttributeSet ctor metadata "33"] .
+  op _`,np_ : NetworkProcInfoSet NetworkProcInfoSet -> NetworkProcInfoSet
+    [assoc comm id: mtNPIS ctor metadata "73"] .
+  op _`,ps_ : PolicySet PolicySet -> PolicySet
+    [assoc comm id: mtPS ctor metadata "64"] .
+  op _`,wp_ : WebappProcInfoSet WebappProcInfoSet -> WebappProcInfoSet
+    [assoc comm id: mtWPIS ctor metadata "70"] .
+  op _and_ : Bool Bool -> Bool
+    [assoc comm prec 50 metadata "11"] .
+  op _or_ : Bool Bool -> Bool
+    [assoc comm metadata "12"] .
+  op _~l_ : Label Label -> Bool
+    [comm metadata "41"] .
+  op _~m_ : MsgType MsgType -> Bool
+    [comm metadata "86"] .
+  op _~n_ : Nat Nat -> Bool
+    [comm metadata "21"] .
+  op _~p_ : ProcessId ProcessId -> Bool
+    [comm metadata "31"] .
+  op `{_`} : Configuration -> State
+    [ctor metadata "35"] .
+  op about-blank : -> Label
+    [ctor metadata "36"] .
+  op activeWebapp : WebAppId -> Attribute
+    [ctor metadata "76"] .
+  op display : -> DisplayId
+    [ctor metadata "28"] .
+  op displayedContent : Label -> Attribute
+    [ctor metadata "77"] .
+  op displayedTopBar : Label -> Attribute
+    [ctor metadata "75"] .
+  op false : -> Bool
+    [ctor special(id-hook SystemFalse)metadata "10"] .
+  op fromKernel : MessageList -> Attribute
+    [ctor metadata "51"] .
+  op handledCurrently : Message -> Attribute
+    [ctor metadata "68"] .
+  op in : LabelList -> Attribute
+    [ctor metadata "58"] .
+  op kernel : -> KernelId
+    [ctor metadata "22"] .
+  op kernelDo : Message -> Message
+    [ctor metadata "78"] .
+  op loading : Bool -> Attribute
+    [ctor metadata "56"] .
+  op mem-in : MaybeLabel -> Attribute
+    [ctor metadata "61"] .
+  op mem-out : MaybeLabel -> Attribute
+    [ctor metadata "60"] .
+  op msg : ProcessId ProcessId MsgType Label -> Message
+    [ctor metadata "48"] .
+  op msgPolicy : PolicySet -> Attribute
+    [ctor metadata "65"] .
+  op mt : -> MessageList
+    [ctor metadata "5"] .
+  op mtLL : -> LabelList
+    [ctor metadata "3"] .
+  op mtLS : -> LabelSet
+    [ctor metadata "4"] .
+  op mtNPIS : -> NetworkProcInfoSet
+    [ctor metadata "8"] .
+  op mtPS : -> PolicySet
+    [ctor metadata "6"] .
+  op mtWPIS : -> WebappProcInfoSet
+    [ctor metadata "7"] .
+  op network : Nat -> NetProcId
+    [ctor metadata "26"] .
+  op network : -> NetProcId
+    [ctor metadata "25"] .
+  op networklabels : NetworkProcInfoSet -> Attribute
+    [ctor metadata "74"] .
+  op nextNetworkProc : Nat -> Attribute
+    [ctor metadata "67"] .
+  op nextWAN : Nat -> Attribute
+    [ctor metadata "53"] .
+  op nic : -> NICId
+    [ctor metadata "29"] .
+  op nic-in : LabelList -> Attribute
+    [ctor metadata "63"] .
+  op nic-out : LabelSet -> Attribute
+    [ctor metadata "62"] .
+  op nolabel : -> MaybeLabel
+    [ctor metadata "38"] .
+  op none : -> Configuration
+    [ctor metadata "2"] .
+  op none : -> EmptyAttributeSet
+    [ctor metadata "1"] .
+  op none : -> Message
+    [ctor metadata "49"] .
+  op not_ : Bool -> Bool
+    [metadata "13"] .
+  op out : LabelList -> Attribute
+    [ctor metadata "59"] .
+  op pi : WebAppId Label -> WebappProcInfo
+    [ctor metadata "69"] .
+  op pi : NetProcId Label Label -> NetworkProcInfo
+    [ctor metadata "72"] .
+  op policy : PipeId PipeId MsgType -> Policy
+    [ctor metadata "66"] .
+  op rendered : Label -> Attribute
+    [ctor metadata "54"] .
+  op returnTo : ProcessId -> Attribute
+    [ctor metadata "57"] .
+  op toKernel : MessageList -> Attribute
+    [ctor metadata "52"] .
+  op true : -> Bool
+    [ctor special(id-hook SystemTrue)metadata "9"] .
+  op ui : -> UIId
+    [ctor metadata "27"] .
+  op url : Nat -> Label
+    [ctor metadata "37"] .
+  op webapp : Nat -> WebAppId
+    [ctor metadata "24"] .
+  op webapp : -> WebAppId
+    [ctor metadata "23"] .
+  op webappmgr : -> WebAppMgrId
+    [ctor metadata "30"] .
+  op weblabels : WebappProcInfoSet -> Attribute
+    [ctor metadata "71"] .
+  eq MSG-FETCH-URL ~m M:NonFetchMsg
+    = false .
+  eq MSG-FETCH-URL ~m MSG-NEW-URL
+    = false .
+  eq MSG-FETCH-URL ~m MSG-SWITCH-TAB
+    = false .
+  eq MSG-NEW-URL ~m MSG-SWITCH-TAB
+    = false .
+  eq MSG-RETURN-URL ~m M:NonRetMsg
+    = false .
+  eq MSG-RETURN-URL ~m MSG-SWITCH-TAB
+    = false .
+  eq X:MsgType ~m X:MsgType
+    = true .
+  eq X2:[LabelList,LabelSet,MaybeLabel]; mtLL
+    = X2:[LabelList,LabelSet,MaybeLabel] [metadata "id" variant] .
+  eq mtLL ; X2:[LabelList,LabelSet,MaybeLabel]
+    = X2:[LabelList,LabelSet,MaybeLabel] [metadata "id" variant] .
+  eq (X2:[LabelList,LabelSet,MaybeLabel]; mtLL); Y2:[LabelList,LabelSet,MaybeLabel]
+    = X2:[LabelList,LabelSet,MaybeLabel]; Y2:[LabelList,LabelSet,MaybeLabel] [metadata "id" variant] .
+  eq N:Nat <= N:Nat + M:Nat
+    = true [variant] .
+  eq (N:Nat + P:NzNat)<= N:Nat
+    = false [variant] .
+  eq N:Nat < N:Nat + P:NzNat
+    = true [variant] .
+  eq (N:Nat + M:Nat)< N:Nat
+    = false [variant] .
+  eq X3:[MessageList]@ mt
+    = X3:[MessageList] [metadata "id" variant] .
+  eq mt @ X3:[MessageList]
+    = X3:[MessageList] [metadata "id" variant] .
+  eq (X3:[MessageList]@ mt)@ Y3:[MessageList]
+    = X3:[MessageList]@ Y3:[MessageList] [metadata "id" variant] .
+  eq false and B:Bool
+    = false [variant] .
+  eq true and B:Bool
+    = B:Bool [variant] .
+  eq false or B:Bool
+    = B:Bool [variant] .
+  eq true or B:Bool
+    = true [variant] .
+  eq L:Label ~l L:Label
+    = true [variant] .
+  eq about-blank ~l url(N:Nat)
+    = false [variant] .
+  eq url(N:Nat)~l url(N':Nat)
+    = N:Nat ~n N':Nat [variant] .
+  eq N:Nat ~n N:Nat
+    = true [variant] .
+  eq N:Nat ~n N:Nat + P:NzNat
+    = false [variant] .
+  eq DiId:DisplayId ~p KeId:KernelId
+    = false [variant] .
+  eq DiId:DisplayId ~p NPId:NetProcId
+    = false [variant] .
+  eq DiId:DisplayId ~p UiId:UIId
+    = false [variant] .
+  eq DiId:DisplayId ~p WAId:WebAppId
+    = false [variant] .
+  eq DiId:DisplayId ~p WAMId:WebAppMgrId
+    = false [variant] .
+  eq KeId:KernelId ~p NPId:NetProcId
+    = false [variant] .
+  eq KeId:KernelId ~p UiId:UIId
+    = false [variant] .
+  eq KeId:KernelId ~p WAId:WebAppId
+    = false [variant] .
+  eq NPId:NetProcId ~p UiId:UIId
+    = false [variant] .
+  eq NPId:NetProcId ~p WAId:WebAppId
+    = false [variant] .
+  eq PId:ProcessId ~p PId:ProcessId
+    = true [variant] .
+  eq UiId:UIId ~p WAId:WebAppId
+    = false [variant] .
+  eq WAMId:WebAppMgrId ~p KeId:KernelId
+    = false [variant] .
+  eq WAMId:WebAppMgrId ~p NPId:NetProcId
+    = false [variant] .
+  eq WAMId:WebAppMgrId ~p UiId:UIId
+    = false [variant] .
+  eq WAMId:WebAppMgrId ~p WAId:WebAppId
+    = false [variant] .
+  eq network ~p network(N:Nat)
+    = false [variant] .
+  eq webapp ~p webapp(N:Nat)
+    = false [variant] .
+  eq network(N:Nat)~p network(N':Nat)
+    = N:Nat ~n N':Nat [variant] .
+  eq webapp(N:Nat)~p webapp(N':Nat)
+    = N:Nat ~n N':Nat [variant] .
+  eq not false
+    = true [variant] .
+  eq not true
+    = false [variant] .
+endfm
