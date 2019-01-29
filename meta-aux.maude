@@ -1729,6 +1729,20 @@ fmod STMT-EXTRA is
   eq vars(U : Y  /\ C) = vars(U) ; vars(C) .
   eq vars(U => V /\ C) = vars(U) ; vars(V) ; vars(C) .
   eq vars((nil).EqCondition) = (none).QidSet .
+
+  op lhs : Rule -> Term .
+  op lhs : Equation -> Term .
+  eq lhs( rl U => V       [A].) = U .
+  eq lhs(crl U => V if C  [A].) = U .
+  eq lhs( eq U =  V       [A].) = U .
+  eq lhs(ceq U =  V if EC [A].) = U .
+
+  op rhs : Rule -> Term .
+  op rhs : Equation -> Term .
+  eq rhs( rl U => V       [A].) = V .
+  eq rhs(crl U => V if C  [A].) = V .
+  eq rhs( eq U =  V       [A].) = V .
+  eq rhs(ceq U =  V if EC [A].) = V .
 endfm
 
 --- this module has functionality to generate unique prefixes with
