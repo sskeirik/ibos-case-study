@@ -1661,6 +1661,7 @@ endfm
 fmod STMT-EXTRA is
   pr META-LEVEL .
   pr TERM-EXTRA .
+  pr UNIT-FM .
 
   var M : Module . var R R' : Rule . var RS : RuleSet . var Q : Qid . var Y : Sort .
   var U V : Term . var A : AttrSet . var C : Condition . var EC : EqCondition .
@@ -2132,6 +2133,7 @@ fmod EQUATIONSET-FUNCTOR is
   op eq-eqs       : Module KindSet -> EquationSet .
 
   var M : Module . var K : Kind . var KS : KindSet .
+  var T T' : Term . var A : AttrSet . var E ES : EquationSet .
 
   --- extend module by topping it and then adding equations
   eq eqset-func(M) = addEqs(eq-eqs(M,getKinds(M)),addSorts(eqset-sort(M),addOps(eq-ops(M,getKinds(M)),M))) .
@@ -2145,10 +2147,49 @@ fmod EQUATIONSET-FUNCTOR is
   eq eqsetid-term(M) = qid("none." + string(eqset-sort(M))) .
 
   --- operator and equation declarations for equation sets
-  eq eq-ops(M,K ; KS) = op eq-opid(M) : K K -> eqset-sort(M) [ctor] . eq-ops(M,KS) .
+  eq eq-ops(M,K ; KS) = op eq-opid(M) : K K -> eqset-sort(M) [ctor comm] . eq-ops(M,KS) .
   eq eq-ops(M,none)   = (op eqset-opid(M) : eqset-sort(M) eqset-sort(M) -> eqset-sort(M) [ctor assoc comm id(eqsetid-term(M))] . op 'none : nil -> eqset-sort(M) [ctor] .) .
   eq eq-eqs(M,K ; KS) = (eq eq-opid(M)[qid("X:" + string(K)),qid("X:" + string(K))] = eqsetid-term(M) [none].) eq-eqs(M,KS) .
   eq eq-eqs(M,none)   = none .
+
+  op toEqSetTerm : Module EquationSet ~> Term .
+  eq toEqSetTerm(M,eq T = T' [A].)      = eq-opid(M)[T,T'] .
+  eq toEqSetTerm(M,eq T = T' [A]. E ES) = eqset-opid(M)[toEqSetTerm1(M,eq T = T' [A]. ES)] .
+  eq toEqSetTerm(M,none)                = eqsetid-term(M) .
+
+  op toEqSetTerm1 : Module EquationSet ~> TermList .
+  eq toEqSetTerm1(M,eq T = T' [A]. ES) = eq-opid(M)[T,T'], toEqSetTerm1(M,ES) .
+  eq toEqSetTerm1(M,none)              = empty .
+endfm
+
+--- Extension of the equationset functor that converts all equations to rules
+--- This module should be semantically equivalent to the original
+fmod RULIFY-FUNCTOR is
+  pr EQUATIONSET-FUNCTOR .
+  pr STMT-EXTRA .
+
+  var EQ SQ : Qid .
+  var U V : Term .
+  var Y : Type .
+  var A : AttrSet .
+  var ES : EquationSet .
+  var EC : EqCondition .
+  var M : Module .
+
+  op rulify : Qid Qid EquationSet -> RuleSet .
+  eq rulify(EQ,SQ, eq U = V       [A] . ES) = ( rl U => V                     [A] .) rulify(EQ,SQ,ES) .
+  eq rulify(EQ,SQ,ceq U = V if EC [A] . ES) = (crl U => V if rulify(EQ,SQ,EC) [A] .) rulify(EQ,SQ,ES) .
+  eq rulify(EQ,SQ,(none).EquationSet)       =  none .
+
+  op rulify : Qid Qid EqCondition -> Condition .
+  eq rulify(EQ,SQ,U = V  /\ EC) = EQ[U,V] => SQ /\ rulify(EQ,SQ,EC) .
+  eq rulify(EQ,SQ,U := V /\ EC) = V => U        /\ rulify(EQ,SQ,EC) .
+  eq rulify(EQ,SQ,U : Y  /\ EC) = U : Y         /\ rulify(EQ,SQ,EC) .
+  eq rulify(EQ,SQ,nil)          = nil .
+
+  op rulify-func : Module -> SModule [memo] .
+  eq rulify-func(M) =
+    (setRls(eqset-func(setEqs(M,none)),rulify(eq-opid(M),eqsetid-term(M),getEqs(M)))) .
 endfm
 
 fmod TERMSUBSTPAIR is
