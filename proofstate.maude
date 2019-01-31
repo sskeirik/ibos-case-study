@@ -140,6 +140,9 @@ fmod REACH-PROOF-GOAL is
   op getid : ProofGoal -> Nat .
   eq getid([P,N,CN,PS,VS,F]) = N .
 
+  op setid : ProofGoal Nat -> ProofGoal .
+  eq setid([P,N,CN,PS,VS,F],N') = [P,N',CN,PS,VS,F] .
+
   op addid : ProofGoal Nat -> ProofGoal .
   eq addid([P,N,CN,PS,VS,F],N') = [P,N + N',CN,PS,VS,F] .
 
@@ -326,11 +329,11 @@ fmod REACH-PROOF-GOALSET is
       setbody(G,normalize(U,downTerm(T,(mt).ReachFormSet))),
       captureNewVars(getvars(G),S)) .
 
-  --- OUT: deletes duplicate goals in a set
-  op deleteDuplGoals : ProofGoalSet -> ProofGoalSet .
-  eq deleteDuplGoals([P,N,CN,PS,VS,F] && [P',N',CN',PS',VS',F] && GS) =
-    deleteDuplGoals(if N < N' then [P,N,CN,PS,VS,F] else [P',N',CN',PS',VS',F] fi && GS) .
-  eq deleteDuplGoals(GS) = GS [owise] .
+  --- OUT: deletes duplicate goals in a set and renumbers them starting from given value
+  op deleteDuplGoals : Nat ProofGoalSet -> ProofGoalSet .
+  eq deleteDuplGoals(M,[P,N,CN,PS,VS,F] && [P',N',CN',PS',VS',F] && GS) =
+    deleteDuplGoals(M,if N < N' then [P,N,CN,PS,VS,F] else [P',N',CN',PS',VS',F] fi && GS) .
+  eq deleteDuplGoals(M,GS) = renumberGoals(M,GS) [owise] .
 
   --- OUT: delete goals that are subsumed by matching
   op deleteGoalsByMatch : Module ProofGoalSet -> ProofGoalSet .
@@ -478,10 +481,16 @@ fmod REACH-PROOF-GOALSET is
   op newChildGoalsAddVars : ProofGoal ReachFormSet -> ProofGoalSet .
   eq newChildGoalsAddVars([P,N,CN,PS,VS,F'],FS) = mkGoalsAddVars(N,0,CN,PS,VS,FS) .
 
-  --- OUT: add Nat to each goal number
+  --- OUT: renumbers goals so that there are id numbers are in sequence
+  ---      starting from the given number
   op renumberGoals : Nat ProofGoalSet -> ProofGoalSet .
-  eq renumberGoals(N,G && GS) = addid(G,N) && renumberGoals(N,GS) .
+  eq renumberGoals(N,G && GS) = setid(G,N) && renumberGoals(s(N),GS) .
   eq renumberGoals(N,mt) = mt .
+
+  --- OUT: add Nat to each goal number
+  op renumberPlusGoals : Nat ProofGoalSet -> ProofGoalSet .
+  eq renumberPlusGoals(N,G && GS) = addid(G,N) && renumberPlusGoals(N,GS) .
+  eq renumberPlusGoals(N,mt) = mt .
 
   --- OUT: Number of goals in the set
   op numGoals : ProofGoalSet -> Nat .
@@ -770,8 +779,10 @@ fmod REACH-PROOF-STATE-VALIDATION is
       else st(err) ; out(form-check(U,'terminating 'state,CT))
     fi ; validate(U,D) .
 
-  --- NB: goals need an additional check that vars are safe:
-  ---     hide check behind feature flag since currently buggy
+  --- NB: it would be nice to check that goal numbering is consecutive
+  ---     or at least check in some other way that goal numbering is
+  ---     sane to prevent bad errors from creeping in when we delete
+  ---     generated goals for any reason
   eq validate(U,D ; prf(GS)) =
     if form-check(U,'goal,getbody(GS)) == nil
       then if duplIdGoal?(GS) == false
@@ -1043,7 +1054,7 @@ fmod REACH-PROOF-STATE-OPS is
   --- Miscellaneous
 
   op lift-result : MaybeProofGoal ProofMetadata ProofMetadata ProofGoalSet -> ProofMetadata? .
-  eq lift-result(MG,D,D',GS) = raw-set(D',gn(size(GS)) ; prf(setstatus(inactive,MG) && renumberGoals(get-gn(D),GS))) .
+  eq lift-result(MG,D,D',GS) = raw-set(D',gn(size(GS)) ; prf(setstatus(inactive,MG) && renumberPlusGoals(get-gn(D),GS))) .
 
   op delgl : ProofMetadata ProofGoalSet -> ProofMetadata? .
   eq delgl(D ; prf(GS),GS') = D ; prf(delgl(GS,GS')) .

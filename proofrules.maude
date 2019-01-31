@@ -194,7 +194,7 @@ fmod REACH-PROOF-RULES-AUX is
        (if SRS == noSteps then out('Warning: 'narrowing 'on 'goal &sp printGoals(U,G) &sp 'generated 'zero 'successors '\n) else none fi ;
         if not wellFormed(U,toReachFormSet(SRS)) then out('Warning: 'narrowing 'on 'goal printGoalIds(G) 'generated 'ill-formed 'successors '\n) else none fi)
      else
-       (none || deleteDuplGoals(renameNormalizeGoal(U,get-cnt(D),newChildGoals(G,toReachFormSubstPairSet(SRS)))))
+       (none || deleteDuplGoals(0,renameNormalizeGoal(U,get-cnt(D),newChildGoals(G,toReachFormSubstPairSet(SRS)))))
      fi .
   eq [handle-error] :
      step-action(D,U,SRSK,G) =
