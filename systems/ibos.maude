@@ -661,7 +661,7 @@ mod KERNEL is
            handledCurrently(msg(WI, network(N), MT, L')),
            msgPolicy(policy(webapp,network,MT),ps MP),
            weblabels(pi(WI, L),wp WPIS),
-           networklabels(NPIS),
+           networklabels(pi(network(N),L,L'),np NPIS),
            nextNetworkProc(N + 1),
            Att >
        < WI     |
