@@ -23,7 +23,9 @@ set include BOOL off .
 ---
 
 fmod TRUTH-VALUE-COPY is
-  sort Bool .
+  sort Bool? . --- used for partially defined Boolean functions
+  sort Bool  .
+  subsort Bool < Bool? .
   op true  : -> Bool [ctor special (id-hook SystemTrue) metadata "9" ] .
   op false : -> Bool [ctor special (id-hook SystemFalse) metadata "10" ] .
 endfm
