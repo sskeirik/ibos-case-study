@@ -1,7 +1,7 @@
 set include BOOL off .
 
 fmod KERNEL-POLICIES-FVP-NOID is
-  sorts Attribute AttributeSet Bool Configuration DisplayId EmptyAttributeSet KernelId Label LabelList LabelSet MaybeLabel Message MessageList MsgType NICId Nat NeAttributeSet NeConfiguration NetProcId NetworkProcInfo NetworkProcInfoSet NonFetchMsg NonNetPipeId NonNetProcId NonPipeId NonRetFetchMsg NonRetMsg NonWebAppId NonWebPipeId NzNat Object PipeId Policy PolicySet ProcessId State UIId WebAppId WebAppMgrId WebappProcInfo WebappProcInfoSet .
+  sorts Attribute AttributeSet Bool Configuration DisplayId EmptyAttributeSet KernelId Label LabelList LabelSet MaybeLabel Message Message? MessageList MsgType NICId Nat NeAttributeSet NeConfiguration NetProcId NetworkProcInfo NetworkProcInfoSet NonFetchMsg NonNetPipeId NonNetProcId NonPipeId NonRetFetchMsg NonRetMsg NonWebAppId NonWebPipeId NzNat Object PipeId Policy PolicySet ProcessId State UIId WebAppId WebAppMgrId WebappProcInfo WebappProcInfoSet .
   subsort Attribute < NeAttributeSet .
   subsort DisplayId < NonPipeId .
   subsort EmptyAttributeSet < AttributeSet .
@@ -9,7 +9,8 @@ fmod KERNEL-POLICIES-FVP-NOID is
   subsort Label < LabelList .
   subsort Label < LabelSet .
   subsort Label < MaybeLabel .
-  subsort Message < MessageList .
+  subsort Message < Message? .
+  subsort Message? < MessageList .
   subsort NICId < NonPipeId .
   subsort NeAttributeSet < AttributeSet .
   subsort NeConfiguration < Configuration .
@@ -122,7 +123,7 @@ fmod KERNEL-POLICIES-FVP-NOID is
     [ctor special(id-hook SystemFalse)metadata "10"] .
   op fromKernel : MessageList -> Attribute
     [ctor metadata "51"] .
-  op handledCurrently : Message -> Attribute
+  op handledCurrently : Message? -> Attribute
     [ctor metadata "68"] .
   op in : LabelList -> Attribute
     [ctor metadata "58"] .
@@ -174,7 +175,7 @@ fmod KERNEL-POLICIES-FVP-NOID is
     [ctor metadata "2"] .
   op none : -> EmptyAttributeSet
     [ctor metadata "1"] .
-  op none : -> Message
+  op none : -> Message?
     [ctor metadata "49"] .
   op not_ : Bool -> Bool
     [metadata "13"] .
