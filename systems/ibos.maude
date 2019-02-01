@@ -314,13 +314,13 @@ fmod NETPROC is inc LABEL-LIST . inc SYS .
 endfm
 
 fmod MEMORY is inc SYS . inc LABEL .
-  op mem-out : MaybeLabel -> Attribute [ctor metadata "60"] .
   op mem-in  : MaybeLabel -> Attribute [ctor metadata "61"] .
+  op mem-out : MaybeLabel -> Attribute [ctor metadata "60"] .
 endfm
 
 fmod NIC is inc SYS . inc LABEL-SET . inc LABEL-LIST .
-  op nic-out : LabelSet  -> Attribute [ctor metadata "62"] .
   op nic-in  : LabelList -> Attribute [ctor metadata "63"] .
+  op nic-out : LabelSet  -> Attribute [ctor metadata "62"] .
 endfm
 
 fmod KERNEL-POLICIES-FVP is
