@@ -51,9 +51,316 @@ fmod CONFIGURATION-FVP-EXT is
   op __ : NetProcWebProcNeConfig NetProcWebProcConfig -> NetProcWebProcNeConfig [ctor ditto metadata "34"] .
 endfm
 
+fmod ATTRIBUTE-NONFVP-EXT is
+  pr KERNEL-POLICIES-FVP .
+  var A A' : Attribute . var AS : AttributeSet .
+
+  op _~a_ : Attribute Attribute -> Bool [comm metadata ""] .
+  eq fromKernel      (X:MessageList)    ~a fromKernel      (Y:MessageList)    = true .
+  eq toKernel        (X:MessageList)    ~a toKernel        (Y:MessageList)    = true .
+  eq nextWPN         (X:Nat)            ~a nextWPN         (Y:Nat)            = true .
+  eq rendered        (X:Label)          ~a rendered        (Y:Label)          = true .
+  eq URL             (X:Label)          ~a URL             (Y:Label)          = true .
+  eq loading         (X:Bool)           ~a loading         (Y:Bool)           = true .
+  eq returnTo        (X:PipeId)         ~a returnTo        (Y:PipeId)         = true .
+  eq in              (X:LabelList)      ~a in              (Y:LabelList)      = true .
+  eq out             (X:LabelList)      ~a out             (Y:LabelList)      = true .
+  eq mem-in          (X:MaybeLabel)     ~a mem-in          (Y:MaybeLabel)     = true .
+  eq mem-out         (X:MaybeLabel)     ~a mem-out         (Y:MaybeLabel)     = true .
+  eq nic-in          (X:LabelList)      ~a nic-in          (Y:LabelList)      = true .
+  eq nic-out         (X:LabelSet)       ~a nic-out         (Y:LabelSet)       = true .
+  eq msgPolicy       (X:PolicySet)      ~a msgPolicy       (Y:PolicySet)      = true .
+  eq nextNPN         (X:Nat)            ~a nextNPN         (Y:Nat)            = true .
+  eq handledCurrently(X:Message?)       ~a handledCurrently(Y:Message?)       = true .
+  eq weblabels       (X:WebProcInfoSet) ~a weblabels       (Y:WebProcInfoSet) = true .
+  eq netlabels       (X:NetProcInfoSet) ~a netlabels       (Y:NetProcInfoSet) = true .
+  eq displayedTopBar (X:Label)          ~a displayedTopBar (Y:Label)          = true .
+  eq displayedContent(X:Label)          ~a displayedContent(Y:Label)          = true .
+  eq activeWebapp    (X:WebProcId)      ~a activeWebapp    (Y:WebProcId)      = true .
+
+  eq fromKernel      (X:MessageList)    ~a toKernel        (Y:MessageList)    = false .
+  eq fromKernel      (X:MessageList)    ~a nextWPN         (Y:Nat)            = false .
+  eq fromKernel      (X:MessageList)    ~a rendered        (Y:Label)          = false .
+  eq fromKernel      (X:MessageList)    ~a URL             (Y:Label)          = false .
+  eq fromKernel      (X:MessageList)    ~a loading         (Y:Bool)           = false .
+  eq fromKernel      (X:MessageList)    ~a returnTo        (Y:PipeId)         = false .
+  eq fromKernel      (X:MessageList)    ~a in              (Y:LabelList)      = false .
+  eq fromKernel      (X:MessageList)    ~a out             (Y:LabelList)      = false .
+  eq fromKernel      (X:MessageList)    ~a mem-in          (Y:MaybeLabel)     = false .
+  eq fromKernel      (X:MessageList)    ~a mem-out         (Y:MaybeLabel)     = false .
+  eq fromKernel      (X:MessageList)    ~a nic-in          (Y:LabelList)      = false .
+  eq fromKernel      (X:MessageList)    ~a nic-out         (Y:LabelSet)       = false .
+  eq fromKernel      (X:MessageList)    ~a msgPolicy       (Y:PolicySet)      = false .
+  eq fromKernel      (X:MessageList)    ~a nextNPN         (Y:Nat)            = false .
+  eq fromKernel      (X:MessageList)    ~a handledCurrently(Y:Message?)       = false .
+  eq fromKernel      (X:MessageList)    ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq fromKernel      (X:MessageList)    ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq fromKernel      (X:MessageList)    ~a displayedTopBar (Y:Label)          = false .
+  eq fromKernel      (X:MessageList)    ~a displayedContent(Y:Label)          = false .
+  eq fromKernel      (X:MessageList)    ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq toKernel        (X:MessageList)    ~a nextWPN         (Y:Nat)            = false .
+  eq toKernel        (X:MessageList)    ~a rendered        (Y:Label)          = false .
+  eq toKernel        (X:MessageList)    ~a URL             (Y:Label)          = false .
+  eq toKernel        (X:MessageList)    ~a loading         (Y:Bool)           = false .
+  eq toKernel        (X:MessageList)    ~a returnTo        (Y:PipeId)         = false .
+  eq toKernel        (X:MessageList)    ~a in              (Y:LabelList)      = false .
+  eq toKernel        (X:MessageList)    ~a out             (Y:LabelList)      = false .
+  eq toKernel        (X:MessageList)    ~a mem-in          (Y:MaybeLabel)     = false .
+  eq toKernel        (X:MessageList)    ~a mem-out         (Y:MaybeLabel)     = false .
+  eq toKernel        (X:MessageList)    ~a nic-in          (Y:LabelList)      = false .
+  eq toKernel        (X:MessageList)    ~a nic-out         (Y:LabelSet)       = false .
+  eq toKernel        (X:MessageList)    ~a msgPolicy       (Y:PolicySet)      = false .
+  eq toKernel        (X:MessageList)    ~a nextNPN         (Y:Nat)            = false .
+  eq toKernel        (X:MessageList)    ~a handledCurrently(Y:Message?)       = false .
+  eq toKernel        (X:MessageList)    ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq toKernel        (X:MessageList)    ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq toKernel        (X:MessageList)    ~a displayedTopBar (Y:Label)          = false .
+  eq toKernel        (X:MessageList)    ~a displayedContent(Y:Label)          = false .
+  eq toKernel        (X:MessageList)    ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq nextWPN         (X:Nat)            ~a rendered        (Y:Label)          = false .
+  eq nextWPN         (X:Nat)            ~a URL             (Y:Label)          = false .
+  eq nextWPN         (X:Nat)            ~a loading         (Y:Bool)           = false .
+  eq nextWPN         (X:Nat)            ~a returnTo        (Y:PipeId)         = false .
+  eq nextWPN         (X:Nat)            ~a in              (Y:LabelList)      = false .
+  eq nextWPN         (X:Nat)            ~a out             (Y:LabelList)      = false .
+  eq nextWPN         (X:Nat)            ~a mem-in          (Y:MaybeLabel)     = false .
+  eq nextWPN         (X:Nat)            ~a mem-out         (Y:MaybeLabel)     = false .
+  eq nextWPN         (X:Nat)            ~a nic-in          (Y:LabelList)      = false .
+  eq nextWPN         (X:Nat)            ~a nic-out         (Y:LabelSet)       = false .
+  eq nextWPN         (X:Nat)            ~a msgPolicy       (Y:PolicySet)      = false .
+  eq nextWPN         (X:Nat)            ~a nextNPN         (Y:Nat)            = false .
+  eq nextWPN         (X:Nat)            ~a handledCurrently(Y:Message?)       = false .
+  eq nextWPN         (X:Nat)            ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq nextWPN         (X:Nat)            ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq nextWPN         (X:Nat)            ~a displayedTopBar (Y:Label)          = false .
+  eq nextWPN         (X:Nat)            ~a displayedContent(Y:Label)          = false .
+  eq nextWPN         (X:Nat)            ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq rendered        (X:Label)          ~a URL             (Y:Label)          = false .
+  eq rendered        (X:Label)          ~a loading         (Y:Bool)           = false .
+  eq rendered        (X:Label)          ~a returnTo        (Y:PipeId)         = false .
+  eq rendered        (X:Label)          ~a in              (Y:LabelList)      = false .
+  eq rendered        (X:Label)          ~a out             (Y:LabelList)      = false .
+  eq rendered        (X:Label)          ~a mem-in          (Y:MaybeLabel)     = false .
+  eq rendered        (X:Label)          ~a mem-out         (Y:MaybeLabel)     = false .
+  eq rendered        (X:Label)          ~a nic-in          (Y:LabelList)      = false .
+  eq rendered        (X:Label)          ~a nic-out         (Y:LabelSet)       = false .
+  eq rendered        (X:Label)          ~a msgPolicy       (Y:PolicySet)      = false .
+  eq rendered        (X:Label)          ~a nextNPN         (Y:Nat)            = false .
+  eq rendered        (X:Label)          ~a handledCurrently(Y:Message?)       = false .
+  eq rendered        (X:Label)          ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq rendered        (X:Label)          ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq rendered        (X:Label)          ~a displayedTopBar (Y:Label)          = false .
+  eq rendered        (X:Label)          ~a displayedContent(Y:Label)          = false .
+  eq rendered        (X:Label)          ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq URL             (X:Label)          ~a loading         (Y:Bool)           = false .
+  eq URL             (X:Label)          ~a returnTo        (Y:PipeId)         = false .
+  eq URL             (X:Label)          ~a in              (Y:LabelList)      = false .
+  eq URL             (X:Label)          ~a out             (Y:LabelList)      = false .
+  eq URL             (X:Label)          ~a mem-in          (Y:MaybeLabel)     = false .
+  eq URL             (X:Label)          ~a mem-out         (Y:MaybeLabel)     = false .
+  eq URL             (X:Label)          ~a nic-in          (Y:LabelList)      = false .
+  eq URL             (X:Label)          ~a nic-out         (Y:LabelSet)       = false .
+  eq URL             (X:Label)          ~a msgPolicy       (Y:PolicySet)      = false .
+  eq URL             (X:Label)          ~a nextNPN         (Y:Nat)            = false .
+  eq URL             (X:Label)          ~a handledCurrently(Y:Message?)       = false .
+  eq URL             (X:Label)          ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq URL             (X:Label)          ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq URL             (X:Label)          ~a displayedTopBar (Y:Label)          = false .
+  eq URL             (X:Label)          ~a displayedContent(Y:Label)          = false .
+  eq URL             (X:Label)          ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq loading         (X:Bool)           ~a returnTo        (Y:PipeId)         = false .
+  eq loading         (X:Bool)           ~a in              (Y:LabelList)      = false .
+  eq loading         (X:Bool)           ~a out             (Y:LabelList)      = false .
+  eq loading         (X:Bool)           ~a mem-in          (Y:MaybeLabel)     = false .
+  eq loading         (X:Bool)           ~a mem-out         (Y:MaybeLabel)     = false .
+  eq loading         (X:Bool)           ~a nic-in          (Y:LabelList)      = false .
+  eq loading         (X:Bool)           ~a nic-out         (Y:LabelSet)       = false .
+  eq loading         (X:Bool)           ~a msgPolicy       (Y:PolicySet)      = false .
+  eq loading         (X:Bool)           ~a nextNPN         (Y:Nat)            = false .
+  eq loading         (X:Bool)           ~a handledCurrently(Y:Message?)       = false .
+  eq loading         (X:Bool)           ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq loading         (X:Bool)           ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq loading         (X:Bool)           ~a displayedTopBar (Y:Label)          = false .
+  eq loading         (X:Bool)           ~a displayedContent(Y:Label)          = false .
+  eq loading         (X:Bool)           ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq returnTo        (X:PipeId)         ~a in              (Y:LabelList)      = false .
+  eq returnTo        (X:PipeId)         ~a out             (Y:LabelList)      = false .
+  eq returnTo        (X:PipeId)         ~a mem-in          (Y:MaybeLabel)     = false .
+  eq returnTo        (X:PipeId)         ~a mem-out         (Y:MaybeLabel)     = false .
+  eq returnTo        (X:PipeId)         ~a nic-in          (Y:LabelList)      = false .
+  eq returnTo        (X:PipeId)         ~a nic-out         (Y:LabelSet)       = false .
+  eq returnTo        (X:PipeId)         ~a msgPolicy       (Y:PolicySet)      = false .
+  eq returnTo        (X:PipeId)         ~a nextNPN         (Y:Nat)            = false .
+  eq returnTo        (X:PipeId)         ~a handledCurrently(Y:Message?)       = false .
+  eq returnTo        (X:PipeId)         ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq returnTo        (X:PipeId)         ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq returnTo        (X:PipeId)         ~a displayedTopBar (Y:Label)          = false .
+  eq returnTo        (X:PipeId)         ~a displayedContent(Y:Label)          = false .
+  eq returnTo        (X:PipeId)         ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq in              (X:LabelList)      ~a out             (Y:LabelList)      = false .
+  eq in              (X:LabelList)      ~a mem-in          (Y:MaybeLabel)     = false .
+  eq in              (X:LabelList)      ~a mem-out         (Y:MaybeLabel)     = false .
+  eq in              (X:LabelList)      ~a nic-in          (Y:LabelList)      = false .
+  eq in              (X:LabelList)      ~a nic-out         (Y:LabelSet)       = false .
+  eq in              (X:LabelList)      ~a msgPolicy       (Y:PolicySet)      = false .
+  eq in              (X:LabelList)      ~a nextNPN         (Y:Nat)            = false .
+  eq in              (X:LabelList)      ~a handledCurrently(Y:Message?)       = false .
+  eq in              (X:LabelList)      ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq in              (X:LabelList)      ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq in              (X:LabelList)      ~a displayedTopBar (Y:Label)          = false .
+  eq in              (X:LabelList)      ~a displayedContent(Y:Label)          = false .
+  eq in              (X:LabelList)      ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq out             (X:LabelList)      ~a mem-in          (Y:MaybeLabel)     = false .
+  eq out             (X:LabelList)      ~a mem-out         (Y:MaybeLabel)     = false .
+  eq out             (X:LabelList)      ~a nic-in          (Y:LabelList)      = false .
+  eq out             (X:LabelList)      ~a nic-out         (Y:LabelSet)       = false .
+  eq out             (X:LabelList)      ~a msgPolicy       (Y:PolicySet)      = false .
+  eq out             (X:LabelList)      ~a nextNPN         (Y:Nat)            = false .
+  eq out             (X:LabelList)      ~a handledCurrently(Y:Message?)       = false .
+  eq out             (X:LabelList)      ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq out             (X:LabelList)      ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq out             (X:LabelList)      ~a displayedTopBar (Y:Label)          = false .
+  eq out             (X:LabelList)      ~a displayedContent(Y:Label)          = false .
+  eq out             (X:LabelList)      ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq mem-in          (X:MaybeLabel)     ~a mem-out         (Y:MaybeLabel)     = false .
+  eq mem-in          (X:MaybeLabel)     ~a nic-in          (Y:LabelList)      = false .
+  eq mem-in          (X:MaybeLabel)     ~a nic-out         (Y:LabelSet)       = false .
+  eq mem-in          (X:MaybeLabel)     ~a msgPolicy       (Y:PolicySet)      = false .
+  eq mem-in          (X:MaybeLabel)     ~a nextNPN         (Y:Nat)            = false .
+  eq mem-in          (X:MaybeLabel)     ~a handledCurrently(Y:Message?)       = false .
+  eq mem-in          (X:MaybeLabel)     ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq mem-in          (X:MaybeLabel)     ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq mem-in          (X:MaybeLabel)     ~a displayedTopBar (Y:Label)          = false .
+  eq mem-in          (X:MaybeLabel)     ~a displayedContent(Y:Label)          = false .
+  eq mem-in          (X:MaybeLabel)     ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq mem-out         (X:MaybeLabel)     ~a nic-in          (Y:LabelList)      = false .
+  eq mem-out         (X:MaybeLabel)     ~a nic-out         (Y:LabelSet)       = false .
+  eq mem-out         (X:MaybeLabel)     ~a msgPolicy       (Y:PolicySet)      = false .
+  eq mem-out         (X:MaybeLabel)     ~a nextNPN         (Y:Nat)            = false .
+  eq mem-out         (X:MaybeLabel)     ~a handledCurrently(Y:Message?)       = false .
+  eq mem-out         (X:MaybeLabel)     ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq mem-out         (X:MaybeLabel)     ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq mem-out         (X:MaybeLabel)     ~a displayedTopBar (Y:Label)          = false .
+  eq mem-out         (X:MaybeLabel)     ~a displayedContent(Y:Label)          = false .
+  eq mem-out         (X:MaybeLabel)     ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq nic-in          (X:LabelList)      ~a nic-out         (Y:LabelSet)       = false .
+  eq nic-in          (X:LabelList)      ~a msgPolicy       (Y:PolicySet)      = false .
+  eq nic-in          (X:LabelList)      ~a nextNPN         (Y:Nat)            = false .
+  eq nic-in          (X:LabelList)      ~a handledCurrently(Y:Message?)       = false .
+  eq nic-in          (X:LabelList)      ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq nic-in          (X:LabelList)      ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq nic-in          (X:LabelList)      ~a displayedTopBar (Y:Label)          = false .
+  eq nic-in          (X:LabelList)      ~a displayedContent(Y:Label)          = false .
+  eq nic-in          (X:LabelList)      ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq nic-out         (X:LabelSet)       ~a msgPolicy       (Y:PolicySet)      = false .
+  eq nic-out         (X:LabelSet)       ~a nextNPN         (Y:Nat)            = false .
+  eq nic-out         (X:LabelSet)       ~a handledCurrently(Y:Message?)       = false .
+  eq nic-out         (X:LabelSet)       ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq nic-out         (X:LabelSet)       ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq nic-out         (X:LabelSet)       ~a displayedTopBar (Y:Label)          = false .
+  eq nic-out         (X:LabelSet)       ~a displayedContent(Y:Label)          = false .
+  eq nic-out         (X:LabelSet)       ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq msgPolicy       (X:PolicySet)      ~a nextNPN         (Y:Nat)            = false .
+  eq msgPolicy       (X:PolicySet)      ~a handledCurrently(Y:Message?)       = false .
+  eq msgPolicy       (X:PolicySet)      ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq msgPolicy       (X:PolicySet)      ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq msgPolicy       (X:PolicySet)      ~a displayedTopBar (Y:Label)          = false .
+  eq msgPolicy       (X:PolicySet)      ~a displayedContent(Y:Label)          = false .
+  eq msgPolicy       (X:PolicySet)      ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq nextNPN         (X:Nat)            ~a handledCurrently(Y:Message?)       = false .
+  eq nextNPN         (X:Nat)            ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq nextNPN         (X:Nat)            ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq nextNPN         (X:Nat)            ~a displayedTopBar (Y:Label)          = false .
+  eq nextNPN         (X:Nat)            ~a displayedContent(Y:Label)          = false .
+  eq nextNPN         (X:Nat)            ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq handledCurrently(X:Message?)       ~a weblabels       (Y:WebProcInfoSet) = false .
+  eq handledCurrently(X:Message?)       ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq handledCurrently(X:Message?)       ~a displayedTopBar (Y:Label)          = false .
+  eq handledCurrently(X:Message?)       ~a displayedContent(Y:Label)          = false .
+  eq handledCurrently(X:Message?)       ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq weblabels       (X:WebProcInfoSet) ~a netlabels       (Y:NetProcInfoSet) = false .
+  eq weblabels       (X:WebProcInfoSet) ~a displayedTopBar (Y:Label)          = false .
+  eq weblabels       (X:WebProcInfoSet) ~a displayedContent(Y:Label)          = false .
+  eq weblabels       (X:WebProcInfoSet) ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq netlabels       (X:NetProcInfoSet) ~a displayedTopBar (Y:Label)          = false .
+  eq netlabels       (X:NetProcInfoSet) ~a displayedContent(Y:Label)          = false .
+  eq netlabels       (X:NetProcInfoSet) ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq displayedTopBar (X:Label)          ~a displayedContent(Y:Label)          = false .
+  eq displayedTopBar (X:Label)          ~a activeWebapp    (Y:WebProcId)      = false .
+
+  eq displayedContent(X:Label)          ~a activeWebapp    (Y:WebProcId)      = false .
+
+  op in-attrset? : Attribute AttributeSet -> Bool [metadata ""] .
+  eq in-attrset?(fromKernel      (X:MessageList),    (fromKernel      (Y:MessageList),    AS)) = true .
+  eq in-attrset?(toKernel        (X:MessageList),    (toKernel        (Y:MessageList),    AS)) = true .
+  eq in-attrset?(nextWPN         (X:Nat),            (nextWPN         (Y:Nat),            AS)) = true .
+  eq in-attrset?(rendered        (X:Label),          (rendered        (Y:Label),          AS)) = true .
+  eq in-attrset?(URL             (X:Label),          (URL             (Y:Label),          AS)) = true .
+  eq in-attrset?(loading         (X:Bool),           (loading         (Y:Bool),           AS)) = true .
+  eq in-attrset?(returnTo        (X:PipeId),         (returnTo        (Y:PipeId),         AS)) = true .
+  eq in-attrset?(in              (X:LabelList),      (in              (Y:LabelList),      AS)) = true .
+  eq in-attrset?(out             (X:LabelList),      (out             (Y:LabelList),      AS)) = true .
+  eq in-attrset?(mem-in          (X:MaybeLabel),     (mem-in          (Y:MaybeLabel),     AS)) = true .
+  eq in-attrset?(mem-out         (X:MaybeLabel),     (mem-out         (Y:MaybeLabel),     AS)) = true .
+  eq in-attrset?(nic-in          (X:LabelList),      (nic-in          (Y:LabelList),      AS)) = true .
+  eq in-attrset?(nic-out         (X:LabelSet),       (nic-out         (Y:LabelSet),       AS)) = true .
+  eq in-attrset?(msgPolicy       (X:PolicySet),      (msgPolicy       (Y:PolicySet),      AS)) = true .
+  eq in-attrset?(nextNPN         (X:Nat),            (nextNPN         (Y:Nat),            AS)) = true .
+  eq in-attrset?(handledCurrently(X:Message?),       (handledCurrently(Y:Message?),       AS)) = true .
+  eq in-attrset?(weblabels       (X:WebProcInfoSet), (weblabels       (Y:WebProcInfoSet), AS)) = true .
+  eq in-attrset?(netlabels       (X:NetProcInfoSet), (netlabels       (Y:NetProcInfoSet), AS)) = true .
+  eq in-attrset?(displayedTopBar (X:Label),          (displayedTopBar (Y:Label),          AS)) = true .
+  eq in-attrset?(displayedContent(X:Label),          (displayedContent(Y:Label),          AS)) = true .
+  eq in-attrset?(activeWebapp    (X:WebProcId),      (activeWebapp    (Y:WebProcId),      AS)) = true .
+ ceq in-attrset?(A,(A', AS)) = in-attrset?(A,AS) if A ~a A' = false .
+
+  op attr-dupl? : AttributeSet -> Bool [metadata ""] .
+  eq attr-dupl?(fromKernel      (X:MessageList),    fromKernel      (Y:MessageList),    AS) = true .
+  eq attr-dupl?(toKernel        (X:MessageList),    toKernel        (Y:MessageList),    AS) = true .
+  eq attr-dupl?(nextWPN         (X:Nat),            nextWPN         (Y:Nat),            AS) = true .
+  eq attr-dupl?(rendered        (X:Label),          rendered        (Y:Label),          AS) = true .
+  eq attr-dupl?(URL             (X:Label),          URL             (Y:Label),          AS) = true .
+  eq attr-dupl?(loading         (X:Bool),           loading         (Y:Bool),           AS) = true .
+  eq attr-dupl?(returnTo        (X:PipeId),         returnTo        (Y:PipeId),         AS) = true .
+  eq attr-dupl?(in              (X:LabelList),      in              (Y:LabelList),      AS) = true .
+  eq attr-dupl?(out             (X:LabelList),      out             (Y:LabelList),      AS) = true .
+  eq attr-dupl?(mem-in          (X:MaybeLabel),     mem-in          (Y:MaybeLabel),     AS) = true .
+  eq attr-dupl?(mem-out         (X:MaybeLabel),     mem-out         (Y:MaybeLabel),     AS) = true .
+  eq attr-dupl?(nic-in          (X:LabelList),      nic-in          (Y:LabelList),      AS) = true .
+  eq attr-dupl?(nic-out         (X:LabelSet),       nic-out         (Y:LabelSet),       AS) = true .
+  eq attr-dupl?(msgPolicy       (X:PolicySet),      msgPolicy       (Y:PolicySet),      AS) = true .
+  eq attr-dupl?(nextNPN         (X:Nat),            nextNPN         (Y:Nat),            AS) = true .
+  eq attr-dupl?(handledCurrently(X:Message?),       handledCurrently(Y:Message?),       AS) = true .
+  eq attr-dupl?(weblabels       (X:WebProcInfoSet), weblabels       (Y:WebProcInfoSet), AS) = true .
+  eq attr-dupl?(netlabels       (X:NetProcInfoSet), netlabels       (Y:NetProcInfoSet), AS) = true .
+  eq attr-dupl?(displayedTopBar (X:Label),          displayedTopBar (Y:Label),          AS) = true .
+  eq attr-dupl?(displayedContent(X:Label),          displayedContent(Y:Label),          AS) = true .
+  eq attr-dupl?(activeWebapp    (X:WebProcId),      activeWebapp    (Y:WebProcId),      AS) = true .
+ ceq attr-dupl?(A,AS) = attr-dupl?(AS) if in-attrset?(A,AS) = false .
+endfm
+
 fmod KERNEL-POLICIES-NONFVP-EXT is
   pr KERNEL-POLICIES-NONFVP .
   pr CONFIGURATION-FVP-EXT .
+  pr ATTRIBUTE-NONFVP-EXT .
 
   var C : Configuration .
   var W N M : Nat .
