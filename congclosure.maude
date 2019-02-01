@@ -133,7 +133,10 @@ fmod CONG-CLOSURE-ENRICHMENT is
   eq varsToConstsWithMetadata#(U,N,V ; VS,P,OS,S) = varsToConstsWithMetadata#(U,s(N),VS,P,OS op join(P getName(V)) : nil -> getType(V) [metadata(string(s(N),10))].,S ; V <- join(P getName(V) '. getType(V))) .
   eq varsToConstsWithMetadata#(U,N,none,P,OS,S)  = (addOps(OS,U),S) .
 
-  op shiftMetadata : Module Nat Nat -> Module  .
+  --- NB: this function is called with the same first two arguments every time while working in one module;
+  ---     only the third argument varies depending on how many variables are in a formula. Typically, the
+  ---     number will not vary too much when proving things and it will repeat often --- a perfect memo candidate.
+  op shiftMetadata : Module Nat Nat -> Module [memo] .
   eq shiftMetadata(U,N,M) = setOps(U,shiftMetadata(N,M,getOps(U),none)) .
 
   op shiftMetadata : Nat Nat OpDeclSet OpDeclSet -> OpDeclSet .
