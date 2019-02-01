@@ -39,8 +39,21 @@ load ../../systems/ibos.maude
 ---     us is that if the message is received by a real webapp, then it will satisfy the
 ---     conditions above
 
+fmod CONFIGURATION-FVP-EXT is
+  pr KERNEL-POLICIES-FVP .
+
+  sort NetProcWebProcId NetProcWebProcObject NetProcWebProcConfig NetProcWebProcNeConfig .
+  subsort NetProcId WebProcId < NetProcWebProcId < PipeId .
+  subsort NetProcWebProcObject < Object .
+  subsort NetProcWebProcObject < NetProcWebProcNeConfig < NeConfiguration NetProcWebProcConfig < Configuration .
+  op <_|_> : NetProcWebProcId AttributeSet -> NetProcWebProcObject [ctor ditto metadata "32"] .
+  op __ : NetProcWebProcConfig   NetProcWebProcConfig -> NetProcWebProcConfig   [ctor ditto metadata "34"] .
+  op __ : NetProcWebProcNeConfig NetProcWebProcConfig -> NetProcWebProcNeConfig [ctor ditto metadata "34"] .
+endfm
+
 fmod KERNEL-POLICIES-NONFVP-EXT is
   pr KERNEL-POLICIES-NONFVP .
+  pr CONFIGURATION-FVP-EXT .
 
   var C : Configuration .
   var W N M : Nat .
