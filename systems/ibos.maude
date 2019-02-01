@@ -186,12 +186,14 @@ endfm
 
 fmod MSG is pr PROC-ID . pr LABEL .
   **** message type definition
-  sorts MsgType Message .
+  sorts MsgType Message Message? .
+  subsort Message < Message? .
   op MSG-NEW-URL    : -> MsgType [ctor metadata "44"] . --- creates a new web app with given URL
   op MSG-FETCH-URL  : -> MsgType [ctor metadata "45"] . --- tells network to fetch data for given URL
   op MSG-RETURN-URL : -> MsgType [ctor metadata "46"] . --- stores data that was fetched from internet by MSG-FETCH-URL
   op MSG-SWITCH-TAB : -> MsgType [ctor metadata "47"] . --- causes displayed tab to be switched
   op msg  : ProcessId ProcessId MsgType Label -> Message [ctor metadata "48"] .
+  op none : -> Message? [ctor metadata "49"] .
 
   --- equality predicate for message types
   op _~m_ : MsgType MsgType -> Bool [comm metadata "86"] .
@@ -218,8 +220,7 @@ endfm
 fmod MSG-LIST is pr MSG .
   **** message list definition
   sort MessageList .
-  subsort Message < MessageList .
-  op none : -> Message [ctor metadata "49"] .
+  subsort Message? < MessageList .
   op mt   : -> MessageList [ctor metadata "5"] .
   op _@_  : MessageList MessageList -> MessageList [ctor assoc id: mt metadata "50"] .
 endfm
@@ -356,7 +357,7 @@ fmod KERNEL-POLICIES-FVP is
   op msgPolicy        : PolicySet             -> Attribute [ctor metadata "65"] .  **** make the policylist an attribute with this wrapper
   op policy           : PipeId PipeId MsgType -> Policy    [ctor metadata "66"] .  **** a policy is a sender Id, receiver Id and MsgType (only PipeProcs can communicate with kernel)
   op nextNetworkProc  : Nat                   -> Attribute [ctor metadata "67"] .  **** the next available proc id for a network proc
-  op handledCurrently : Message               -> Attribute [ctor metadata "68"] .  **** the message currently handled by the kernel
+  op handledCurrently : Message?              -> Attribute [ctor metadata "68"] .  **** the message currently handled by the kernel
   **** webapp info stored by kernel
   **** label identifies the website this webapp is showing - this needs to match the
   **** first label of a network proc to allow communication
@@ -439,34 +440,35 @@ fmod KERNEL-POLICIES-NONFVP is
   var L L' L'' : Label . var N N' : Nat .
   var NI NI' : NetProcId . var WI WI' : WebAppId .
   var NPIS : NetworkProcInfoSet . var WPIS : WebappProcInfoSet .
+  var PI PI' : ProcessId .
+  var NPI NPI' : NonPipeId .
+  var UI : UIId .
 
   **** auxiliary function for checking that a network process links to a given label
   op networkproc-for-label? : Label NetworkProcInfoSet -> Bool [metadata "79"] .
   eq [nnpl] : networkproc-for-label?(L',(pi(network(N),L,L') ,np NPIS)) = true [variant] .
  ceq [nnpl2] : networkproc-for-label?(L',(pi(network(N),L,L'') ,np NPIS)) = networkproc-for-label?(L',NPIS) if L' ~l L'' = false .
   eq [nnplf] : networkproc-for-label?(L',mtNPIS) = false .
-  **** auxiliary functions for checking connections for network procs and
-  **** webapps in the information sets that are defined in the kernel
-  **** checks if a particular network process exists in a kernel-maintained set of network information
-  op networkproc? : Nat NetworkProcInfoSet -> Bool [metadata "80"] .
-  eq [nnp] : networkproc?(N,(pi(network(N),L,L') ,np NPIS)) = true [variant] .
- ceq [nnp2] : networkproc?(N,(pi(network(N'),L,L') ,np NPIS)) = networkproc?(N,NPIS) if N ~n N' = false .
-  eq [nnpf] : networkproc?(N,mtNPIS) = false .
-  **** checks if a particular web application exists in a kernel-maintained set of webapp information
-  op webapp? : Nat WebappProcInfoSet -> Bool [metadata "81"] .
-  eq [nwa] : webapp?(N,(pi(webapp(N),L) ,wp WPIS)) = true [variant] .
- ceq [nwa2] : webapp?(N,(pi(webapp(N'),L) ,wp WPIS)) = webapp?(N,WPIS) if N ~n N' = false .
-  eq [nwaf] : webapp?(N,mtWPIS) = false .
 
-  op matching-procs? : NetProcId WebAppId WebappProcInfoSet NetworkProcInfoSet -> Bool [metadata "83"] .
-  eq matching-procs?(NI,WI,(pi(WI,L) ,wp WPIS),NPIS) = matching-procs1?(NI,L,NPIS) or matching-procs?(NI,WI,WPIS,NPIS) .
- ceq matching-procs?(NI,WI,(pi(WI',L) ,wp WPIS),NPIS) = matching-procs?(NI,WI,WPIS,NPIS) if WI ~p WI' = false .
-  eq matching-procs?(NI,WI,mtWPIS,NPIS) = false .
-
-  op matching-procs1? : NetProcId Label NetworkProcInfoSet -> Bool [metadata "82"] .
+  op matching-procs1? : NetProcId Label NetworkProcInfoSet -> Bool [metadata "80"] .
   eq matching-procs1?(NI,L,(pi(NI,L,L'') ,np NPIS)) = true .
  ceq matching-procs1?(NI,L,(pi(NI',L',L'') ,np NPIS)) = matching-procs1?(NI,L,NPIS) if NI ~p NI' and L ~l L' = false .
   eq matching-procs1?(NI,L,mtNPIS) = false .
+
+  op matching-procs? : ProcessId ProcessId WebappProcInfoSet NetworkProcInfoSet -> Bool [metadata "81"] .
+  ---
+  --- recursing when possible
+  eq matching-procs?(NI,WI,(pi(WI,L) ,wp WPIS),NPIS) = matching-procs1?(NI,L,NPIS) or matching-procs?(NI,WI,WPIS,NPIS) .
+ ceq matching-procs?(NI,WI,(pi(WI',L) ,wp WPIS),NPIS) = matching-procs?(NI,WI,WPIS,NPIS) if WI ~p WI' = false .
+
+  --- no more webapps left to match
+  eq matching-procs?(PI,PI',mtWPIS,NPIS) = false .
+
+  --- invalid process ids
+  eq matching-procs?(NPI,NPI',WPIS,NPIS) = false .
+  eq matching-procs?(UI,NPI,WPIS,NPIS) = false .
+  eq matching-procs?(NPI,UI,WPIS,NPIS) = false .
+  eq matching-procs?(WI,NI,WPIS,NPIS) = false .
 endfm
 
 mod KERNEL is
@@ -707,22 +709,21 @@ mod KERNEL is
            weblabels(WPIS),
            networklabels(NPIS),
            Att >
-       < network(N) |
-           toKernel(msg(ORG, webapp(N'), MT, L'') @ ML),
+       < NI |
+           toKernel(msg(ORG, WI, MT, L'') @ ML),
            Att2 > Cnf }
   =>
      { < kernel |
-           --- handledCurrently(msg(network(N), webapp(N'), MT, L'')),
            handledCurrently(none),
            msgPolicy(policy(network,webapp,MT),ps MP),
            weblabels(WPIS),
            networklabels(NPIS),
            Att >
-       < network(N) |
+       < NI |
            toKernel(ML) ,
            Att2 >
        Cnf }
-  if networkproc?(N,NPIS) and webapp?(N',WPIS) = false .
+  if matching-procs?(NI,WI,WPIS,NPIS) = false .
 
   **** policy allows message from UI to change current webapp to webapp WI with MSG-SWITCH-TAB
   rl [kernelReceivesOPMessage-pa8] :
