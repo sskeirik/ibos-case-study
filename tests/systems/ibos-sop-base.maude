@@ -48,27 +48,26 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var A A' : AttributeSet .
   var NA : NeAttributeSet .
   var NNPI : NonNetProcId .
-  var NWAI : NonWebAppId .
+  var NWAI : NonWebProcId .
   var PI PI' : ProcessId .
-  var NPI : NetProcId .
-  var WAI : WebAppId .
+  var NPI NPI' : NetProcId .
+  var WAI WAI' : WebProcId .
   var MSGL : MessageList .
-  var L IN OUT : Label .
-  var NIS : NetworkProcInfoSet .
-  var WIS : WebappProcInfoSet .
+  var L L' L1 L2 IN OUT : Label .
+  var NIS : NetProcInfoSet .
+  var WIS : WebProcInfoSet .
+  var NonPID : NonPipeId .
 
-  --- duplicates can ignore attributes
-  op dupl? : Configuration -> Bool [metadata "87"] .
-  eq dupl?(< PI | A > < PI | A' > C) = true .
-  eq dupl?(< PI | toKernel(MSGL),      A > C) = dupl?(< PI | A > C) .
-  eq dupl?(< PI | fromKernel(MSGL),    A > C) = dupl?(< PI | A > C) .
-  eq dupl?(< PI | activeWebapp(WAI),   A > C) = dupl?(< PI | A > C) .
-  eq dupl?(< PI | displayedContent(L), A > C) = dupl?(< PI | A > C) .
-  eq dupl?(< network(N) | A > < kernel    | nextNetworkProc(N + 1), A' > C) = dupl?(< kernel    | nextNetworkProc(N), A' > C) .
-  eq dupl?(< webapp(W)  | A > < webappmgr | nextWAN(W + 1),         A' > C) = dupl?(< webappmgr | nextWAN(W),         A' > C) .
-  eq dupl?(< PI | A >) = false .
-  eq dupl?(none) = false .
- ceq dupl?(< PI | none > < PI' | none > C) = dupl?(< PI | none > C) and dupl?(< PI' | none > C) if PI ~p PI' = false .
+  op in-conf? : ProcessId Configuration -> Bool [metadata ""] .
+  eq in-conf?(PI,< PI  | A' > C) = true .
+ ceq in-conf?(PI,< PI' | A' > C) = in-conf?(PI,C) if PI ~p PI' = false .
+  eq in-conf?(PI,none)           = false .
+
+  op conf-dupl? : Configuration -> Bool [metadata "87"] .
+  eq conf-dupl?(< PI | A  > < PI | A' > C) = true .
+  eq conf-dupl?(< PI | NA >             C) = conf-dupl?(< PI | none > C) .
+  eq conf-dupl?(none) = false .
+ ceq conf-dupl?(< PI | none > C) = conf-dupl?(C) if in-conf?(PI,C) = false .
 
   op fresh-np-id? : Nat Configuration -> Bool [metadata "88"] .
   eq fresh-np-id?(N,     < network(N + M) | A > C) = false .
@@ -88,31 +87,58 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq fresh-wa-id?(M,     < WAI          | NA > C) = fresh-wa-id?(M, < WAI | none > C) .
  ceq fresh-wa-id?(N + 1,                       C) = true if fresh-wa-id?(N,C) .
 
-  op inlabel-for-netproc : NetProcId NetworkProcInfoSet -> Label [ctor metadata "90"] .
-  eq inlabel-for-netproc(NPI,(pi(NPI,IN,OUT),np NIS)) = IN .
+  --- metadata predicates
 
-  op outlabel-for-netproc : NetProcId NetworkProcInfoSet -> Label [ctor metadata "91"] .
-  eq outlabel-for-netproc(NPI,(pi(NPI,IN,OUT),np NIS)) = OUT .
+  op inlbl-by-npid : NetProcId NetProcInfoSet -> Label [ctor metadata "90"] .
+  eq inlbl-by-npid(NPI,(pi(NPI,IN,OUT),np NIS)) = IN .
 
-  op networkproc? : Nat NetworkProcInfoSet -> Bool [metadata "92"] .
-  eq [nnp] : networkproc?(N,(pi(network(N),IN,OUT) ,np NIS)) = true [variant] .
- ceq [nnp2] : networkproc?(N,(pi(network(M),IN,OUT) ,np NIS)) = networkproc?(N,NIS) if N ~n M = false .
-  eq [nnpf] : networkproc?(N,mtNPIS) = false .
+  op outlbl-by-npid : NetProcId NetProcInfoSet -> Label [ctor metadata "91"] .
+  eq outlbl-by-npid(NPI,(pi(NPI,IN,OUT),np NIS)) = OUT .
 
-  op webapp? : Nat WebappProcInfoSet -> Bool [metadata "93"] .
-  eq [nwa] : webapp?(N,(pi(webapp(N),L) ,wp WIS)) = true [variant] .
- ceq [nwa2] : webapp?(N,(pi(webapp(M),L) ,wp WIS)) = webapp?(N,WIS) if N ~n M = false .
-  eq [nwaf] : webapp?(N,mtWPIS) = false .
+  op nat-in-netlabels? : Nat NetProcInfoSet -> Bool [metadata "92"] .
+  eq nat-in-netlabels?(N,(pi(network(N),IN,OUT) ,np NIS)) = true [variant] .
+ ceq nat-in-netlabels?(N,(pi(network(M),IN,OUT) ,np NIS)) = nat-in-netlabels?(N,NIS) if N ~n M = false .
+  eq nat-in-netlabels?(N,mtNPIS) = false .
 
-  op networkprocid? : ProcessId NetworkProcInfoSet -> Bool [metadata "94"] .
-  eq networkprocid?(network(N), NIS) = networkproc?(N,NIS) .
-  eq networkprocid?(network,    NIS) = false .
-  eq networkprocid?(NNPI,       NIS) = false .
+  op nat-in-weblabels? : Nat WebProcInfoSet -> Bool [metadata "93"] .
+  eq nat-in-weblabels?(N,(pi(webapp(N),L) ,wp WIS)) = true [variant] .
+ ceq nat-in-weblabels?(N,(pi(webapp(M),L) ,wp WIS)) = nat-in-weblabels?(N,WIS) if N ~n M = false .
+  eq nat-in-weblabels?(N,mtWPIS) = false .
 
-  op webappid? : ProcessId WebappProcInfoSet -> Bool [metadata "95"] .
-  eq webappid?(webapp(N),WIS) = webapp?(N,WIS) .
-  eq webappid?(webapp,   WIS) = false .
-  eq webappid?(NWAI,     WIS) = false .
+  op pid-in-netlabels? : ProcessId NetProcInfoSet -> Bool [metadata "94"] .
+  eq pid-in-netlabels?(network(N), NIS) = nat-in-netlabels?(N,NIS) .
+
+  op pid-in-weblabels? : ProcessId WebProcInfoSet -> Bool [metadata "95"] .
+  eq pid-in-weblabels?(webapp(N),WIS) = nat-in-weblabels?(N,WIS) .
+
+  op in-wls? : WebProcId WebProcInfoSet -> Bool [metadata "96"] .
+  eq in-wls?(WAI,pi(WAI, L) ,wp WIS) = true .
+ ceq in-wls?(WAI,pi(WAI',L) ,wp WIS) = in-wls?(WAI,WIS) if WAI ~p WAI' = false .
+
+  op wls-dupl? : WebProcInfoSet -> Bool [metadata "97"] .
+  eq wls-dupl?(pi(WAI,L) ,wp pi(WAI,L') ,wp WIS) = true .
+ ceq wls-dupl?(pi(WAI,L)                ,wp WIS) = wls-dupl?(WIS) if in-wls?(WAI,WIS) = false .
+
+  op fresh-wp-lbl? : Nat WebProcInfoSet -> Bool [metadata "98"] .
+
+  op fresh-np-lbl? : Nat NetProcInfoSet -> Bool [metadata "99"] .
+
+  op in-nls? : NetProcId NetProcInfoSet -> Bool [metadata "98"] .
+  eq in-nls?(NPI,pi(NPI, L,L') ,np NIS) = true .
+ ceq in-nls?(NPI,pi(NPI',L,L') ,np NIS) = in-nls?(NPI,NIS) if NPI ~p NPI' = false .
+
+  op nls-dupl? : NetProcInfoSet -> Bool [metadata "99"] .
+  eq nls-dupl?(pi(NPI,L,L') ,np pi(NPI',L1,L2) ,np NIS) = true .
+ ceq nls-dupl?(pi(NPI,L,L') ,np                    NIS) = nls-dupl?(NIS) if in-nls?(NPI,NIS) = false .
+
+  ---(
+  op metadata-match? : Configuration WebProcInfoSet NetProcInfoSet [metadata "100"] .
+  eq metadata-match?(< WAI | URL(L) , A > < NPI | A' > C, pi(WAI,L) ,wp WIS, pi(NPI,L,L') ,np NIS) = metadata-match?(C,WIS,NIS) .
+  eq metadata-match?(< WAI | URL(L) , A >              C, pi(WAI,L) ,wp WIS,               mtNPIS) = metadata-match?(C,WIS,mtNPIS) .
+  eq metadata-match?(< NonPID | A >                    C,               WIS,                  NIS) = metadata-match?(C,WIS,NIS) .
+  eq metadata-match?(< ui | A >                        C,               WIS,                  NIS) = metadata-match?(C,WIS,NIS) .
+  eq metadata-match?(none,                                           mtWPIS,               mtNPIS) = true .
+  ---)
 endfm
 
 fmod IBOS-SOP-PRED is
@@ -121,13 +147,13 @@ fmod IBOS-SOP-PRED is
   var C : Configuration .
   var W N NNP NWA : Nat .
   var A : AttributeSet .
-  var WIS : WebappProcInfoSet .
-  var NIS : NetworkProcInfoSet .
+  var WIS : WebProcInfoSet .
+  var NIS : NetProcInfoSet .
   var ML : MessageList .
   var NPI : NonPipeId .
   var UI : UIId .
   var NI : NetProcId .
-  var WI : WebAppId .
+  var WI : WebProcId .
   var PI PI' : PipeId .
   var IN OUT OUT' : Label .
   var MT : MsgType .
@@ -158,7 +184,7 @@ fmod IBOS-SOP-PRED is
   --- never deleted --- so that the process set/process info sets
   --- always grow monotonically. This simplifies the proof procedure.
   ---
-  op p : Configuration WebappProcInfoSet NetworkProcInfoSet -> Bool [metadata "110"] .
+  op p : Configuration WebProcInfoSet NetProcInfoSet -> Bool [metadata "110"] .
 
   ------------------------------------------------------------------
   --- True if every FETCH-URL message sent from webapp is consistent
@@ -185,7 +211,7 @@ fmod IBOS-SOP-PRED is
 
   --- Negation of message acceptance condition above
   ---
- ceq p(C < WI | fromKernel(msg(PI, WI,  MSG-RETURN-URL, OUT ) @ ML), A >,WIS,NIS) = false if matching-procs?(PI,WI,WIS,NIS) and outlabel-for-netproc(PI,NIS) ~l OUT = false .
+ ceq p(C < WI | fromKernel(msg(PI, WI,  MSG-RETURN-URL, OUT ) @ ML), A >,WIS,NIS) = false if matching-procs?(PI,WI,WIS,NIS) and outlbl-by-npid(PI,NIS) ~l OUT = false .
  ceq p(C < WI | fromKernel(msg(PI, PI', MSG-RETURN-URL, OUT ) @ ML), A >,WIS,NIS) = false if PI' ~p WI = false .
 
   -----------------------------------------------------------------------
@@ -198,7 +224,7 @@ fmod IBOS-SOP-PRED is
 
   --- Negation of message acceptance condition above
   ---
- ceq p(C < NI | fromKernel(msg(PI, NI,  MSG-FETCH-URL,  OUT ) @ ML), A >,WIS,NIS) = false if matching-procs?(NI,PI,WIS,NIS) and outlabel-for-netproc(NI,NIS) ~l OUT = false .
+ ceq p(C < NI | fromKernel(msg(PI, NI,  MSG-FETCH-URL,  OUT ) @ ML), A >,WIS,NIS) = false if matching-procs?(NI,PI,WIS,NIS) and outlbl-by-npid(NI,NIS) ~l OUT = false .
  ceq p(C < NI | fromKernel(msg(PI, PI', MSG-FETCH-URL,  OUT ) @ ML), A >,WIS,NIS) = false if PI' ~p NI = false .
 
   -------------------------------------------------------------------------
@@ -218,8 +244,8 @@ fmod IBOS-SOP-PRED is
 
   --- Negation of process identity constraint
   ---
- ceq p(C < NI | A >,WIS,NIS) = false if networkprocid?(NI,NIS) = false .
- ceq p(C < WI | A >,WIS,NIS) = false if webappid?(WI,WIS)      = false .
+ ceq p(C < NI | A >,WIS,NIS) = false if pid-in-netlabels?(NI,NIS) = false .
+ ceq p(C < WI | A >,WIS,NIS) = false if pid-in-weblabels?(WI,WIS) = false .
 
   --- Handle non-webapp, non-process objects, for completeness
   ---
@@ -240,20 +266,20 @@ fmod IBOS-SOP-PRED is
   --- True if every RETURN-URL message currently handled by kernel is consistent
   --- NB: since message is headed towards a webapp, we don't need the OUT label to be consistent
   ---
-  op mp : Message? WebappProcInfoSet NetworkProcInfoSet Nat Nat -> Bool [metadata "111"] .
+  op mp : Message? WebProcInfoSet NetProcInfoSet Nat Nat -> Bool [metadata "111"] .
   -----------------------------------------------------------------------------------
   --- webapp to network proc acceptance conditions
   eq mp(msg(WI,network,MSG-FETCH-URL,  OUT ), (pi(WI,IN),wp WIS),                   NIS,  NNP, NWA) = true .
   eq mp(msg(WI,PI,     NonFetchMT,     OUT ), (pi(WI,IN),wp WIS),                   NIS,  NNP, NWA) = true .
   --- webapp to network proc rejection  conditions
  ceq mp(msg(PI,PI',    MSG-FETCH-URL,  OUT ),               WIS,                    NIS,  NNP, NWA) = false if PI' ~p network = false .
- ceq mp(msg(PI,PI',    MSG-FETCH-URL,  OUT ),               WIS,                    NIS,  NNP, NWA) = false if webappid?(PI,WIS) = false .
+ ceq mp(msg(PI,PI',    MSG-FETCH-URL,  OUT ),               WIS,                    NIS,  NNP, NWA) = false if pid-in-weblabels?(PI,WIS) = false .
   --- network proc to webapp acceptance conditions
   eq mp(msg(NI,WI,     MSG-RETURN-URL, OUT'), (pi(WI,IN),wp WIS), (pi(NI,IN,OUT),np NIS), NNP, NWA) = true .
   eq mp(msg(NI,PI,     NonRetMT,       OUT'),               WIS,  (pi(NI,IN,OUT),np NIS), NNP, NWA) = true .
   --- network proc to webapp rejection  conditions
  ceq mp(msg(PI,PI',    MSG-RETURN-URL, OUT ),               WIS,                    NIS,  NNP, NWA) = false if matching-procs?(PI,PI',WIS,NIS) = false .
- ceq mp(msg(PI,PI',    MSG-RETURN-URL, OUT ),               WIS,                    NIS,  NNP, NWA) = false if networkprocid?(PI,NIS) = false .
+ ceq mp(msg(PI,PI',    MSG-RETURN-URL, OUT ),               WIS,                    NIS,  NNP, NWA) = false if pid-in-netlabels?(PI,NIS) = false .
   --- other messages types, all OK
   eq mp(msg(PI,PI',    NonRFMT,        OUT ),               WIS,                    NIS,  NNP, NWA) = true .
   --- the none message is OK
