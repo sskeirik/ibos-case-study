@@ -51,6 +51,18 @@ fmod CONFIGURATION-FVP-EXT is
   op __ : NetProcWebProcNeConfig NetProcWebProcConfig -> NetProcWebProcNeConfig [ctor ditto metadata "34"] .
 endfm
 
+fmod KERNEL-METADATA-EXT is
+  pr KERNEL-POLICIES-FVP .
+
+  sort NeWebProcInfoSet .
+  subsort WebProcInfo < NeWebProcInfoSet < WebProcInfoSet .
+  sort NeNetProcInfoSet .
+  subsort NetProcInfo < NeNetProcInfoSet < NetProcInfoSet .
+
+  op _,wp_ : NeWebProcInfoSet WebProcInfoSet -> NeWebProcInfoSet [ctor ditto] .
+  op _,np_ : NeNetProcInfoSet NetProcInfoSet -> NeNetProcInfoSet [ctor ditto] .
+endfm
+
 fmod ATTRIBUTE-NONFVP-EXT is
   pr KERNEL-POLICIES-FVP .
   var A A' : Attribute . var AS : AttributeSet .
@@ -361,6 +373,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   pr KERNEL-POLICIES-NONFVP .
   pr CONFIGURATION-FVP-EXT .
   pr ATTRIBUTE-NONFVP-EXT .
+  pr KERNEL-METADATA-EXT .
 
   var C : Configuration .
   var W N M : Nat .
