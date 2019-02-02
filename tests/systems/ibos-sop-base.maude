@@ -389,6 +389,8 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var L L' L1 L2 IN OUT : Label .
   var NIS : NetProcInfoSet .
   var WIS : WebProcInfoSet .
+  var NWIS : NeWebProcInfoSet .
+  var NNIS : NeNetProcInfoSet .
   var NonPID : NonPipeId .
 
   --- Configuration predicates
@@ -482,18 +484,45 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq fresh-netlabel?(N,mtNPIS)                               = true .
 
   op lbl-in-weblabels? : Label WebProcInfoSet -> Bool [metadata ""] .
+  eq lbl-in-weblabels?(L,(pi(WAI,L ),wp WIS)) = true .
+ ceq lbl-in-weblabels?(L,(pi(WAI,L'),wp WIS)) = lbl-in-weblabels?(L,WIS) if L ~l L' = false .
+  eq lbl-in-weblabels?(L,mtWPIS)              = false .
 
   op inlbl-in-netlabels? : Label NetProcInfoSet -> Bool [metadata ""] .
+  eq inlbl-in-netlabels?(IN,(pi(NPI,IN,OUT),np NIS)) = true .
+ ceq inlbl-in-netlabels?(L, (pi(NPI,IN,OUT),np NIS)) = inlbl-in-netlabels?(L,NIS) if L ~l IN = false .
+  eq inlbl-in-netlabels?(L,mtNPIS)                   = false .
 
   --- Other predicates
-  ---(
-  op metadata-match? : Configuration WebProcInfoSet NetProcInfoSet [metadata "100"] .
+  op metadata-match? : Configuration WebProcInfoSet NetProcInfoSet -> Bool [metadata "100"] .
   eq metadata-match?(< WAI | URL(L) , A > < NPI | A' > C, pi(WAI,L) ,wp WIS, pi(NPI,L,L') ,np NIS) = metadata-match?(C,WIS,NIS) .
   eq metadata-match?(< WAI | URL(L) , A >              C, pi(WAI,L) ,wp WIS,               mtNPIS) = metadata-match?(C,WIS,mtNPIS) .
   eq metadata-match?(< NonPID | A >                    C,               WIS,                  NIS) = metadata-match?(C,WIS,NIS) .
   eq metadata-match?(< ui | A >                        C,               WIS,                  NIS) = metadata-match?(C,WIS,NIS) .
   eq metadata-match?(none,                                           mtWPIS,               mtNPIS) = true .
-  ---)
+
+  --- Negations
+  eq metadata-match?(                                  C,            mtWPIS,                 NNIS) = false .
+ ceq metadata-match?(                                  C,              NWIS,                 NNIS) = false if webproc-url-netproc-in-conf?(C) = false .
+ ceq metadata-match?(                                  C,              NWIS,               mtNPIS) = false if webproc-url-in-conf?(C) = false .
+ ceq metadata-match?(                                  C, pi(WAI,L) ,wp WIS,                  NIS) = false if inlbl-in-netlabels?(L,NIS) = false .
+ ceq metadata-match?(                                  C,               WIS, pi(NPI,L,L') ,np NIS) = false if lbl-in-weblabels?(L,WIS) = false .
+
+  op webproc-url-netproc-in-conf? : Configuration -> Bool [metadata ""] .
+  eq webproc-url-netproc-in-conf?(< WAI | URL(L), A > < NPI | A' > C) = true .
+ ceq webproc-url-netproc-in-conf?(                                 C) = false if webproc-url-in-conf?(C) = false .
+ ceq webproc-url-netproc-in-conf?(                                 C) = false if netproc-in-conf?(C) = false .
+
+  op webproc-url-in-conf? : Configuration -> Bool [metadata ""] .
+  eq webproc-url-in-conf?(< WAI  | URL(L), A > C) = true .
+ ceq webproc-url-in-conf?(< WAI  |         A > C) = webproc-url-in-conf?(C) if in-attrset?(URL(about-blank),A) = false .
+  eq webproc-url-in-conf?(< NWAI |         A > C) = webproc-url-in-conf?(C) .
+  eq webproc-url-in-conf?(none)                   = false .
+
+  op netproc-in-conf? : Configuration -> Bool [metadata ""] .
+  eq netproc-in-conf?(< NPI  | A > C) = true .
+  eq netproc-in-conf?(< NNPI | A > C) = netproc-in-conf?(C) .
+  eq netproc-in-conf?(none)           = false .
 endfm
 
 fmod IBOS-SOP-PRED is
