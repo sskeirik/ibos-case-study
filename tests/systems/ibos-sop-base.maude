@@ -378,6 +378,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var WIS : WebProcInfoSet .
   var NonPID : NonPipeId .
 
+  --- Configuration predicates
   op in-conf? : ProcessId Configuration -> Bool [metadata ""] .
   eq in-conf?(PI,< PI  | A' > C) = true .
  ceq in-conf?(PI,< PI' | A' > C) = in-conf?(PI,C) if PI ~p PI' = false .
@@ -398,22 +399,25 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq fresh-np-id?(M,     < NPI           | NA > C) = fresh-np-id?(M, < NPI | none > C) .
  ceq fresh-np-id?(N + 1,                        C) = true if fresh-np-id?(N,C) .
 
-  op fresh-wa-id? : Nat Configuration -> Bool [metadata "89"] .
-  eq fresh-wa-id?(N,     < webapp(N + M) | A > C) = false .
-  eq fresh-wa-id?(N + P, < webapp(N)     | A > C) = fresh-wa-id?(N + P,C) .
-  eq fresh-wa-id?(N,     < webapp        | A > C) = fresh-wa-id?(N,C) .
-  eq fresh-wa-id?(N,     < NWAI          | A > C) = fresh-wa-id?(N,C) .
-  eq fresh-wa-id?(N,     none                   ) = true .
-  eq fresh-wa-id?(M,     < WAI          | NA > C) = fresh-wa-id?(M, < WAI | none > C) .
- ceq fresh-wa-id?(N + 1,                       C) = true if fresh-wa-id?(N,C) .
+  op fresh-wp-id? : Nat Configuration -> Bool [metadata "89"] .
+  eq fresh-wp-id?(N,     < webapp(N + M) | A > C) = false .
+  eq fresh-wp-id?(N + P, < webapp(N)     | A > C) = fresh-wp-id?(N + P,C) .
+  eq fresh-wp-id?(N,     < webapp        | A > C) = fresh-wp-id?(N,C) .
+  eq fresh-wp-id?(N,     < NWAI          | A > C) = fresh-wp-id?(N,C) .
+  eq fresh-wp-id?(N,     none                   ) = true .
+  eq fresh-wp-id?(M,     < WAI          | NA > C) = fresh-wp-id?(M, < WAI | none > C) .
+ ceq fresh-wp-id?(N + 1,                       C) = true if fresh-wp-id?(N,C) .
 
-  --- metadata predicates
+  --- Web/NetProcInfoSet predicates
+  op inlbl-by-pid : NetProcId NetProcInfoSet -> MaybeLabel [ctor metadata "90"] .
+  eq inlbl-by-pid(NPI,(pi(NPI, IN,OUT),np NIS)) = IN .
+ ceq inlbl-by-pid(NPI,(pi(NPI',IN,OUT),np NIS)) = inlbl-by-pid(NPI,NIS) if NPI ~p NPI' = false .
+  eq inlbl-by-pid(NPI,mtNPIS)                   = nolabel .
 
-  op inlbl-by-npid : NetProcId NetProcInfoSet -> Label [ctor metadata "90"] .
-  eq inlbl-by-npid(NPI,(pi(NPI,IN,OUT),np NIS)) = IN .
-
-  op outlbl-by-npid : NetProcId NetProcInfoSet -> Label [ctor metadata "91"] .
-  eq outlbl-by-npid(NPI,(pi(NPI,IN,OUT),np NIS)) = OUT .
+  op outlbl-by-pid : NetProcId NetProcInfoSet -> MaybeLabel [ctor metadata "91"] .
+  eq outlbl-by-pid(NPI,(pi(NPI, IN,OUT),np NIS)) = OUT .
+ ceq outlbl-by-pid(NPI,(pi(NPI',IN,OUT),np NIS)) = outlbl-by-pid(NPI,NIS) if NPI ~p NPI' = false .
+  eq outlbl-by-pid(NPI,mtNPIS)                   = nolabel .
 
   op nat-in-netlabels? : Nat NetProcInfoSet -> Bool [metadata "92"] .
   eq nat-in-netlabels?(N,(pi(network(N),IN,OUT) ,np NIS)) = true [variant] .
@@ -531,7 +535,7 @@ fmod IBOS-SOP-PRED is
 
   --- Negation of message acceptance condition above
   ---
- ceq p(C < WI | fromKernel(msg(PI, WI,  MSG-RETURN-URL, OUT ) @ ML), A >,WIS,NIS) = false if matching-procs?(PI,WI,WIS,NIS) and outlbl-by-npid(PI,NIS) ~l OUT = false .
+ ceq p(C < WI | fromKernel(msg(PI, WI,  MSG-RETURN-URL, OUT ) @ ML), A >,WIS,NIS) = false if matching-procs?(PI,WI,WIS,NIS) and outlbl-by-pid(PI,NIS) ~l OUT = false .
  ceq p(C < WI | fromKernel(msg(PI, PI', MSG-RETURN-URL, OUT ) @ ML), A >,WIS,NIS) = false if PI' ~p WI = false .
 
   -----------------------------------------------------------------------
@@ -544,7 +548,7 @@ fmod IBOS-SOP-PRED is
 
   --- Negation of message acceptance condition above
   ---
- ceq p(C < NI | fromKernel(msg(PI, NI,  MSG-FETCH-URL,  OUT ) @ ML), A >,WIS,NIS) = false if matching-procs?(NI,PI,WIS,NIS) and outlbl-by-npid(NI,NIS) ~l OUT = false .
+ ceq p(C < NI | fromKernel(msg(PI, NI,  MSG-FETCH-URL,  OUT ) @ ML), A >,WIS,NIS) = false if matching-procs?(NI,PI,WIS,NIS) and outlbl-by-pid(NI,NIS) ~l OUT = false .
  ceq p(C < NI | fromKernel(msg(PI, PI', MSG-FETCH-URL,  OUT ) @ ML), A >,WIS,NIS) = false if PI' ~p NI = false .
 
   -------------------------------------------------------------------------
@@ -579,7 +583,7 @@ fmod IBOS-SOP-PRED is
 
   --- Handle kernel metadata sets
   ---
- ceq p(C,(pi(webapp(W),IN),wp WIS),                          NIS ) = p(C,WIS,NIS) if fresh-wa-id?(W,C) .
+ ceq p(C,(pi(webapp(W),IN),wp WIS),                          NIS ) = p(C,WIS,NIS) if fresh-wp-id?(W,C) .
  ceq p(C,                     WIS ,(pi(network(N),IN,OUT),np NIS)) = p(C,WIS,NIS) if fresh-np-id?(N,C) .
 
   ------------------------------------------------------------------------------
