@@ -480,7 +480,7 @@ mod KERNEL is
   var Cnf         : Configuration .
   var L L' L''    : Label .
   var L1 L2 L3    : Label .
-  var LL LL' LL2  : LabelList .
+  var LL          : LabelList .
   var LS          : LabelSet .
   var ML ML'      : MessageList .
   var NPIS        : NetProcInfoSet .
@@ -488,18 +488,15 @@ mod KERNEL is
   var WPIS        : WebProcInfoSet .
   var MT          : MsgType .
 
-  var N N' NewWP  : Nat .
+  var N           : Nat .
 
   var URL         : Label .
-
-  var PI PI'      : ProcessId    .
 
   var ORG         : PipeId    .
   var PPI1 PPI2   : PipeId    .
 
   var WI WI'      : WebProcId    .
   var NI NI'      : NetProcId    .
-  var NNPI        : NonNetPipeId .
   var NNPI1 NNPI2 : NonNetPipeId .
   var NWPI1 NWPI2 : NonWebPipeId .
 
@@ -537,8 +534,8 @@ mod KERNEL is
   => { < NI | out(LL)    , mem-out(L)       , Att > Cnf } .
 
   rl [nic1] :
-     { < nic | nic-out(L & LS) , in(LL')     , Att > Cnf }
-  => { < nic | nic-out(LS)     , in(LL' ; L) , Att > Cnf } .
+     { < nic | nic-out(L & LS) , in(LL)     , Att > Cnf }
+  => { < nic | nic-out(LS)     , in(LL ; L) , Att > Cnf } .
 
   **** Made into a topmost rule from module NETWORK
   **** network process hands data back to other process (in this case: webapp)
@@ -825,19 +822,19 @@ mod KERNEL is
            activeWebapp(WI),
            displayedContent(L'),
            Att2 >
-       < webappmgr | nextWPN(NewWP), Att3 > Cnf }
+       < webappmgr | nextWPN(N), Att3 > Cnf }
   =>
      { < kernel    |
            handledCurrently(none),
            displayedTopBar(URL),
-           weblabels(pi(webapp(NewWP), URL),wp WPIS),
+           weblabels(pi(webapp(N), URL),wp WPIS),
            Att >
        < display   |
-           activeWebapp(webapp(NewWP)),
+           activeWebapp(webapp(N)),
            displayedContent(about-blank),
            Att2 >
-       < webappmgr | nextWPN(NewWP + 1), Att3 >
-       < webapp(NewWP) |
+       < webappmgr | nextWPN(N + 1), Att3 >
+       < webapp(N) |
            rendered(about-blank),
            URL(URL),
            loading(false),
