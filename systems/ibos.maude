@@ -26,15 +26,18 @@ fmod TRUTH-VALUE-COPY is
   sort Bool? . --- used for partially defined Boolean functions
   sort Bool  .
   subsort Bool < Bool? .
-  op true  : -> Bool [ctor special (id-hook SystemTrue) metadata "9" ] .
-  op false : -> Bool [ctor special (id-hook SystemFalse) metadata "10" ] .
+  op true  : -> Bool [ctor special (id-hook SystemTrue) metadata "10" ] .
+  op false : -> Bool [ctor special (id-hook SystemFalse) metadata "11" ] .
+
+  sort Pred .
+  op tt : -> Pred [ctor metadata "9"] .
 endfm
 
 fmod BOOL-NO-BUILTIN is
   pr TRUTH-VALUE-COPY .
-  op _and_ : Bool Bool -> Bool [assoc comm prec 50 metadata "11"] .
-  op _or_  : Bool Bool -> Bool [assoc comm metadata "12"] .
-  op not_  : Bool -> Bool [metadata "13"].
+  op _and_ : Bool Bool -> Bool [assoc comm prec 50 metadata "12"] .
+  op _or_  : Bool Bool -> Bool [assoc comm metadata "13"] .
+  op not_  : Bool -> Bool [metadata "14"].
   vars B : Bool .
   eq B and true  = B     [variant] .
   eq B and false = false [variant] .
@@ -49,16 +52,16 @@ fmod NAT-CTOR-NO-BUILTIN is
   sorts Nat NzNat .
   subsorts NzNat < Nat .
   op 0   : -> Nat             [ctor metadata "0"] .
-  op 1   : -> NzNat           [ctor metadata "14"] .
-  op _+_ : NzNat Nat -> NzNat [ctor assoc comm id: 0 metadata "15"] .
-  op _+_ : Nat   Nat -> Nat   [ctor ditto metadata "15"] .
+  op 1   : -> NzNat           [ctor metadata "15"] .
+  op _+_ : NzNat Nat -> NzNat [ctor assoc comm id: 0 metadata "16"] .
+  op _+_ : Nat   Nat -> Nat   [ctor ditto metadata "16"] .
 endfm
 
 fmod NAT-NO-BUILTIN is
   pr NAT-CTOR-NO-BUILTIN .
-  op _<_   : Nat Nat -> Bool [metadata "17"] .
-  op _<=_  : Nat Nat -> Bool [metadata "18"] .
-  op _~n_  : Nat Nat -> Bool [comm metadata "21"] .
+  op _<_   : Nat Nat -> Bool [metadata "18"] .
+  op _<=_  : Nat Nat -> Bool [metadata "19"] .
+  op _~n_  : Nat Nat -> Bool [comm metadata "22"] .
   var N M : Nat . var P : NzNat .
   eq N     <  P + N = true  [variant] .
   eq N + M <  N     = false [variant] .
@@ -105,15 +108,15 @@ fmod PROC-ID is
   subsorts PipeId < AbsPipeId .
   subsorts ProcessId < AbsProcessId .
 
-  op kernel    :     -> KernelId [ctor metadata "22"] .
-  op webapp    :     -> AbsWebProcId [ctor metadata "23"] .
-  op webapp    : Nat -> WebProcId [ctor metadata "24"] .
-  op network   :     -> AbsNetProcId [ctor metadata "25"] .
-  op network   : Nat -> NetProcId [ctor metadata "26"] .
-  op ui        :     -> UIId [ctor metadata "27"] .
-  op display   :     -> DisplayId [ctor metadata "28"] .
-  op nic       :     -> NICId [ctor metadata "29"] .
-  op webappmgr :     -> WebProcMgrId [ctor metadata "30"] .
+  op kernel    :     -> KernelId [ctor metadata "23"] .
+  op webapp    :     -> AbsWebProcId [ctor metadata "24"] .
+  op webapp    : Nat -> WebProcId [ctor metadata "25"] .
+  op network   :     -> AbsNetProcId [ctor metadata "26"] .
+  op network   : Nat -> NetProcId [ctor metadata "27"] .
+  op ui        :     -> UIId [ctor metadata "28"] .
+  op display   :     -> DisplayId [ctor metadata "29"] .
+  op nic       :     -> NICId [ctor metadata "30"] .
+  op webappmgr :     -> WebProcMgrId [ctor metadata "31"] .
 
   vars PId   : ProcessId .
   vars KeId  : KernelId .
@@ -124,7 +127,7 @@ fmod PROC-ID is
   var  WPMId : WebProcMgrId .
   vars N N'  : Nat .
 
-  op _~p_ : AbsProcessId AbsProcessId -> Bool [comm metadata "31"] .
+  op _~p_ : AbsProcessId AbsProcessId -> Bool [comm metadata "32"] .
   eq PId ~p PId                = true    [variant] .
   eq KeId ~p WPId              = false   [variant] .
   eq KeId ~p NPId              = false   [variant] .
@@ -156,26 +159,26 @@ fmod SYS is
   subsorts Attribute < NeAttributeSet < AttributeSet .
   subsorts EmptyAttributeSet < AttributeSet .
 
-  op <_|_> : ProcessId AttributeSet                -> Object             [ctor metadata "32"] .
-  op _,_   : AttributeSet AttributeSet             -> AttributeSet       [ctor assoc comm id: none metadata "33"] .
-  op _,_   : AttributeSet NeAttributeSet           -> NeAttributeSet     [ctor ditto metadata "33"] .
-  op _,_   : EmptyAttributeSet EmptyAttributeSet   -> EmptyAttributeSet  [ctor ditto metadata "33"] .
+  op <_|_> : ProcessId AttributeSet                -> Object             [ctor metadata "33"] .
+  op _,_   : AttributeSet AttributeSet             -> AttributeSet       [ctor assoc comm id: none metadata "34"] .
+  op _,_   : AttributeSet NeAttributeSet           -> NeAttributeSet     [ctor ditto metadata "34"] .
+  op _,_   : EmptyAttributeSet EmptyAttributeSet   -> EmptyAttributeSet  [ctor ditto metadata "34"] .
   op none  :                                       -> EmptyAttributeSet  [ctor metadata "1"] .
-  op __    : Configuration Configuration           -> Configuration      [ctor assoc comm id: none metadata "34"] .
-  op __    : NeConfiguration Configuration         -> NeConfiguration    [ctor ditto metadata "34"] .
+  op __    : Configuration Configuration           -> Configuration      [ctor assoc comm id: none metadata "35"] .
+  op __    : NeConfiguration Configuration         -> NeConfiguration    [ctor ditto metadata "35"] .
   op none  :                                       -> Configuration      [ctor metadata "2"] .
-  op {_}   : Configuration                         -> State              [ctor metadata "35"] .
+  op {_}   : Configuration                         -> State              [ctor metadata "36"] .
 endfm
 
 fmod LABEL is pr NAT-NO-BUILTIN .
   sorts Label MaybeLabel .
   subsorts Label < MaybeLabel .
-  op about-blank :     -> Label      [ctor metadata "36"] .
-  op url         : Nat -> Label      [ctor metadata "37"] .
-  op nolabel     :     -> MaybeLabel [ctor metadata "38"] .
+  op about-blank :     -> Label      [ctor metadata "37"] .
+  op url         : Nat -> Label      [ctor metadata "38"] .
+  op nolabel     :     -> MaybeLabel [ctor metadata "39"] .
 
   **** Equality enrichment (added by Camilo)
-  op _~l_ : Label Label -> Bool [comm metadata "41"] .
+  op _~l_ : Label Label -> Bool [comm metadata "42"] .
   eq L:Label ~l L:Label        = true            [variant] .
   eq about-blank ~l url(N:Nat) = false           [variant] .
   eq url(N:Nat) ~l url(N':Nat) = N:Nat ~n N':Nat [variant] .
@@ -185,13 +188,13 @@ fmod LABEL-LIST is pr LABEL .
   sort LabelList .
   subsort Label < LabelList .
   op mtLL : -> LabelList [ctor metadata "3"] .
-  op _;_ : LabelList LabelList -> LabelList   [ctor assoc id: mtLL metadata "42"] .
+  op _;_ : LabelList LabelList -> LabelList   [ctor assoc id: mtLL metadata "43"] .
 endfm
 
 fmod LABEL-SET is pr LABEL .
   sort LabelSet .
   subsorts Label < LabelSet .
-  op _&_  : LabelSet LabelSet -> LabelSet [ctor assoc comm id: mtLS metadata "43"] .
+  op _&_  : LabelSet LabelSet -> LabelSet [ctor assoc comm id: mtLS metadata "44"] .
   op mtLS :                   -> LabelSet [ctor metadata "4"] .
 endfm
 
@@ -199,15 +202,15 @@ fmod MSG is pr PROC-ID . pr LABEL .
   **** message type definition
   sorts MsgType Message Message? .
   subsort Message < Message? .
-  op MSG-NEW-URL    : -> MsgType [ctor metadata "44"] . --- creates a new web app with given URL
-  op MSG-FETCH-URL  : -> MsgType [ctor metadata "45"] . --- tells network to fetch data for given URL
-  op MSG-RETURN-URL : -> MsgType [ctor metadata "46"] . --- stores data that was fetched from internet by MSG-FETCH-URL
-  op MSG-SWITCH-TAB : -> MsgType [ctor metadata "47"] . --- causes displayed tab to be switched
-  op msg  : AbsPipeId AbsPipeId MsgType Label -> Message [ctor metadata "48"] .
-  op none : -> Message? [ctor metadata "49"] .
+  op MSG-NEW-URL    : -> MsgType [ctor metadata "45"] . --- creates a new web app with given URL
+  op MSG-FETCH-URL  : -> MsgType [ctor metadata "46"] . --- tells network to fetch data for given URL
+  op MSG-RETURN-URL : -> MsgType [ctor metadata "47"] . --- stores data that was fetched from internet by MSG-FETCH-URL
+  op MSG-SWITCH-TAB : -> MsgType [ctor metadata "48"] . --- causes displayed tab to be switched
+  op msg  : AbsPipeId AbsPipeId MsgType Label -> Message [ctor metadata "49"] .
+  op none : -> Message? [ctor metadata "50"] .
 
   --- equality predicate for message types
-  op _~m_ : MsgType MsgType -> Bool [comm metadata "50"] .
+  op _~m_ : MsgType MsgType -> Bool [comm metadata "51"] .
   eq X:MsgType      ~m X:MsgType      = true .
   eq MSG-NEW-URL    ~m MSG-FETCH-URL  = false .
   eq MSG-NEW-URL    ~m MSG-RETURN-URL = false .
@@ -222,18 +225,18 @@ fmod MSG-LIST is pr MSG .
   sort MessageList .
   subsort Message < MessageList .
   op mt   : -> MessageList [ctor metadata "5"] .
-  op _@_  : MessageList MessageList -> MessageList [ctor assoc id: mt metadata "51"] .
+  op _@_  : MessageList MessageList -> MessageList [ctor assoc id: mt metadata "52"] .
 endfm
 
 fmod PIPEPROC is inc MSG-LIST . inc SYS .
   **** channels for messages to and from the kernel
-  op fromKernel : MessageList -> Attribute [ctor metadata "52"] .
-  op toKernel   : MessageList -> Attribute [ctor metadata "53"] .
+  op fromKernel : MessageList -> Attribute [ctor metadata "53"] .
+  op toKernel   : MessageList -> Attribute [ctor metadata "54"] .
 endfm
 
 fmod WEBAPPMGR is inc SYS .
   **** next web app number, i.e. unused process id number for a web app
-  op nextWPN : Nat -> Attribute [ctor metadata "54"] .
+  op nextWPN : Nat -> Attribute [ctor metadata "55"] .
 endfm
 
 **** Note that the webapp does not check whether what it gets back
@@ -254,11 +257,11 @@ fmod WEBAPP is
   inc SYS .
   **** Webapps have data to be put on screen - we only refer to it by
   **** the label of the page where it is from.
-  op rendered : Label -> Attribute [ctor metadata "55"] .
+  op rendered : Label -> Attribute [ctor metadata "56"] .
   **** This is where the webapp should load its data from!
-  op URL : Label -> Attribute [ctor metadata "56"] .
+  op URL : Label -> Attribute [ctor metadata "57"] .
   **** This notes whether it has already loaded, or has not yet started to do so.
-  op loading : Bool -> Attribute [ctor metadata "57"] .
+  op loading : Bool -> Attribute [ctor metadata "58"] .
 endfm
 
 **** network process gets a request from a webapp; network process
@@ -308,19 +311,19 @@ endfm
 **** need the capability to check whether a process id is for a netproc
 **** this is now handled by subsorting
 fmod NETPROC is inc LABEL-LIST . inc SYS .
-  op returnTo : PipeId    -> Attribute [ctor metadata "58"] .
-  op in       : LabelList -> Attribute [ctor metadata "59"] .
-  op out      : LabelList -> Attribute [ctor metadata "60"] .
+  op returnTo : PipeId    -> Attribute [ctor metadata "59"] .
+  op in       : LabelList -> Attribute [ctor metadata "60"] .
+  op out      : LabelList -> Attribute [ctor metadata "61"] .
 endfm
 
 fmod MEMORY is inc SYS . inc LABEL .
-  op mem-in  : MaybeLabel -> Attribute [ctor metadata "62"] .
-  op mem-out : MaybeLabel -> Attribute [ctor metadata "61"] .
+  op mem-in  : MaybeLabel -> Attribute [ctor metadata "63"] .
+  op mem-out : MaybeLabel -> Attribute [ctor metadata "62"] .
 endfm
 
 fmod NIC is inc SYS . inc LABEL-SET . inc LABEL-LIST .
-  op nic-in  : LabelList -> Attribute [ctor metadata "64"] .
-  op nic-out : LabelSet  -> Attribute [ctor metadata "63"] .
+  op nic-in  : LabelList -> Attribute [ctor metadata "65"] .
+  op nic-out : LabelSet  -> Attribute [ctor metadata "64"] .
 endfm
 
 fmod KERNEL-POLICIES-FVP is
@@ -352,30 +355,30 @@ fmod KERNEL-POLICIES-FVP is
   sort PolicySet .
   subsort Policy < PolicySet .
   op mtPS :                       -> PolicySet [ctor metadata "6"] .
-  op _,ps_  : PolicySet PolicySet -> PolicySet [ctor assoc comm id: mtPS metadata "65"] .
+  op _,ps_  : PolicySet PolicySet -> PolicySet [ctor assoc comm id: mtPS metadata "66"] .
 
-  op msgPolicy        : PolicySet                   -> Attribute [ctor metadata "66"] .  **** make the policylist an attribute with this wrapper
-  op policy           : AbsPipeId AbsPipeId MsgType -> Policy    [ctor metadata "67"] .  **** a policy is a sender Id, receiver Id and MsgType (only PipeProcs can communicate with kernel)
-  op nextNPN          : Nat                         -> Attribute [ctor metadata "68"] .  **** the next available proc id for a network proc
-  op handledCurrently : Message?                    -> Attribute [ctor metadata "69"] .  **** the message currently handled by the kernel
+  op msgPolicy        : PolicySet                   -> Attribute [ctor metadata "67"] .  **** make the policylist an attribute with this wrapper
+  op policy           : AbsPipeId AbsPipeId MsgType -> Policy    [ctor metadata "68"] .  **** a policy is a sender Id, receiver Id and MsgType (only PipeProcs can communicate with kernel)
+  op nextNPN          : Nat                         -> Attribute [ctor metadata "69"] .  **** the next available proc id for a network proc
+  op handledCurrently : Message?                    -> Attribute [ctor metadata "70"] .  **** the message currently handled by the kernel
   **** webapp info stored by kernel
   **** label identifies the website this webapp is showing - this needs to match the
   **** first label of a network proc to allow communication
   sorts WebProcInfo WebProcInfoSet .
   subsorts WebProcInfo < WebProcInfoSet .
-  op pi        : WebProcId Label               -> WebProcInfo    [ctor metadata "70"] .
+  op pi        : WebProcId Label               -> WebProcInfo    [ctor metadata "71"] .
   op mtWPIS    :                               -> WebProcInfoSet [ctor metadata "7"] .
-  op _,wp_     : WebProcInfoSet WebProcInfoSet -> WebProcInfoSet [ctor assoc comm id: mtWPIS metadata "71"] .
-  op weblabels : WebProcInfoSet                -> Attribute      [ctor metadata "72"] .
+  op _,wp_     : WebProcInfoSet WebProcInfoSet -> WebProcInfoSet [ctor assoc comm id: mtWPIS metadata "72"] .
+  op weblabels : WebProcInfoSet                -> Attribute      [ctor metadata "73"] .
   ****network proc info stored by kernel
   **** first label to identify related webapps, second label for whom
   **** this network proc can communicate with (via actual ethernet; to outside world)
   sorts NetProcInfo NetProcInfoSet .
   subsorts NetProcInfo < NetProcInfoSet .
-  op pi        : NetProcId Label Label         -> NetProcInfo    [ctor metadata "73"] .
+  op pi        : NetProcId Label Label         -> NetProcInfo    [ctor metadata "74"] .
   op mtNPIS    :                               -> NetProcInfoSet [ctor metadata "8"] .
-  op _,np_     : NetProcInfoSet NetProcInfoSet -> NetProcInfoSet [ctor assoc comm id: mtNPIS metadata "74"] .
-  op netlabels : NetProcInfoSet                -> Attribute      [ctor metadata "75"] .
+  op _,np_     : NetProcInfoSet NetProcInfoSet -> NetProcInfoSet [ctor assoc comm id: mtNPIS metadata "75"] .
+  op netlabels : NetProcInfoSet                -> Attribute      [ctor metadata "76"] .
   **** These next two rules are what was promised above in the network
   **** process module above when referring to DMA rules.
   **** Kernel gives network process DMA to NIC - checking that target is
@@ -398,11 +401,11 @@ fmod KERNEL-POLICIES-FVP is
   ****
   **** Made into a topmost rule in module KERNEL
   ****
-  op displayedTopBar  : Label      -> Attribute [ctor metadata "76"] . **** kernel-owned address bar - part of the 'secure' UI
-  op activeWebapp     : WebProcId  -> Attribute [ctor metadata "77"] . **** display memory modeled as an object.
-  op displayedContent : Label      -> Attribute [ctor metadata "78"] . **** label of the things being displayed as an attribute of that object
+  op displayedTopBar  : Label      -> Attribute [ctor metadata "77"] . **** kernel-owned address bar - part of the 'secure' UI
+  op activeWebapp     : WebProcId  -> Attribute [ctor metadata "78"] . **** display memory modeled as an object.
+  op displayedContent : Label      -> Attribute [ctor metadata "79"] . **** label of the things being displayed as an attribute of that object
   ****
-  op kernelDo         : Message    -> Message   [ctor metadata "79"] . **** Kernel needs to do something
+  op kernelDo         : Message    -> Message   [ctor metadata "80"] . **** Kernel needs to do something
   **** Once the policy has been checked, further processing is taken care of;
   **** switching the active tab in the UI is done here.
   **** The kernel will change topbar, change memory access
@@ -445,17 +448,17 @@ fmod KERNEL-POLICIES-NONFVP is
   var UI : UIId .
 
   **** auxiliary function for checking that a network process links to a given label
-  op np-by-lbl? : Label NetProcInfoSet -> Bool [metadata "80"] .
+  op np-by-lbl? : Label NetProcInfoSet -> Bool [metadata "81"] .
   eq np-by-lbl?(L',(pi(network(N),L,L') ,np NPIS)) = true [variant] .
  ceq np-by-lbl?(L',(pi(network(N),L,L'') ,np NPIS)) = np-by-lbl?(L',NPIS) if L' ~l L'' = false .
   eq np-by-lbl?(L',mtNPIS) = false .
 
-  op matching-procs1? : NetProcId Label NetProcInfoSet -> Bool [metadata "81"] .
+  op matching-procs1? : NetProcId Label NetProcInfoSet -> Bool [metadata "82"] .
   eq matching-procs1?(NI,L,(pi(NI,L,L'') ,np NPIS)) = true .
  ceq matching-procs1?(NI,L,(pi(NI',L',L'') ,np NPIS)) = matching-procs1?(NI,L,NPIS) if NI ~p NI' and L ~l L' = false .
   eq matching-procs1?(NI,L,mtNPIS) = false .
 
-  op matching-procs? : ProcessId ProcessId WebProcInfoSet NetProcInfoSet -> Bool [metadata "82"] .
+  op matching-procs? : ProcessId ProcessId WebProcInfoSet NetProcInfoSet -> Bool [metadata "83"] .
   ---
   --- recursing when possible
   eq matching-procs?(NI,WI,(pi(WI,L) ,wp WPIS),NPIS) = matching-procs1?(NI,L,NPIS) or matching-procs?(NI,WI,WPIS,NPIS) .
@@ -849,7 +852,7 @@ endm
 mod IBOS-STOP is
   pr IBOS .
   var C : Configuration .
-  op [_] : Configuration -> State [ctor metadata "85"] .
+  op [_] : Configuration -> State [ctor metadata "86"] .
   rl [stop] : { C } => [ C ] .
 endm
 
