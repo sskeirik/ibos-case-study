@@ -40,9 +40,10 @@ loop rltl-init .
 
 (use tool conrew for validity on IBOS-SOP-PRED-NOID       with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool varsat for validity on KERNEL-POLICIES-FVP-NOID .)
-(declare-vars (C:Configuration) U (NWC:NetProcWebAppNeConfig) U (WPIS:WebappProcInfoSet) U (NPIS:NetworkProcInfoSet) U (MSG?:Message?) U
-              (PS:PolicySet) U (NNP:Nat) U (NWA:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U
-	      (AWA:WebAppId) U (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) .)
+(declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
+              (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (AWP:WebProcId) U
+	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:NetProcId) U
+	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (A:AttributeSet) U (A':AttributeSet) .)
 (def-term-set ([C:Configuration]) | true .)
 --- INV is a generalized multiset equality between:
 --- [1] set of fromKernel messages at the beginning of a list in a netproc
@@ -50,18 +51,22 @@ loop rltl-init .
 (inv sop4 to '`[_`] on
 ({ NWC
    < ui | toKernel(UIML) >
-   < display | activeWebapp(AWA), displayedContent(DISP) >
+   < display | activeWebapp(AWP), displayedContent(DISP) >
    < nic | in(NICIN), nic-out(NICOUT) >
-   < webappmgr | nextWAN(NWA) >
-   < kernel | weblabels(WPIS), networklabels(NPIS), displayedTopBar(CURR), handledCurrently(MSG?), msgPolicy(PS), nextNetworkProc(NNP) > }) |
-   --- p /\ p' encodes the SOP
-   (p (NWC,WPIS,NPIS))          = (true)  /\
-   (mp(MSG?,WPIS,NPIS,NNP,NWA)) = (true)  /\
+   < webappmgr | nextWPN(NWP) >
+   < kernel | weblabels(WIS), netlabels(NIS), displayedTopBar(CURR), handledCurrently(MSG?), nextNPN(NNP),
+       msgPolicy(policy(webapp, network,MSG-FETCH-URL ),ps
+                 policy(ui,     webapp, MSG-NEW-URL   ),ps
+		 policy(ui,     webapp, MSG-SWITCH-TAB),ps
+		 policy(network,webapp, MSG-RETURN-URL)) > }) |
+   (p(NWC,WIS,NIS,MSG?))   = (true) /\
+   (nwp-reqattrs!?(NWC))   = (true) /\
+   (conf-attr-dupl!?(NWC)) = (false)
    --- these are strengthenings of the invariant above that allow the simplification rules to apply more often
    --- they are not strictly needed for correctness --- the invariant above should be enough
-   (fresh-np-id?(NNP,NWC))      = (true)  /\
-   (fresh-wa-id?(NWA,NWC))      = (true)  /\
-   (dupl?(NWC))                 = (false)
+   ---@ (fresh-np-id?(NNP,NWC))      = (true)  /\
+   ---@ (fresh-wa-id?(NWA,NWC))      = (true)  /\
+   ---@ (dupl?(NWC))                 = (false)
 .)
 (start-proof .)
 --- set break on .
@@ -70,8 +75,27 @@ loop rltl-init .
 --- print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _|_ __ _;;_ _`[_`] .
 (auto .)
 --- cc1a
-(cases ({< kernel | handledCurrently(msg(N:NetProcId,W:WebAppId,MT:MsgType,OUT:Label)), AS:AttributeSet > C}) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
-(auto .)
+(cases ({< NI | toKernel(T), A:AttributeSet > C})
+on A:AttributeSet by
+((none).EmptyAttributeSet) U
+(fromKernel(F)) U
+(rendered(D)) U
+(loading(L)) U
+(URL(U)) U
+(fromKernel(F), rendered(D)) U
+(rendered(D), loading(L)) U
+(loading(L), URL(U)) U
+(fromKernel(F), loading(L)) U
+(rendered(D), URL(U)) U
+(fromKernel(F), URL(U)) U
+(fromKernel(F), rendered(D), loading(L)) U
+(fromKernel(F), rendered(D), URL(U)) U
+(fromKernel(F), loading(L), URL(U)) U
+(rendered(D), loading(L), URL(U)) U
+(fromKernel(F), rendered(D), loading(L), URL(U)) U
+(fromKernel(F), rendered(D), loading(L), URL(U), A') .)
+--- (cases ({< kernel | handledCurrently(msg(N:NetProcId,W:WebAppId,MT:MsgType,OUT:Label)), AS:AttributeSet > C}) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
+---(auto .)
 ---(
 --- (list-goals .)
 --- quit .
