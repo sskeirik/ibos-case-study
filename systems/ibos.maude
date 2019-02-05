@@ -514,8 +514,8 @@ mod KERNEL is
 
   **** Made into a labeled topmost conditional rule from module WEBAPP
   rl [render] :
-     { < WI | rendered(L)  , URL(L') , loading(true) , fromKernel(msg(PI, WI, MSG-RETURN-URL,L2) @ ML) , Att > Cnf }
-  => { < WI | rendered(L2) , URL(L') , loading(true) , fromKernel(ML) ,                                  Att > Cnf } .
+     { < WI | rendered(L)  , URL(L') , loading(true) , fromKernel(msg(PPI1, WI, MSG-RETURN-URL,L2) @ ML) , Att > Cnf }
+  => { < WI | rendered(L2) , URL(L') , loading(true) , fromKernel(ML) ,                                    Att > Cnf } .
 
   **** Made into a topmost rule from module NETWORK
   **** kernel tells network process to fetch data for a webapp
