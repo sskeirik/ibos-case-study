@@ -220,7 +220,7 @@ endfm
 fmod MSG-LIST is pr MSG .
   **** message list definition
   sort MessageList .
-  subsort Message? < MessageList .
+  subsort Message < MessageList .
   op mt   : -> MessageList [ctor metadata "5"] .
   op _@_  : MessageList MessageList -> MessageList [ctor assoc id: mt metadata "51"] .
 endfm
