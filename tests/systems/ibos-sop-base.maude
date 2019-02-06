@@ -77,7 +77,31 @@ endfm
 
 fmod ATTRIBUTE-NONFVP-EXT is
   pr KERNEL-POLICIES-FVP .
-  var A A' : Attribute . var AS : AttributeSet .
+  var A A' : Attribute . var AS AS' : AttributeSet .
+
+  op _!a : AttributeSet -> AttributeSet [metadata "100"] .
+  eq (fromKernel      (X:MessageList)   , AS) !a = fromKernel(mt)               , (AS !a) .
+  eq (toKernel        (X:MessageList)   , AS) !a = toKernel(mt)                 , (AS !a) .
+  eq (nextWPN         (X:Nat)           , AS) !a = nextWPN(0)                   , (AS !a) .
+  eq (rendered        (X:Label)         , AS) !a = rendered(about-blank)        , (AS !a) .
+  eq (URL             (X:Label)         , AS) !a = URL(about-blank)             , (AS !a) .
+  eq (loading         (X:Bool)          , AS) !a = loading(true)                , (AS !a) .
+  eq (returnTo        (X:PipeId)        , AS) !a = returnTo(ui)                 , (AS !a) .
+  eq (in              (X:LabelList)     , AS) !a = in(mtLL)                     , (AS !a) .
+  eq (out             (X:LabelList)     , AS) !a = out(mtLL)                    , (AS !a) .
+  eq (mem-in          (X:MaybeLabel)    , AS) !a = mem-in(nolabel)              , (AS !a) .
+  eq (mem-out         (X:MaybeLabel)    , AS) !a = mem-out(nolabel)             , (AS !a) .
+  eq (nic-in          (X:LabelList)     , AS) !a = nic-in(mtLL)                 , (AS !a) .
+  eq (nic-out         (X:LabelSet)      , AS) !a = nic-out(mtLS)                , (AS !a) .
+  eq (msgPolicy       (X:PolicySet)     , AS) !a = msgPolicy(mtPS)              , (AS !a) .
+  eq (nextNPN         (X:Nat)           , AS) !a = nextNPN(0)                   , (AS !a) .
+  eq (handledCurrently(X:Message?)      , AS) !a = handledCurrently(none)       , (AS !a) .
+  eq (weblabels       (X:WebProcInfoSet), AS) !a = weblabels(mtWPIS)            , (AS !a) .
+  eq (netlabels       (X:NetProcInfoSet), AS) !a = netlabels(mtNPIS)            , (AS !a) .
+  eq (displayedTopBar (X:Label)         , AS) !a = displayedTopBar(about-blank) , (AS !a) .
+  eq (displayedContent(X:Label)         , AS) !a = displayedContent(about-blank), (AS !a) .
+  eq (activeWebapp    (X:WebProcId)     , AS) !a = activeWebapp(webapp(0))      , (AS !a) .
+  eq none !a = none .
 
   op _~a_ : Attribute Attribute -> Bool [comm metadata "101"] .
   eq fromKernel      (X:MessageList)    ~a fromKernel      (Y:MessageList)    = true .
@@ -381,6 +405,11 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq attr-dupl?(activeWebapp    (X:WebProcId),      activeWebapp    (Y:WebProcId),      AS) = true .
   eq attr-dupl?(A) = false .
  ceq attr-dupl?(A,AS) = attr-dupl?(AS) if in-attrset?(A | AS) = false .
+
+  op attr-subset?(_|_) : AttributeSet AttributeSet -> Bool [metadata "104"] .
+ ceq attr-subset?(A, AS | AS') = attr-subset?(AS | AS') if in-attrset?(A | AS') .
+ ceq attr-subset?(A, AS | AS') = false                  if in-attrset?(A | AS') = false .
+  eq attr-subset?(none  | AS') = true .
 endfm
 
 fmod KERNEL-POLICIES-NONFVP-EXT is
@@ -409,18 +438,22 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var NonPID : NonPipeId .
 
   --- Configuration predicates
-  op in-conf? : ProcessId Configuration -> Bool [metadata "104"] .
+  op _!c : Configuration -> Configuration [metadata "105"] .
+  eq (< PI | A > C) !c = < PI | A !a > (C !c) .
+  eq none           !c = none .
+
+  op in-conf? : ProcessId Configuration -> Bool [metadata "106"] .
   eq in-conf?(PI,< PI  | A' > C) = true .
  ceq in-conf?(PI,< PI' | A' > C) = in-conf?(PI,C) if PI ~p PI' = false .
   eq in-conf?(PI,none)           = false .
 
-  op conf-dupl? : Configuration -> Bool [metadata "105"] .
+  op conf-dupl? : Configuration -> Bool [metadata "107"] .
   eq conf-dupl?(< PI | A  > < PI | A' > C) = true .
   eq conf-dupl?(< PI | NA >             C) = conf-dupl?(< PI | none > C) .
   eq conf-dupl?(none) = false .
  ceq conf-dupl?(< PI | none > C) = conf-dupl?(C) if in-conf?(PI,C) = false .
 
-  op fresh-np-id? : Nat Configuration -> Bool [metadata "106"] .
+  op fresh-np-id? : Nat Configuration -> Bool [metadata "108"] .
   eq fresh-np-id?(N,     < network(N + M) | A > C) = false .
   eq fresh-np-id?(N + P, < network(N)     | A > C) = fresh-np-id?(N + P,C) .
   eq fresh-np-id?(N,     < network        | A > C) = fresh-np-id?(N,C) .
@@ -429,7 +462,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq fresh-np-id?(M,     < NPI           | NA > C) = fresh-np-id?(M, < NPI | none > C) .
  ceq fresh-np-id?(N + 1,                        C) = true if fresh-np-id?(N,C) .
 
-  op fresh-wp-id? : Nat Configuration -> Bool [metadata "107"] .
+  op fresh-wp-id? : Nat Configuration -> Bool [metadata "109"] .
   eq fresh-wp-id?(N,     < webapp(N + M) | A > C) = false .
   eq fresh-wp-id?(N + P, < webapp(N)     | A > C) = fresh-wp-id?(N + P,C) .
   eq fresh-wp-id?(N,     < webapp        | A > C) = fresh-wp-id?(N,C) .
@@ -438,12 +471,12 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq fresh-wp-id?(M,     < WAI          | NA > C) = fresh-wp-id?(M, < WAI | none > C) .
  ceq fresh-wp-id?(N + 1,                       C) = true if fresh-wp-id?(N,C) .
 
-  op conf-attr-dupl? : Configuration -> Bool [metadata "108"] .
+  op conf-attr-dupl? : Configuration -> Bool [metadata "110"] .
  ceq conf-attr-dupl?(< PI | A > C) = conf-attr-dupl?(C) if attr-dupl?(A) = false .
  ceq conf-attr-dupl?(< PI | A > C) = true if attr-dupl?(A) .
   eq conf-attr-dupl?(none)         = false .
 
-  op nwp-reqattrs? : NetWebProcConfig -> Bool [metadata "109"] .
+  op nwp-reqattrs? : NetWebProcConfig -> Bool [metadata "112"] .
   eq nwp-reqattrs?(< NPI | toKernel(TK:MessageList), fromKernel(FK:MessageList), returnTo(P:PipeId),
                             mem-in(M1:MaybeLabel), mem-out(M2:MaybeLabel), A > C) = nwp-reqattrs?(C) .
   eq nwp-reqattrs?(< WAI | toKernel(TK:MessageList), fromKernel(FK:MessageList), URL(L1:Label),
@@ -451,89 +484,89 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq nwp-reqattrs?(none) = true .
 
   --- needed for metadata-match?
-  op netproc-in-conf? : Configuration -> Bool [metadata "110"] .
+  op netproc-in-conf? : Configuration -> Bool [metadata "114"] .
   eq netproc-in-conf?(< NPI  | A > C) = true .
   eq netproc-in-conf?(< NNPI | A > C) = netproc-in-conf?(C) .
   eq netproc-in-conf?(none)           = false .
 
-  op webproc-url-in-conf? : Configuration -> Bool [metadata "111"] .
+  op webproc-url-in-conf? : Configuration -> Bool [metadata "115"] .
   eq webproc-url-in-conf?(< WAI  | URL(L), A > C) = true .
  ceq webproc-url-in-conf?(< WAI  |         A > C) = webproc-url-in-conf?(C) if in-attrset?(URL(about-blank) | A) = false .
   eq webproc-url-in-conf?(< NWAI |         A > C) = webproc-url-in-conf?(C) .
   eq webproc-url-in-conf?(none)                   = false .
 
-  op webproc-url-netproc-in-conf? : Configuration -> Bool [metadata "112"] .
+  op webproc-url-netproc-in-conf? : Configuration -> Bool [metadata "116"] .
   eq webproc-url-netproc-in-conf?(< WAI | URL(L), A > < NPI | A' > C) = true .
  ceq webproc-url-netproc-in-conf?(                                 C) = false if webproc-url-in-conf?(C) = false .
  ceq webproc-url-netproc-in-conf?(                                 C) = false if netproc-in-conf?(C) = false .
 
   --- Web/NetProcInfoSet predicates
-  op inlbl-by-pid : NetProcId NetProcInfoSet -> MaybeLabel [ctor metadata "113"] .
+  op inlbl-by-pid : NetProcId NetProcInfoSet -> MaybeLabel [ctor metadata "117"] .
   eq inlbl-by-pid(NPI,(pi(NPI, IN,OUT),np NIS)) = IN .
  ceq inlbl-by-pid(NPI,(pi(NPI',IN,OUT),np NIS)) = inlbl-by-pid(NPI,NIS) if NPI ~p NPI' = false .
   eq inlbl-by-pid(NPI,mtNPIS)                   = nolabel .
 
-  op outlbl-by-pid : NetProcId NetProcInfoSet -> MaybeLabel [ctor metadata "114"] .
+  op outlbl-by-pid : NetProcId NetProcInfoSet -> MaybeLabel [ctor metadata "118"] .
   eq outlbl-by-pid(NPI,(pi(NPI, IN,OUT),np NIS)) = OUT .
  ceq outlbl-by-pid(NPI,(pi(NPI',IN,OUT),np NIS)) = outlbl-by-pid(NPI,NIS) if NPI ~p NPI' = false .
   eq outlbl-by-pid(NPI,mtNPIS)                   = nolabel .
 
-  op nat-in-netlabels? : Nat NetProcInfoSet -> Bool [metadata "115"] .
+  op nat-in-netlabels? : Nat NetProcInfoSet -> Bool [metadata "119"] .
   eq nat-in-netlabels?(N,(pi(network(N),IN,OUT) ,np NIS)) = true [variant] .
  ceq nat-in-netlabels?(N,(pi(network(M),IN,OUT) ,np NIS)) = nat-in-netlabels?(N,NIS) if N ~n M = false .
   eq nat-in-netlabels?(N,mtNPIS) = false .
 
-  op nat-in-weblabels? : Nat WebProcInfoSet -> Bool [metadata "116"] .
+  op nat-in-weblabels? : Nat WebProcInfoSet -> Bool [metadata "120"] .
   eq nat-in-weblabels?(N,(pi(webapp(N),L) ,wp WIS)) = true [variant] .
  ceq nat-in-weblabels?(N,(pi(webapp(M),L) ,wp WIS)) = nat-in-weblabels?(N,WIS) if N ~n M = false .
   eq nat-in-weblabels?(N,mtWPIS) = false .
 
-  op pid-in-netlabels? : AbsProcessId NetProcInfoSet -> Bool [metadata "117"] .
+  op pid-in-netlabels? : AbsProcessId NetProcInfoSet -> Bool [metadata "121"] .
   eq pid-in-netlabels?(network(N), NIS) = nat-in-netlabels?(N,NIS) .
   eq pid-in-netlabels?(NNPI,       NIS) = false .
   eq pid-in-netlabels?(network,    NIS) = false .
   eq pid-in-netlabels?(webapp,     NIS) = false .
 
-  op pid-in-weblabels? : AbsProcessId WebProcInfoSet -> Bool [metadata "118"] .
+  op pid-in-weblabels? : AbsProcessId WebProcInfoSet -> Bool [metadata "122"] .
   eq pid-in-weblabels?(webapp(N),WIS) = nat-in-weblabels?(N,WIS) .
   eq pid-in-weblabels?(NWAI,     WIS) = false .
   eq pid-in-weblabels?(network,  WIS) = false .
   eq pid-in-weblabels?(webapp,   WIS) = false .
 
-  op weblabels-dupl? : WebProcInfoSet -> Bool [metadata "119"] .
+  op weblabels-dupl? : WebProcInfoSet -> Bool [metadata "123"] .
   eq weblabels-dupl?(pi(WAI,L) ,wp pi(WAI,L') ,wp WIS) = true .
  ceq weblabels-dupl?(pi(WAI,L)                ,wp WIS) = weblabels-dupl?(WIS) if pid-in-weblabels?(WAI,WIS) = false .
   eq weblabels-dupl?(pi(WAI,L))                        = false .
   eq weblabels-dupl?(mtWPIS)                           = false .
 
-  op netlabels-dupl? : NetProcInfoSet -> Bool [metadata "120"] .
+  op netlabels-dupl? : NetProcInfoSet -> Bool [metadata "124"] .
   eq netlabels-dupl?(pi(NPI,L,L') ,np pi(NPI',L1,L2) ,np NIS) = true .
  ceq netlabels-dupl?(pi(NPI,L,L') ,np                    NIS) = netlabels-dupl?(NIS) if pid-in-netlabels?(NPI,NIS) = false .
   eq netlabels-dupl?(pi(NPI,L,L'))                            = false .
   eq netlabels-dupl?(mtNPIS)                                  = false .
 
-  op fresh-weblabel? : Nat WebProcInfoSet -> Bool [metadata "121"] .
+  op fresh-weblabel? : Nat WebProcInfoSet -> Bool [metadata "125"] .
   eq fresh-weblabel?(N + P,(pi(network(N    ),L),wp WIS)) = fresh-weblabel?(N + P,WIS) .
   eq fresh-weblabel?(N,    (pi(network(N + M),L),wp WIS)) = false .
   eq fresh-weblabel?(N,mtWPIS)                            = true .
 
-  op fresh-netlabel? : Nat NetProcInfoSet -> Bool [metadata "122"] .
+  op fresh-netlabel? : Nat NetProcInfoSet -> Bool [metadata "126"] .
   eq fresh-netlabel?(N + P,(pi(network(N    ),L,L'),np NIS)) = fresh-netlabel?(N + P,NIS) .
   eq fresh-netlabel?(N,    (pi(network(N + M),L,L'),np NIS)) = false .
   eq fresh-netlabel?(N,mtNPIS)                               = true .
 
-  op lbl-in-weblabels? : Label WebProcInfoSet -> Bool [metadata "123"] .
+  op lbl-in-weblabels? : Label WebProcInfoSet -> Bool [metadata "127"] .
   eq lbl-in-weblabels?(L,(pi(WAI,L ),wp WIS)) = true .
  ceq lbl-in-weblabels?(L,(pi(WAI,L'),wp WIS)) = lbl-in-weblabels?(L,WIS) if L ~l L' = false .
   eq lbl-in-weblabels?(L,mtWPIS)              = false .
 
-  op inlbl-in-netlabels? : Label NetProcInfoSet -> Bool [metadata "124"] .
+  op inlbl-in-netlabels? : Label NetProcInfoSet -> Bool [metadata "128"] .
   eq inlbl-in-netlabels?(IN,(pi(NPI,IN,OUT),np NIS)) = true .
  ceq inlbl-in-netlabels?(L, (pi(NPI,IN,OUT),np NIS)) = inlbl-in-netlabels?(L,NIS) if L ~l IN = false .
   eq inlbl-in-netlabels?(L,mtNPIS)                   = false .
 
   --- Other predicates
-  op metadata-match? : Configuration WebProcInfoSet NetProcInfoSet -> Bool [metadata "125"] .
+  op metadata-match? : Configuration WebProcInfoSet NetProcInfoSet -> Bool [metadata "129"] .
   eq metadata-match?(< WAI | URL(L) , A > < NPI | A' > C, pi(WAI,L) ,wp WIS, pi(NPI,L,L') ,np NIS) = metadata-match?(C,WIS,NIS) .
   eq metadata-match?(< WAI | URL(L) , A >              C, pi(WAI,L) ,wp WIS,               mtNPIS) = metadata-match?(C,WIS,mtNPIS) .
   eq metadata-match?(< NonPID | A >                    C,               WIS,                  NIS) = metadata-match?(C,WIS,NIS) .
