@@ -178,10 +178,10 @@ fmod REACH-PROOF-RULES-AUX is
   eq termcheck-action(D,U,MB,G) =
     if MB == true
       then (none || copyGoalToChild(G))
-      else (out('Warning: 'goal &sp printGoals(U,G) &sp 'may 'have 'terminated '\n) || copyGoalToChild(G))
+      else (out('\r 'Warning: 'goal &sp printGoalIds(G) &sp 'may 'have 'terminated '\o '\n) || copyGoalToChild(G))
     fi .
   eq [handle-error] :
-     termcheck-action(D,U,BK,G) = (out('Warning: 'termination 'check 'on &sp printGoals(U,G) &sp 'encountered 'an 'error boolErrMsg(BK) '\n)) [owise] .
+     termcheck-action(D,U,BK,G) = (out('\r 'Warning: 'termination 'check 'on &sp printGoalIds(G) &sp 'encountered 'an 'error boolErrMsg(BK) '\o '\n)) [owise] .
 
   --- NOTE: we filter successfully generated step successors through
   ---       renaming + normalization and since A/C/U matching often
@@ -191,14 +191,14 @@ fmod REACH-PROOF-RULES-AUX is
   eq step-action(D,U,LRS,G) = step-action(D,U,#top-narrow(U,LRS,getbody(G)),G) .
   eq step-action(D,U,SRS,G) =
      if SRS == noSteps or not wellFormed(U,toReachFormSet(SRS)) then
-       (if SRS == noSteps then out('Warning: 'narrowing 'on 'goal &sp printGoals(U,G) &sp 'generated 'zero 'successors '\n) else none fi ;
-        if not wellFormed(U,toReachFormSet(SRS)) then out('Warning: 'narrowing 'on 'goal printGoalIds(G) 'generated 'ill-formed 'successors '\n) else none fi)
+       (if SRS == noSteps then out('\r 'Warning: 'narrowing 'on 'goal &sp printGoalIds(G) &sp 'generated 'zero 'successors '\o '\n) else none fi ;
+        if not wellFormed(U,toReachFormSet(SRS)) then out('\r 'Warning: 'narrowing 'on 'goal printGoalIds(G) 'generated 'ill-formed 'successors '\o '\n) else none fi)
      else
        (none || deleteDuplGoals(0,renameNormalizeGoal(U,get-cnt(D),newChildGoals(G,toReachFormSubstPairSet(SRS)))))
      fi .
   eq [handle-error] :
      step-action(D,U,SRSK,G) =
-     (if SRSK :: StepResultSet then none else out('Warning: 'narrowing 'on 'goal &sp printGoals(U,G) &sp 'encountered 'an 'error errStepResultSetMsg(SRSK) '\n) fi) [owise] .
+     (if SRSK :: StepResultSet then none else out('\r 'Warning: 'narrowing 'on 'goal &sp printGoalIds(G) &sp 'encountered 'an 'error errStepResultSetMsg(SRSK) '\o '\n) fi) [owise] .
 
   op sub-action : ProofMetadata Module ProofGoal -> ProofUpdate .
   op sub-action1 : ProofMetadata Module Bool   ProofGoal -> ProofUpdate .
@@ -210,21 +210,21 @@ fmod REACH-PROOF-RULES-AUX is
     if MB == true
       then (none || mt)
       else if MB == nobool
-        then (out('Warning: 'goal &sp printGoals(U,G) &sp 'satisfaction 'unknown: 'conservatively 'retaining 'goal '\n) || copyGoalToChild(G))
+        then (out('\r 'Warning: 'goal &sp printGoalIds(G) &sp 'satisfaction 'unknown: 'conservatively 'retaining 'goal '\o '\n) || copyGoalToChild(G))
         else (none || copyGoalToChild(G))
       fi
     fi .
   eq [handle-error] :
-     sub-action2(D,U,BK,G) = (st(err) ; out('Warning: 'checking 'goal &sp printGoals(U,G) &sp 'satisfaction 'encountered 'an 'error boolErrMsg(BK) '\n)) [owise] .
+     sub-action2(D,U,BK,G) = (st(err) ; out('\r 'Warning: 'checking 'goal &sp printGoalIds(G) &sp 'satisfaction 'encountered 'an 'error boolErrMsg(BK) '\o '\n)) [owise] .
 
   op ax-action : ProofMetadata Module LabelReachForm ProofGoal -> ProofUpdate .
   op ax-action : ProofMetadata Module LabelReachForm [AxiomResultList] ProofGoal -> ProofUpdate .
   op ax-action : ProofMetadata Module ProofMetadata [MaybeBool] AxiomResultList AxiomResultList ProofGoal -> ProofUpdate .
   eq ax-action(D,U,AX,G) = ax-action(D,U,AX,apply-axioms(U,getbody(G),AX),G) .
-  eq ax-action(D,U,AX,nilax,G) = (if printAxiomFailures then st(err) ; out('Notice: 'no 'syntactically 'usable 'instances 'of 'axiom print(U,AX) 'found 'for &sp printGoals(U,G) '\n) else none fi) .
+  eq ax-action(D,U,AX,nilax,G) = (if printAxiomFailures then st(err) ; out('\r 'Notice: 'no 'syntactically 'usable 'instances 'of 'axiom name(AX) 'found 'for &sp printGoalIds(G) '\o '\n) else none fi) .
   eq ax-action(D,U,AX,AR ARL,G) = ax-action(D,U,none,checkVal(D,arCond(AR)),ARL,AR,G) .
   eq [handle-error] :
-     ax-action(D,U,AX,ARLK,G) = (st(err) ; out('Warning: 'generating 'axiom print(U,AX) 'successors 'for &sp printGoals(U,G) &sp 'encountered 'an 'error errAxiomResultMsg(ARLK) '\n)) [owise] .
+     ax-action(D,U,AX,ARLK,G) = (st(err) ; out('\r 'Warning: 'generating 'axiom name(AX) 'successors 'for &sp printGoalIds(G) &sp 'encountered 'an 'error errAxiomResultMsg(ARLK) '\o '\n)) [owise] .
 
   eq ax-action(D,U,D',BK,AR ARL,ARL',G) =
      if BK == true
@@ -238,8 +238,8 @@ fmod REACH-PROOF-RULES-AUX is
      fi .
 
   op printAxFailure : ProofMetadata Module [MaybeBool] LabelReachForm ProofGoal -> ProofMetadata .
-  eq printAxFailure(D',U,MB,AX,G) = D' ; if printAxiomFailures and MB == nobool then out('Notice: 'axiom print(U,AX) 'validity 'for 'goal &sp printGoals(U,G) &sp 'unknown '\n) else none fi .
-  eq printAxFailure(D',U,BK,AX,G) = D' ; out('Warning: 'axiom print(U,AX) 'validity 'check 'for 'goal &sp printGoals(U,G) &sp 'encountered 'an 'error boolErrMsg(BK) '\n) .
+  eq printAxFailure(D',U,MB,AX,G) = D' ; if printAxiomFailures and MB == nobool then out('\r 'Notice: 'axiom name(AX) 'validity 'for 'goal &sp printGoalIds(G) &sp 'unknown '\o '\n) else none fi .
+  eq printAxFailure(D',U,BK,AX,G) = D' ; out('\r 'Warning: 'axiom name(AX) 'validity 'check 'for 'goal &sp printGoalIds(G) &sp 'encountered 'an 'error boolErrMsg(BK) '\o '\n) .
 
   op usedAxRec : AxiomResultList AxiomResultList -> AxiomRecord .
   eq usedAxRec(ARL,ARL') = axrec(head(ARL),delete(head(ARL),ARL')) .
@@ -252,9 +252,9 @@ fmod REACH-PROOF-RULES-AUX is
       then if intersection(vars(TS),getvars(G) ; vars(getbody(G))) == none
         then if wellFormedSet(U,assignments(V,TS)) == true
           then (none || newChildGoals(G,getbody(G) RFSS<< assignments(V,TS)))
-          else (out('Warning: 'case 'rule 'substitution 'is 'not 'well-formed '\n))
-        fi else (out('Warning: 'case 'rule 'terms 'intersect 'unsafely 'with 'goal 'target '\n))
-      fi else (out('Warning: 'case 'rule 'variable 'must 'be 'in 'goal 'head '\n))
+          else (out('\r 'Warning: 'case 'rule 'substitution 'is 'not 'well-formed '\o '\n))
+        fi else (out('\r 'Warning: 'case 'rule 'terms 'intersect 'unsafely 'with 'goal 'target '\o '\n))
+      fi else (out('\r 'Warning: 'case 'rule 'variable 'must 'be 'in 'goal 'head '\o '\n))
     fi .
 
   op split-action : ProofMetadata Module Bool QFForm QFForm ProofGoal -> ProofUpdate .
@@ -265,16 +265,16 @@ fmod REACH-PROOF-RULES-AUX is
 
   eq split-action2(D,U,B,QF,QF',G) =
     if QF == QF' then
-      (out('Warning: 'prevented 'attempted 'split 'on 'identical 'formulas))
+      (out('\r 'Warning: 'prevented 'attempted 'split 'on 'identical 'formulas '\o))
     else if QF == ff then
-      (st(err) ; out('Error: 'invalid 'split 'value))
+      (st(err) ; out('\r 'Error: 'invalid 'split 'value '\o))
     else if safeVars(gather(getbody(G) & set-lhs-cond(getbody(G),QF) & if QF' =/= ff then set-lhs-cond(getbody(G),QF') else mt fi))
-      then (out(if B or-else checkVal(D,lhs-cond(getbody(G)) <==> QF \/ QF') == true
+      then (out('\r if B or-else checkVal(D,lhs-cond(getbody(G)) <==> QF \/ QF') == true
                   then nil
                   else 'For 'full 'verification '`, &sp 'check 'formula 'equivalence 'manually '\n
-                fi)
+                fi '\o)
             || newChildGoalsAddVars(G,set-lhs-cond(getbody(G),QF) & if QF' == ff then mt else set-lhs-cond(getbody(G),QF') fi))
-      else (out('Warning: 'split 'rule 'formulas 'have 'unsafe 'variable 'sharing '\n))
+      else (out('\r 'Warning: 'split 'rule 'formulas 'have 'unsafe 'variable 'sharing '\o '\n))
     fi fi fi .
 
   var PA : ProofRuleAction .
@@ -286,7 +286,8 @@ fmod REACH-PROOF-RULES-AUX is
 
   op printStep : Bool String [ProofUpdate] -> ProofUpdate .
   eq printStep(true, STR,(D')) = (D') [print STR " step checked failure"] .
-  eq printStep(true, STR,(D' || GS)) =  printStepNum(STR,numGoals(GS),(D' || GS)) .
+  eq printStep(true, STR,(D' || GS)) =
+    if STR == "term-action" or-else STR == "pause-action" then (D' || GS) else printStepNum(STR,numGoals(GS),(D' || GS)) fi .
   eq printStep(true, STR,PU) = PU [print STR " ERROR step unchecked failure!" owise label printStepFail] .
   eq printStep(false,STR,PU) = PU .
 
@@ -307,12 +308,12 @@ fmod REACH-PROOF-RULES-AUX is
   op lift-result : ProofGoal ProofStrat ProofMetadata ProofUpdate -> ProofMetadata? .
   eq lift-result(G,CN,D,(D')) =
     if update(false,CN) == giveup
-      then lift-result(G,D,raw-set(D',out('\r 'Notice: 'proof 'branch 'failed: '\o &sp printGoals(get-mod(D),G) '\n)),mt)
+      then lift-result(G,D,raw-set(D',out('\r 'Notice: 'proof 'branch 'failed: &sp printGoalIds(G) '\o '\n)),mt)
       else lift-result(G,D,D',newChildGoalWithStrat(G,update(false,CN),active,getbody(G)))
     fi .
   eq lift-result(G,CN,D,(D' || GS)) =
     if update(true,CN) == giveup
-      then lift-result(G,D,raw-set(D',out('\r 'Notice: 'proof 'branch 'failed: '\o &sp printGoals(get-mod(D),G) '\n)),mt)
+      then lift-result(G,D,raw-set(D',out('\r 'Notice: 'proof 'branch 'failed: &sp printGoalIds(G) '\o '\n)),mt)
       else lift-result(G,D,D',setstrat(GS,update(true,CN)))
     fi .
 endfm
