@@ -608,7 +608,7 @@ fmod IBOS-SOP-PRED is
   var NI : NetProcId .
   var WI : WebProcId .
   var PI PI' : PipeId .
-  var IN OUT OUT' : Label .
+  var IN OUT OUT1 OUT2 : Label .
   var MT : MsgType .
   var NonFetchMT : NonFetchMsg .
   var NonRetMT : NonRetMsg .
@@ -644,7 +644,14 @@ fmod IBOS-SOP-PRED is
      p(< NI | fromKernel(                                  ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),none) .
   eq p(< NI | fromKernel(msg(PI, NI, NonFetchMT,    OUT) @ ML), A > NWC,              WIS,                   NIS ,none) =
      p(< NI | fromKernel(                                  ML), A > NWC,              WIS,                   NIS ,none) .
-  eq p(< NI | fromKernel(mt), A > NWC, WIS, NIS,none) = p(NWC, WIS, NIS,none) .
+
+  eq p(< NI | toKernel(msg(PI, WI, MT, OUT1) @ ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) =
+     p(< NI | toKernel(                        ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) .
+
+ ceq p(< NI | toKernel(ML), A > NWC,WIS,NIS,AMsg) = true if p(< NI | toKernel(AMsg @ ML), A > NWC,WIS,NIS,none) .
+ ceq p(< WI | toKernel(ML), A > NWC,WIS,NIS,AMsg) = true if p(< WI | toKernel(AMsg @ ML), A > NWC,WIS,NIS,none) .
+
+  --- eq p(< NI | fromKernel(mt), A > NWC, WIS, NIS,none) = p(NWC, WIS, NIS,none) .
 
   ---(
   --- SOP Prop 1. The kernel must route network requests from web page instances to the proper network process
