@@ -422,6 +422,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var C : Configuration .
   var W N M : Nat .
   var P : NzNat .
+  var At At' : Attribute .
   var A A' : AttributeSet .
   var NA : NeAttributeSet .
   var NNPI : NonNetProcId .
@@ -472,16 +473,28 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
  ceq fresh-wp-id?(N + 1,                       C) = true if fresh-wp-id?(N,C) .
 
   op conf-attr-dupl? : Configuration -> Bool [metadata "110"] .
- ceq conf-attr-dupl?(< PI | A > C) = conf-attr-dupl?(C) if attr-dupl?(A) = false .
- ceq conf-attr-dupl?(< PI | A > C) = true if attr-dupl?(A) .
-  eq conf-attr-dupl?(none)         = false .
+ ceq conf-attr-dupl?(< PI | At, At', A > C) = conf-attr-dupl?(< PI | A        > C) if At ~a At' = false .
+  eq conf-attr-dupl?(< PI | At         > C) = conf-attr-dupl?(                  C) .
+  eq conf-attr-dupl?(< PI | none       > C) = conf-attr-dupl?(                  C) .
+ ceq conf-attr-dupl?(< PI |          A > C) = true                                 if attr-dupl?(A) .
+  eq conf-attr-dupl?(none)                  = false .
+
+  --- NB: above predicate with attribute canonicalization applied first
+  op conf-attr-dupl!? : Configuration -> Bool [metadata "111"] .
+  eq conf-attr-dupl!?(C) = conf-attr-dupl?(C !c) .
 
   op nwp-reqattrs? : NetWebProcConfig -> Bool [metadata "112"] .
-  eq nwp-reqattrs?(< NPI | toKernel(TK:MessageList), fromKernel(FK:MessageList), returnTo(P:PipeId),
-                            mem-in(M1:MaybeLabel), mem-out(M2:MaybeLabel), A > C) = nwp-reqattrs?(C) .
-  eq nwp-reqattrs?(< WAI | toKernel(TK:MessageList), fromKernel(FK:MessageList), URL(L1:Label),
-                            rendered(L2:Label), loading(B:Bool), A > C) = nwp-reqattrs?(C) .
+  eq nwp-reqattrs?(< NPI | toKernel(TK:MessageList), fromKernel(FK:MessageList), returnTo(P:PipeId), mem-in(M1:MaybeLabel), mem-out(M2:MaybeLabel), A > C)
+   = nwp-reqattrs?(C) .
+  eq nwp-reqattrs?(< WAI | toKernel(TK:MessageList), fromKernel(FK:MessageList), URL(L1:Label), rendered(L2:Label), loading(B:Bool), A > C)
+   = nwp-reqattrs?(C) .
+ ceq nwp-reqattrs?(< NPI | A > C) = false if attr-subset?(toKernel(mt),fromKernel(mt),returnTo(ui),mem-in(nolabel),mem-out(nolabel)        | A) = false .
+ ceq nwp-reqattrs?(< WAI | A > C) = false if attr-subset?(toKernel(mt),fromKernel(mt),URL(about-blank),rendered(about-blank),loading(true) | A) = false .
   eq nwp-reqattrs?(none) = true .
+
+  --- NB: above predicate with attribute canonicalization applied first
+  op nwp-reqattrs!? : NetWebProcConfig -> Bool [metadata "113"] .
+  eq nwp-reqattrs!?(C) = nwp-reqattrs?(C !c) .
 
   --- needed for metadata-match?
   op netproc-in-conf? : Configuration -> Bool [metadata "114"] .
