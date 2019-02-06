@@ -354,6 +354,7 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq in-attrset?(displayedTopBar (X:Label)          | (displayedTopBar (Y:Label),          AS)) = true .
   eq in-attrset?(displayedContent(X:Label)          | (displayedContent(Y:Label),          AS)) = true .
   eq in-attrset?(activeWebapp    (X:WebProcId)      | (activeWebapp    (Y:WebProcId),      AS)) = true .
+  eq in-attrset?(A | none) = false .
  ceq in-attrset?(A | A', AS) = in-attrset?(A | AS) if A ~a A' = false .
 
   op attr-dupl? : AttributeSet -> Bool [metadata "103"] .
@@ -378,6 +379,7 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq attr-dupl?(displayedTopBar (X:Label),          displayedTopBar (Y:Label),          AS) = true .
   eq attr-dupl?(displayedContent(X:Label),          displayedContent(Y:Label),          AS) = true .
   eq attr-dupl?(activeWebapp    (X:WebProcId),      activeWebapp    (Y:WebProcId),      AS) = true .
+  eq attr-dupl?(A) = false .
  ceq attr-dupl?(A,AS) = attr-dupl?(AS) if in-attrset?(A | AS) = false .
 endfm
 
