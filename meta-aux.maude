@@ -74,8 +74,7 @@ fmod TERM-EXTRA is
   eq head(Q[NTL]) = Q .
   eq head(TQ) = TQ .
 
-  --- PRE: [1] both input terms are constructor terms
-  ---      [2] the module is sort-decreasing
+  --- PRE: the module is sort-decreasing
   --- OUT: true iff one of the terms is provably not equal to other
   ---      to the other because either: one is a ground constructor
   ---      and its least sort is greater than the least sort of the
@@ -84,17 +83,18 @@ fmod TERM-EXTRA is
   ---      not equal; we need sort-decreasingness to tell us that
   ---      one term is in normal form and the other can only decrease
   ---      so that it must be different
-  op groundCtorLeastSortGreater : Module Term Term ~> Bool .
-  eq groundCtorLeastSortGreater(M,T,T') =
-    groundCtorLeastSortGreater(M,
+  op groundLeastSortGreater : Module Term Term ~> Bool .
+  eq groundLeastSortGreater(M,T,T') =
+    groundLeastSortGreater(M,
       T, completeName(M,leastSort(M,T )),
       T',completeName(M,leastSort(M,T'))) .
 
-  op groundCtorLeastSortGreater : Module Term Type Term Type ~> Bool .
-  eq groundCtorLeastSortGreater(M,T,X,T',Y) =
+  op groundLeastSortGreater : Module Term Type Term Type ~> Bool .
+  eq groundLeastSortGreater(M,T,X,T',Y) =
      X =/= Y and-then
     (vars(T)  == none and-then sortLeq(M,Y,X) or-else
      vars(T') == none and-then sortLeq(M,X,Y)) .
+  eq groundLeastSortGreater(M,T,X:[Type],T',Y:[Type]) = false [owise] .
 
   --- PRE: Term is well-formed in Module
   --- OUT: The reduced term in the module
