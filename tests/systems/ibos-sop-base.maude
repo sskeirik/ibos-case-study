@@ -612,7 +612,7 @@ fmod IBOS-SOP-PRED is
   var ML : MessageList .
   var NPI : NonPipeId .
   var UI : UIId .
-  var NI : NetProcId .
+  var NI NI1 NI2 : NetProcId .
   var WI : WebProcId .
   var PI PI' : PipeId .
   var IN OUT OUT1 OUT2 : Label .
@@ -652,11 +652,25 @@ fmod IBOS-SOP-PRED is
   eq p(< NI | fromKernel(msg(PI, NI, NonFetchMT,    OUT) @ ML), A > NWC,              WIS,                   NIS ,none) =
      p(< NI | fromKernel(                                  ML), A > NWC,              WIS,                   NIS ,none) .
 
+  --- Handle WebProc to Kernel
+  eq p(< WI | toKernel(msg(PI, NI1, MT, OUT) @ ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI2,IN,OUT),np NIS),none) =
+     p(< WI | toKernel(                        ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI2,IN,OUT),np NIS),none) .
+  --- Handle WebProcto Kernel negation
+ ceq p(< WI | toKernel(msg(PI, NI1, MT, OUT) @ ML), A > NWC,WIS,NIS,none) = false if np-by-lbl?(OUT,NIS) = false .
+
+  --- Handle NetProc to Kernel
   eq p(< NI | toKernel(msg(PI, WI, MT, OUT1) @ ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) =
      p(< NI | toKernel(                        ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) .
+  --- Handle NetProc to Kernel negation
+ ceq p(< NI | toKernel(msg(PI, WI, MT, OUT1) @ ML), A > NWC,WIS,NIS,none) = false if matching-procs?(NI,WI,WIS,NIS) = false .
 
+  --- Handle currentlyHandled attribute
  ceq p(< NI | toKernel(ML), A > NWC,WIS,NIS,AMsg) = true if p(< NI | toKernel(AMsg @ ML), A > NWC,WIS,NIS,none) .
  ceq p(< WI | toKernel(ML), A > NWC,WIS,NIS,AMsg) = true if p(< WI | toKernel(AMsg @ ML), A > NWC,WIS,NIS,none) .
+
+  --- Handle fresh webapps
+ ceq p(NWC,(pi(WI,IN),wp WIS),NIS,    M:Message?) = p(NWC,WIS,NIS,M:Message?) if fresh-wp-id?(WI,NWC) .
+ ceq p(NWC,WIS,(pi(NI,IN,OUT),np NIS),M:Message?) = p(NWC,WIS,NIS,M:Message?) if fresh-np-id?(NI,NWC) .
 
   --- eq p(< NI | fromKernel(mt), A > NWC, WIS, NIS,none) = p(NWC, WIS, NIS,none) .
 
