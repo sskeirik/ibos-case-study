@@ -514,12 +514,12 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
  ceq webproc-url-netproc-in-conf?(                                 C) = false if netproc-in-conf?(C) = false .
 
   --- Web/NetProcInfoSet predicates
-  op inlbl-by-pid : NetProcId NetProcInfoSet -> MaybeLabel [ctor metadata "117"] .
+  op inlbl-by-pid : NetProcId NetProcInfoSet -> MaybeLabel [metadata "117"] .
   eq inlbl-by-pid(NPI,(pi(NPI, IN,OUT),np NIS)) = IN .
  ceq inlbl-by-pid(NPI,(pi(NPI',IN,OUT),np NIS)) = inlbl-by-pid(NPI,NIS) if NPI ~p NPI' = false .
   eq inlbl-by-pid(NPI,mtNPIS)                   = nolabel .
 
-  op outlbl-by-pid : NetProcId NetProcInfoSet -> MaybeLabel [ctor metadata "118"] .
+  op outlbl-by-pid : NetProcId NetProcInfoSet -> MaybeLabel [metadata "118"] .
   eq outlbl-by-pid(NPI,(pi(NPI, IN,OUT),np NIS)) = OUT .
  ceq outlbl-by-pid(NPI,(pi(NPI',IN,OUT),np NIS)) = outlbl-by-pid(NPI,NIS) if NPI ~p NPI' = false .
   eq outlbl-by-pid(NPI,mtNPIS)                   = nolabel .
