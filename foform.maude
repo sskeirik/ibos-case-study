@@ -451,7 +451,8 @@ endfm
 
 fmod FOFORMREDUCE is
   pr FOFORM     .
-  pr TERM-EXTRA . --- vars/groundCtorLeastSortGreater function
+  pr TERM-EXTRA . --- vars/groundLeastSortGreater function
+  pr CTOR-SIG   . --- ctor-signautre
 
   var F F' : FOForm . var T T' : Term . var M : Module . var E : EqAtom .
   var Q  : NeQidSet . var AT AF : TruthAtom . var B : Bool .
@@ -477,7 +478,7 @@ fmod FOFORMREDUCE is
   eq reduce(M,AT,AF,T,T') =
     if T == T'
       then AT
-      else if groundCtorLeastSortGreater(M,T,T')
+      else if groundLeastSortGreater(ctor-sig(M),T,T')
         then AF
         else if AT == tt
           then T ?= T'
