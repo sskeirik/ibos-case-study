@@ -47,6 +47,6 @@ INPUT
 tail -n+4 | head -n-2 | sed -E '1s/^fmod (\S+) is/set include BOOL off .\n\nfmod \1-NOID is/' > "${OUTPUT_FILE_NAME}.maude"
 }
 
-remove_all_ids       "./ibos-sop-base" "IBOS-SOP-PRED"       "./ibos-sop-pred-nou"
-remove_unhandled_ids "./ibos-sop-base" "KERNEL-POLICIES-FVP" "./ibos-sop-fvp-noau"
-remove_unhandled_ids "./ibos-sop-base" "IBOS-SOP"            "./ibos-sop-noau"
+remove_all_ids       "./ibos-sop-base" "IBOS-SOP-PRED"       "./ibos-sop-pred-nou" # contextual rewriting
+remove_unhandled_ids "./ibos-sop-base" "IBOS-SOP-FVP"        "./ibos-sop-fvp-noau" # varsat
+remove_unhandled_ids "./ibos-sop-base" "IBOS-SOP"            "./ibos-sop-noau"     # everything
