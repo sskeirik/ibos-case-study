@@ -65,7 +65,7 @@ fmod MSG-FVP-EXT is
   eq MSG-FETCH-URL  ~m M:NonFetchMsg = false .
 endfm
 
-fmod KERNEL-METADATA-EXT is
+fmod KERNEL-METADATA-FVP-EXT is
   pr KERNEL-POLICIES-FVP .
   sort NeWebProcInfoSet .
   subsort WebProcInfo < NeWebProcInfoSet < WebProcInfoSet .
@@ -418,7 +418,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   pr CONFIGURATION-FVP-EXT .
   pr MSG-FVP-EXT .
   pr ATTRIBUTE-NONFVP-EXT .
-  pr KERNEL-METADATA-EXT .
+  pr KERNEL-METADATA-FVP-EXT .
 
   var C : Configuration .
   var W N M : Nat .
@@ -593,6 +593,12 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
  ceq metadata-match?(                                  C,              NWIS,               mtNPIS) = false if webproc-url-in-conf?(C) = false .
  ceq metadata-match?(                                  C, pi(WAI,L) ,wp WIS,                  NIS) = false if inlbl-in-netlabels?(L,NIS) = false .
  ceq metadata-match?(                                  C,               WIS, pi(NPI,L,L') ,np NIS) = false if lbl-in-weblabels?(L,WIS) = false .
+endfm
+
+fmod IBOS-SOP-FVP is
+  pr CONFIGURATION-FVP-EXT .
+  pr MSG-FVP-EXT .
+  pr KERNEL-METADATA-FVP-EXT .
 endfm
 
 fmod IBOS-SOP-PRED is
