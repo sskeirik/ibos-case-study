@@ -153,11 +153,12 @@ endfm
 
 fmod SYS is
   pr PROC-ID .
-  sorts Object NeConfiguration Configuration State .
+  sorts Object EmptyConfiguration NeConfiguration Configuration State .
   sorts Attribute EmptyAttributeSet NeAttributeSet AttributeSet .
   subsorts Object < NeConfiguration < Configuration .
+  subsort  EmptyConfiguration < Configuration .
   subsorts Attribute < NeAttributeSet < AttributeSet .
-  subsorts EmptyAttributeSet < AttributeSet .
+  subsort  EmptyAttributeSet < AttributeSet .
 
   op <_|_> : ProcessId AttributeSet                -> Object             [ctor metadata "33"] .
   op _,_   : AttributeSet AttributeSet             -> AttributeSet       [ctor assoc comm id: none metadata "34"] .
@@ -166,7 +167,8 @@ fmod SYS is
   op none  :                                       -> EmptyAttributeSet  [ctor metadata "1"] .
   op __    : Configuration Configuration           -> Configuration      [ctor assoc comm id: none metadata "35"] .
   op __    : NeConfiguration Configuration         -> NeConfiguration    [ctor ditto metadata "35"] .
-  op none  :                                       -> Configuration      [ctor metadata "2"] .
+  op __    : EmptyConfiguration EmptyConfiguration -> EmptyConfiguration [ctor ditto metadata "35"] .
+  op none  :                                       -> EmptyConfiguration [ctor metadata "2"] .
   op {_}   : Configuration                         -> State              [ctor metadata "36"] .
 endfm
 
