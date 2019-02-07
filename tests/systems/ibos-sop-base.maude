@@ -46,6 +46,7 @@ fmod CONFIGURATION-FVP-EXT is
   subsort NetProcId WebProcId < NetWebProcId < PipeId .
   subsort NetWebProcObject < Object .
   subsort NetWebProcObject < NetWebProcNeConfig < NeConfiguration NetWebProcConfig < Configuration .
+  subsort EmptyConfiguration < NetWebProcConfig .
   op <_|_> : NetWebProcId AttributeSet -> NetWebProcObject [ctor ditto metadata "33"] .
   op __ : NetWebProcConfig   NetWebProcConfig -> NetWebProcConfig   [ctor ditto metadata "35"] .
   op __ : NetWebProcNeConfig NetWebProcConfig -> NetWebProcNeConfig [ctor ditto metadata "35"] .
