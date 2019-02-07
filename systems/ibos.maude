@@ -674,7 +674,7 @@ mod KERNEL is
            mem-in(nolabel) , mem-out(nolabel) ,
            toKernel(mt)    , fromKernel(mt) >
            Cnf }
-  if np-by-lbl?(L,NPIS) = false .
+  if np-by-lbl?(L',NPIS) = false .
 
   **** mirrored, for the reverse direction from network process to webapp:
   **** there is a connection, just forward the message
