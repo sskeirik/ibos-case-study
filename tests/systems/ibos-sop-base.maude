@@ -638,7 +638,7 @@ fmod IBOS-SOP-PRED is
   --- never deleted --- so that the process set/process info sets
   --- always grow monotonically. This simplifies the proof procedure.
   ---
-  op p : NetWebProcConfig WebProcInfoSet NetProcInfoSet Message? -> Bool [metadata "200"] .
+  op p : NetWebProcConfig WebProcInfoSet NetProcInfoSet Message? -> Bool? [metadata "200"] .
 
   --- Prop 1
   eq p(< NI | fromKernel(msg(WI, NI, MSG-FETCH-URL, OUT) @ ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),none) =
