@@ -1,6 +1,6 @@
-load ibos-sop-fvp-noau.maude
-load ibos-sop-noau.maude
-load ibos-sop-pred-nou.maude
+load ibos-sop-pred-nou.maude --- contextual rewriting
+load ibos-sop-fvp-noau.maude --- varsat
+load ibos-sop-noau.maude     --- everything
 
 set show advisories off .
 set print attribute on .
@@ -26,20 +26,20 @@ loop rltl-init .
 (select IBOS-SOP .)
 
 --- Solved:
---- 1. kernelReceivesOPMessage-pa7-cc1b
---- 2. kernelReceivesOPMessage-pa7-cc1a
---- 3. kernelReceivesOPMessage-pa6-cc2b
---- 4. kernelReceivesOPMessage-pa6-cc2a
---- 5. new-url
+--- 1. kernelReceivesOPMessage-pa7-cc1a
+--- 2. kernelReceivesOPMessage-pa7-cc1b
+--- 3. kernelReceivesOPMessage-pa6-cc2a
+--- 4. kernelReceivesOPMessage-pa6-cc2b
 
 --- Todo:
----(select-rls kernelForwardsOPMessage .)
+--- 5. new-url
+--- 6. kernelForwardsOPMessage 
 
 --- Usage: select-rls ...
-(select-rls kernelReceivesOPMessage-pa7-cc1a .)
+(select-rls new-url .)
 
-(use tool conrew for validity on IBOS-SOP-PRED-NOID       with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
-(use tool varsat for validity on KERNEL-POLICIES-FVP-NOID .)
+(use tool conrew for validity on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
+(use tool varsat for validity on IBOS-SOP-FVP-NOID .)
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (AWP:WebProcId) U
 	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:NetProcId) U
@@ -59,13 +59,13 @@ loop rltl-init .
                  policy(ui,     webapp, MSG-NEW-URL   ),ps
 		 policy(ui,     webapp, MSG-SWITCH-TAB),ps
 		 policy(network,webapp, MSG-RETURN-URL)) > }) |
-   (p(NWC,WIS,NIS,MSG?))   = (true) /\
-   (nwp-reqattrs!?(NWC))   = (true) /\
-   (conf-attr-dupl!?(NWC)) = (false)
+   (p(NWC,WIS,NIS,MSG?))   = (true)  /\
+   (nwp-reqattrs!?(NWC))   = (true)  /\
+   (conf-attr-dupl!?(NWC)) = (false) /\
+   (fresh-wp-id?(webapp(NWP),NWC)) = (true)
    --- these are strengthenings of the invariant above that allow the simplification rules to apply more often
    --- they are not strictly needed for correctness --- the invariant above should be enough
    ---@ (fresh-np-id?(NNP,NWC))      = (true)  /\
-   ---@ (fresh-wa-id?(NWA,NWC))      = (true)  /\
    ---@ (dupl?(NWC))                 = (false)
 .)
 (start-proof .)
@@ -74,30 +74,36 @@ loop rltl-init .
 --- set print conceal on .
 --- print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _|_ __ _;;_ _`[_`] .
 (auto .)
+
+--- cc2a
+--- (auto .)
+
 --- cc1a
-(cases ({< NI | toKernel(T), A:AttributeSet > C})
-on A:AttributeSet by
-((none).EmptyAttributeSet) U
-(fromKernel(F)) U
-(rendered(D)) U
-(loading(L)) U
-(URL(U)) U
-(fromKernel(F), rendered(D)) U
-(rendered(D), loading(L)) U
-(loading(L), URL(U)) U
-(fromKernel(F), loading(L)) U
-(rendered(D), URL(U)) U
-(fromKernel(F), URL(U)) U
-(fromKernel(F), rendered(D), loading(L)) U
-(fromKernel(F), rendered(D), URL(U)) U
-(fromKernel(F), loading(L), URL(U)) U
-(rendered(D), loading(L), URL(U)) U
-(fromKernel(F), rendered(D), loading(L), URL(U)) U
-(fromKernel(F), rendered(D), loading(L), URL(U), A') .)
+--- (cases ({< NI | toKernel(T), A:AttributeSet > C})
+--- on A:AttributeSet by
+--- ((none).EmptyAttributeSet) U
+--- (fromKernel(F)) U
+--- (rendered(D)) U
+--- (loading(L)) U
+--- (URL(U)) U
+--- (fromKernel(F), rendered(D)) U
+--- (rendered(D), loading(L)) U
+--- (loading(L), URL(U)) U
+--- (fromKernel(F), loading(L)) U
+--- (rendered(D), URL(U)) U
+--- (fromKernel(F), URL(U)) U
+--- (fromKernel(F), rendered(D), loading(L)) U
+--- (fromKernel(F), rendered(D), URL(U)) U
+--- (fromKernel(F), loading(L), URL(U)) U
+--- (rendered(D), loading(L), URL(U)) U
+--- (fromKernel(F), rendered(D), loading(L), URL(U)) U
+--- (fromKernel(F), rendered(D), loading(L), URL(U), A') .)
+--- (auto .)
+--- (auto .)
+--- (auto .)
+
 --- (cases ({< kernel | handledCurrently(msg(N:NetProcId,W:WebAppId,MT:MsgType,OUT:Label)), AS:AttributeSet > C}) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
 ---(auto .)
 ---(
---- (list-goals .)
---- quit .
 --- (cases+ ({C}) | ((true) = (B' a (B o (false ~ (MSG-RETURN-URL ~ MT:MsgType))))) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
 ---)
