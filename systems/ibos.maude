@@ -407,7 +407,6 @@ fmod KERNEL-POLICIES-FVP is
   op activeWebapp     : WebProcId  -> Attribute [ctor metadata "78"] . **** display memory modeled as an object.
   op displayedContent : Label      -> Attribute [ctor metadata "79"] . **** label of the things being displayed as an attribute of that object
   ****
-  op kernelDo         : Message    -> Message   [ctor metadata "80"] . **** Kernel needs to do something
   **** Once the policy has been checked, further processing is taken care of;
   **** switching the active tab in the UI is done here.
   **** The kernel will change topbar, change memory access
@@ -738,7 +737,7 @@ mod KERNEL is
        Cnf }
   =>
      { < kernel |
-           handledCurrently(kernelDo(msg(ui,WI,MSG-SWITCH-TAB,L))),
+           handledCurrently(msg(ui,WI,MSG-SWITCH-TAB,L)),
            msgPolicy(policy(ui,webapp,MSG-SWITCH-TAB),ps MP),
            Att >
        < ui     |
@@ -753,7 +752,7 @@ mod KERNEL is
        Cnf }
   =>
      { < kernel |
-           handledCurrently(kernelDo(msg(ui, webapp, MSG-NEW-URL, L))),
+           handledCurrently(msg(ui, webapp, MSG-NEW-URL, L)),
            msgPolicy(policy(ui,webapp,MSG-NEW-URL),ps MP),
            Att >
        < ui     |
@@ -780,7 +779,7 @@ mod KERNEL is
   **** Made into a topmost rule from module KERNEL-POLICIES
   rl [tab-change] :
      { < kernel  |
-           handledCurrently(kernelDo(msg(ui, WI', MSG-SWITCH-TAB, L1))),
+           handledCurrently(msg(ui, WI', MSG-SWITCH-TAB, L1)),
            displayedTopBar(L2),
            weblabels(pi(WI', L'),wp WPIS),
            Att >
@@ -819,7 +818,7 @@ mod KERNEL is
   **** Made into a topmost rule from module KERNEL-POLICIES
   rl [new-url] :
      { < kernel    |
-           handledCurrently(kernelDo(msg(ui, webapp, MSG-NEW-URL, URL))),
+           handledCurrently(msg(ui, webapp, MSG-NEW-URL, URL)),
            displayedTopBar(L),
            weblabels(WPIS),
            Att >
