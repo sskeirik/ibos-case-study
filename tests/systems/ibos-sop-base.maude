@@ -609,18 +609,19 @@ fmod IBOS-SOP-PRED is
   var A : AttributeSet .
   var WIS : WebProcInfoSet .
   var NIS : NetProcInfoSet .
-  var ML : MessageList .
+  var ML ML2 : MessageList .
   var NPI : NonPipeId .
   var UI : UIId .
   var NI NI1 NI2 : NetProcId .
   var WI : WebProcId .
   var PI PI' : PipeId .
-  var IN OUT OUT1 OUT2 : Label .
+  var L IN OUT OUT1 OUT2 : Label .
   var MT : MsgType .
   var NonFetchMT : NonFetchMsg .
   var NonRetMT : NonRetMsg .
   var NonRFMT : NonRetFetchMsg .
   var AMsg : Message .
+  var NWI : NetWebProcId .
 
   --- Here, we prove two kinds of invariants:
   --- 1. check that the messages in an object's message queue are
@@ -652,25 +653,31 @@ fmod IBOS-SOP-PRED is
   eq p(< NI | fromKernel(msg(PI, NI, NonFetchMT,    OUT) @ ML), A > NWC,              WIS,                   NIS ,none) =
      p(< NI | fromKernel(                                  ML), A > NWC,              WIS,                   NIS ,none) .
 
-  --- Handle WebProc to Kernel
-  eq p(< WI | toKernel(msg(PI, NI1, MT, OUT) @ ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI2,IN,OUT),np NIS),none) =
+  --- Handle WebProc to Kernel -- cc2a/cc2b need to be synchronized with fetch
+ ceq p(< WI | toKernel(msg(PI, NI1, MT, OUT) @ ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI2,IN,OUT),np NIS),none) =
      p(< WI | toKernel(                        ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI2,IN,OUT),np NIS),none) .
   --- Handle WebProcto Kernel negation
- ceq p(< WI | toKernel(msg(PI, NI1, MT, OUT) @ ML), A > NWC,WIS,NIS,none) = false if np-by-lbl?(OUT,NIS) = false .
+ ceq p(< WI | toKernel(msg(PI, NI1, MT, OUT) @ ML), A > NWC,WIS,NIS,none) =
+     p(< WI | toKernel(                        ML), A > NWC,WIS,NIS,none) if np-by-lbl?(OUT,NIS) = false .
 
+  --- TODO: since predicate is total on this part, it basically doesn't matter and can be replaced by fully general rule
   --- Handle NetProc to Kernel
   eq p(< NI | toKernel(msg(PI, WI, MT, OUT1) @ ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) =
      p(< NI | toKernel(                        ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) .
   --- Handle NetProc to Kernel negation
- ceq p(< NI | toKernel(msg(PI, WI, MT, OUT1) @ ML), A > NWC,WIS,NIS,none) = false if matching-procs?(NI,WI,WIS,NIS) = false .
+ ceq p(< NI | toKernel(msg(PI, WI, MT, OUT1) @ ML), A > NWC,WIS,NIS,none) =
+     p(< NI | toKernel(                        ML), A > NWC,WIS,NIS,none) if matching-procs?(NI,WI,WIS,NIS) = false .
 
   --- Handle currentlyHandled attribute
  ceq p(< NI | toKernel(ML), A > NWC,WIS,NIS,AMsg) = true if p(< NI | toKernel(AMsg @ ML), A > NWC,WIS,NIS,none) .
  ceq p(< WI | toKernel(ML), A > NWC,WIS,NIS,AMsg) = true if p(< WI | toKernel(AMsg @ ML), A > NWC,WIS,NIS,none) .
 
   --- Handle fresh webapps
- ceq p(NWC,(pi(WI,IN),wp WIS),NIS,    M:Message?) = p(NWC,WIS,NIS,M:Message?) if fresh-wp-id?(WI,NWC) .
- ceq p(NWC,WIS,(pi(NI,IN,OUT),np NIS),M:Message?) = p(NWC,WIS,NIS,M:Message?) if fresh-np-id?(NI,NWC) .
+ ceq p(< WI | URL(L), A > NWC,(pi(WI,IN),wp WIS),NIS,    none)       = p(NWC,WIS,NIS,msg(ui,webapp,MSG-NEW-URL,L)) if fresh-wp-id?(WI,NWC) .
+ ceq p(< NI |         A > NWC,WIS,(pi(NI,IN,OUT),np NIS),M:Message?) = p(NWC,WIS,NIS,M:Message?                  ) if fresh-np-id?(NI,NWC) .
+
+  --- Handle fromKernel initial message
+ ceq p(< NWI | fromKernel(ML @ AMsg), A > NWC,WIS,NIS,none) = true if p(< NWI | fromKernel(ML), A > NWC,WIS,NIS,AMsg) .
 
   --- eq p(< NI | fromKernel(mt), A > NWC, WIS, NIS,none) = p(NWC, WIS, NIS,none) .
 
