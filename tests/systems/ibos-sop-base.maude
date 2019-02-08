@@ -672,24 +672,24 @@ fmod IBOS-SOP-PRED is
   ---
   op p : NetWebProcConfig WebProcInfoSet NetProcInfoSet Message? -> Bool? [metadata "200"] .
 
-  --- Prop 1
-  --- TODO: fromKernel queue invariant hangs on kernelForwardsOpMessage rule,
-  ---       which will result in a recursive call to the currentlyHandled case
-  eq p(< NI | fromKernel(msg(WI, NI, MSG-FETCH-URL, OUT) @ ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),none) =
-     p(< NI | fromKernel(                                  ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),none) .
-  eq p(< NI | fromKernel(msg(PI, NI, NonFetchMT,    OUT) @ ML), A > NWC,              WIS,                   NIS ,none) =
-     p(< NI | fromKernel(                                  ML), A > NWC,              WIS,                   NIS ,none) .
+  --- Prop 1 ---
+  --- if AMsg is a FETCH, then it agrees with kernel metadata
+  eq p(< NI | fromKernel(ML @ AMsg @ ML2), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),none) =
+     p(< NI | fromKernel(ML @      @ ML2), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),none) .
 
   --- WebProc toKernel queue invariant: only one fetch msg that correlates with loading predicate
-  eq p(< WI | loading(true),  toKernel(NFM:NonFetchMsg @ HML:HasFetchMsgList), A > NWC,(pi(WI,IN),wp WIS),NIS,none) =
-     p(< WI | loading(true),  toKernel(                  HML:HasFetchMsgList), A > NWC,(pi(WI,IN),wp WIS),NIS,none) .
-  eq p(< WI | loading(true),  toKernel(FM:FetchMsg     @ NML:NonFetchMsgList), A > NWC,(pi(WI,IN),wp WIS),NIS,none) =
-     p(< WI | loading(false), toKernel(mt),                                    A > NWC,(pi(WI,IN),wp WIS),NIS,none) .
-  eq p(< WI | loading(false), toKernel(HML:HasFetchMsgList),                   A > NWC,(pi(WI,IN),wp WIS),NIS,none) = false .
+  eq p(< WI | loading(false), toKernel(NFL:NonFetchMsgList), A > NWC,(pi(WI,IN),wp WIS),NIS,M?) =
+     p(< WI | loading(false), toKernel(mt),                  A > NWC,(pi(WI,IN),wp WIS),NIS,M?) .
 
-  --- TODO: NetProc toKernel queue invariant comes from rule which puts messages in queue
-  eq p(< NI | toKernel(AMsg @ ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) =
-     p(< NI | toKernel(       ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) .
+  eq p(< WI | loading(true),  toKernel(NFL:NonFetchMsgList @ FM:FetchMsg @ NFL2:NonFetchMsgList), A > NWC,(pi(WI,IN),wp WIS),NIS,M?) =
+     p(< WI | loading(false), toKernel(mt),                                                       A > NWC,(pi(WI,IN),wp WIS),NIS,M?) .
+
+  --- NetProc toKernel queue invariant is that:
+  --- If the message type is MSG-RETURN-URL, then:
+  --- [1] message target is from returnTo
+  --- [2] message label is from the in() attribute --- which essentially means it comes from the Webapp URL
+  eq p(< NI | toKernel(ML M ML2), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) =
+     p(< NI | toKernel(ML   ML2), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) .
 
   --- Handle currentlyHandled attribute
   eq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT ),np NIS),msg(WI,NI,MT,OUT )) = p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT ),np NIS),none) .
@@ -703,6 +703,13 @@ fmod IBOS-SOP-PRED is
  ceq p(< NWI | fromKernel(ML @ AMsg), A > NWC,WIS,NIS,none) = true if p(< NWI | fromKernel(ML), A > NWC,WIS,NIS,AMsg) .
 
   --- eq p(< NI | fromKernel(mt), A > NWC, WIS, NIS,none) = p(NWC, WIS, NIS,none) .
+
+  --- consume processes that are handled, i.e.:
+  eq p(< WI | toKernel(mt), fromKernel(mt),                              A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
+  eq p(< NI | toKernel(mt), fromKernel(mt), mem-in(mtLL), mem-out(mtLL), A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
+
+  --- all processes and all queues have been checked for correctness
+  eq p(none,WIS,NIS,none) = true .
 
   ---(
   --- SOP Prop 1. The kernel must route network requests from web page instances to the proper network process
