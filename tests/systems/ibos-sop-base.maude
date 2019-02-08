@@ -648,29 +648,24 @@ fmod IBOS-SOP-PRED is
   op p : NetWebProcConfig WebProcInfoSet NetProcInfoSet Message? -> Bool? [metadata "200"] .
 
   --- Prop 1
+  --- TODO: fromKernel queue invariant hangs on kernelForwardsOpMessage rule,
+  ---       which will result in a recursive call to the currentlyHandled case
   eq p(< NI | fromKernel(msg(WI, NI, MSG-FETCH-URL, OUT) @ ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),none) =
      p(< NI | fromKernel(                                  ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),none) .
   eq p(< NI | fromKernel(msg(PI, NI, NonFetchMT,    OUT) @ ML), A > NWC,              WIS,                   NIS ,none) =
      p(< NI | fromKernel(                                  ML), A > NWC,              WIS,                   NIS ,none) .
 
-  --- Handle WebProc to Kernel -- cc2a/cc2b need to be synchronized with fetch
- ceq p(< WI | toKernel(msg(PI, NI1, MT, OUT) @ ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI2,IN,OUT),np NIS),none) =
-     p(< WI | toKernel(                        ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI2,IN,OUT),np NIS),none) .
-  --- Handle WebProcto Kernel negation
- ceq p(< WI | toKernel(msg(PI, NI1, MT, OUT) @ ML), A > NWC,WIS,NIS,none) =
-     p(< WI | toKernel(                        ML), A > NWC,WIS,NIS,none) if np-by-lbl?(OUT,NIS) = false .
+  --- TODO: WebProc toKernel queue invariant comes from rule that puts messages in queue
+  eq p(< WI | toKernel(AMsg @ ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI2,IN,OUT),np NIS),none) =
+     p(< WI | toKernel(   ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI2,IN,OUT),np NIS),none) .
 
-  --- TODO: since predicate is total on this part, it basically doesn't matter and can be replaced by fully general rule
-  --- Handle NetProc to Kernel
-  eq p(< NI | toKernel(msg(PI, WI, MT, OUT1) @ ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) =
-     p(< NI | toKernel(                        ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) .
-  --- Handle NetProc to Kernel negation
- ceq p(< NI | toKernel(msg(PI, WI, MT, OUT1) @ ML), A > NWC,WIS,NIS,none) =
-     p(< NI | toKernel(                        ML), A > NWC,WIS,NIS,none) if matching-procs?(NI,WI,WIS,NIS) = false .
+  --- TODO: NetProc toKernel queue invariant comes from rule which puts messages in queue
+  eq p(< NI | toKernel(AMsg @ ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) =
+     p(< NI | toKernel(       ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) .
 
   --- Handle currentlyHandled attribute
- ceq p(< NI | toKernel(ML), A > NWC,WIS,NIS,AMsg) = true if p(< NI | toKernel(AMsg @ ML), A > NWC,WIS,NIS,none) .
- ceq p(< WI | toKernel(ML), A > NWC,WIS,NIS,AMsg) = true if p(< WI | toKernel(AMsg @ ML), A > NWC,WIS,NIS,none) .
+  eq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT ),np NIS),msg(WI,NI,MT,OUT )) = p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT ),np NIS),none) .
+  eq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT1),np NIS),msg(NI,WI,MT,OUT2)) = p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT1),np NIS),none) .
 
   --- Handle fresh webapps
  ceq p(< WI | URL(L), A > NWC,(pi(WI,IN),wp WIS),NIS,    none)       = p(NWC,WIS,NIS,msg(ui,webapp,MSG-NEW-URL,L)) if fresh-wp-id?(WI,NWC) .
