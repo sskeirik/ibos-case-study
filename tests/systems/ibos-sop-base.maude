@@ -53,16 +53,41 @@ fmod CONFIGURATION-FVP-EXT is
 endfm
 
 fmod MSG-FVP-EXT is
-  pr MSG .
-  sort NonRetFetchMsg NonRetMsg NonFetchMsg .
-  subsort NonRetFetchMsg < NonRetMsg NonFetchMsg < MsgType .
-  op MSG-NEW-URL    : -> NonRetFetchMsg [ctor metadata "45"] .
-  op MSG-FETCH-URL  : -> NonRetMsg      [ctor metadata "46"] .
-  op MSG-RETURN-URL : -> NonFetchMsg    [ctor metadata "47"] .
-  op MSG-SWITCH-TAB : -> NonRetFetchMsg [ctor metadata "48"] .
+  pr MSG-LIST .
+  sort FetchMsgType RetMsgType NonRetFetchMsgType NonRetMsgType NonFetchMsgType .
+  subsort NonRetFetchMsgType < NonRetMsgType NonFetchMsgType < MsgType .
+  subsort FetchMsgType < NonRetMsgType .
+  subsort RetMsgType   < NonFetchMsgType .
+  op MSG-NEW-URL    : -> NonRetFetchMsgType [ctor metadata "45"] .
+  op MSG-FETCH-URL  : -> FetchMsgType       [ctor metadata "46"] .
+  op MSG-RETURN-URL : -> RetMsgType         [ctor metadata "47"] .
+  op MSG-SWITCH-TAB : -> NonRetFetchMsgType [ctor metadata "48"] .
   ----------------------------------------------------
-  eq MSG-RETURN-URL ~m M:NonRetMsg   = false .
-  eq MSG-FETCH-URL  ~m M:NonFetchMsg = false .
+  eq MSG-RETURN-URL ~m M:NonRetMsgType   = false .
+  eq MSG-FETCH-URL  ~m M:NonFetchMsgType = false .
+
+  sort NonRetFetchMsg FetchMsg RetMsg NonRetMsg NonFetchMsg .
+  subsort NonRetFetchMsg < NonRetMsg NonFetchMsg < Message .
+  subsort FetchMsg < NonRetMsg .
+  subsort RetMsg   < NonFetchMsg .
+  op msg : AbsPipeId AbsPipeId FetchMsgType       Label -> FetchMsg       [ctor ditto metadata "49"] .
+  op msg : AbsPipeId AbsPipeId RetMsgType         Label -> RetMsg         [ctor ditto metadata "49"] .
+  op msg : AbsPipeId AbsPipeId NonFetchMsgType    Label -> NonFetchMsg    [ctor ditto metadata "49"] .
+  op msg : AbsPipeId AbsPipeId NonRetMsgType      Label -> NonRetMsg      [ctor ditto metadata "49"] .
+  op msg : AbsPipeId AbsPipeId NonRetFetchMsgType Label -> NonRetFetchMsg [ctor ditto metadata "49"] .
+
+  sort EmptyMessageList .
+  subsort EmptyMessageList < MessageList .
+  op mt  : -> EmptyMessageList [ctor ditto metadata "5"] .
+  op _@_ : EmptyMessageList EmptyMessageList -> EmptyMessageList [ctor ditto metadata "52"] .
+
+  sort NonFetchMsgList HasFetchMsgList .
+  subsort EmptyMessageList NonFetchMsg < NonFetchMsgList < MessageList .
+  subsort FetchMsg < HasFetchMsgList < MessageList .
+  op _@_ : NonFetchMsgList NonFetchMsgList -> NonFetchMsgList [ctor ditto metadata "52"] .
+  op _@_ : NonFetchMsgList HasFetchMsgList -> HasFetchMsgList [ctor ditto metadata "52"] .
+  op _@_ : HasFetchMsgList NonFetchMsgList -> HasFetchMsgList [ctor ditto metadata "52"] .
+  op _@_ : HasFetchMsgList HasFetchMsgList -> HasFetchMsgList [ctor ditto metadata "52"] .
 endfm
 
 fmod KERNEL-METADATA-FVP-EXT is
@@ -617,9 +642,9 @@ fmod IBOS-SOP-PRED is
   var PI PI' : PipeId .
   var L IN OUT OUT1 OUT2 : Label .
   var MT : MsgType .
-  var NonFetchMT : NonFetchMsg .
-  var NonRetMT : NonRetMsg .
-  var NonRFMT : NonRetFetchMsg .
+  var NonFetchMT : NonFetchMsgType .
+  var NonRetMT : NonRetMsgType .
+  var NonRFMT : NonRetFetchMsgType .
   var AMsg : Message .
   var NWI : NetWebProcId .
 
@@ -655,9 +680,12 @@ fmod IBOS-SOP-PRED is
   eq p(< NI | fromKernel(msg(PI, NI, NonFetchMT,    OUT) @ ML), A > NWC,              WIS,                   NIS ,none) =
      p(< NI | fromKernel(                                  ML), A > NWC,              WIS,                   NIS ,none) .
 
-  --- TODO: WebProc toKernel queue invariant comes from rule that puts messages in queue
-  eq p(< WI | toKernel(AMsg @ ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI2,IN,OUT),np NIS),none) =
-     p(< WI | toKernel(   ML), A > NWC,(pi(WI,IN),wp WIS),(pi(NI2,IN,OUT),np NIS),none) .
+  --- WebProc toKernel queue invariant: only one fetch msg that correlates with loading predicate
+  eq p(< WI | loading(true),  toKernel(NFM:NonFetchMsg @ HML:HasFetchMsgList), A > NWC,(pi(WI,IN),wp WIS),NIS,none) =
+     p(< WI | loading(true),  toKernel(                  HML:HasFetchMsgList), A > NWC,(pi(WI,IN),wp WIS),NIS,none) .
+  eq p(< WI | loading(true),  toKernel(FM:FetchMsg     @ NML:NonFetchMsgList), A > NWC,(pi(WI,IN),wp WIS),NIS,none) =
+     p(< WI | loading(false), toKernel(mt),                                    A > NWC,(pi(WI,IN),wp WIS),NIS,none) .
+  eq p(< WI | loading(false), toKernel(HML:HasFetchMsgList),                   A > NWC,(pi(WI,IN),wp WIS),NIS,none) = false .
 
   --- TODO: NetProc toKernel queue invariant comes from rule which puts messages in queue
   eq p(< NI | toKernel(AMsg @ ML), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) =
