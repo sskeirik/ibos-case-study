@@ -30,20 +30,21 @@ loop rltl-init .
 --- 2. kernelReceivesOPMessage-pa7-cc1b
 --- 3. kernelReceivesOPMessage-pa6-cc2a
 --- 4. kernelReceivesOPMessage-pa6-cc2b
+--- 5. new-url
+--- 6. kernelForwardsOPMessage
 
 --- Todo:
---- 5. new-url
---- 6. kernelForwardsOPMessage 
 
 --- Usage: select-rls ...
-(select-rls new-url .)
+(select-rls fetch .)
 
 (use tool conrew for validity on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool varsat for validity on IBOS-SOP-FVP-NOID .)
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (AWP:WebProcId) U
 	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:NetProcId) U
-	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (A:AttributeSet) U (A':AttributeSet) .)
+	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (A:AttributeSet) U (A':AttributeSet) U
+	      (NWI:NetWebProcId) .)
 (def-term-set ([C:Configuration]) | true .)
 --- INV is a generalized multiset equality between:
 --- [1] set of fromKernel messages at the beginning of a list in a netproc
@@ -59,10 +60,10 @@ loop rltl-init .
                  policy(ui,     webapp, MSG-NEW-URL   ),ps
 		 policy(ui,     webapp, MSG-SWITCH-TAB),ps
 		 policy(network,webapp, MSG-RETURN-URL)) > }) |
-   (p(NWC,WIS,NIS,MSG?))   = (true)  /\
-   (nwp-reqattrs!?(NWC))   = (true)  /\
-   (conf-attr-dupl!?(NWC)) = (false) /\
-   (fresh-wp-id?(webapp(NWP),NWC)) = (true)
+   (p(NWC,WIS,NIS,MSG?))              = (true)  /\
+   (nwp-reqattrs?(NWC !c))            = (true)  /\
+   (conf-attr-dupl?(NWC !c))          = (false) /\
+   (fresh-wp-id?(webapp(NWP),NWC !c)) = (true)
    --- these are strengthenings of the invariant above that allow the simplification rules to apply more often
    --- they are not strictly needed for correctness --- the invariant above should be enough
    ---@ (fresh-np-id?(NNP,NWC))      = (true)  /\
@@ -75,7 +76,11 @@ loop rltl-init .
 --- print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _|_ __ _;;_ _`[_`] .
 (auto .)
 
+--- cc1b
+--- cc2b
 --- cc2a
+--- new-url
+--- kernelForwardsOpMessage
 --- (auto .)
 
 --- cc1a
@@ -107,3 +112,39 @@ loop rltl-init .
 ---(
 --- (cases+ ({C}) | ((true) = (B' a (B o (false ~ (MSG-RETURN-URL ~ MT:MsgType))))) on MT:MsgType by (MSG-RETURN-URL) U (NR:NonRetMsg) .)
 ---)
+
+---@ (cases ({< NWI | A:AttributeSet > C}) on
+---@ A:AttributeSet by
+---@ ((none).EmptyAttributeSet) U
+---@ (fromKernel(F)) U
+---@ (rendered(D)) U
+---@ (loading(L)) U
+---@ (URL(U)) U
+---@ (fromKernel(F), rendered(D)) U
+---@ (rendered(D), loading(L)) U
+---@ (loading(L), URL(U)) U
+---@ (fromKernel(F), loading(L)) U
+---@ (rendered(D), URL(U)) U
+---@ (fromKernel(F), URL(U)) U
+---@ (fromKernel(F), rendered(D), loading(L)) U
+---@ (fromKernel(F), rendered(D), URL(U)) U
+---@ (fromKernel(F), loading(L), URL(U)) U
+---@ (rendered(D), loading(L), URL(U)) U
+---@ (fromKernel(F), rendered(D), loading(L), URL(U)) U
+---@ (toKernel(T)) U
+---@ (toKernel(T), fromKernel(F)) U
+---@ (toKernel(T), rendered(D)) U
+---@ (toKernel(T), loading(L)) U
+---@ (toKernel(T), URL(U)) U
+---@ (toKernel(T), fromKernel(F), rendered(D)) U
+---@ (toKernel(T), rendered(D), loading(L)) U
+---@ (toKernel(T), loading(L), URL(U)) U
+---@ (toKernel(T), fromKernel(F), loading(L)) U
+---@ (toKernel(T), rendered(D), URL(U)) U
+---@ (toKernel(T), fromKernel(F), URL(U)) U
+---@ (toKernel(T), fromKernel(F), rendered(D), loading(L)) U
+---@ (toKernel(T), fromKernel(F), rendered(D), URL(U)) U
+---@ (toKernel(T), fromKernel(F), loading(L), URL(U)) U
+---@ (toKernel(T), rendered(D), loading(L), URL(U)) U
+---@ (toKernel(T), fromKernel(F), rendered(D), loading(L), URL(U)) U
+---@ (toKernel(T), fromKernel(F), rendered(D), loading(L), URL(U), A') .)
