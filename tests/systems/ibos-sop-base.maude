@@ -641,12 +641,17 @@ fmod IBOS-SOP-PRED is
   var WI : WebProcId .
   var PI PI' : PipeId .
   var L IN OUT OUT1 OUT2 : Label .
+  var NWI : NetWebProcId .
+
   var MT : MsgType .
   var NonFetchMT : NonFetchMsgType .
   var NonRetMT : NonRetMsgType .
   var NonRFMT : NonRetFetchMsgType .
   var AMsg : Message .
-  var NWI : NetWebProcId .
+
+  var NFL : NonFetchMsgList .
+  var FM  : FetchMsg .
+
 
   --- Here, we prove two kinds of invariants:
   --- 1. check that the messages in an object's message queue are
@@ -678,11 +683,11 @@ fmod IBOS-SOP-PRED is
      p(< NI | fromKernel(ML @      @ ML2), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),none) .
 
   --- WebProc toKernel queue invariant: only one fetch msg that correlates with loading predicate
-  eq p(< WI | loading(false), toKernel(NFL:NonFetchMsgList), A > NWC,(pi(WI,IN),wp WIS),NIS,M?) =
-     p(< WI | loading(false), toKernel(mt),                  A > NWC,(pi(WI,IN),wp WIS),NIS,M?) .
+  eq p(< WI | loading(false), toKernel(NFL),             A > NWC,(pi(WI,IN),wp WIS),NIS,M?) =
+     p(< WI | loading(false), toKernel(mt),              A > NWC,(pi(WI,IN),wp WIS),NIS,M?) .
 
-  eq p(< WI | loading(true),  toKernel(NFL:NonFetchMsgList @ FM:FetchMsg @ NFL2:NonFetchMsgList), A > NWC,(pi(WI,IN),wp WIS),NIS,M?) =
-     p(< WI | loading(false), toKernel(mt),                                                       A > NWC,(pi(WI,IN),wp WIS),NIS,M?) .
+  eq p(< WI | loading(true),  toKernel(NFL @ FM @ NFL2), A > NWC,(pi(WI,IN),wp WIS),NIS,M?) =
+     p(< WI | loading(false), toKernel(mt),              A > NWC,(pi(WI,IN),wp WIS),NIS,M?) .
 
   --- NetProc toKernel queue invariant is that:
   --- If the message type is MSG-RETURN-URL, then:
