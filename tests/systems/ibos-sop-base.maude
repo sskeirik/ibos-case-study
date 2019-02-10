@@ -639,7 +639,7 @@ fmod IBOS-SOP-PRED is
   var UI : UIId .
   var NI NI1 NI2 : NetProcId .
   var WI : WebProcId .
-  var PI PI' : PipeId .
+  var PI PI' : AbsPipeId .
   var L IN OUT OUT1 OUT2 : Label .
   var NWI : NetWebProcId .
 
@@ -649,8 +649,12 @@ fmod IBOS-SOP-PRED is
   var NonRFMT : NonRetFetchMsgType .
   var AMsg : Message .
 
-  var NFL : NonFetchMsgList .
+  var NFL NFL2 : NonFetchMsgList .
+  --- var NRL : NonRetMsgList .
   var FM  : FetchMsg .
+  var M?  : Message? .
+  var NRM : NonRetMsg .
+  var NFM : NonFetchMsg .
 
 
   --- Here, we prove two kinds of invariants:
@@ -678,43 +682,84 @@ fmod IBOS-SOP-PRED is
   op p : NetWebProcConfig WebProcInfoSet NetProcInfoSet Message? -> Bool? [metadata "200"] .
 
   --- Prop 1 ---
-  --- if AMsg is a FETCH, then it agrees with kernel metadata
-  eq p(< NI | fromKernel(ML @ AMsg @ ML2), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),none) =
-     p(< NI | fromKernel(ML @      @ ML2), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),none) .
+  --- any FETCH message in fromKernel queue of NetProc, agrees with kernel metadata
+ ceq p(< NI | fromKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT1) @ ML2), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),M?) =
+     p(< NI | fromKernel(ML @                                  ML2), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),M?)
+  if PI   ~p WI
+  /\ PI'  ~p NI
+  /\ OUT1 ~l OUT2 .
 
-  --- WebProc toKernel queue invariant: only one fetch msg that correlates with loading predicate
+  eq p(< NI | fromKernel(ML @ NFM                            @ ML2), A > NWC,              WIS, (pi(NI,IN,OUT2),np NIS),M?) =
+     p(< NI | fromKernel(ML @                                  ML2), A > NWC,              WIS, (pi(NI,IN,OUT2),np NIS),M?) .
+
+  --- Prop 2 ---
+  --- mem-in() attr correlates with kernel metadata
+ ceq p(< NI | mem-in(OUT1),     A > NWC,WIS,(pi(NI,IN,OUT2),np NIS),M?) =
+     p(< NI | mem-in(nolabel),  A > NWC,WIS,(pi(NI,IN,OUT2),np NIS),M?)
+  if OUT1 ~l OUT2 .
+
+  --- Prop 3 ---
+  --- mem-out() attr correlates with kernel metadata
+ ceq p(< NI | mem-out(OUT1),    A > NWC,WIS,(pi(NI,IN,OUT2),np NIS),M?) =
+     p(< NI | mem-out(nolabel), A > NWC,WIS,(pi(NI,IN,OUT2),np NIS),M?)
+  if OUT1 ~l OUT2 .
+
+  --- Prop 4 ---
+  --- NOTE: should false case be relaxed to don't care instead of NonRetMsgList
+ ceq p(< WI | loading(true),  fromKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT1) @ ML2), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),M?) =
+     p(< WI | loading(true),  fromKernel(ML @                                   ML2), A > NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),M?)
+  if PI   ~p NI
+  /\ PI'  ~p WI
+  /\ OUT1 ~l OUT2 .
+
+  eq p(< WI | loading(true),  fromKernel(ML @ NRM                             @ ML2), A > NWC,(pi(WI,IN),wp WIS),                   NIS, M?) =
+     p(< WI | loading(true),  fromKernel(ML @                                   ML2), A > NWC,(pi(WI,IN),wp WIS),                   NIS, M?) .
+
+  eq p(< WI | loading(false), fromKernel(ML                                        ), A > NWC,(pi(WI,IN),wp WIS),                   NIS, M?) =
+     p(< WI | loading(false), fromKernel(mt                                        ), A > NWC,(pi(WI,IN),wp WIS),                   NIS, M?) .
+  ---eq p(< WI | loading(false), fromKernel(NRL                                       ), A > NWC,(pi(WI,IN),np WIS),                   NIS, M?) =
+  ---   p(< WI | loading(false), fromKernel(mt                                        ), A > NWC,(pi(WI,IN),np WIS),                   NIS, M?) .
+
+  --- Other needed pieces:
+  --- WebProc toKernel queue invariant
+  --- only one fetch msg that correlates with loading predicate
   eq p(< WI | loading(false), toKernel(NFL),             A > NWC,(pi(WI,IN),wp WIS),NIS,M?) =
      p(< WI | loading(false), toKernel(mt),              A > NWC,(pi(WI,IN),wp WIS),NIS,M?) .
 
-  eq p(< WI | loading(true),  toKernel(NFL @ FM @ NFL2), A > NWC,(pi(WI,IN),wp WIS),NIS,M?) =
-     p(< WI | loading(false), toKernel(mt),              A > NWC,(pi(WI,IN),wp WIS),NIS,M?) .
+ ceq p(< WI | loading(true),  URL(OUT1), toKernel(NFL @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ NFL2), A > NWC,(pi(WI,IN),wp WIS),NIS,M?) =
+     p(< WI | loading(false), URL(OUT1), toKernel(mt),                                          A > NWC,(pi(WI,IN),wp WIS),NIS,M?)
+  if PI   ~p WI
+  /\ PI'  ~p network
+  /\ OUT1 ~l OUT2 .
 
-  --- NetProc toKernel queue invariant is that:
+  --- NetProc toKernel queue invariant
   --- If the message type is MSG-RETURN-URL, then:
-  --- [1] message target is from returnTo
-  --- [2] message label is from the in() attribute --- which essentially means it comes from the Webapp URL
-  eq p(< NI | toKernel(ML M ML2), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) =
-     p(< NI | toKernel(ML   ML2), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),none) .
+  --- [1] message target is from returnTo - which comes from a webapp that matches this one on the IN
+  --- [2] message label is from the in() attribute --- which means it comes from the Webapp URL, encoded in the OUT
+ ceq p(< NI | toKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT1) @ ML2), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),M?) =
+     p(< NI | toKernel(ML @                                   ML2), A > NWC, (pi(WI,IN),wp WIS),(pi(NI,IN,OUT2),np NIS),M?)
+  if PI   ~p NI
+  /\ PI'  ~p WI
+  /\ OUT1 ~l OUT2 .
 
-  --- Handle currentlyHandled attribute
+  eq p(< NI | toKernel(ML @ NRM                             @ ML2), A > NWC,               WIS ,(pi(NI,IN,OUT2),np NIS),M?) =
+     p(< NI | toKernel(ML @                                   ML2), A > NWC,               WIS ,(pi(NI,IN,OUT2),np NIS),M?) .
+
+  --- currentlyHandled() attr invariant
   eq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT ),np NIS),msg(WI,NI,MT,OUT )) = p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT ),np NIS),none) .
-  eq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT1),np NIS),msg(NI,WI,MT,OUT2)) = p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT1),np NIS),none) .
+  eq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT ),np NIS),msg(NI,WI,MT,OUT )) = p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT ),np NIS),none) .
+  --- eq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT1),np NIS),msg(NI,WI,MT,OUT2)) = p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT1),np NIS),none) .
 
-  --- Handle fresh webapps
- ceq p(< WI | URL(L), A > NWC,(pi(WI,IN),wp WIS),NIS,    none)       = p(NWC,WIS,NIS,msg(ui,webapp,MSG-NEW-URL,L)) if fresh-wp-id?(WI,NWC) .
- ceq p(< NI |         A > NWC,WIS,(pi(NI,IN,OUT),np NIS),M:Message?) = p(NWC,WIS,NIS,M:Message?                  ) if fresh-np-id?(NI,NWC) .
+  --- process metadata invariant
+ ceq p(NWC,(pi(WI,IN),wp WIS),                  NIS, M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ inlbl-in-netlabels?(IN,NIS) = false .
+ ceq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ in-conf?(NI,NWC) = false .
 
-  --- Handle fromKernel initial message
- ceq p(< NWI | fromKernel(ML @ AMsg), A > NWC,WIS,NIS,none) = true if p(< NWI | fromKernel(ML), A > NWC,WIS,NIS,AMsg) .
-
-  --- eq p(< NI | fromKernel(mt), A > NWC, WIS, NIS,none) = p(NWC, WIS, NIS,none) .
-
-  --- consume processes that are handled, i.e.:
+  --- process invariant
   eq p(< WI | toKernel(mt), fromKernel(mt),                              A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
   eq p(< NI | toKernel(mt), fromKernel(mt), mem-in(mtLL), mem-out(mtLL), A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
 
-  --- all processes and all queues have been checked for correctness
-  eq p(none,WIS,NIS,none) = true .
+  --- true case
+  eq p(none,mtWPIS,mtNPIS,none) = true .
 
   ---(
   --- SOP Prop 1. The kernel must route network requests from web page instances to the proper network process
