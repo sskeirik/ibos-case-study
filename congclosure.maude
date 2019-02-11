@@ -56,22 +56,23 @@ fmod CONG-CLOSURE-SAFETY is
 						    fi [owise] .
 
   op ccOpFamData : Module OpFamily QidSet QidSet ~> QidSet .
-  eq ccOpFamData(U,((Q,TYL) |-> OS) OFM,QNS,QIS) = ccOpFamData*(U,OFM,ccDeclSetData(U,OS),QNS,QIS) .
+  eq ccOpFamData(U,((Q,TYL) |-> OS) OFM,QNS,QIS) = ccOpFamData*(U,OFM,Q,ccDeclSetData(U,OS),QNS,QIS) .
   eq ccOpFamData(U,nil,QNS,QIS)                  = QIS .
 
   --- NB: QNS records all observed numbers in the operator ordering for totality checking
   ---     QIS  records all observed unit elements based on values embedded in metadata
-  op ccOpFamData* : Module OpFamily CCMetadata QidSet QidSet ~> QidSet .
-  eq ccOpFamData*(U,OFM,cc(QN),   QNS,QIS) =
+  op ccOpFamData* : Module OpFamily Qid CCMetadata QidSet QidSet ~> QidSet .
+  eq ccOpFamData*(U,OFM,Q,cc(QN),   QNS,QIS) =
     if QN in QNS
       then errQid('Operator 'id QN 'occurred 'in 'multiple 'operator 'families)
       else ccOpFamData(U,OFM,QNS ; QN,QIS)
     fi .
-  eq ccOpFamData*(U,OFM,cc(QN,QI),QNS,QIS) =
+  eq ccOpFamData*(U,OFM,Q,cc(QN,QI),QNS,QIS) =
     if QN in QNS
       then errQid('Operator 'id QN 'occurred 'in 'multiple 'operator 'families)
       else ccOpFamData(U,OFM,QNS ; QN,QIS ; QI)
     fi .
+  eq ccOpFamData*(U,OFM,Q,CC:[CCMetadata],QNS,QIS) = errQid('Operator 'family Q 'metadata 'could 'not 'be 'parsed) .
 
   --- OUT: either cc(NUM) or cc(NUM,ID) where NUM is the position of this operator family
   ---      the total order and ID is the unit associated with this operator, if it exists
