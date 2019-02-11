@@ -44,7 +44,7 @@ loop init .
 (remove non-handled identity attributes ${MODULE_NAME} .)
 quit
 INPUT
-tail -n+4 | head -n-2 | sed -E '1s/^fmod (\S+) is/set include BOOL off .\n\nfmod \1-NOID is/' > "${OUTPUT_FILE_NAME}.maude"
+tail -n+4 | head -n-2 | sed -E '1s/^(f?mod \S+) is/set include BOOL off .\n\n\1-NOID is/' > "${OUTPUT_FILE_NAME}.maude"
 }
 
 remove_all_ids       "./ibos-sop-base" "IBOS-SOP-PRED"       "./ibos-sop-pred-nou" # contextual rewriting
