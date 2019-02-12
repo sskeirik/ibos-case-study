@@ -73,15 +73,15 @@ loop rltl-init .
 (start-proof .)
 --- set break on .
 --- break select step-action .
-set print conceal on .
-print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _|_ _;;_ . --- __ _`[_`] .
+--- set print conceal on .
+--- print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _|_ _;;_ _&&_ __ _`[_`] .
 (auto .)
 
 --- fetch
 (cases ({ < WI | toKernel(T:MessageList @ FM:FetchMsg), A > C }) on T:MessageList by (NFL:NonFetchMsgList) U (HFL:HasFetchMsgList) .)
 (auto .)
 (auto .)
-(split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (in-conf?(WI,WIS)) = (false) .)
+(split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (in-conf?(WI,C)) = (false) .)
 
 --- cc1b
 --- cc2b
