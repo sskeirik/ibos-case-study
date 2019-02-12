@@ -650,8 +650,9 @@ fmod IBOS-SOP-PRED is
   var AMsg : Message .
 
   var NFL NFL2 : NonFetchMsgList .
+  var HFL HFL2 : HasFetchMsgList .
   --- var NRL : NonRetMsgList .
-  var FM  : FetchMsg .
+  var FM : FetchMsg .
   var M?  : Message? .
   var NRM : NonRetMsg .
   var NFM : NonFetchMsg .
@@ -731,6 +732,9 @@ fmod IBOS-SOP-PRED is
   if PI   ~p WI
   /\ PI'  ~p network
   /\ OUT1 ~l OUT2 .
+
+  eq p(< WI | loading(true),  toKernel(HFL @ HFL2), A > NWC,(pi(WI,IN),wp WIS),NIS,M?) = false .
+  eq p(< WI | loading(false), toKernel(HFL),        A > NWC,(pi(WI,IN),wp WIS),NIS,M?) = false .
 
   --- NetProc toKernel queue invariant
   --- If the message type is MSG-RETURN-URL, then:
