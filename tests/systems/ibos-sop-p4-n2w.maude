@@ -81,7 +81,7 @@ loop rltl-init .
 (cases ({ < WI | toKernel(T:MessageList @ FM:FetchMsg), A > C }) on T:MessageList by (NFL:NonFetchMsgList) U (HFL:HasFetchMsgList) .)
 (auto .)
 (auto .)
-(split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (in-conf?(WI,C)) = (false) .)
+(split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (in-conf?(WI,C)) = (false) and (in-conf?(WI,C)) = (true) .)
 
 --- cc1b
 --- cc2b
