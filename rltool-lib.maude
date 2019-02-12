@@ -489,7 +489,7 @@ mod RLTL-ACTION-IMPL is
   eq atomic-run(PM,GS,(mode : M, proof : [PM'])) =
     if active-mode?(M)
       then raw-set(PM,out(get-out(PM')))
-      else raw-set(merge(delgl(PM,GS),prf(get-prf(PM'))),gn(get-gn(PM')))
+      else raw-set(merge(delgl(PM,GS),prf(get-prf(PM')) ; out(get-out(PM')) ; st(get-st(PM'))),gn(get-gn(PM')))
     fi .
 endm
 
