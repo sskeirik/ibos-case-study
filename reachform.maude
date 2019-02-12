@@ -41,16 +41,17 @@ endfm
 
 fmod TRANSITION-PROJECTIONS is pr TRANSITION . pr CONSTRAINED-TERM-PROJECTIONS .
   --- projections/reductions
-  op antc     : ReachForm             -> QFCTerm    .
-  op succ     : ReachForm             -> QFCTermSet .
-  op set-antc : ReachForm QFCTerm     -> ReachForm .
-  op set-succ : ReachForm QFCTermSet  -> ReachForm .
-  op lhs      : ReachForm             -> Term .
-  op rhs      : QFCRule               -> Term .
-  op lhs-cond : QFCRule               -> QFForm .
-  op rhs-cond : QFCRule               -> QFForm .
+  op antc      : ReachForm            -> QFCTerm    .
+  op succ      : ReachForm            -> QFCTermSet .
+  op set-antc  : ReachForm QFCTerm    -> ReachForm .
+  op conj-antc : ReachForm QFForm?    -> ReachForm .
+  op set-succ  : ReachForm QFCTermSet -> ReachForm .
+  op lhs       : ReachForm            -> Term .
+  op rhs       : QFCRule              -> Term .
+  op lhs-cond  : QFCRule              -> QFForm .
+  op rhs-cond  : QFCRule              -> QFForm .
   ---
-  var CT CT' : QFCTerm . var CTS CTS' : QFCTermSet .
+  var CT CT' : QFCTerm . var CTS CTS' : QFCTermSet . var F : QFForm .
   ---
   eq lhs(CT => CTS')          = term(CT)    .
   eq rhs(CT => CT')           = term(CT')   .
@@ -60,6 +61,8 @@ fmod TRANSITION-PROJECTIONS is pr TRANSITION . pr CONSTRAINED-TERM-PROJECTIONS .
   eq succ(CT => CTS)          = CTS         .
   eq set-antc(CT => CTS,CT')  = CT' => CTS  .
   eq set-succ(CT => CTS,CTS') = CT  => CTS' .
+  eq conj-antc(CT => CTS,F)      = conj(CT,F) => CTS .
+  eq conj-antc(CT => CTS,mtForm) = CT => CTS .
 endfm
 
 fmod TRANSITIONSET-PROJECTIONS is pr TRANSITION-PROJECTIONS . pr TRANSITIONSET .
