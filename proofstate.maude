@@ -909,22 +909,24 @@ fmod REACH-PROOF-STATE-OPS is
   op get-prf : ProofMetadata ~> ProofGoalSet .
   op get-his : ProofMetadata ~> Map{Nat,AxiomRecord} .
   op get-out : ProofMetadata ~> QidList .
+  op get-st  : ProofMetadata ~> ProofStatus .
   op get-err : ProofMetadata ~> Bool .
 
-  eq get-mod(mod(U) ; D) = U .
-  eq get-dcl(dcl(QS) ; D) = QS .
-  eq get-reg(reg(Reg) ; D) = Reg .
-  eq get-cnt(cnt(N) ; D) = N .
-  eq get-gn(gn(N) ; D) = N .
-  eq get-axs(axs(AX) ; D) = AX .
-  eq get-rls(rls(RL) ; D) = RL .
-  eq get-tst(tst(CT) ; D) = CT .
-  eq get-prf(prf(GS) ; D) = GS .
-  eq get-his(his(AH) ; D) = AH .
-  eq get-out(out(QL) ; D) = QL .
-  eq get-out(D)           = nil [owise] .
+  eq get-mod(mod(U)     ; D) = U .
+  eq get-dcl(dcl(QS)    ; D) = QS .
+  eq get-reg(reg(Reg)   ; D) = Reg .
+  eq get-cnt(cnt(N)     ; D) = N .
+  eq get-gn (gn(N)      ; D) = N .
+  eq get-axs(axs(AX)    ; D) = AX .
+  eq get-rls(rls(RL)    ; D) = RL .
+  eq get-tst(tst(CT)    ; D) = CT .
+  eq get-prf(prf(GS)    ; D) = GS .
+  eq get-his(his(AH)    ; D) = AH .
+  eq get-out(out(QL)    ; D) = QL .
+  eq get-out(             D) = nil [owise] .
+  eq get-st (st(PS)     ; D) = PS .
   eq get-err(st(err PS) ; D) = true .
-  eq get-err(D)              = false [owise] .
+  eq get-err(             D) = false [owise] .
 
   --- OUT: get special attributes
   op getModByImpl : ProofMetadata Qid -> Module .
