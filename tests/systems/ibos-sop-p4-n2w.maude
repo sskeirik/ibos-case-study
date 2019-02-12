@@ -23,7 +23,7 @@ endfm
 select RLTOOL .
 loop rltl-init .
 
-(select IBOS-SOP .)
+(select IBOS-SOP-NOID .)
 
 --- Solved:
 --- 1. kernelReceivesOPMessage-pa7-cc1a
@@ -44,7 +44,7 @@ loop rltl-init .
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (AWP:WebProcId) U
 	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:NetProcId) U
 	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (A:AttributeSet) U (A':AttributeSet) U
-	      (NWI:NetWebProcId) .)
+	      (NWI:NetWebProcId) U (WI:WebProcId) .)
 (def-term-set ([C:Configuration]) | true .)
 --- INV is a generalized multiset equality between:
 --- [1] set of fromKernel messages at the beginning of a list in a netproc
@@ -63,7 +63,8 @@ loop rltl-init .
    (p(NWC,WIS,NIS,MSG?))              = (true)  /\
    (nwp-reqattrs?(NWC !c))            = (true)  /\
    (conf-attr-dupl?(NWC !c))          = (false) /\
-   (fresh-wp-id?(webapp(NWP),NWC !c)) = (true)
+   (fresh-wp-id?(webapp(NWP),NWC !c)) = (true)  /\
+   (conf-labels-eqset?(NWC,WIS,NIS))  = (true)
    --- these are strengthenings of the invariant above that allow the simplification rules to apply more often
    --- they are not strictly needed for correctness --- the invariant above should be enough
    ---@ (fresh-np-id?(NNP,NWC))      = (true)  /\
@@ -72,9 +73,15 @@ loop rltl-init .
 (start-proof .)
 --- set break on .
 --- break select step-action .
---- set print conceal on .
---- print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _|_ __ _;;_ _`[_`] .
+set print conceal on .
+print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _|_ _;;_ . --- __ _`[_`] .
 (auto .)
+
+--- fetch
+(cases ({ < WI | toKernel(T:MessageList @ FM:FetchMsg), A > C }) on T:MessageList by (NFL:NonFetchMsgList) U (HFL:HasFetchMsgList) .)
+(auto .)
+(auto .)
+(split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (in-conf?(WI,WIS)) = (false) .)
 
 --- cc1b
 --- cc2b
