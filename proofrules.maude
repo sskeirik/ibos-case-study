@@ -273,7 +273,7 @@ fmod REACH-PROOF-RULES-AUX is
                   then nil
                   else 'For 'full 'verification '`, &sp 'check 'formula 'equivalence 'manually '\n
                 fi '\o)
-            || newChildGoalsAddVars(G,set-lhs-cond(getbody(G),QF) & if QF' == ff then mt else set-lhs-cond(getbody(G),QF') fi))
+            || newChildGoalsAddVars(G,conj-antc(getbody(G),QF) & if QF' == ff then mt else conj-antc(getbody(G),QF') fi))
       else (st(err) ; out('\r 'Warning: 'split 'rule 'formulas 'have 'unsafe 'variable 'sharing '\o '\n))
     fi fi fi .
 
