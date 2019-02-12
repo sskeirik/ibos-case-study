@@ -274,7 +274,7 @@ fmod REACH-PROOF-RULES-AUX is
                   else 'For 'full 'verification '`, &sp 'check 'formula 'equivalence 'manually '\n
                 fi '\o)
             || newChildGoalsAddVars(G,set-lhs-cond(getbody(G),QF) & if QF' == ff then mt else set-lhs-cond(getbody(G),QF') fi))
-      else (out('\r 'Warning: 'split 'rule 'formulas 'have 'unsafe 'variable 'sharing '\o '\n))
+      else (st(err) ; out('\r 'Warning: 'split 'rule 'formulas 'have 'unsafe 'variable 'sharing '\o '\n))
     fi fi fi .
 
   var PA : ProofRuleAction .
