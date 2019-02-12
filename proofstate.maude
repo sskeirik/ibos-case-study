@@ -399,7 +399,7 @@ fmod REACH-PROOF-GOALSET is
 
   --- OUT: Get a set of goals whose LHS matches the pattern plus the
   ---      witnessing substitutions
-  op #goalsByMatch : Module Term ProofGoalSet -> ProofGoalSubstPairSet .
+  op #goalsByMatch : Module Term ProofGoalSet -> [ProofGoalSubstPairSet] .
   eq #goalsByMatch(U,T,G && GS) =
     if metaMatch(U,T,lhs(getbody(G)),nil,0) :: Substitution
       then (G,metaMatch(U,T,lhs(getbody(G)),nil,0))
@@ -412,7 +412,7 @@ fmod REACH-PROOF-GOALSET is
 
   --- OUT: Get a set of goals whose LHS matches the pattern plus the
   ---      witnessing substitutions
-  op #goalsByMatch : Module QFCTerm ProofGoalSet -> ProofGoalSubstPairSet .
+  op #goalsByMatch : Module QFCTerm ProofGoalSet -> [ProofGoalSubstPairSet] .
   eq #goalsByMatch(U,(T | C),G && GS) =
     if matches#(U,(T | C),antc(getbody(G))) :: Substitution
       then (G,matches#(U,(T | C),antc(getbody(G))))
@@ -420,7 +420,7 @@ fmod REACH-PROOF-GOALSET is
     fi && #goalsByMatch(U,(T | C),GS) .
   eq #goalsByMatch(U,(T | C),mt) = .ProofGoalSubstPairSet .
 
-  op goalsByMatch : Module QFCTerm ProofGoalSet -> ProofGoalSet .
+  op goalsByMatch : Module QFCTerm ProofGoalSet -> [ProofGoalSet] .
   eq goalsByMatch(U,(T | mtForm),GS) = toGoalSet(#goalsByMatch(U,T,GS)) .
   eq goalsByMatch(U,(T | C),GS) = toGoalSet(#goalsByMatch(U,(T | C),GS)) [owise] .
 
