@@ -467,7 +467,8 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var NNWC : NetWebProcNeConfig .
 
   --- Configuration predicates
-  op _!c : Configuration -> Configuration [metadata "105"] .
+  op _!c : Configuration -> Configuration       [metadata "105"] .
+  op _!c : NetWebProcConfig -> NetWebProcConfig [metadata "105"] .
   eq (< PI | A > C) !c = < PI | A !a > (C !c) .
   eq none           !c = none .
 
