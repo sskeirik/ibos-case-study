@@ -1281,10 +1281,12 @@ endfm
 fmod FOFORM-PRINTER is pr FOFORM . pr GENERIC-PRINTER .
   op  print    : Module QFForm? -> QidList .
   op  printImp : Module QFForm? -> QidList .
-  var M : Module . var F F' : QFForm . var T T' : Term .
+  var M : Module . var A : Atom . var C : Conj . var F F' : QFForm . var T T' : Term .
   --- print formulas
-  eq print(M,F /\ F')          = '`( print(M,F) '/\ print(M,F') '`) .
-  eq print(M,F \/ F')          = '`( print(M,F) '\/ print(M,F') '`) .
+  eq print(M,A /\ C)           = printConj(M,A /\ C) .
+  eq print(M,A \/ C)           = printDisj(M,A \/ C) .
+  eq print(M,F /\ F')          = '`( print(M,F) '/\ print(M,F') '`) [owise] .
+  eq print(M,F \/ F')          = '`( print(M,F) '\/ print(M,F') '`) [owise] .
   eq print(M,T ?= T')          = printTerm(M,T) '=   printTerm(M,T') .
   eq print(M,T != T')          = printTerm(M,T) '=/= printTerm(M,T') .
   eq print(M,~ F)              = '~ print(M,F) .
@@ -1292,6 +1294,15 @@ fmod FOFORM-PRINTER is pr FOFORM . pr GENERIC-PRINTER .
   eq print(M,tt)               = 'true .
   eq print(M,ff)               = 'false .
   eq print(M,F:[QFForm?])      = 'Error: 'Cannot 'Print 'Ill-formed 'Formula [owise] .
+
+  op printConj : Module Conj -> QidList .
+  eq printConj(M,A /\ C)       = print(M,A) '/\ printConj(M,C) .
+  eq printConj(M,A)            = print(M,A) .
+
+  op printDisj : Module Disj -> QidList .
+  eq printDisj(M,A \/ C)       = print(M,A) '\/ printDisj(M,C) .
+  eq printDisj(M,A)            = print(M,A) .
+
   --- print formulas as implication
   eq printImp(M,(~ F) \/ F')   = print(M,F) &sp '=> &sp print(M,F') .
 
