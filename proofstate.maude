@@ -689,8 +689,8 @@ fmod REACH-PROOF-STATE-PRINTER is
   --- OUT: print out all goals without status information
   op printGoals : Module ProofGoalSet ~> QidList .
   eq printGoals(M,G && NGS) = printGoals(M,G) '\n printSpaces(8) printGoals(M,NGS) .
-  eq printGoals(M,G) = '`[ printPad(printPar(getid(G)),5)
-                       '| &sp print(M,getbody(G)) '`] .
+  eq printGoals(M,G) = '\r '`[ '\o printPad(printPar(getid(G)),5)
+                       '\r '| '\o &sp print(M,getbody(G)) '\r '`] '\o .
   eq printGoals(M,(mt).ProofGoalSet) = &mt .
   eq printGoals(MK:[Module],GK:[ProofGoal]) = 'Internal 'Error: 'printGoals [owise] .
 

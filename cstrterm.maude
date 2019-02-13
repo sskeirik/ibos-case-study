@@ -588,7 +588,7 @@ fmod CONSTRAINED-TERM-PRINTER is pr CONSTRAINED-TERM . pr FOFORM-PRINTER . pr CO
   var M : Module . var T : Term . var F : FOForm? .
 
   op print : Module CTerm? -> QidList .
- ceq print(M,(T | F)) = printTerm(M,T) &sp '| &sp print(M,F)
+ ceq print(M,(T | F)) = printTerm(M,T) &sp '\r '||| '\y &sp print(M,F) '\o
   if wellFormed(M,(T | F)) .
   eq print(M,noterm)  = nil .
   eq print(MK:[Module],CK:[CTerm?]) = 'print 'error: 'unable 'to 'print 'constrained 'term [owise] .
