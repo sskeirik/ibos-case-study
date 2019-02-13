@@ -125,6 +125,7 @@ fmod PROC-ID is
   vars DiId  : DisplayId .
   vars UiId  : UIId .
   var  WPMId : WebProcMgrId .
+  var  NICId : NICId .
   vars N N'  : Nat .
 
   op _~p_ : AbsProcessId AbsProcessId -> Bool [comm metadata "32"] .
@@ -133,22 +134,26 @@ fmod PROC-ID is
   eq KeId ~p NPId              = false   [variant] .
   eq KeId ~p UiId              = false   [variant] .
   eq KeId ~p DiId              = false   [variant] .
+  eq KeId ~p NICId             = false   [variant] .
   eq webapp ~p webapp(N)       = false   [variant] .
   eq webapp(N) ~p webapp(N')   = N ~n N' [variant] .
   eq WPId ~p NPId              = false   [variant] .
   eq WPId ~p UiId              = false   [variant] .
   eq WPId ~p DiId              = false   [variant] .
+  eq WPId ~p NICId             = false   [variant] .
   eq network ~p network(N)     = false   [variant] .
   eq network(N) ~p network(N') = N ~n N' [variant] .
   eq NPId ~p UiId              = false   [variant] .
   eq NPId ~p DiId              = false   [variant] .
+  eq NPId ~p NICId             = false   [variant] .
   eq UiId ~p DiId              = false   [variant] .
+  eq UiId ~p NICId             = false   [variant] .
   eq WPMId ~p KeId             = false   [variant] .
   eq WPMId ~p WPId             = false   [variant] .
   eq WPMId ~p NPId             = false   [variant] .
-  eq WPMId ~p DiId             = false   [variant] .
   eq WPMId ~p UiId             = false   [variant] .
-  eq WPMId ~p NPId             = false   [variant] .
+  eq WPMId ~p DiId             = false   [variant] .
+  eq WPMId ~p NICId            = false   [variant] .
 endfm
 
 fmod SYS is
