@@ -565,7 +565,7 @@ mod RLTL-PROC-CMD is
 
   --- PRE: vars(QF1) U vars(QF2) subset vars(PT) where PT was used to generated ProofGoalSubstPairSet
   --- OUT: Goal set with split strategy applied to front and split conditions appropriately renamed
-  eq $split(B,QF1,QF2,(G,S) && G+SS) = prestrat(G,split(B,QF1 << S,QF2 << S) ;; pause) && $split(B,QF1,QF2,G+SS) .
+  eq $split(B,QF1,QF2,(G,S) && G+SS) = prestrat(G,split(B,QF1 << S,QF2 << S) ;; pause ;; simplify(true) ;; subsume ;; termcheck ;; pause) && $split(B,QF1,QF2,G+SS) .
   eq $split(B,QF1,QF2,.ProofGoalSubstPairSet) = mt .
 
   --- commands to be typed BEFORE starting the proof
