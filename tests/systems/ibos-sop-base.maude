@@ -554,90 +554,66 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq nwp-reqattrs?(none) = true .
 
   --- Web/NetProcInfoSet predicates
-  op inlbl-by-pid : NetProcId NetProcInfoSet -> MaybeLabel [metadata "117"] .
-  eq inlbl-by-pid(NP,(pi(NP, IN,OUT),np NIS)) = IN .
- ceq inlbl-by-pid(NP,(pi(NP',IN,OUT),np NIS)) = inlbl-by-pid(NP,NIS) if NP ~p NP' = false .
-  eq inlbl-by-pid(NP,mtNPIS)                   = nolabel .
-
-  op outlbl-by-pid : NetProcId NetProcInfoSet -> MaybeLabel [metadata "118"] .
-  eq outlbl-by-pid(NP,(pi(NP, IN,OUT),np NIS)) = OUT .
- ceq outlbl-by-pid(NP,(pi(NP',IN,OUT),np NIS)) = outlbl-by-pid(NP,NIS) if NP ~p NP' = false .
-  eq outlbl-by-pid(NP,mtNPIS)                  = nolabel .
-
-  op nat-in-netlabels? : Nat NetProcInfoSet -> Bool [metadata "119"] .
-  eq nat-in-netlabels?(N,(pi(network(N),IN,OUT) ,np NIS)) = true [variant] .
- ceq nat-in-netlabels?(N,(pi(network(M),IN,OUT) ,np NIS)) = nat-in-netlabels?(N,NIS) if N ~n M = false .
-  eq nat-in-netlabels?(N,mtNPIS) = false .
-
-  op nat-in-weblabels? : Nat WebProcInfoSet -> Bool [metadata "120"] .
-  eq nat-in-weblabels?(N,(pi(webapp(N),L) ,wp WIS)) = true [variant] .
- ceq nat-in-weblabels?(N,(pi(webapp(M),L) ,wp WIS)) = nat-in-weblabels?(N,WIS) if N ~n M = false .
-  eq nat-in-weblabels?(N,mtWPIS) = false .
-
-  op pid-in-netlabels? : ProcessId NetProcInfoSet -> Bool [metadata "121"] .
-  eq pid-in-netlabels?(network(N), NIS) = nat-in-netlabels?(N,NIS) .
-  eq pid-in-netlabels?(NNP,        NIS) = false .
-  eq pid-in-netlabels?(NPP,        NIS) = false .
-
-  op pid-in-weblabels? : ProcessId WebProcInfoSet -> Bool [metadata "122"] .
-  eq pid-in-weblabels?(webapp(N),WIS) = nat-in-weblabels?(N,WIS) .
-  eq pid-in-weblabels?(NWP,     WIS)  = false .
-  eq pid-in-weblabels?(NPP,     WIS)  = false .
-
-  op weblabels-dupl? : WebProcInfoSet -> Bool [metadata "123"] .
+  op weblabels-dupl? : WebProcInfoSet -> Bool [metadata "113"] .
   eq weblabels-dupl?(pi(WP,L) ,wp pi(WP,L') ,wp WIS) = true .
  ceq weblabels-dupl?(pi(WP,L)               ,wp WIS) = weblabels-dupl?(WIS) if pid-in-weblabels?(WP,WIS) = false .
   eq weblabels-dupl?(pi(WP,L))                       = false .
   eq weblabels-dupl?(mtWPIS)                         = false .
 
-  op netlabels-dupl? : NetProcInfoSet -> Bool [metadata "124"] .
+  op netlabels-dupl? : NetProcInfoSet -> Bool [metadata "114"] .
   eq netlabels-dupl?(pi(NP,L,L') ,np pi(NP',L1,L2) ,np NIS) = true .
  ceq netlabels-dupl?(pi(NP,L,L') ,np                   NIS) = netlabels-dupl?(NIS) if pid-in-netlabels?(NP,NIS) = false .
   eq netlabels-dupl?(pi(NP,L,L'))                           = false .
   eq netlabels-dupl?(mtNPIS)                                = false .
 
-  op fresh-weblabel? : Nat WebProcInfoSet -> Bool [metadata "125"] .
+  op fresh-weblabel? : Nat WebProcInfoSet -> Bool [metadata "115"] .
   eq fresh-weblabel?(N + Z,(pi(network(N    ),L),wp WIS)) = fresh-weblabel?(N + Z,WIS) .
   eq fresh-weblabel?(N,    (pi(network(N + M),L),wp WIS)) = false .
   eq fresh-weblabel?(N,mtWPIS)                            = true .
 
-  op fresh-netlabel? : Nat NetProcInfoSet -> Bool [metadata "126"] .
+  op fresh-netlabel? : Nat NetProcInfoSet -> Bool [metadata "116"] .
   eq fresh-netlabel?(N + Z,(pi(network(N    ),L,L'),np NIS)) = fresh-netlabel?(N + Z,NIS) .
   eq fresh-netlabel?(N,    (pi(network(N + M),L,L'),np NIS)) = false .
   eq fresh-netlabel?(N,mtNPIS)                               = true .
 
-  op lbl-in-weblabels? : Label WebProcInfoSet -> Bool [metadata "127"] .
+  op lbl-in-weblabels? : Label WebProcInfoSet -> Bool [metadata "117"] .
   eq lbl-in-weblabels?(L,(pi(WP,L ),wp WIS)) = true .
  ceq lbl-in-weblabels?(L,(pi(WP,L'),wp WIS)) = lbl-in-weblabels?(L,WIS) if L ~l L' = false .
   eq lbl-in-weblabels?(L,mtWPIS)             = false .
 
-  op inlbl-in-netlabels? : Label NetProcInfoSet -> Bool [metadata "128"] .
+  op inlbl-in-netlabels? : Label NetProcInfoSet -> Bool [metadata "118"] .
   eq inlbl-in-netlabels?(IN,(pi(NP,IN,OUT),np NIS)) = true .
  ceq inlbl-in-netlabels?(L, (pi(NP,IN,OUT),np NIS)) = inlbl-in-netlabels?(L,NIS) if L ~l IN = false .
   eq inlbl-in-netlabels?(L,mtNPIS)                  = false .
 
-  op weblabel-by-pid : ProcessId WebProcInfoSet -> MaybeLabel .
-  eq weblabel-by-pid(WP,(pi(WP ,IN),wp WIS)) = IN .
- ceq weblabel-by-pid(WP,(pi(WP',IN),wp WIS)) = weblabel-by-pid(WP,WIS) if WP ~p WP' = false .
-  eq weblabel-by-pid(WP,mtWPIS)              = nolabel .
+  op weblabel-by-pid : ProcessId WebProcInfoSet -> MaybeLabel [metadata "119"] .
+  eq weblabel-by-pid(WP,(pi(WP,IN),wp WIS)) = IN .
+ ceq weblabel-by-pid(P, (pi(WP,IN),wp WIS)) = weblabel-by-pid(WP,WIS) if P ~p WP = false .
+  eq weblabel-by-pid(P, mtWPIS)             = nolabel .
 
-  op in-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel .
-  eq in-netlabel-by-pid(NP,(pi(NP, IN,OUT),np NIS)) = IN .
- ceq in-netlabel-by-pid(NP,(pi(NP',IN,OUT),np NIS)) = in-netlabel-by-pid(NP,NIS) if NP ~p NP' = false .
-  eq in-netlabel-by-pid(NP,mtNPIS)                  = nolabel .
+  op in-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel [metadata "120"] .
+  eq in-netlabel-by-pid(NP,(pi(NP,IN,OUT),np NIS)) = IN .
+ ceq in-netlabel-by-pid(P, (pi(NP,IN,OUT),np NIS)) = in-netlabel-by-pid(P,NIS) if P ~p NP = false .
+  eq in-netlabel-by-pid(P, mtNPIS)                 = nolabel .
 
-  op out-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel .
-  eq out-netlabel-by-pid(NP,(pi(NP, IN,OUT),np NIS)) = OUT .
- ceq out-netlabel-by-pid(NP,(pi(NP',IN,OUT),np NIS)) = out-netlabel-by-pid(NP,NIS) if NP ~p NP' = false .
-  eq out-netlabel-by-pid(NP,mtNPIS)                  = nolabel .
+  op out-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel [metadata "121"] .
+  eq out-netlabel-by-pid(NP,(pi(NP,IN,OUT),np NIS)) = OUT .
+ ceq out-netlabel-by-pid(P, (pi(NP,IN,OUT),np NIS)) = out-netlabel-by-pid(NP,NIS) if P ~p NP = false .
+  eq out-netlabel-by-pid(P, mtNPIS)                 = nolabel .
 
-  op netlabelpair-by-pid : ProcessId NetProcInfoSet -> MaybeLabelPair .
-  eq netlabelpair-by-pid(NP,(pi(NP, IN,OUT),np NIS)) = (IN,OUT) .
- ceq netlabelpair-by-pid(NP,(pi(NP',IN,OUT),np NIS)) = netlabelpair-by-pid(NP,NIS) if NP ~p NP' = false .
-  eq netlabelpair-by-pid(NP,mtNPIS)                  = nopair .
+  op netlabelpair-by-pid : ProcessId NetProcInfoSet -> MaybeLabelPair [metadata "122"] .
+  eq netlabelpair-by-pid(NP,(pi(NP,IN,OUT),np NIS)) = (IN,OUT) .
+ ceq netlabelpair-by-pid(P, (pi(NP,IN,OUT),np NIS)) = netlabelpair-by-pid(NP,NIS) if P ~p NP = false .
+  eq netlabelpair-by-pid(P, mtNPIS)                 = nopair .
+
+  op pid-in-netlabels? : ProcessId NetProcInfoSet -> Bool [metadata "123"] .
+  eq pid-in-netlabels?(P,NIS) = not (in-netlabel-by-pid(P,NIS) ~l nolabel) .
+
+  op pid-in-weblabels? : ProcessId WebProcInfoSet -> Bool [metadata "124"] .
+  eq pid-in-weblabels?(P,WIS) = not (weblabel-by-pid(P,WIS) ~l nolabel) .
 
   --- Other predicates
-  op conf-labels-eqset? : NetWebProcConfig WebProcInfoSet NetProcInfoSet -> Bool [metadata "129"] .
+  op conf-labels-eqset? : NetWebProcConfig WebProcInfoSet NetProcInfoSet -> Bool [metadata "125"] .
   eq conf-labels-eqset?(< WP | A > NWC,(pi(WP,L),wp WIS),NIS                  ) = conf-labels-eqset?(NWC,WIS,NIS) .
   eq conf-labels-eqset?(< NP | A > NWC,              WIS, (pi(NP,L,L'),np NIS)) = conf-labels-eqset?(NWC,WIS,NIS) .
   eq conf-labels-eqset?(none,mtWPIS, mtNPIS) = true  .
