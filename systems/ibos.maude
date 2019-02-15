@@ -74,86 +74,79 @@ endfm
 fmod PROC-ID is
   pr NAT-NO-BUILTIN .
 
-  sort AbsProcessId    .  **** Set of (possibly) abstract process ids
-  sort ProcessId       .  **** general sort of process identifiers
-  sort NonNetProcId    .  **** processes which cannot act like a network
-  sort NonWebProcId    .  **** processes which are not webapps
-  sort NonPipeId       .  **** processes that cannot act like pipes
-  sort AbsPipeId       .  **** processes which can act like pipes
-  sort PipeId          .
+  sort ProcessId       .  **** Set of all process ids
+  sort AbsProcId       .
+  sort ConcProcId      .
+
+  sort PipeId          .  **** processes which can act like pipes
+  sort NonPipeId       .  **** Set of non-pipe processes
+
+  sort AbsPipeId       .
+  sort AbsNetProcId    .
+  sort AbsWebProcId    .
+
+  sort ConcPipeId      .
+  sort NetProcId       .
+  sort WebProcId       .
+  sort UIId            .
+
   sort NonNetPipeId    .  **** processes which are pipes and not networks
   sort NonWebPipeId    .  **** processes which are pipes and not webapps
 
-  sort KernelId        .  **** the kernel process's id
-  sort WebProcMgrId    .  **** the web app manager's id
-  sort UIId            .  **** the UI process's id
-  sort DisplayId       .  **** the display process's id
-  sort NICId           .  **** the NIC process's id
-  sort AbsNetProcId    .  **** processes which can act like a network
-  sort NetProcId       .
-  sort AbsWebProcId    .  **** processes which can act like a webapp
-  sort WebProcId       .
+  subsorts AbsProcId ConcProcId < ProcessId .
+  subsorts PipeId    NonPipeId  < ProcessId .
 
-  subsorts UIId NetProcId WebProcId              < PipeId    < ProcessId .
-  subsorts KernelId DisplayId NICId WebProcMgrId < NonPipeId < ProcessId .
+  subsorts ConcPipeId NonPipeId < ConcProcId .
+  subsorts AbsPipeId            < AbsProcId  .
 
-  subsorts UIId WebProcId < NonNetPipeId < PipeId .
-  subsorts UIId NetProcId < NonWebPipeId < PipeId .
+  subsorts AbsPipeId ConcPipeId < PipeId .
+  subsorts UIId NetProcId WebProcId    < ConcPipeId .
+  subsorts AbsNetProcId AbsWebProcId   < AbsPipeId  .
+  subsorts UIId AbsWebProcId WebProcId < NonNetPipeId < PipeId .
+  subsorts UIId AbsNetProcId NetProcId < NonWebPipeId < PipeId .
 
-  subsorts NonPipeId NonNetPipeId < NonNetProcId < ProcessId .
-  subsorts NonPipeId NonWebPipeId < NonWebProcId < ProcessId .
+  op kernel    :     -> NonPipeId [ctor metadata "23"] .
+  op display   :     -> NonPipeId [ctor metadata "29"] .
+  op nic       :     -> NonPipeId [ctor metadata "30"] .
+  op webappmgr :     -> NonPipeId [ctor metadata "31"] .
 
-  subsorts WebProcId < AbsWebProcId < AbsPipeId .
-  subsorts NetProcId < AbsNetProcId < AbsPipeId .
-  subsorts PipeId < AbsPipeId .
-  subsorts ProcessId < AbsProcessId .
+  op webapp    :     -> AbsWebProcId  [ctor metadata "24"] .
+  op webapp    : Nat -> WebProcId     [ctor metadata "25"] .
+  op network   :     -> AbsNetProcId  [ctor metadata "26"] .
+  op network   : Nat -> NetProcId     [ctor metadata "27"] .
+  op ui        :     -> UIId          [ctor metadata "28"] .
 
-  op kernel    :     -> KernelId [ctor metadata "23"] .
-  op webapp    :     -> AbsWebProcId [ctor metadata "24"] .
-  op webapp    : Nat -> WebProcId [ctor metadata "25"] .
-  op network   :     -> AbsNetProcId [ctor metadata "26"] .
-  op network   : Nat -> NetProcId [ctor metadata "27"] .
-  op ui        :     -> UIId [ctor metadata "28"] .
-  op display   :     -> DisplayId [ctor metadata "29"] .
-  op nic       :     -> NICId [ctor metadata "30"] .
-  op webappmgr :     -> WebProcMgrId [ctor metadata "31"] .
+  var  P   : ProcessId .
+  var  NPP : NonPipeId .
+  var  PP  : PipeId .
+  var  APP : AbsPipeId .
+  var  CPP : ConcPipeId .
+  var  WP  : WebProcId .
+  var  NP  : NetProcId .
+  var  UI  : UIId .
+  vars N M : Nat .
+  var  Z   : NzNat .
 
-  vars PId   : ProcessId .
-  vars KeId  : KernelId .
-  vars WPId  : WebProcId .
-  vars NPId  : NetProcId .
-  vars DiId  : DisplayId .
-  vars UiId  : UIId .
-  var  WPMId : WebProcMgrId .
-  var  NICId : NICId .
-  vars N N'  : Nat .
-
-  op _~p_ : AbsProcessId AbsProcessId -> Bool [comm metadata "32"] .
-  eq PId ~p PId                = true    [variant] .
-  eq KeId ~p WPId              = false   [variant] .
-  eq KeId ~p NPId              = false   [variant] .
-  eq KeId ~p UiId              = false   [variant] .
-  eq KeId ~p DiId              = false   [variant] .
-  eq KeId ~p NICId             = false   [variant] .
-  eq webapp ~p webapp(N)       = false   [variant] .
-  eq webapp(N) ~p webapp(N')   = N ~n N' [variant] .
-  eq WPId ~p NPId              = false   [variant] .
-  eq WPId ~p UiId              = false   [variant] .
-  eq WPId ~p DiId              = false   [variant] .
-  eq WPId ~p NICId             = false   [variant] .
-  eq network ~p network(N)     = false   [variant] .
-  eq network(N) ~p network(N') = N ~n N' [variant] .
-  eq NPId ~p UiId              = false   [variant] .
-  eq NPId ~p DiId              = false   [variant] .
-  eq NPId ~p NICId             = false   [variant] .
-  eq UiId ~p DiId              = false   [variant] .
-  eq UiId ~p NICId             = false   [variant] .
-  eq WPMId ~p KeId             = false   [variant] .
-  eq WPMId ~p WPId             = false   [variant] .
-  eq WPMId ~p NPId             = false   [variant] .
-  eq WPMId ~p UiId             = false   [variant] .
-  eq WPMId ~p DiId             = false   [variant] .
-  eq WPMId ~p NICId            = false   [variant] .
+  op _~p_ : ProcessId ProcessId -> Bool [comm metadata "32"] .
+  eq P              ~p P          = true  [variant] .
+  eq NPP            ~p PP         = false [variant] .
+  --- NonPipeId Disequality
+  eq kernel         ~p display    = false [variant] .
+  eq kernel         ~p nic        = false [variant] .
+  eq kernel         ~p webappmgr  = false [variant] .
+  eq display        ~p nic        = false [variant] .
+  eq display        ~p webappmgr  = false [variant] .
+  eq nic            ~p webappmgr  = false [variant] .
+  --- PipeId Disequality
+  eq APP            ~p CPP        = false [variant] .
+  --- AbsPipeId Disequality
+  eq network        ~p webapp     = false [variant] .
+  --- ConcPipeId Disequality
+  eq network(N)     ~p webapp (M) = false [variant] .
+  eq network(N + Z) ~p network(N) = false [variant] .
+  eq webapp (N + Z) ~p webapp (N) = false [variant] .
+  eq network(N)     ~p ui         = false [variant] .
+  eq webapp (N)     ~p ui         = false [variant] .
 endfm
 
 fmod SYS is
@@ -165,7 +158,7 @@ fmod SYS is
   subsorts Attribute < NeAttributeSet < AttributeSet .
   subsort  EmptyAttributeSet < AttributeSet .
 
-  op <_|_> : ProcessId AttributeSet                -> Object             [ctor metadata "33"] .
+  op <_|_> : ConcProcId AttributeSet               -> Object             [ctor metadata "33"] .
   op _,_   : AttributeSet AttributeSet             -> AttributeSet       [ctor assoc comm id: none metadata "34"] .
   op _,_   : AttributeSet NeAttributeSet           -> NeAttributeSet     [ctor ditto metadata "34"] .
   op _,_   : EmptyAttributeSet EmptyAttributeSet   -> EmptyAttributeSet  [ctor ditto metadata "34"] .
@@ -213,7 +206,7 @@ fmod MSG is pr PROC-ID . pr LABEL .
   op MSG-FETCH-URL  : -> MsgType [ctor metadata "46"] . --- tells network to fetch data for given URL
   op MSG-RETURN-URL : -> MsgType [ctor metadata "47"] . --- stores data that was fetched from internet by MSG-FETCH-URL
   op MSG-SWITCH-TAB : -> MsgType [ctor metadata "48"] . --- causes displayed tab to be switched
-  op msg  : AbsPipeId AbsPipeId MsgType Label -> Message [ctor metadata "49"] .
+  op msg  : PipeId PipeId MsgType Label -> Message [ctor metadata "49"] .
   op none : -> Message? [ctor metadata "50"] .
 
   --- equality predicate for message types
@@ -364,10 +357,10 @@ fmod KERNEL-POLICIES-FVP is
   op mtPS :                       -> PolicySet [ctor metadata "6"] .
   op _,ps_  : PolicySet PolicySet -> PolicySet [ctor assoc comm id: mtPS metadata "66"] .
 
-  op msgPolicy        : PolicySet                   -> Attribute [ctor metadata "67"] .  **** make the policylist an attribute with this wrapper
-  op policy           : AbsPipeId AbsPipeId MsgType -> Policy    [ctor metadata "68"] .  **** a policy is a sender Id, receiver Id and MsgType (only PipeProcs can communicate with kernel)
-  op nextNPN          : Nat                         -> Attribute [ctor metadata "69"] .  **** the next available proc id for a network proc
-  op handledCurrently : Message?                    -> Attribute [ctor metadata "70"] .  **** the message currently handled by the kernel
+  op msgPolicy        : PolicySet             -> Attribute [ctor metadata "67"] .  **** make the policylist an attribute with this wrapper
+  op policy           : PipeId PipeId MsgType -> Policy    [ctor metadata "68"] .  **** a policy is a sender Id, receiver Id and MsgType (only PipeProcs can communicate with kernel)
+  op nextNPN          : Nat                   -> Attribute [ctor metadata "69"] .  **** the next available proc id for a network proc
+  op handledCurrently : Message?              -> Attribute [ctor metadata "70"] .  **** the message currently handled by the kernel
   **** webapp info stored by kernel
   **** label identifies the website this webapp is showing - this needs to match the
   **** first label of a network proc to allow communication
@@ -449,7 +442,7 @@ fmod KERNEL-POLICIES-NONFVP is
   var L L' L'' : Label . var N N' : Nat .
   var NI NI' : NetProcId . var WI WI' : WebProcId .
   var NPIS : NetProcInfoSet . var WPIS : WebProcInfoSet .
-  var PI PI' : ProcessId .
+  var PI PI' : ConcProcId .
   var NPI NPI' : NonPipeId .
   var UI : UIId .
 
@@ -501,8 +494,8 @@ mod KERNEL is
 
   var URL         : Label .
 
-  var ORG         : PipeId    .
-  var PPI1 PPI2   : PipeId    .
+  var ORG         : ConcPipeId   .
+  var PPI1 PPI2   : ConcPipeId   .
 
   var WI WI'      : WebProcId    .
   var NI NI'      : NetProcId    .
