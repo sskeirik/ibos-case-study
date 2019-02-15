@@ -451,26 +451,6 @@ fmod KERNEL-POLICIES-NONFVP is
   eq np-by-lbl?(L',(pi(network(N),L,L') ,np NPIS)) = true [variant] .
  ceq np-by-lbl?(L',(pi(network(N),L,L'') ,np NPIS)) = np-by-lbl?(L',NPIS) if L' ~l L'' = false .
   eq np-by-lbl?(L',mtNPIS) = false .
-
-  op matching-procs1? : NetProcId Label NetProcInfoSet -> Bool [metadata "82"] .
-  eq matching-procs1?(NI,L,(pi(NI,L,L'') ,np NPIS)) = true .
- ceq matching-procs1?(NI,L,(pi(NI',L',L'') ,np NPIS)) = matching-procs1?(NI,L,NPIS) if NI ~p NI' and L ~l L' = false .
-  eq matching-procs1?(NI,L,mtNPIS) = false .
-
-  op matching-procs? : ProcessId ProcessId WebProcInfoSet NetProcInfoSet -> Bool [metadata "83"] .
-  ---
-  --- recursing when possible
-  eq matching-procs?(NI,WI,(pi(WI,L) ,wp WPIS),NPIS) = matching-procs1?(NI,L,NPIS) or matching-procs?(NI,WI,WPIS,NPIS) .
- ceq matching-procs?(NI,WI,(pi(WI',L) ,wp WPIS),NPIS) = matching-procs?(NI,WI,WPIS,NPIS) if WI ~p WI' = false .
-
-  --- no more webapps left to match
-  eq matching-procs?(PI,PI',mtWPIS,NPIS) = false .
-
-  --- invalid process ids
-  eq matching-procs?(NPI,NPI',WPIS,NPIS) = false .
-  eq matching-procs?(UI,NPI,WPIS,NPIS) = false .
-  eq matching-procs?(NPI,UI,WPIS,NPIS) = false .
-  eq matching-procs?(WI,NI,WPIS,NPIS) = false .
 endfm
 
 mod KERNEL is
@@ -615,7 +595,7 @@ mod KERNEL is
   **** webapp  WI is labelled with L, sending message ORG -> NI with label L'
   **** netproc NI source is labelled with L, target is labelled with L'
   **** resulting message is WI -> NI with label L'
-  rl [kernelReceivesOPMessage-pa6-cc2a] :
+  rl [kernelReceivesOPMessage-pa6-a] :
      { < kernel |
            handledCurrently(none),
            msgPolicy(policy(webapp,network,MT),ps MP),
@@ -642,7 +622,7 @@ mod KERNEL is
   **** rule, start a new network proc - this assumes that there will
   **** be no more than 772 network procs started, to prevent that, we
   **** would need to check "Num'' < 1024" :
- crl [kernelReceivesOPMessage-pa6-cc2b] :
+ crl [kernelReceivesOPMessage-pa6-b] :
      { < kernel |
            handledCurrently(none),
            msgPolicy(policy(webapp,network,MT),ps MP),
@@ -676,7 +656,8 @@ mod KERNEL is
   **** mirrored, for the reverse direction from network process to webapp:
   **** there is a connection, just forward the message
   **** network proc answering to webapp, thus having the correct recipient:
-  rl [kernelReceivesOPMessage-pa7-cc1a] :
+  **** if there is no connection, we drop by pa10
+  rl [kernelReceivesOPMessage-pa7] :
      { < kernel |
            handledCurrently(none),
            msgPolicy(policy(network,webapp,MT),ps MP),
@@ -698,30 +679,6 @@ mod KERNEL is
            toKernel(ML) ,
            Att2 >
        Cnf } .
-
-  **** there is no connection, then drop the message
- crl [kernelReceivesOPMessage-pa7-cc1b] :
-     { < kernel     |
-           handledCurrently(none),
-           msgPolicy(policy(network,webapp,MT),ps MP),
-           weblabels(WPIS),
-           netlabels(NPIS),
-           Att >
-       < NI |
-           toKernel(msg(ORG, WI, MT, L'') @ ML),
-           Att2 > Cnf }
-  =>
-     { < kernel |
-           handledCurrently(none),
-           msgPolicy(policy(network,webapp,MT),ps MP),
-           weblabels(WPIS),
-           netlabels(NPIS),
-           Att >
-       < NI |
-           toKernel(ML) ,
-           Att2 >
-       Cnf }
-  if matching-procs?(NI,WI,WPIS,NPIS) = false .
 
   **** policy allows message from UI to change current webapp to webapp WI with MSG-SWITCH-TAB
   rl [kernelReceivesOPMessage-pa8] :
