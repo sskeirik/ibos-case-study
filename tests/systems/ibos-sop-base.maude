@@ -75,9 +75,18 @@ fmod LABEL-FVP-EXT is
   sort MaybeLabelPair .
   op ((_,_)) : Label Label -> MaybeLabelPair [ctor metadata "88"] .
   op nopair  :             -> MaybeLabelPair [ctor metadata "89"] .
+
   op _~lp_ : MaybeLabelPair MaybeLabelPair -> Bool [comm metadata "90"] .
   eq (L1,L2) ~lp (L1',L2') = L1 ~l L1' and L2 ~l L2' .
   eq nopair  ~lp (L1, L2 ) = false .
+
+  op inlbl : MaybeLabelPair -> MaybeLabel [metadata "91"] .
+  eq inlbl((L1,L2)) = L1 .
+  eq inlbl(nopair)  = nolabel .
+
+  op outlbl : MaybeLabelPair -> MaybeLabel [metadata "92"] .
+  eq outlbl((L1,L2)) = L2 .
+  eq outlbl(nopair)  = nolabel .
 endfm
 
 fmod MSG-FVP-EXT is
@@ -119,7 +128,7 @@ fmod MSG-FVP-EXT is
 
   sort MaybeMessageList .
   subsort MessageList < MaybeMessageList .
-  op nolist : -> MaybeMessageList [ctor metadata "91"] .
+  op nolist : -> MaybeMessageList [ctor metadata "93"] .
 endfm
 
 fmod KERNEL-METADATA-FVP-EXT is
@@ -600,25 +609,20 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
  ceq weblabel-by-pid(P, (pi(WP,IN),wp WIS)) = weblabel-by-pid(WP,WIS) if P ~p WP = false .
   eq weblabel-by-pid(P, mtWPIS)             = nolabel .
 
-  op in-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel [metadata "120"] .
-  eq in-netlabel-by-pid(NP,(pi(NP,IN,OUT),np NIS)) = IN .
- ceq in-netlabel-by-pid(P, (pi(NP,IN,OUT),np NIS)) = in-netlabel-by-pid(P,NIS) if P ~p NP = false .
-  eq in-netlabel-by-pid(P, mtNPIS)                 = nolabel .
-
-  op out-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel [metadata "121"] .
-  eq out-netlabel-by-pid(NP,(pi(NP,IN,OUT),np NIS)) = OUT .
- ceq out-netlabel-by-pid(P, (pi(NP,IN,OUT),np NIS)) = out-netlabel-by-pid(NP,NIS) if P ~p NP = false .
-  eq out-netlabel-by-pid(P, mtNPIS)                 = nolabel .
-
-  op netlabelpair-by-pid : ProcessId NetProcInfoSet -> MaybeLabelPair [metadata "122"] .
+  op netlabelpair-by-pid : ProcessId NetProcInfoSet -> MaybeLabelPair [metadata "120"] .
   eq netlabelpair-by-pid(NP,(pi(NP,IN,OUT),np NIS)) = (IN,OUT) .
  ceq netlabelpair-by-pid(P, (pi(NP,IN,OUT),np NIS)) = netlabelpair-by-pid(NP,NIS) if P ~p NP = false .
   eq netlabelpair-by-pid(P, mtNPIS)                 = nopair .
 
-  op pid-in-netlabels? : ProcessId NetProcInfoSet -> Bool [metadata "123"] .
- ceq pid-in-netlabels?(P,NIS) = true  if (in-netlabel-by-pid(P,NIS) ~l nolabel) = false .
- ceq pid-in-netlabels?(P,NIS) = false if (in-netlabel-by-pid(P,NIS) ~l nolabel) = true  .
+  op in-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel [metadata "121"] .
+  eq in-netlabel-by-pid(P,NIS) = inlbl(netlabelpair-by-pid(P,NIS)) .
 
+  op out-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel [metadata "122"] .
+  eq out-netlabel-by-pid(P,NIS) = outlbl(netlabelpair-by-pid(P,NIS)) .
+
+  op pid-in-netlabels? : ProcessId NetProcInfoSet -> Bool [metadata "123"] .
+ ceq pid-in-netlabels?(P,NIS) = true  if (netlabelpair-by-pid(P,NIS) ~lp nopair) = false .
+ ceq pid-in-netlabels?(P,NIS) = false if (netlabelpair-by-pid(P,NIS) ~lp nopair) = true  .
 
   op pid-in-weblabels? : ProcessId WebProcInfoSet -> Bool [metadata "124"] .
  ceq pid-in-weblabels?(P,WIS) = true  if (weblabel-by-pid(P,WIS) ~l nolabel) = false .
@@ -761,6 +765,9 @@ fmod IBOS-SOP-PRED is
   /\ PI'  ~p network
   /\ OUT1 ~l OUT2 .
 
+ ceq p(< WI | loading(true),  URL(OUT1), toKernel(NFL @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ NFL2), A > NWC,WIS,NIS,M?) = false
+  if pid-in-weblabels?(WI,WIS) and PI ~p WI and PI' ~p network and OUT1 ~l OUT2 = false .
+
  ceq p(< WI | loading(true),  toKernel(HFL @ HFL2), A > NWC,WIS,NIS,M?) = false
   if pid-in-weblabels?(WI,WIS) .
 
@@ -773,10 +780,18 @@ fmod IBOS-SOP-PRED is
   --- [2] message label is from the in() attribute --- which means it comes from the Webapp URL, encoded in the OUT
  ceq p(< NI | toKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) =
      p(< NI | toKernel(ML @                                  ML2), A > NWC,WIS,NIS,M?)
-  if (weblabel-by-pid(PI',WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) .
+  if PI ~p NI
+  /\ (weblabel-by-pid(PI',WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) .
+
+ ceq p(< NI | toKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) = false
+  if PI ~p NI and (weblabel-by-pid(PI',WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) = false .
 
  ceq p(< NI | toKernel(ML @ NRM                             @ ML2), A > NWC,WIS,NIS,M?) =
      p(< NI | toKernel(ML @                                   ML2), A > NWC,WIS,NIS,M?)
+  if pid-in-netlabels?(NI,NIS) .
+
+ ceq p(< NI | toKernel(mt),                                         A > NWC,WIS,NIS,M?) =
+     p(< NI | toKernel(nolist),                                     A > NWC,WIS,NIS,M?)
   if pid-in-netlabels?(NI,NIS) .
 
   --- currentlyHandled() attr invariant
@@ -790,8 +805,8 @@ fmod IBOS-SOP-PRED is
  ceq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ in-conf?(NI,NWC) = false .
 
   --- process invariant
-  eq p(< WI | toKernel(mt), fromKernel(mt),                              A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
-  eq p(< NI | toKernel(mt), fromKernel(mt), mem-in(mtLL), mem-out(mtLL), A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
+  eq p(< WI | toKernel(nolist), fromKernel(nolist),                              A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
+  eq p(< NI | toKernel(nolist), fromKernel(nolist), mem-in(mtLL), mem-out(mtLL), A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
 
   --- true case
   eq p(none,mtWPIS,mtNPIS,none) = true .
