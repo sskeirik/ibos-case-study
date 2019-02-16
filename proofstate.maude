@@ -561,6 +561,8 @@ endfm
 view AxiomRecord from TRIV to AXIOM-RECORD is sort Elt to AxiomRecord . endv
 
 fmod REACH-PROOF-STATUS is
+  var X : ProofStatusCode .
+
   sort ProofStatusCode .
   op err : -> ProofStatusCode [ctor] .
   op done : -> ProofStatusCode [ctor] .
@@ -573,6 +575,8 @@ fmod REACH-PROOF-STATUS is
   op __ : ExceptionalStatus ExceptionalStatus -> ExceptionalStatus [ctor ditto] .
   op __ : ProofStatus ProofStatus -> ProofStatus [ctor ditto] .
   op noStatus : -> NormalStatus [ctor] .
+
+  eq X X = X .
 endfm
 
 fmod REACH-PROOF-STATE is
