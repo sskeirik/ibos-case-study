@@ -604,7 +604,7 @@ mod RLTL-PROC-CMD is
                                   else write('Goal: qid(string(N,10)) 'not 'found)
                                 fi .
   eq proc(split((T | QF),B,QF1,QF2),R) = if checkType(get-mod(R),getRuleType(get-mod(R)),T) :: Term
-                                           then if #goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))) :: ProofGoalSubstPairSet
+                                           then if #goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))) :: NeProofGoalSubstPairSet
                                              then if (vars(QF1) ; vars(QF2)) subset vars((T | QF))
                                                then atomic-run(R,$split(B,QF1,QF2,#goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))))) &
                                                  (write('Split 'rule 'generated: '\n printSpaces(8)) ;
