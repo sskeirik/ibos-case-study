@@ -203,10 +203,13 @@ fmod META-RLTL-COMMAND is
    op cases+_on_by_.         : @QFCTerm@ @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
    op split_by_.             : Nat @QFForm@ -> MetaRLTLCommand [ctor] .
    op split_by_.             : @Term@ @QFForm@ -> MetaRLTLCommand [ctor] .
+   op split_by_.             : @QFCTerm@ @QFForm@ -> MetaRLTLCommand [ctor] .
    op replace_by_.           : Nat @QFForm@ -> MetaRLTLCommand [ctor] .
    op replace_by_.           : @Term@ @QFForm@ -> MetaRLTLCommand [ctor] .
+   op replace_by_.           : @QFCTerm@ @QFForm@ -> MetaRLTLCommand [ctor] .
    op split_by_and_.         : Nat @QFForm@ @QFForm@ -> MetaRLTLCommand [ctor] .
    op split_by_and_.         : @Term@ @QFForm@ @QFForm@ -> MetaRLTLCommand [ctor] .
+   op split_by_and_.         : @QFCTerm@ @QFForm@ @QFForm@ -> MetaRLTLCommand [ctor] .
    op subsume_by_.           : Nat Nat -> MetaRLTLCommand [ctor] .
    op select-rls_.           : @NeTokenList@ -> MetaRLTLCommand [ctor] .
    op select_.               : @Token@ -> MetaRLTLCommand [ctor] .
@@ -296,6 +299,9 @@ fmod PARSE-RLTLCOMMAND is
   ceq rltl-parse((M,S),'split_by_.[T1,T2])               = split((parse-pattern((M,S),false,T1) | mtForm),true,parse-qfform((M,S),true,T2),toNNF(~ parse-qfform((M,S),true,T2))) if parse-pattern((M,S),false,T1) :: Term .
   ceq rltl-parse((M,S),'replace_by_.[T1,T2])             = split((parse-pattern((M,S),false,T1) | mtForm),false,parse-qfform((M,S),true,T2),ff)                                  if parse-pattern((M,S),false,T1) :: Term .
   ceq rltl-parse((M,S),'split_by_and_.[T1,T2,T3])        = split((parse-pattern((M,S),false,T1) | mtForm),false,parse-qfform((M,S),true,T2),parse-qfform((M,S),true,T3))         if parse-pattern((M,S),false,T1) :: Term .
+  ceq rltl-parse((M,S),'split_by_.[T1,T2])               = split(parse-qfcterm((M,S),false,T1),true,parse-qfform((M,S),true,T2),toNNF(~ parse-qfform((M,S),true,T2))) if parse-qfcterm((M,S),false,T1) :: QFCTerm .
+  ceq rltl-parse((M,S),'replace_by_.[T1,T2])             = split(parse-qfcterm((M,S),false,T1),false,parse-qfform((M,S),true,T2),ff)                                  if parse-qfcterm((M,S),false,T1) :: QFCTerm .
+  ceq rltl-parse((M,S),'split_by_and_.[T1,T2,T3])        = split(parse-qfcterm((M,S),false,T1),false,parse-qfform((M,S),true,T2),parse-qfform((M,S),true,T3))         if parse-qfcterm((M,S),false,T1) :: QFCTerm .
    eq rltl-parse((M,S),'focus_.[T1])                     = focus(downNeNatSet(T1)) .
    eq rltl-parse((M,S),'list-goals`..MetaRLTLCommand)    = ls(true) .
    eq rltl-parse((M,S),'list-goal-ids`..MetaRLTLCommand) = ls(false) .
