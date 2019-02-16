@@ -591,10 +591,10 @@ mod RLTL-PROC-CMD is
                                   else write('Goal: qid(string(N,10)) 'not 'found)
                                 fi .
   eq proc(cases((T | QF),V,TS),R) = if checkType(get-mod(R),getRuleType(get-mod(R)),T) :: Term
-                                  then if goalsByMatch(get-mod(R),(T | QF),goalsByStatus(active,get-prf(R))) :: NeProofGoalSet
-                                    then atomic-run(R,$cases(get-mod(R),(T | QF),V,TS,goalsByMatch(get-mod(R),(T | QF),goalsByStatus(active,get-prf(R))))) &
+                                  then if goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))) :: NeProofGoalSet
+                                    then atomic-run(R,$cases(get-mod(R),(T | QF),V,TS,goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))))) &
 				      (write('Cases 'rule 'generated: '\n printSpaces(8)) ;
-				        write-branch(getid(goalsByMatch(get-mod(R),T,goalsByStatus(active,get-prf(R))))))
+				        write-branch(getid(goalsByMatch(get-mod(R),T,readyGoals(get-prf(R))))))
 				    else write('Error: 'case 'pattern 'failed 'to 'match 'any 'goals)
 				  fi else write('Error: 'case 'pattern 'has 'wrong 'type)
 				fi .
@@ -604,11 +604,11 @@ mod RLTL-PROC-CMD is
                                   else write('Goal: qid(string(N,10)) 'not 'found)
                                 fi .
   eq proc(split((T | QF),B,QF1,QF2),R) = if checkType(get-mod(R),getRuleType(get-mod(R)),T) :: Term
-                                           then if #goalsByMatch(get-mod(R),(T | QF),goalsByStatus(active,get-prf(R))) :: ProofGoalSubstPairSet
+                                           then if #goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))) :: ProofGoalSubstPairSet
                                              then if (vars(QF1) ; vars(QF2)) subset vars((T | QF))
-                                               then atomic-run(R,$split(B,QF1,QF2,#goalsByMatch(get-mod(R),(T | QF),goalsByStatus(active,get-prf(R))))) &
+                                               then atomic-run(R,$split(B,QF1,QF2,#goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))))) &
                                                  (write('Split 'rule 'generated: '\n printSpaces(8)) ;
-                                                   write-branch(getid(toGoalSet(#goalsByMatch(get-mod(R),(T | QF),goalsByStatus(active,get-prf(R)))))))
+                                                   write-branch(getid(toGoalSet(#goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R)))))))
                                                else write('Error: 'split 'formula 'variables 'must 'belong 'to 'split 'pattern)
                                              fi else write('Error: 'split 'pattern 'failed 'to 'match 'any 'goals)
                                            fi else write('Error: 'split 'pattern 'has 'wrong 'type)
