@@ -394,6 +394,14 @@ fmod REACH-PROOF-GOALSET is
     if PS == PS' then [P,N,CN,active,VS,F] else mt fi && goalsByStatus(PS,GS) .
   eq goalsByStatus(PS,GS) = mt .
 
+  op readyGoals : ProofGoalSet -> ProofGoalSet .
+  eq readyGoals([P,N,CN,PS,VS,F] && GS) =
+    if PS == active or PS == paused
+      then [P,N,CN,PS,VS,F]
+      else mt
+    fi && readyGoals(GS) .
+  eq readyGoals(mt) = mt .
+
   --- OUT: Get an active goal if it exists
   op getActiveGoal : ProofGoalSet ~> ProofGoal .
   eq getActiveGoal([P,N,CN,active,VS,F] && GS) = [P,N,CN,active,VS,F] .
