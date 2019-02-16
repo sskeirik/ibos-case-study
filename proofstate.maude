@@ -219,10 +219,11 @@ fmod REACH-PROOF-GOALSET is
   op _&&_ : ProofGoalSet NeProofGoalSet -> NeProofGoalSet [ctor ditto] .
   op mt : -> MaybeProofGoal [ctor] .
 
-  sort ProofGoalSubstPair ProofGoalSubstPairSet .
-  subsort ProofGoalSubstPair < ProofGoalSubstPairSet .
+  sort ProofGoalSubstPair NeProofGoalSubstPairSet ProofGoalSubstPairSet .
+  subsort ProofGoalSubstPair < NeProofGoalSubstPairSet < ProofGoalSubstPairSet .
   op ((_,_)) : ProofGoal Substitution -> ProofGoalSubstPair [ctor] .
-  op _&&_ : ProofGoalSubstPairSet ProofGoalSubstPairSet -> ProofGoalSubstPairSet [ctor assoc comm id: .ProofGoalSubstPairSet] .
+  op _&&_ :   ProofGoalSubstPairSet ProofGoalSubstPairSet ->   ProofGoalSubstPairSet [ctor assoc comm id: .ProofGoalSubstPairSet] .
+  op _&&_ : NeProofGoalSubstPairSet ProofGoalSubstPairSet -> NeProofGoalSubstPairSet [ctor ditto] .
   op .ProofGoalSubstPairSet : -> ProofGoalSubstPairSet [ctor] .
 
   ---# extract goals out
