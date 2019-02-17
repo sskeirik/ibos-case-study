@@ -173,6 +173,7 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq (displayedContent(X:Label),            AS) !a = displayedContent(about-blank), (AS !a) .
   eq (activeWebapp    (X:WebProcId),        AS) !a = activeWebapp(webapp(0)),       (AS !a) .
   eq none !a = none .
+  eq (AS !a) !a = AS !a .
 
   op _~a_ : Attribute Attribute -> Bool [comm metadata "101"] .
   eq fromKernel      (X:MaybeMessageList) ~a fromKernel      (Y:MaybeMessageList) = true .
@@ -451,6 +452,7 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq in-attrset?(activeWebapp    (X:WebProcId)        | (activeWebapp    (Y:WebProcId),        AS)) = true .
   eq in-attrset?(A | none) = false .
  ceq in-attrset?(A | A', AS) = in-attrset?(A | AS) if A ~a A' = false .
+  eq in-attrset?(A | (AS !a)) = in-attrset?(A | AS) .
 
   op attr-dupl? : AttributeSet -> Bool [metadata "103"] .
   eq attr-dupl?(fromKernel      (X:MaybeMessageList), fromKernel      (Y:MaybeMessageList), AS) = true .
