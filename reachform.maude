@@ -633,22 +633,25 @@ fmod VAR-UNIF-SIMPLIFY is
   ---      remove the equalities from the constraint, since they will be applied
   ---      everywhere else in the formula
   op varunif-simp : Module ReachFormSubstPairSet -> ReachFormSubstPairSet .
-  eq varunif-simp(noModule,FSS) = FSS . --- HACK: this line must go first---owise case analysis will fail
-  eq varunif-simp(M,(F,S) & FSS) =
+  eq varunif-simp(M,FSS) = varunif-simp1(M,FSS) .
+
+  op varunif-simp1 : Module ReachFormSubstPairSet -> ReachFormSubstPairSet .
+  eq varunif-simp1(noModule,FSS) = FSS . --- HACK: this line must go first---owise case analysis will fail
+  eq varunif-simp1(M,(F,S) & FSS) =
     if lhs-cond(F) :: Conj then
-      varunif-simp(M,(F,S),filter-conj(M,lhs-cond(F)))
+      varunif-simp2(M,(F,S),filter-conj(M,lhs-cond(F)))
     else
       (F,S)
-    fi & varunif-simp(M,FSS) .
-  eq varunif-simp(M,mtRFSS) = mtRFSS .
+    fi & varunif-simp1(M,FSS) .
+  eq varunif-simp1(M,mtRFSS) = mtRFSS .
 
-  op varunif-simp : Module ReachFormSubstPair FOFormPair -> ReachFormSubstPairSet .
-  eq varunif-simp(M,((T | C) => D,S),(PC /\ NC,C?)) =
-    varunif-simp(M, ( ((T | NC /\ C?) => D), S ), ctor-unifiers(M,toUnifProb(PC))) .
-  eq varunif-simp(M,(F,S),(C?,C'?)) = (F,S) [owise] .
+  op varunif-simp2 : Module ReachFormSubstPair FOFormPair -> ReachFormSubstPairSet .
+  eq varunif-simp2(M,((T | C) => D,S),(PC /\ NC,C?)) =
+    varunif-simp3(M, ( ((T | NC /\ C?) => D), S ), ctor-unifiers(M,toUnifProb(PC))) .
+  eq varunif-simp2(M,(F,S),(C?,C'?)) = (F,S) [owise] .
 
-  op varunif-simp : Module ReachFormSubstPair SubstitutionSet -> ReachFormSubstPairSet .
-  eq varunif-simp(M,(F,S),SS) = (F,S) << renameTmpVar(M,upTerm(F),SS) .
+  op varunif-simp3 : Module ReachFormSubstPair SubstitutionSet -> ReachFormSubstPairSet .
+  eq varunif-simp3(M,(F,S),SS) = (F,S) << renameTmpVar(M,upTerm(F),SS) .
 endfm
 
 --- TODO:
@@ -789,8 +792,11 @@ fmod REACH-PROOF-GOAL-SIMPLIFICATION-IMPL is
 
   --- OUT: simplify a reachform's LHS condition by a formula simplification function
   op simplify-cond : ReachFormSubstPairSet -> ReachFormSubstPairSet .
-  eq simplify-cond(((T | C) => D,S) & FSS) = split-disj((T | simplify(C)) => D,S) & simplify-cond(FSS) .
-  eq simplify-cond(mtRFSS) = mtRFSS .
+  eq simplify-cond(FSS) = simplify-cond1(FSS) .
+
+  op simplify-cond1 : ReachFormSubstPairSet -> ReachFormSubstPairSet .
+  eq simplify-cond1(((T | C) => D,S) & FSS) = split-disj((T | simplify(C)) => D,S) & simplify-cond1(FSS) .
+  eq simplify-cond1(mtRFSS) = mtRFSS .
 
   --- OUT: reduce a reachform's LHS condition by a module
   op reduce-cond : Module ReachFormSubstPair -> ReachFormSubstPair .
