@@ -727,7 +727,6 @@ fmod IBOS-SOP-PRED is
      p(< NI | mem-out(nolabel), A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT .
 
-  --- TODO: generalize attrs to hold a NoList constant so that rules cannot match
   --- Prop 4 ---
   --- NOTE: should false case be relaxed to don't care instead of NonRetMsgList
  ceq p(< WI | loading(true),  fromKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) =
@@ -738,8 +737,12 @@ fmod IBOS-SOP-PRED is
      p(< WI | loading(true),  fromKernel(ML @                                   ML2), A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS) .
 
+ ceq p(< WI | loading(true),  fromKernel(mt),                                         A > NWC,WIS,NIS,M?) =
+     p(< WI | loading(true),  fromKernel(nolist),                                     A > NWC,WIS,NIS,M?)
+  if pid-in-weblabels?(WI,WIS) .
+
  ceq p(< WI | loading(false), fromKernel(ML                                        ), A > NWC,WIS,NIS,M?) =
-     p(< WI | loading(false), fromKernel(mt                                        ), A > NWC,WIS,NIS,M?)
+     p(< WI | loading(false), fromKernel(nolist                                    ), A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS) .
   ---eq p(< WI | loading(false), fromKernel(NRL                                       ), A > NWC,(pi(WI,IN),np WIS),                   NIS, M?) =
   ---   p(< WI | loading(false), fromKernel(mt                                        ), A > NWC,(pi(WI,IN),np WIS),                   NIS, M?) .
@@ -748,11 +751,11 @@ fmod IBOS-SOP-PRED is
   --- WebProc toKernel queue invariant
   --- only one fetch msg that correlates with loading predicate
  ceq p(< WI | loading(false), toKernel(NFL),             A > NWC,WIS,NIS,M?) =
-     p(< WI | loading(false), toKernel(mt),              A > NWC,WIS,NIS,M?)
+     p(< WI | loading(false), toKernel(nolist),          A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS) .
 
  ceq p(< WI | loading(true),  URL(OUT1), toKernel(NFL @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ NFL2), A > NWC,WIS,NIS,M?) =
-     p(< WI | loading(false), URL(OUT1), toKernel(NFL @                                @ NFL2), A > NWC,WIS,NIS,M?)
+     p(< WI | loading(false), URL(OUT1), toKernel(NFL @                                  NFL2), A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS)
   /\ PI   ~p WI
   /\ PI'  ~p network
