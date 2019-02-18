@@ -615,10 +615,13 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq netlabelpair-by-pid(P, mtNPIS)                 = nopair .
 
   op pid-in-netlabels? : ProcessId NetProcInfoSet -> Bool [metadata "123"] .
-  eq pid-in-netlabels?(P,NIS) = not (in-netlabel-by-pid(P,NIS) ~l nolabel) .
+ ceq pid-in-netlabels?(P,NIS) = true  if (in-netlabel-by-pid(P,NIS) ~l nolabel) = false .
+ ceq pid-in-netlabels?(P,NIS) = false if (in-netlabel-by-pid(P,NIS) ~l nolabel) = true  .
+
 
   op pid-in-weblabels? : ProcessId WebProcInfoSet -> Bool [metadata "124"] .
-  eq pid-in-weblabels?(P,WIS) = not (weblabel-by-pid(P,WIS) ~l nolabel) .
+ ceq pid-in-weblabels?(P,WIS) = true  if (weblabel-by-pid(P,WIS) ~l nolabel) = false .
+ ceq pid-in-weblabels?(P,WIS) = false if (weblabel-by-pid(P,WIS) ~l nolabel) = true  .
 
   --- Other predicates
   op conf-labels-eqset? : NetWebProcConfig WebProcInfoSet NetProcInfoSet -> Bool [metadata "125"] .
