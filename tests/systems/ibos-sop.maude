@@ -8,6 +8,9 @@ set print attribute on .
 
 load ../../rltool-lib.maude
 
+--- NOTE: these are applied to an IMPLICATION!!!!
+---       so in the antecedent, equality/disequality is reversed
+---       .... but not in the succedent
 fmod FOFORMSIMPLIFY-IMP-IMPL-EXT is
   pr FOFORMSIMPLIFY-IMP-IMPL .
 
@@ -15,16 +18,16 @@ fmod FOFORMSIMPLIFY-IMP-IMPL-EXT is
   var T T' : Term .
   var L L' : TermList .
 
-  eq '_~l_[T,T'] ?= 'true.Bool   = T ?= T' .
   eq '_~l_[T,T'] != 'true.Bool   = T != T' .
-  eq '_~l_[T,T'] ?= 'false.Bool  = T != T' .
-  eq '_~l_[T,T'] != 'false.Bool  = T ?= T' .
+  eq '_~l_[T,T'] ?= 'true.Bool   = T ?= T' .
 
-  eq 'not_[T]    ?= T'           = T != T' .
-  eq 'not_[T]    != T'           = T ?= T' .
   eq 'false.Bool ?= '_and_[T,T'] = 'false.Bool ?= T \/ 'false.Bool ?= T' .
-  eq 'false.Bool != '_and_[T,T'] = 'false.Bool != T /\ 'false.Bool != T' .
+  eq 'false.Bool != '_and_[T,T'] = 'false.Bool != T \/ 'false.Bool != T' .
   eq 'false.Bool ?= 'true.Bool   = ff .
+  eq 'false.Bool != 'true.Bool   = tt .
+
+  --- FIXME: added to core simplifier module because we cannot use this module for simplification except during proof
+  --- eq 'in-attrset?`(_|_`)['URL[T],T'] != 'true.Bool = T' != '_`,_['URL['@@@1:Label],'@@@2:AttributeSet] .
 endfm
 
 select RLTOOL .
@@ -33,29 +36,31 @@ loop rltl-init .
 (select IBOS-SOP-NOID .)
 
 --- Solved:
---- 1. kernelReceivesOPMessage-pa7-cc1a
---- 2. kernelReceivesOPMessage-pa7-cc1b
---- 3. kernelReceivesOPMessage-pa6-cc2a
---- 4. kernelReceivesOPMessage-pa6-cc2b
+--- 1. fetch
+--- 2. kernelReceivesOPMessage-pa7
+
+--- Todo:
+--- 3. kernelReceivesOPMessage-pa6-a
+--- 4. kernelReceivesOPMessage-pa6-b
 --- 5. new-url
 --- 6. kernelForwardsOPMessage
 
---- Todo:
-
 --- Usage: select-rls ...
-(select-rls fetch .)
+(select-rls kernelReceivesOPMessage-pa6-a .)
 
 (use tool conrew for validity on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool varsat for validity on IBOS-SOP-FVP-NOID .)
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (AWP:WebProcId) U
 	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:NetProcId) U
-	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (A:AttributeSet) U (A':AttributeSet) U
-	      (NWI:NetWebProcId) U (WI:WebProcId) .)
+	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (IN:Label) U (OUT:Label) U (A:AttributeSet) U (A':AttributeSet) U
+	      (NWI:NetWebProcId) U (WI:WebProcId) U (PP1:ConcPipeId) U (PP2:ConcPipeId) .)
 (def-term-set ([C:Configuration]) | true .)
 --- INV is a generalized multiset equality between:
 --- [1] set of fromKernel messages at the beginning of a list in a netproc
 --- [2] labels in WebappInfoSet and NetworkProcInfoSet
+--- TODO: consider version with abstract policy that includes this policy as a subset???
+---       check what other kinds of messages are allowed between webapp/network in the original model
 (inv sop4 to '`[_`] on
 ({ NWC
    < ui | toKernel(UIML) >
@@ -80,18 +85,40 @@ loop rltl-init .
 (start-proof .)
 --- set break on .
 --- break select step-action .
---- set print conceal on .
---- print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _|_ _;;_ _&&_ .
+set print conceal on .
+print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _|_ _;;_ _&&_ .
 (auto .)
 
+--- pa6-2a
+(split ({ C }) | (true) = (p(< WI | toKernel(msg(PP1,NI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
+(split ({ C }) | (true) = (p(< WI | toKernel(msg(PP1,NI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
+(auto .)
+(split ({ < WI | A > C }) by (in-attrset?(URL(about-blank) | A)) = (true) and (in-attrset?(URL(about-blank) | A)) = (false) .)
+(auto .)
+(auto .)
+--- (split ({ C }) | (true) = (p(< WI | URL(OUT), toKernel(msg(PP1,NI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- (split ({ C }) | (true) = (p(< WI | URL(OUT), toKernel(msg(PP1,NI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+
+---(auto .)
+
+--- pa7
+---- (split ({ C }) | (true) = (p(< NI | toKernel(msg(PP1,WI,MSG-RETURN-URL,U) @ T), A > NWC,WIS,NIS,none)) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
+---- (split ({ C }) | (true) = (p(< NI | toKernel(msg(PP1,WI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,none)) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
+---- (auto .)
+---- (split ({ < kernel | handledCurrently(msg(NI,WI,MSG-RETURN-URL,U)), netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+---- (auto .)
+---- (auto .)
+---- (auto .)
+---- (auto .)
+
 --- fetch
-(cases ({ < WI | toKernel(T:MessageList @ FM:FetchMsg), A > C }) on T:MessageList by (NFL:NonFetchMsgList) U (HFL:HasFetchMsgList) .)
-(auto .)
-(auto .)
-(split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (pid-in-weblabels?(WI,WIS)) = (false) and (pid-in-weblabels?(WI,WIS)) = (true) .)
-(auto .)
-(auto .)
-(auto .)
+--- (cases ({ < WI | toKernel(T:MessageList @ FM:FetchMsg), A > C }) on T:MessageList by (NFL:NonFetchMsgList) U (HFL:HasFetchMsgList) .)
+--- (auto .)
+--- (auto .)
+--- (split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (pid-in-weblabels?(WI,WIS)) = (false) and (pid-in-weblabels?(WI,WIS)) = (true) .)
+--- (auto .)
+--- (auto .)
+--- (auto .)
 
 --- cc1b
 --- cc2b
