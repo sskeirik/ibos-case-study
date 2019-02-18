@@ -98,11 +98,11 @@ fmod MSG-FVP-EXT is
   subsort NonRetFetchMsg < NonRetMsg NonFetchMsg < Message .
   subsort FetchMsg < NonRetMsg .
   subsort RetMsg   < NonFetchMsg .
-  op msg : AbsPipeId AbsPipeId FetchMsgType       Label -> FetchMsg       [ctor ditto metadata "49"] .
-  op msg : AbsPipeId AbsPipeId RetMsgType         Label -> RetMsg         [ctor ditto metadata "49"] .
-  op msg : AbsPipeId AbsPipeId NonFetchMsgType    Label -> NonFetchMsg    [ctor ditto metadata "49"] .
-  op msg : AbsPipeId AbsPipeId NonRetMsgType      Label -> NonRetMsg      [ctor ditto metadata "49"] .
-  op msg : AbsPipeId AbsPipeId NonRetFetchMsgType Label -> NonRetFetchMsg [ctor ditto metadata "49"] .
+  op msg : PipeId PipeId FetchMsgType       Label -> FetchMsg       [ctor ditto metadata "49"] .
+  op msg : PipeId PipeId RetMsgType         Label -> RetMsg         [ctor ditto metadata "49"] .
+  op msg : PipeId PipeId NonFetchMsgType    Label -> NonFetchMsg    [ctor ditto metadata "49"] .
+  op msg : PipeId PipeId NonRetMsgType      Label -> NonRetMsg      [ctor ditto metadata "49"] .
+  op msg : PipeId PipeId NonRetFetchMsgType Label -> NonRetFetchMsg [ctor ditto metadata "49"] .
 
   sort EmptyMessageList .
   subsort EmptyMessageList < MessageList .
@@ -651,7 +651,7 @@ fmod IBOS-SOP-PRED is
   var UI : UIId .
   var NI NI1 NI2 : NetProcId .
   var WI : WebProcId .
-  var PI PI' : AbsPipeId .
+  var PI PI' : PipeId .
   var L IN OUT OUT1 OUT2 : Label .
   var NWI : NetWebProcId .
 
