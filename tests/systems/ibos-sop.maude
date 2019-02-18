@@ -81,15 +81,17 @@ loop rltl-init .
 --- set break on .
 --- break select step-action .
 --- set print conceal on .
---- print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _|_ _;;_ _&&_ __ _`[_`] .
+--- print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _|_ _;;_ _&&_ .
 (auto .)
 
 --- fetch
 (cases ({ < WI | toKernel(T:MessageList @ FM:FetchMsg), A > C }) on T:MessageList by (NFL:NonFetchMsgList) U (HFL:HasFetchMsgList) .)
 (auto .)
 (auto .)
---- FIXME: need to update SOP theory with better predicate for pattern negation
 (split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (pid-in-weblabels?(WI,WIS)) = (false) and (pid-in-weblabels?(WI,WIS)) = (true) .)
+(auto .)
+(auto .)
+(auto .)
 
 --- cc1b
 --- cc2b
