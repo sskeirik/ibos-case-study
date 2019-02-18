@@ -125,6 +125,8 @@ fmod MSG-FVP-EXT is
   op _@_ : NonFetchMsgList HasFetchMsgList -> HasFetchMsgList [ctor ditto metadata "52"] .
   op _@_ : HasFetchMsgList NonFetchMsgList -> HasFetchMsgList [ctor ditto metadata "52"] .
   op _@_ : HasFetchMsgList HasFetchMsgList -> HasFetchMsgList [ctor ditto metadata "52"] .
+  op _@_ : MessageList     HasFetchMsgList -> HasFetchMsgList [ctor ditto metadata "52"] .
+  op _@_ : HasFetchMsgList MessageList     -> HasFetchMsgList [ctor ditto metadata "52"] .
 
   sort MaybeMessageList .
   subsort MessageList < MaybeMessageList .
