@@ -821,13 +821,13 @@ fmod IBOS-SOP-PRED is
   /\ PI'  ~p network
   /\ OUT1 ~l OUT2 .
 
- ceq p(< WI | loading(true),  URL(OUT1), toKernel(NFL @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ NFL2), A > NWC,WIS,NIS,M?) = false
+ ceq p(< WI | URL(OUT1), toKernel(NFL @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ NFL2), A > NWC,WIS,NIS,M?) = false
   if pid-in-weblabels?(WI,WIS) and PI ~p WI and PI' ~p network and OUT1 ~l OUT2 = false .
 
- ceq p(< WI | loading(true),  toKernel(HFL @ HFL2), A > NWC,WIS,NIS,M?) = false
+ ceq p(< WI | toKernel(HFL @ HFL2), A > NWC,WIS,NIS,M?) = false
   if pid-in-weblabels?(WI,WIS) .
 
- ceq p(< WI | loading(false), toKernel(HFL),        A > NWC,WIS,NIS,M?) = false
+ ceq p(< WI | loading(false), toKernel(HFL), A > NWC,WIS,NIS,M?) = false
   if pid-in-weblabels?(WI,WIS) .
 
   --- NetProc toKernel queue invariant
