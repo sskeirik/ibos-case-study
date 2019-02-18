@@ -45,7 +45,7 @@ fmod PROC-ID-FVP-EXT is
   var P  : ProcessId .
   var MP : MaybeProcessId .
 
-  sort NetWebProcId NetWebProcObject NetWebProcConfig NetWebProcNeConfig .
+  sort NetWebProcId .
   subsort NetProcId WebProcId < NetWebProcId < ConcPipeId .
 
   sort MaybeProcessId .
@@ -60,6 +60,7 @@ endfm
 fmod CONFIGURATION-FVP-EXT is
   pr PROC-ID-FVP-EXT .
   pr KERNEL-POLICIES-FVP .
+  sorts NetWebProcObject NetWebProcConfig NetWebProcNeConfig .
   subsort NetWebProcObject < Object .
   subsort NetWebProcObject < NetWebProcNeConfig < NeConfiguration NetWebProcConfig < Configuration .
   subsort EmptyConfiguration < NetWebProcConfig .
