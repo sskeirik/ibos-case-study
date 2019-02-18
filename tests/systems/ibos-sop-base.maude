@@ -726,6 +726,7 @@ fmod IBOS-SOP-PRED is
      p(< NI | mem-out(nolabel), A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT .
 
+  --- TODO: generalize attrs to hold a NoList constant so that rules cannot match
   --- Prop 4 ---
   --- NOTE: should false case be relaxed to don't care instead of NonRetMsgList
  ceq p(< WI | loading(true),  fromKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) =
@@ -750,7 +751,7 @@ fmod IBOS-SOP-PRED is
   if pid-in-weblabels?(WI,WIS) .
 
  ceq p(< WI | loading(true),  URL(OUT1), toKernel(NFL @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ NFL2), A > NWC,WIS,NIS,M?) =
-     p(< WI | loading(false), URL(OUT1), toKernel(mt),                                          A > NWC,WIS,NIS,M?)
+     p(< WI | loading(false), URL(OUT1), toKernel(NFL @                                @ NFL2), A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS)
   /\ PI   ~p WI
   /\ PI'  ~p network
