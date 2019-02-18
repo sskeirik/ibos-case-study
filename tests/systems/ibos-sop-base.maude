@@ -135,10 +135,11 @@ endfm
 
 fmod ATTRIBUTE-NONFVP-EXT is
   pr KERNEL-POLICIES-FVP .
+  pr MSG-FVP-EXT .
   var A A' : Attribute . var AS AS' : AttributeSet .
 
-  op toKernel   : MaybeMessageList -> Attribute [ctor metadata "92"] .
-  op fromKernel : MaybeMessageList -> Attribute [ctor metadata "93"] .
+  op fromKernel : MaybeMessageList -> Attribute [ctor metadata "53"] .
+  op toKernel   : MaybeMessageList -> Attribute [ctor metadata "54"] .
 
   op _!a : AttributeSet -> AttributeSet [metadata "100"] .
   eq (fromKernel      (X:MaybeMessageList), AS) !a = fromKernel(mt),                (AS !a) .
