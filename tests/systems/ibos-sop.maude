@@ -60,11 +60,11 @@ loop rltl-init .
                  policy(ui,     webapp, MSG-NEW-URL   ),ps
 		 policy(ui,     webapp, MSG-SWITCH-TAB),ps
 		 policy(network,webapp, MSG-RETURN-URL)) > }) |
-   (p(NWC,WIS,NIS,MSG?))              = (true)  /\
-   (nwp-reqattrs?(NWC !c))            = (true)  /\
-   (conf-attr-dupl?(NWC !c))          = (false) /\
-   (fresh-wp-id?(webapp(NWP),NWC !c)) = (true)  /\
-   (conf-labels-eqset?(NWC,WIS,NIS))  = (true)
+   (p(NWC,WIS,NIS,MSG?))                = (true)  /\
+   (nwp-reqattrs?(NWC !c))              = (true)  /\
+   (conf-attr-dupl?(NWC !c))            = (false) /\
+   (fresh-wp-id?(webapp(NWP),NWC !c))   = (true)  /\
+   (conf-labels-eqset?(NWC !c,WIS,NIS)) = (true)
    --- these are strengthenings of the invariant above that allow the simplification rules to apply more often
    --- they are not strictly needed for correctness --- the invariant above should be enough
    ---@ (fresh-np-id?(NNP,NWC))      = (true)  /\
@@ -81,7 +81,8 @@ loop rltl-init .
 (cases ({ < WI | toKernel(T:MessageList @ FM:FetchMsg), A > C }) on T:MessageList by (NFL:NonFetchMsgList) U (HFL:HasFetchMsgList) .)
 (auto .)
 (auto .)
-(split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (in-conf?(WI,C)) = (false) and (in-conf?(WI,C)) = (true) .)
+--- FIXME: need to update SOP theory with better predicate for pattern negation
+(split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (pid-in-weblabels?(WI,WIS)) = (false) and (pid-in-weblabels?(WI,WIS)) = (true) .)
 
 --- cc1b
 --- cc2b
