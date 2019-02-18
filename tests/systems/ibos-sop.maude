@@ -96,17 +96,16 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ _&&_ . --- _
 (auto .)
 (auto .)
 (auto .)
---- (cases ({ < WI | loading(B:Bool), A > C}) on B:Bool by (true) U (false) .)
 (split ({ < WI | loading(B:Bool), A > C}) by (B:Bool) = (true) and (B:Bool) = (false) .)
 (split ({ C }) | (true) = (p(< WI | toKernel(msg(PP1,NI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
 (split ({ C }) | (true) = (p(< WI | toKernel(msg(PP1,NI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
 (split ({ C }) | (true) = (p(< WI | URL(OUT), toKernel(msg(PP1,NI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
 (split ({ C }) | (true) = (p(< WI | URL(OUT), toKernel(msg(PP1,NI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
---- set break on .
---- break select #extract-sub simplify-cond varunif-simp3 extract-assignment .
 (auto .)
 (auto .)
---- (auto .)
+(auto .)
+(auto .)
+(auto .)
 
 ---(auto .)
 
