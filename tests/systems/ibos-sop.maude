@@ -15,9 +15,16 @@ fmod FOFORMSIMPLIFY-IMP-IMPL-EXT is
   var T T' : Term .
   var L L' : TermList .
 
+  eq '_~l_[T,T'] ?= 'true.Bool   = T ?= T' .
+  eq '_~l_[T,T'] != 'true.Bool   = T != T' .
+  eq '_~l_[T,T'] ?= 'false.Bool  = T != T' .
+  eq '_~l_[T,T'] != 'false.Bool  = T ?= T' .
+
+  eq 'not_[T]    ?= T'           = T != T' .
+  eq 'not_[T]    != T'           = T ?= T' .
   eq 'false.Bool ?= '_and_[T,T'] = 'false.Bool ?= T \/ 'false.Bool ?= T' .
   eq 'false.Bool != '_and_[T,T'] = 'false.Bool != T /\ 'false.Bool != T' .
-  eq 'false.Bool ?= 'true.Bool = ff .
+  eq 'false.Bool ?= 'true.Bool   = ff .
 endfm
 
 select RLTOOL .
