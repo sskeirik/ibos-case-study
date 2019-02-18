@@ -39,11 +39,23 @@ load ../../systems/ibos.maude
 ---     us is that if the message is received by a real webapp, then it will satisfy the
 ---     conditions above
 
-fmod CONFIGURATION-FVP-EXT is
-  pr KERNEL-POLICIES-FVP .
-
+fmod PROC-ID-FVP-EXT is
   sort NetWebProcId NetWebProcObject NetWebProcConfig NetWebProcNeConfig .
   subsort NetProcId WebProcId < NetWebProcId < PipeId .
+
+  sort AbsProcessId? .
+  subsort AbsProcessId < AbsProcessId? .
+  op none : -> AbsProcessId? [ctor metadata "87"] .
+
+  op _~p_ : AbsProcessId? AbsProcessId? -> Bool [ditto metadata "32"] .
+  eq none             ~p A:AbsProcessId   = false .
+  eq A?:AbsProcessId? ~p A?:AbsProcessId? = true .
+endfm
+
+fmod CONFIGURATION-FVP-EXT is
+  pr PROC-ID-FVP-EXT .
+  pr KERNEL-POLICIES-FVP .
+
   subsort NetWebProcObject < Object .
   subsort NetWebProcObject < NetWebProcNeConfig < NeConfiguration NetWebProcConfig < Configuration .
   subsort EmptyConfiguration < NetWebProcConfig .
@@ -606,6 +618,35 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq inlbl-in-netlabels?(IN,(pi(NPI,IN,OUT),np NIS)) = true .
  ceq inlbl-in-netlabels?(L, (pi(NPI,IN,OUT),np NIS)) = inlbl-in-netlabels?(L,NIS) if L ~l IN = false .
   eq inlbl-in-netlabels?(L,mtNPIS)                   = false .
+
+  --- 
+  op webnetproc-outlbl1 : NetProcId Label NetProcInfoSet -> Bool [metadata "129"] .
+  eq webnetproc-outlbl1(NI,L,(pi(NI,L,L'') ,np NIS)) = L'' .
+ ceq webnetproc-outlbl1(NI,L,(pi(NI',L',L'') ,np NIS)) = webnetproc-outlbl1(NI,L,NIS) if NI ~p NI' and L ~l L' = false .
+  eq webnetproc-outlbl1(NI,L,mtNPIS) = false .
+
+  op webnetproc-outlbl : AbsProcessId AbsProcessId -> AbsProcessId? [metadata "139"] .
+  ---
+  --- recursing when possible
+ ceq webnetproc-outlbl(NI,WI,(pi(WI,L) ,wp WIS),NIS) = webnetproc-outlbl1(NI,L,NIS)
+  if webnetproc-outlbl1(NI,L,NIS) ~p none = false .
+ ceq webnetproc-outlbl(NI,WI,(pi(WI,L) ,wp WIS),NIS) = webnetproc-outlbl(NI,WI,WIS,NIS)
+  if webnetproc-outlbl1(NI,L,NIS) = none
+ ceq webnetproc-outlbl(NI,WI,(pi(WI',L) ,wp WIS),NIS) = webnetproc-outlbl(NI,WI,WIS,NIS) if WI ~p WI' = false .
+
+  --- no more webapps left to match
+  eq webnetproc-outlbl(PI,PI',mtWPIS,NIS) = none .
+
+  --- invalid process ids
+  eq webnetproc-outlbl(NPI,NPI',WIS,NIS) = none .
+  eq webnetproc-outlbl(UI,NPI,WIS,NIS) = none .
+  eq webnetproc-outlbl(NPI,UI,WIS,NIS) = none .
+  eq webnetproc-outlbl(WI,NI,WIS,NIS) = none .
+  eq webnetproc-outlbl(network,PI,WIS,NIS) = none .
+  eq webnetproc-outlbl(webapp,PI,WIS,NIS) = none .
+  eq webnetproc-outlbl(PI,network,WIS,NIS) = none .
+  eq webnetproc-outlbl(PI,webapp,WIS,NIS) = none .
+
 
   --- Other predicates
   op conf-labels-eqset? : NetWebProcConfig WebProcInfoSet NetProcInfoSet -> Bool [metadata "129"] .
