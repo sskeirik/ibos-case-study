@@ -683,11 +683,9 @@ endm
 
 mod RLTL-UI is
   inc LOOP-MODE .
-  pr RLTL-PROC-CMD .
-  pr REACH-PROOF-RULES .
-  pr PARSE-RLTLCOMMAND .
-  pr RLTL-ACTION-IMPL .
-  pr RLTL-ATTRIBUTES .
+  pr PARSE-RLTLCOMMAND * (op _;_ : ProofMetadata ProofMetadata -> ProofMetadata to _;;;_ ) .
+  pr RLTL-PROC-CMD     * (op _;_ : ProofMetadata ProofMetadata -> ProofMetadata to _;;;_ ) .
+  pr REACH-PROOF-RULES * (op _;_ : ProofMetadata ProofMetadata -> ProofMetadata to _;;;_ ) .
   pr CONFIGURATION .
 
   var IN OUT : NeQidList .
