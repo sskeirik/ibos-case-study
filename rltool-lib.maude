@@ -182,6 +182,7 @@ fmod META-RLTL-COMMAND is
    op quit`.                 : -> MetaRLTLCommand [ctor] .
    op list-goals`.           : -> MetaRLTLCommand [ctor] .
    op list-goal-ids`.        : -> MetaRLTLCommand [ctor] .
+   op list-status`.          : -> MetaRLTLCommand [ctor] .
    op focus_.                : NeSet{Nat} -> MetaRLTLCommand [ctor] .
    op subsumed_=<_.          : @QFCTerm@ @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
    op intersect_=_.          : @QFCTerm@ @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
@@ -230,6 +231,7 @@ fmod RLTL-COMMAND is
    op start             : -> RLTLCommand [ctor] .
    op quit              : -> RLTLCommand [ctor] .
    op ls                : Bool -> RLTLCommand  [ctor] .
+   op ls-status         : -> RLTLCommand [ctor] .
    op focus             : NeSet{Nat} -> RLTLCommand [ctor] .
    op subsumed          : QFCTermSet QFCTermSet -> RLTLCommand [ctor] .
    op intersect         : QFCTermSet QFCTermSet -> RLTLCommand [ctor] .
@@ -305,6 +307,7 @@ fmod PARSE-RLTLCOMMAND is
    eq rltl-parse((M,S),'focus_.[T1])                     = focus(downNeNatSet(T1)) .
    eq rltl-parse((M,S),'list-goals`..MetaRLTLCommand)    = ls(true) .
    eq rltl-parse((M,S),'list-goal-ids`..MetaRLTLCommand) = ls(false) .
+   eq rltl-parse((M,S),'list-status`..MetaRLTLCommand)   = ls-status .
    eq rltl-parse((M,S),'continue`..MetaRLTLCommand)      = continue .
    eq rltl-parse((M,S),'do`step_.[T1])                   = dostep(downNat(T1)) .
 
@@ -627,6 +630,12 @@ mod RLTL-PROC-CMD is
   eq proc(ls(B),           R) = if B then write('All 'Goals: '\n printSpaces(8) printStatusGoals(get-mod(R),get-prf(R)))
                                      else write('Goal 'Names: '\n printSpaces(8) printGoalIds(get-prf(R)))
                                 fi .
+  eq proc(ls-status,       R) = write('Goals 'by 'status:
+                                      if get-prf(R) == mt then 'None else '\n
+                                         if goalsByStatus(active,get-prf(R)) == mt then nil else
+                                          'Active: '\n printGoalIds(goalsByStatus(active,get-prf(R))) '\n fi
+                                         if goalsByStatus(paused,get-prf(R)) == mt then nil else
+                                          'Paused: '\n printGoalIds(goalsByStatus(paused,get-prf(R))) '\n fi fi) .
   eq proc(continue,        R) = continue .
   eq proc(auto(BD),        R) = set-mode(active(BD)) ; continue .
   eq proc(focus(NS),       R) = if getgl!(get-prf(R),NS) :: ProofGoalSet
