@@ -77,6 +77,7 @@ endfm
 --- that will be used in the satisfiablity algorithm
 --- NOTE: no clause simplification is performed here
 fmod CONTEXT-REW is
+  pr MAYBE-BOOL            . --- nobool
   pr FOFORM-OPERATIONS     . --- size()
   pr FOFORMSIMPLIFY        . --- simplify()
   pr FOFORMREDUCE          . --- reduce()
@@ -137,6 +138,20 @@ fmod CONTEXT-REW is
     pairSearch(U,E,eq 'true.Bool = 'false.Bool [none].)
       or-else truefalseContradict(U,ES) .
   eq truefalseContradict(U,none) = false .
+
+  --- OUT: true iff formula is unsatisfiable
+  op cr-unsat : Module QFForm? -> MaybeBool .
+  eq cr-unsat(U,F?) = cr-unsat'(U,toCNF(~ F?)) .
+
+  op cr-unsat' : Module Disj? -> MaybeBool .
+  eq cr-unsat'(U,F   /\ D  ) = coerceBool(cr-unsat'(U,D),false) or-else cr-unsat'(U,F) .
+  eq cr-unsat'(U,       D? ) = nobool [owise] .
+  eq cr-unsat'(U,NND \/ NPD) = cr-unsat'(congClosure(U,toNNF(~ NND))) .
+  eq cr-unsat'(U,NND       ) = cr-unsat'(congClosure(U,toNNF(~ NND))) .
+
+  op cr-unsat' : CCResult -> MaybeBool .
+  eq cr-unsat'(errCCResult(QL:QidList)) = nobool .
+  eq cr-unsat'((UCC,S,ES)) = if truefalseContradict(addEqs(ES,UCC),ES - getTaggedIdEqs(ES)) then true else nobool fi .
 endfm
 
 --- Module provides an implementation of contextual-rewriting based satisfiability
@@ -201,7 +216,7 @@ fmod CONTEXT-REW-BACKEND-IMPL is
 	    toFModule(getbackend('validity,'conrew,get-reg(D))),F)) == tt then true else nobool fi
       else errb('conrew 'requires 'single 'module 'argument)
     fi .
-  eq checkUnsat((M,'conrew,ModArgs),MQL,D,F) = nobool .
+  eq checkUnsat((M,'conrew,ModArgs),MQL,D,F) = cr-unsat(M,F) .
 endfm
 
 ---(
