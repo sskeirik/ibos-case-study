@@ -37,7 +37,7 @@ fmod RLTOOL-BACKEND is
   eq checkVal((reg(SR) ; D),F)  = checkValInit(SR['validity,(nil).ScopedMapList],(reg(SR) ; D),F) .
   eq checkValInit(nil,D,F) = errb('No 'validity 'checkers 'loaded; 'did 'you 'forget 'to 'load 'one 'and/or 'mistype 'the 'loading 'directive?) .
   eq checkValInit(MQL,D,F) = checkValFindTool(MQL,D,F) [owise] .
-  eq checkValFindTool(SM MQL,D,F) = if wellFormed(getmodules(SM),F) then checkVal(SM,MQL,D,F) else checkValFindTool(MQL,D,F) fi .
+  eq checkValFindTool(SM MQL,D,F) = if wellFormed(getmodules(SM),F) then beDebugPrint(false,"VAL",checkVal(SM,MQL,D,F),F) else checkValFindTool(MQL,D,F) fi .
   eq checkValFindTool(nil,D,F) = errb('No 'acceptable 'validity 'checker 'loaded) .
 
   op checkUnsat : ProofMetadata QFForm? -> MaybeBool .
@@ -47,7 +47,7 @@ fmod RLTOOL-BACKEND is
   eq checkUnsat((reg(SR) ; D),F)  = checkUnsatInit(SR['unsatisfiability,(nil).ScopedMapList],(reg(SR) ; D),F) .
   eq checkUnsatInit(nil,D,F) = errb('No 'unsatisfiability 'checkers 'loaded; 'did 'you 'forget 'to 'load 'one 'and/or 'mistype 'the 'loading 'directive?) .
   eq checkUnsatInit(MQL,D,F) = checkUnsatFindTool(MQL,D,F) [owise] .
-  eq checkUnsatFindTool(SM MQL,D,F) = if wellFormed(getmodules(SM),F) then checkUnsat(SM,MQL,D,F) else checkUnsatFindTool(MQL,D,F) fi .
+  eq checkUnsatFindTool(SM MQL,D,F) = if wellFormed(getmodules(SM),F) then beDebugPrint(true,"UNSAT",checkUnsat(SM,MQL,D,F),F) else checkUnsatFindTool(MQL,D,F) fi .
   eq checkUnsatFindTool(nil,D,F) = errb('No 'acceptable 'unsatisfiability 'checker 'loaded) .
 
   op performSimp : ProofMetadata QFForm? -> MaybeBool .
@@ -59,6 +59,14 @@ fmod RLTOOL-BACKEND is
   eq performSimpInit(MQL,D,F) = performSimpFindTool(MQL,D,F) [owise] .
   eq performSimpFindTool(SM MQL,D,F) = if wellFormed(getmodules(SM),F) then performSimp(SM,MQL,D,F) else performSimpFindTool(MQL,D,F) fi .
   eq performSimpFindTool(nil,D,F) = errb('No 'acceptable 'simplifier 'loaded) .
+
+  op beDebugPrint : Bool String MaybeBool QFForm? -> MaybeBool .
+  eq beDebugPrint(true, "UNSAT", true,        F) = true  [print "UNSAT: " F] .
+  eq beDebugPrint(true, "UNSAT", false,       F) = false [print "NOT UNSAT: " F] .
+  eq beDebugPrint(true, "VAL",   true,        F) = true  [print "VAL: " F] .
+  eq beDebugPrint(true, "VAL",   false,       F) = false [print "NOT VAL: " F] .
+  eq beDebugPrint(true, S:String,nobool,      F) = nobool .
+  eq beDebugPrint(false,S:String,MB:MaybeBool,F) = MB:MaybeBool .
 endfm
 
 --- a backend implementation for testing purposes
