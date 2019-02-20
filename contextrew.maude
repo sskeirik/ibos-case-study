@@ -99,6 +99,7 @@ fmod CONTEXT-REW is
   ---      [4] Nat is greater than or equal to the id constant with the highest value
   ---      [5] all id constants have lowest value in the AC-RPO ordering
   --- OUT: PosDisj? rewritten with equations from congruence closure of equations in NegDisj modulo B
+  ---  NB: returns mtForm in case the antecedent is unsatisfiable
   op context-rew : Module NegDisj PosDisj ~> PosDisj .
   eq context-rew(U,ND,PD) = context-rew1(congClosure(U,toNNF(~ ND)),PD) .
 
@@ -109,7 +110,7 @@ fmod CONTEXT-REW is
       constsToVars(S,
         if size(reduce(setEqs(UCC,ES),PD << S)) < size(PD)
           then reduce(setEqs(UCC,ES),PD << S)
-          else if truefalseContradict(addEqs(ES,UCC),ES)
+          else if truefalseContradict(addEqs(ES,UCC),ES - getTaggedIdEqs(ES))
 	    then mtForm
 	    else reduce(addEqs(ES,UCC),PD << S)
           fi
