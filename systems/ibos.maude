@@ -81,13 +81,16 @@ fmod PROC-ID is
   sort PipeId          .  **** processes which can act like pipes
   sort NonPipeId       .  **** Set of non-pipe processes
 
+  sort NetProcId       .  **** abstract/concrete network procs/webapps
+  sort WebProcId       .
+
   sort AbsPipeId       .
   sort AbsNetProcId    .
   sort AbsWebProcId    .
 
   sort ConcPipeId      .
-  sort NetProcId       .
-  sort WebProcId       .
+  sort ConcNetProcId   .
+  sort ConcWebProcId   .
   sort UIId            .
 
   sort NonNetPipeId    .  **** processes which are pipes and not networks
@@ -99,11 +102,13 @@ fmod PROC-ID is
   subsorts ConcPipeId NonPipeId < ConcProcId .
   subsorts AbsPipeId            < AbsProcId  .
 
-  subsorts AbsPipeId ConcPipeId < PipeId .
-  subsorts UIId NetProcId WebProcId    < ConcPipeId .
-  subsorts AbsNetProcId AbsWebProcId   < AbsPipeId  .
-  subsorts UIId AbsWebProcId WebProcId < NonNetPipeId < PipeId .
-  subsorts UIId AbsNetProcId NetProcId < NonWebPipeId < PipeId .
+  subsorts AbsPipeId ConcPipeId NetProcId WebProcId < PipeId .
+  subsorts UIId ConcNetProcId ConcWebProcId < ConcPipeId .
+  subsorts AbsNetProcId AbsWebProcId        < AbsPipeId  .
+  subsorts ConcNetProcId AbsNetProcId       < NetProcId .
+  subsorts ConcWebProcId AbsWebProcId       < WebProcId .
+  subsorts UIId AbsWebProcId WebProcId      < NonNetPipeId < PipeId .
+  subsorts UIId AbsNetProcId NetProcId      < NonWebPipeId < PipeId .
 
   op kernel    :     -> NonPipeId [ctor metadata "23"] .
   op display   :     -> NonPipeId [ctor metadata "29"] .
@@ -111,9 +116,9 @@ fmod PROC-ID is
   op webappmgr :     -> NonPipeId [ctor metadata "31"] .
 
   op webapp    :     -> AbsWebProcId  [ctor metadata "24"] .
-  op webapp    : Nat -> WebProcId     [ctor metadata "25"] .
+  op webapp    : Nat -> ConcWebProcId [ctor metadata "25"] .
   op network   :     -> AbsNetProcId  [ctor metadata "26"] .
-  op network   : Nat -> NetProcId     [ctor metadata "27"] .
+  op network   : Nat -> ConcNetProcId [ctor metadata "27"] .
   op ui        :     -> UIId          [ctor metadata "28"] .
 
   var  P   : ProcessId .
@@ -121,8 +126,8 @@ fmod PROC-ID is
   var  PP  : PipeId .
   var  APP : AbsPipeId .
   var  CPP : ConcPipeId .
-  var  WP  : WebProcId .
-  var  NP  : NetProcId .
+  var  WP  : ConcWebProcId .
+  var  NP  : ConcNetProcId .
   var  UI  : UIId .
   vars N M : Nat .
   var  Z   : NzNat .
@@ -369,7 +374,7 @@ fmod KERNEL-POLICIES-FVP is
   **** first label of a network proc to allow communication
   sorts WebProcInfo WebProcInfoSet .
   subsorts WebProcInfo < WebProcInfoSet .
-  op pi        : WebProcId Label               -> WebProcInfo    [ctor metadata "71"] .
+  op pi        : ConcWebProcId Label           -> WebProcInfo    [ctor metadata "71"] .
   op mtWPIS    :                               -> WebProcInfoSet [ctor metadata "7"] .
   op _,wp_     : WebProcInfoSet WebProcInfoSet -> WebProcInfoSet [ctor assoc comm id: mtWPIS metadata "72"] .
   op weblabels : WebProcInfoSet                -> Attribute      [ctor metadata "73"] .
@@ -378,7 +383,7 @@ fmod KERNEL-POLICIES-FVP is
   **** this network proc can communicate with (via actual ethernet; to outside world)
   sorts NetProcInfo NetProcInfoSet .
   subsorts NetProcInfo < NetProcInfoSet .
-  op pi        : NetProcId Label Label         -> NetProcInfo    [ctor metadata "74"] .
+  op pi        : ConcNetProcId Label Label     -> NetProcInfo    [ctor metadata "74"] .
   op mtNPIS    :                               -> NetProcInfoSet [ctor metadata "8"] .
   op _,np_     : NetProcInfoSet NetProcInfoSet -> NetProcInfoSet [ctor assoc comm id: mtNPIS metadata "75"] .
   op netlabels : NetProcInfoSet                -> Attribute      [ctor metadata "76"] .
@@ -443,7 +448,7 @@ fmod KERNEL-POLICIES-NONFVP is
   pr KERNEL-POLICIES-FVP .
 
   var L L' L'' : Label . var N N' : Nat .
-  var NI NI' : NetProcId . var WI WI' : WebProcId .
+  var NI NI' : ConcNetProcId . var WI WI' : ConcWebProcId .
   var NPIS : NetProcInfoSet . var WPIS : WebProcInfoSet .
   var PI PI' : ConcProcId .
   var NPI NPI' : NonPipeId .
@@ -480,8 +485,10 @@ mod KERNEL is
   var ORG         : ConcPipeId   .
   var PPI1 PPI2   : ConcPipeId   .
 
-  var WI WI'      : WebProcId    .
-  var NI NI'      : NetProcId    .
+  var WI WI'      : ConcWebProcId .
+  var NI NI'      : ConcNetProcId .
+  var WI?         : WebProcId .
+  var NI?         : NetProcId .
   var NNPI1 NNPI2 : NonNetPipeId .
   var NWPI1 NWPI2 : NonWebPipeId .
 
@@ -606,7 +613,7 @@ mod KERNEL is
            netlabels(pi(NI',L,L'),np NPIS),
            Att >
        < WI     |
-           toKernel(msg(ORG, NI, MT, L') @ ML),
+           toKernel(msg(ORG, NI?, MT, L') @ ML),
            Att2 >
        Cnf }
   =>
@@ -634,7 +641,7 @@ mod KERNEL is
            nextNPN(N),
            Att >
        < WI     |
-           toKernel(msg(ORG, NI, MT, L') @ ML),
+           toKernel(msg(ORG, NI?, MT, L') @ ML),
            Att2 >
        Cnf }
   =>
