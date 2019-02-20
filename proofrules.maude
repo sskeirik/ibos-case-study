@@ -142,7 +142,7 @@ fmod REACH-PROOF-RULES-AUX is
 
   var ID GN VC : Nat . var CNT : FindResult . var MQ : MaybeQid .
   var V : Variable . var TS : TermSet .
-  var QF QF' : QFForm . var F F' : ReachForm . var FS : ReachFormSet .
+  var QF QF' : QFForm . var QF? : QFForm? . var F F' : ReachForm . var FS : ReachFormSet .
   var G : ProofGoal . var GS : ProofGoalSet .
   var AR : AxiomResult . var ARL ARL' : AxiomResultList .
 
@@ -170,7 +170,13 @@ fmod REACH-PROOF-RULES-AUX is
 
   op simp-action : ProofMetadata Module Bool ProofGoal -> ProofUpdate .
   eq simp-action(D,U,B,G) = (none ||
-    newChildGoals(G,goal-simplify(U ; if enableVarUnifSimp and B then getModByImpl(D, 'varsat) else noModule fi,liftRFSS(getbody(G))))) .
+    newChildGoals(G,goal-simplify(U ; if enableVarUnifSimp and B then getModByImpl(D, 'varsat) else noModule fi,liftRFSS(simpDebugPrint(getbody(G)))))) .
+
+  op simpDebugPrint : ReachForm -> ReachForm .
+  eq simpDebugPrint(F) = simpDebugPrint2(lhs-cond(F),F) .
+
+  op simpDebugPrint2 : QFForm? ReachForm -> ReachForm .
+  eq simpDebugPrint2(QF?,F) = F [print "Constraint: " QF?] .
 
   op termcheck-action : ProofMetadata Module QFCTermSet ProofGoal -> ProofUpdate .
   op termcheck-action : ProofMetadata Module Bool ProofGoal -> ProofUpdate .
