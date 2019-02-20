@@ -45,8 +45,8 @@ fmod PROC-ID-FVP-EXT is
   var P  : ProcessId .
   var MP : MaybeProcessId .
 
-  sort NetWebProcId .
-  subsort NetProcId WebProcId < NetWebProcId < ConcPipeId .
+  sort ConcNetWebProcId .
+  subsort ConcNetProcId ConcWebProcId < ConcNetWebProcId < ConcPipeId .
 
   sort MaybeProcessId .
   subsort ProcessId < MaybeProcessId .
@@ -64,7 +64,7 @@ fmod CONFIGURATION-FVP-EXT is
   subsort NetWebProcObject < Object .
   subsort NetWebProcObject < NetWebProcNeConfig < NeConfiguration NetWebProcConfig < Configuration .
   subsort EmptyConfiguration < NetWebProcConfig .
-  op <_|_> : NetWebProcId AttributeSet -> NetWebProcObject [ctor ditto metadata "33"] .
+  op <_|_> : ConcNetWebProcId AttributeSet -> NetWebProcObject [ctor ditto metadata "33"] .
   op __ : NetWebProcConfig   NetWebProcConfig -> NetWebProcConfig   [ctor ditto metadata "35"] .
   op __ : NetWebProcNeConfig NetWebProcConfig -> NetWebProcNeConfig [ctor ditto metadata "35"] .
 endfm
@@ -505,7 +505,7 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq in-attrset?(activeWebapp    (X:WebProcId)        | (activeWebapp    (Y:WebProcId),        AS)) = true .
   eq in-attrset?(A | none) = false .
  ceq in-attrset?(A | A', AS) = in-attrset?(A | AS) if A ~a A' = false .
-  eq in-attrset?(A | (AS !a)) = in-attrset?(A | AS) .
+  eq in-attrset?(A | (AS !a), AS') = in-attrset?(A | AS, AS') .
 
   op attr-dupl? : AttributeSet -> Bool [metadata "105"] .
   eq attr-dupl?(fromKernel      (X:MaybeMessageList), fromKernel      (Y:MaybeMessageList), AS) = true .
@@ -560,9 +560,9 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var P P'   : ConcProcId .
   var PP     : PipeId    .
   var NPP    : NonPipeId .
-  var NP NP' : NetProcId .
+  var NP NP' : ConcNetProcId .
   var NNP    : NonNetPipeId .
-  var WP WP' : WebProcId .
+  var WP WP' : ConcWebProcId .
   var NWP    : NonWebPipeId .
 
   var NIS  : NetProcInfoSet .
@@ -583,6 +583,9 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq in-conf?(P,< P  | A' > C) = true .
  ceq in-conf?(P,< P' | A' > C) = in-conf?(P,C) if P ~p P' = false .
   eq in-conf?(P,none)          = false .
+  --- lemmas helpful for proof
+ ceq in-conf?(NP,           C) = false if fresh-np-id?(NP,C) = true .
+ ceq in-conf?(WP,           C) = false if fresh-wp-id?(WP,C) = true .
 
   op conf-dupl? : Configuration -> Bool [metadata "109"] .
   eq conf-dupl?(< P | A  > < P | A' > C) = true .
@@ -590,7 +593,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq conf-dupl?(none) = false .
  ceq conf-dupl?(< P | none > C) = conf-dupl?(C) if in-conf?(P,C) = false .
 
-  op fresh-np-id? : NetProcId Configuration -> Bool [metadata "110"] .
+  op fresh-np-id? : ConcNetProcId Configuration -> Bool [metadata "110"] .
   eq fresh-np-id?(network(N    ), < network(N + M) | A  > C) = false .
   eq fresh-np-id?(network(N + Z), < network(N)     | A  > C) = fresh-np-id?(network(N + Z),C) .
   eq fresh-np-id?(network(N    ), < network        | A  > C) = fresh-np-id?(network(N),C) .
@@ -600,7 +603,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq fresh-np-id?(network(M    ), < NP             | NA > C) = fresh-np-id?(network(M), < NP | none > C) .
  ceq fresh-np-id?(network(N + 1),                         C) = true if fresh-np-id?(network(N),C) .
 
-  op fresh-wp-id? : WebProcId Configuration -> Bool [metadata "111"] .
+  op fresh-wp-id? : ConcWebProcId Configuration -> Bool [metadata "111"] .
   eq fresh-wp-id?(webapp(N    ), < webapp(N + M)  | A  > C) = false .
   eq fresh-wp-id?(webapp(N + Z), < webapp(N)      | A  > C) = fresh-wp-id?(webapp(N + Z),C) .
   eq fresh-wp-id?(webapp(N    ), < webapp         | A  > C) = fresh-wp-id?(webapp(N),C) .
@@ -713,6 +716,7 @@ endfm
 fmod IBOS-SOP-PRED is
   pr KERNEL-POLICIES-NONFVP-EXT .
 
+  var B : Bool .
   var NWC : NetWebProcConfig .
   var W N NNP NWA : Nat .
   var A : AttributeSet .
@@ -720,13 +724,14 @@ fmod IBOS-SOP-PRED is
   var NIS : NetProcInfoSet .
   var ML ML2 : MessageList .
   var UI : UIId .
-  var NI NI1 NI2 : NetProcId .
-  var WI : WebProcId .
+  var NI NI1 NI2 : ConcNetProcId .
+  var WI : ConcWebProcId .
   var PI PI' : PipeId .
+  var CPI CPI' : ConcPipeId .
   var L IN OUT OUT1 OUT2 : Label .
-  var NWI : NetWebProcId .
 
   var MT : MsgType .
+  var FetchMT : FetchMsgType .
   var NonFetchMT : NonFetchMsgType .
   var NonRetMT : NonRetMsgType .
   var NonRFMT : NonRetFetchMsgType .
@@ -775,6 +780,9 @@ fmod IBOS-SOP-PRED is
      p(< NI | fromKernel(ML @                                  ML2), A > NWC, WIS, NIS,M?)
   if pid-in-netlabels?(NI,NIS) .
 
+  eq p(< NI | fromKernel(mt),     A > NWC, WIS, NIS, M?) =
+     p(< NI | fromKernel(nolist), A > NWC, WIS, NIS, M?) .
+
   --- Prop 2 ---
   --- mem-in() attr correlates with kernel metadata
  ceq p(< NI | mem-in(OUT),      A > NWC,WIS,NIS,M?) =
@@ -810,8 +818,8 @@ fmod IBOS-SOP-PRED is
   --- Other needed pieces:
   --- WebProc toKernel queue invariant
   --- only one fetch msg that correlates with loading predicate
- ceq p(< WI | loading(false), toKernel(NFL),             A > NWC,WIS,NIS,M?) =
-     p(< WI | loading(false), toKernel(nolist),          A > NWC,WIS,NIS,M?)
+ ceq p(< WI | loading(B), toKernel(NFL),             A > NWC,WIS,NIS,M?) =
+     p(< WI | loading(B), toKernel(nolist),          A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS) .
 
  ceq p(< WI | loading(true),  URL(OUT1), toKernel(NFL @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ NFL2), A > NWC,WIS,NIS,M?) =
@@ -852,17 +860,22 @@ fmod IBOS-SOP-PRED is
 
   --- currentlyHandled() attr invariant
   --- TODO: using MT may be too general
- ceq p(NWC,WIS,NIS,msg(PI,PI',MT,OUT)) = p(NWC,WIS,NIS,none) if (weblabel-by-pid(PI, WIS),OUT) ~lp netlabelpair-by-pid(PI',NIS) .
- ceq p(NWC,WIS,NIS,msg(PI,PI',MT,OUT)) = p(NWC,WIS,NIS,none) if (weblabel-by-pid(PI',WIS),OUT) ~lp netlabelpair-by-pid(PI, NIS) .
+ ceq p(NWC < CPI | loading(true),  A >,WIS,NIS,msg(CPI,CPI',FetchMT,   OUT)) = p(< CPI | loading(false), A > NWC,WIS,NIS,none) if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(CPI',NIS) .
+  eq p(NWC < CPI | loading(false), A >,WIS,NIS,msg(CPI,CPI',FetchMT,   OUT)) = false .
+ ceq p(NWC,                            WIS,NIS,msg(CPI,CPI',FetchMT,   OUT)) = false                                           if in-conf?(CPI,NWC) = false .
+ ceq p(NWC,                            WIS,NIS,msg(CPI,CPI',NonFetchMT,OUT)) = p(NWC,                           WIS,NIS,none)  if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(CPI',NIS) .
+ ceq p(NWC,                            WIS,NIS,msg(CPI,CPI',MT,        OUT)) = p(NWC,                           WIS,NIS,none)  if (weblabel-by-pid(CPI',WIS),OUT) ~lp netlabelpair-by-pid(CPI, NIS) .
   --- eq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT1),np NIS),msg(NI,WI,MT,OUT2)) = p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT1),np NIS),none) .
 
   --- process metadata invariant
  ceq p(NWC,(pi(WI,IN),wp WIS),                  NIS, M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ inlbl-in-netlabels?(IN,NIS) = false .
  ceq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ in-conf?(NI,NWC) = false .
+  --- TODO: Justify
+ ceq p(NWC,              WIS ,(pi(NI,IN,OUT),np NIS),M?) = true              if p(NWC,WIS,NIS,M?) = true .
 
   --- process invariant
-  eq p(< WI | toKernel(nolist), fromKernel(nolist),                              A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
-  eq p(< NI | toKernel(nolist), fromKernel(nolist), mem-in(mtLL), mem-out(mtLL), A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
+  eq p(< WI | toKernel(nolist), fromKernel(nolist),                                    A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
+  eq p(< NI | toKernel(nolist), fromKernel(nolist), mem-in(nolabel), mem-out(nolabel), A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
 
   --- true case
   eq p(none,mtWPIS,mtNPIS,none) = true .
