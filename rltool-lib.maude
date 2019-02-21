@@ -538,11 +538,12 @@ mod RLTL-PROC-CMD is
   op $cases1 : Module TermData ProofGoalSet                         ~> ProofGoalSet .
   op $cases1a : Module QFCTerm? Variable TermSet ProofGoalSet       ~> ProofGoalSet .
   op $cases2 : Variable TermSet ProofGoalSet                        ~> ProofGoalSet .
-  op $split  : Bool QFForm? QFForm? ProofGoalSubstPairSet           ~> ProofGoalSet .
+  op $split  : Module Bool QFForm? QFForm? VariableSet ProofGoalSubstPairSet ~> ProofGoalSet .
+  op $split' : Bool QFForm? QFForm? Substitution ProofGoalSubstPairSet ~> ProofGoalSet .
 
-  var BD : Bound . var NS : Set{Nat} . var N M : Nat . var B : Bool . var S : Substitution .
+  var BD : Bound . var NS : Set{Nat} . var N M : Nat . var B : Bool . var S S' : Substitution .
   var T T' : Term . var TS : TermSet . var TL : TermList .
-  var ID Q Q' : Qid . var QS : QidSet . var L L' : QidList . var V  : Variable . var QK : [Qid] .
+  var ID Q Q' : Qid . var QS : QidSet . var L L' : QidList . var V  : Variable . var VS : VariableSet . var QK : [Qid] .
   var U : Module . var US : ModuleList .
   var QF QF' QF1 QF2 : QFForm? . var QFT : QFCTerm . var MF MF' : QFCTermSet .
   var F : ReachForm .
@@ -579,8 +580,9 @@ mod RLTL-PROC-CMD is
 
   --- PRE: vars(QF1) U vars(QF2) subset vars(PT) where PT was used to generated ProofGoalSubstPairSet
   --- OUT: Goal set with split strategy applied to front and split conditions appropriately renamed
-  eq $split(B,QF1,QF2,(G,S) && G+SS) = prestrat(G,split(B,QF1 << S,QF2 << S) ;; simplify(true) ;; subsume ;; termcheck ;; pause) && $split(B,QF1,QF2,G+SS) .
-  eq $split(B,QF1,QF2,.ProofGoalSubstPairSet) = mt .
+  eq $split (U,B,QF1,QF2,VS,G+SS) = $split'(B,QF1,QF2,renameVars(U,upTerm(toGoalSet(G+SS)),VS),G+SS) .
+  eq $split'(B,QF1,QF2,S',(G,S) && G+SS) = prestrat(G,split(B,QF1 << (S ; S'),QF2 << (S ; S')) ;; simplify(true) ;; subsume ;; termcheck ;; pause) && $split'(B,QF1,QF2,S',G+SS) .
+  eq $split'(B,QF1,QF2,S',.ProofGoalSubstPairSet) = mt .
 
   --- commands to be typed BEFORE starting the proof
   eq proc(add-goal(LX,B),    R) = $addgls(get-mod(R),R,divide(LX),B) &
@@ -619,12 +621,11 @@ mod RLTL-PROC-CMD is
                                 fi .
   eq proc(split((T | QF),B,QF1,QF2),R) = if checkType(get-mod(R),getRuleType(get-mod(R)),T) :: Term
                                            then if #goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))) :: NeProofGoalSubstPairSet
-                                             then if (vars(QF1) ; vars(QF2)) subset vars((T | QF))
-                                               then atomic-run(R,$split(B,QF1,QF2,#goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))))) &
+                                               then atomic-run(R,$split(get-mod(R),B,QF1,QF2,(vars(QF1) ; vars(QF2)) \ vars((T | QF)),
+                                                                   #goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))))) &
                                                  (write('Split 'rule 'generated: '\n printSpaces(8)) ;
                                                    write-branch(getid(toGoalSet(#goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R)))))))
-                                               else write('Error: 'split 'formula 'variables 'must 'belong 'to 'split 'pattern)
-                                             fi else write('Error: 'split 'pattern 'failed 'to 'match 'any 'goals)
+                                               else write('Error: 'split 'pattern 'failed 'to 'match 'any 'goals)
                                            fi else write('Error: 'split 'pattern 'has 'wrong 'type)
                                          fi .
   eq proc(ls(B),           R) = if B then write('All 'Goals: '\n printSpaces(8) printStatusGoals(get-mod(R),get-prf(R)))
