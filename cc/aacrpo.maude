@@ -65,7 +65,10 @@ fmod STRING-AUX is
 
   --- alpha - removes _ from a string
   op alpha : String -> String . --- [memo] .
-  eq alpha(Str) = strReplaceAll(Str, (("_" |-> ""), ("`," |-> "comma") , ("`[" |-> "lbracket") , ("`]" |-> "rbracket") , ("`(" |-> "lparen") , ("`)" |-> "rparen"))) .
+  eq alpha(Str) = strReplaceAll(Str, (("_" |-> ""), ("`," |-> "comma") ,
+                                      ("`[" |-> "lbracket") , ("`]" |-> "rbracket") ,
+                                      ("`(" |-> "lparen") , ("`)" |-> "rparen") ,
+                                      ("`{" |-> "lbrace") , ("`}" |-> "rbrace"))) .
 
 endfm
 

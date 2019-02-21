@@ -2059,6 +2059,9 @@ fmod EQUALITY-FUNCTOR is
   eq pruneBool(op Q:Qid : L:TypeList -> T:Type [A:AttrSet special(id-hook('SystemFalse,nil))]. OS) =
      pruneBool(op Q:Qid : L:TypeList -> T:Type [A:AttrSet]. OS) .
   eq pruneBool(OS) = OS [owise] .
+
+  op pruneBool : Module -> Module .
+  eq pruneBool(M) = setOps(M,pruneBool(getOps(M))) .
 endfm
 
 fmod TOP-MODULE is

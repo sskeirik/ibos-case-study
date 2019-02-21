@@ -195,6 +195,7 @@ fmod CONG-CLOSURE-LIB is
   pr FOFORM-OPERATIONS .
   pr UNSORTIFY-FOFORM .
   pr QIDPAIRSET-TERMAPPLY .
+  pr EQUALITY-FUNCTOR . --- pruneBool()
   pr CONG-CLOSURE-SAFETY .
   pr CONG-CLOSURE-ENRICHMENT .
   pr CONG-CLOSURE *
@@ -230,12 +231,12 @@ fmod CONG-CLOSURE-LIB is
   eq congClosure2((UCC,S,ID-ES),IDS,PC) =
     congClosure3(UCC,
                  S,
-		 unsortify-1(getSig(UCC)) | unsortify-1(getSig(UCC),vars(ID-ES)),
+		 unsortify-1(pruneBool(getSig(UCC))) | unsortify-1(pruneBool(getSig(UCC)),vars(ID-ES)),
 		 init-acu-cc(
-		   unsortify(getSig(UCC)),
-		   unsortify(getSig(UCC),ID-ES),
-		   unsortify(getSig(UCC),IDS),
-		   toMRules(unsortify(getSig(UCC)),unsortify(getSig(UCC),PC << S)))) .
+		   unsortify(pruneBool(getSig(UCC))),
+		   unsortify(pruneBool(getSig(UCC)),ID-ES),
+		   unsortify(pruneBool(getSig(UCC)),IDS),
+		   toMRules(unsortify(pruneBool(getSig(UCC))),unsortify(pruneBool(getSig(UCC)),PC << S)))) .
 
   op congClosure3 : Module Substitution QidPairSet CCState -> CCResult .
   eq congClosure3(UCC,S,U2OMap,[ES,N,MRL]) =
