@@ -562,12 +562,21 @@ fmod SUBSTITUTION-RENAME is
   pr SUBSTITUTIONSET-AUX .
 
   var M : Module .
-  var L : GTermList .
+  var L L' : GTermList .
   var I : FindResult .
   var SS : SubstitutionSet .
+  var VS : VariableSet .
+  var V V' : Variable .
 
   op renameTmpVar : Module GTermList SubstitutionSet -> SubstitutionSet .
   eq renameTmpVar(M,L,SS) = downTerm(renameTmpVar(#renameTmpVar(M,L,upTerm(SS))),(empty).SubstitutionSet) .
+
+  op renameVars : Module GTermList VariableSet -> Substitution .
+  eq renameVars(M,L,VS) = renameVars2(TermList(termQidsToSet(VS)),renameAllVar(#renameAllVar(M,L,TermList(termQidsToSet(VS))))) .
+
+  op renameVars2 : TermList TermList -> Substitution .
+  eq renameVars2((V,L),  (V',L')) = V <- V' ; renameVars2(L,L') .
+  eq renameVars2((empty),(empty)) = none .
 endfm
 
 eof
