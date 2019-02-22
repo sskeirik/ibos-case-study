@@ -557,6 +557,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var A A'   : AttributeSet .
   var NA     : NeAttributeSet .
 
+  var P?     : ProcessId .
   var P P'   : ConcProcId .
   var PP     : PipeId    .
   var NPP    : NonPipeId .
@@ -580,9 +581,9 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq none           !c = none .
 
   op in-conf? : ProcessId Configuration -> Bool [metadata "108"] .
-  eq in-conf?(P,< P  | A' > C) = true .
- ceq in-conf?(P,< P' | A' > C) = in-conf?(P,C) if P ~p P' = false .
-  eq in-conf?(P,none)          = false .
+  eq in-conf?(P, < P   | A' > C) = true .
+ ceq in-conf?(P?,< P'  | A' > C) = in-conf?(P?,C) if P? ~p P' = false .
+  eq in-conf?(P?,none)           = false .
   --- lemmas helpful for proof
  ceq in-conf?(NP,           C) = false if fresh-np-id?(NP,C) = true .
  ceq in-conf?(WP,           C) = false if fresh-wp-id?(WP,C) = true .
@@ -663,28 +664,28 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq inlbl-in-netlabels?(L,mtNPIS)                  = false .
 
   op weblabel-by-pid : ProcessId WebProcInfoSet -> MaybeLabel [metadata "121"] .
-  eq weblabel-by-pid(WP,(pi(WP,IN),wp WIS)) = IN .
- ceq weblabel-by-pid(P, (pi(WP,IN),wp WIS)) = weblabel-by-pid(WP,WIS) if P ~p WP = false .
-  eq weblabel-by-pid(P, mtWPIS)             = nolabel .
+  eq weblabel-by-pid(WP, (pi(WP,IN),wp WIS)) = IN .
+ ceq weblabel-by-pid(P?, (pi(WP,IN),wp WIS)) = weblabel-by-pid(P?,WIS) if P? ~p WP = false .
+  eq weblabel-by-pid(P?, mtWPIS)             = nolabel .
 
   op netlabelpair-by-pid : ProcessId NetProcInfoSet -> MaybeLabelPair [metadata "122"] .
-  eq netlabelpair-by-pid(NP,(pi(NP,IN,OUT),np NIS)) = (IN,OUT) .
- ceq netlabelpair-by-pid(P, (pi(NP,IN,OUT),np NIS)) = netlabelpair-by-pid(NP,NIS) if P ~p NP = false .
-  eq netlabelpair-by-pid(P, mtNPIS)                 = nopair .
+  eq netlabelpair-by-pid(NP, (pi(NP,IN,OUT),np NIS)) = (IN,OUT) .
+ ceq netlabelpair-by-pid(P?, (pi(NP,IN,OUT),np NIS)) = netlabelpair-by-pid(P?,NIS) if P? ~p NP = false .
+  eq netlabelpair-by-pid(P?, mtNPIS)                 = nopair .
 
   op in-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel [metadata "123"] .
-  eq in-netlabel-by-pid(P,NIS) = inlbl(netlabelpair-by-pid(P,NIS)) .
+  eq in-netlabel-by-pid(P?,NIS) = inlbl(netlabelpair-by-pid(P?,NIS)) .
 
   op out-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel [metadata "124"] .
-  eq out-netlabel-by-pid(P,NIS) = outlbl(netlabelpair-by-pid(P,NIS)) .
+  eq out-netlabel-by-pid(P?,NIS) = outlbl(netlabelpair-by-pid(P?,NIS)) .
 
   op pid-in-netlabels? : ProcessId NetProcInfoSet -> Bool [metadata "125"] .
- ceq pid-in-netlabels?(P,NIS) = true  if (netlabelpair-by-pid(P,NIS) ~lp nopair) = false .
- ceq pid-in-netlabels?(P,NIS) = false if (netlabelpair-by-pid(P,NIS) ~lp nopair) = true  .
+ ceq pid-in-netlabels?(P?,NIS) = true  if (netlabelpair-by-pid(P?,NIS) ~lp nopair) = false .
+ ceq pid-in-netlabels?(P?,NIS) = false if (netlabelpair-by-pid(P?,NIS) ~lp nopair) = true  .
 
   op pid-in-weblabels? : ProcessId WebProcInfoSet -> Bool [metadata "126"] .
- ceq pid-in-weblabels?(P,WIS) = true  if (weblabel-by-pid(P,WIS) ~l nolabel) = false .
- ceq pid-in-weblabels?(P,WIS) = false if (weblabel-by-pid(P,WIS) ~l nolabel) = true  .
+ ceq pid-in-weblabels?(P?,WIS) = true  if (weblabel-by-pid(P?,WIS) ~l nolabel) = false .
+ ceq pid-in-weblabels?(P?,WIS) = false if (weblabel-by-pid(P?,WIS) ~l nolabel) = true  .
 
   --- Other predicates
   op conf-labels-eqset? : NetWebProcConfig WebProcInfoSet NetProcInfoSet -> Bool [metadata "127"] .
