@@ -860,19 +860,25 @@ fmod IBOS-SOP-PRED is
   if pid-in-netlabels?(NI,NIS) .
 
   --- currentlyHandled() attr invariant
-  --- TODO: using MT may be too general
- ceq p(NWC < CPI | loading(true),  A >,WIS,NIS,msg(CPI,CPI',FetchMT,   OUT)) = p(< CPI | loading(false), A > NWC,WIS,NIS,none) if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(CPI',NIS) .
-  eq p(NWC < CPI | loading(false), A >,WIS,NIS,msg(CPI,CPI',FetchMT,   OUT)) = false .
- ceq p(NWC,                            WIS,NIS,msg(CPI,CPI',FetchMT,   OUT)) = false                                           if in-conf?(CPI,NWC) = false .
- ceq p(NWC,                            WIS,NIS,msg(CPI,CPI',NonFetchMT,OUT)) = p(NWC,                           WIS,NIS,none)  if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(CPI',NIS) .
- ceq p(NWC,                            WIS,NIS,msg(CPI,CPI',MT,        OUT)) = p(NWC,                           WIS,NIS,none)  if (weblabel-by-pid(CPI',WIS),OUT) ~lp netlabelpair-by-pid(CPI, NIS) .
-  --- eq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT1),np NIS),msg(NI,WI,MT,OUT2)) = p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT1),np NIS),none) .
+  --- TODO: complete this case analysis
+  --- TODO: case analysis should be keyed primarily on message TARGET and message TYPE
+  --- NB: FetchMT cases needed for 6-a or 6-b
+  --- NB: NEW-URL case needed for new-url
+ ceq p(NWC < CPI | loading(true),  A >,WIS,NIS,msg(CPI,CPI',  FetchMT,    OUT)) = p(< CPI | loading(false), A > NWC,WIS,NIS,none) if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(CPI',NIS) .
+  eq p(NWC < CPI | loading(false), A >,WIS,NIS,msg(CPI,CPI',  FetchMT,    OUT)) = false .
+ ceq p(NWC,                            WIS,NIS,msg(CPI,CPI',  FetchMT,    OUT)) = false                                           if in-conf?(CPI,NWC) = false .
+ ceq p(NWC,                            WIS,NIS,msg(CPI,CPI',  NonFetchMT, OUT)) = p(NWC,                           WIS,NIS,none)  if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(CPI',NIS) .
+  eq p(NWC,                            WIS,NIS,msg(ui, webapp,MSG-NEW-URL,OUT)) = p(NWC,WIS,NIS,none) .
+
+ ceq p(NWC,                            WIS,NIS,msg(CPI,CPI',  MT,         OUT)) = p(NWC,                           WIS,NIS,none)  if (weblabel-by-pid(CPI',WIS),OUT) ~lp netlabelpair-by-pid(CPI, NIS) .
+  eq p(NWC,                            WIS,NIS,msg(CPI,WI,    NonRetMT,   OUT)) = p(NWC,                           WIS,NIS,none) .
 
   --- process metadata invariant
  ceq p(NWC,(pi(WI,IN),wp WIS),                  NIS, M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ inlbl-in-netlabels?(IN,NIS) = false .
  ceq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ in-conf?(NI,NWC) = false .
-  --- TODO: Justify
+  --- TODO: Justify (needed for 6-a/6-b and new-url)
  ceq p(NWC,              WIS ,(pi(NI,IN,OUT),np NIS),M?) = true              if p(NWC,WIS,NIS,M?) = true .
+ ceq p(NWC,(pi(WI,IN),wp WIS),                  NIS, M?) = true              if p(NWC,WIS,NIS,M?) = true .
 
   --- process invariant
   eq p(< WI | toKernel(nolist), fromKernel(nolist),                                    A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
