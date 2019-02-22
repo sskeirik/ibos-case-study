@@ -40,13 +40,13 @@ loop rltl-init .
 --- 2. kernelReceivesOPMessage-pa7
 --- 3. kernelReceivesOPMessage-pa6-a
 --- 4. kernelReceivesOPMessage-pa6-b
+--- 5. new-url
 
 --- Todo:
---- 5. new-url
 --- 6. kernelForwardsOPMessage
 
 --- Usage: select-rls ...
-(select-rls new-url .)
+(select-rls kernelForwardsOPMessage .)
 
 (use tool conrew for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool varsat for validity         on IBOS-SOP-FVP-NOID .)
@@ -54,7 +54,8 @@ loop rltl-init .
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (AWP:WebProcId) U
 	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:ConcNetProcId) U (NI?:NetProcId) U
-	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (IN:Label) U (OUT:Label) U (A:AttributeSet) U (A':AttributeSet) U
+	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (IN:Label) U (IN2:Label) U (OUT:Label) U
+	      (A:AttributeSet) U (A':AttributeSet) U
 	      (NWI:ConcNetWebProcId) U (WI:ConcWebProcId) U (PP1:ConcPipeId) U (PP2:ConcPipeId) .)
 (def-term-set ([C:Configuration]) | true .)
 --- INV is a generalized multiset equality between:
@@ -73,10 +74,12 @@ loop rltl-init .
                  policy(ui,     webapp, MSG-NEW-URL   ),ps
 		 policy(ui,     webapp, MSG-SWITCH-TAB),ps
 		 policy(network,webapp, MSG-RETURN-URL)) > }) |
+   (conf-labels-eqset?(NWC !c,WIS,NIS)) = (true)  /\
    (p(NWC,WIS,NIS,MSG?))                = (true)  /\
-   (nwp-reqattrs?(NWC !c))              = (true) ---@  /\
+   (nwp-reqattrs?(NWC !c))              = (true)  /\
+   (weblabels-dupl?(WIS))               = (false) /\
+   (netlabels-dupl?(NIS))               = (false)
    ---@ (conf-attr-dupl?(NWC !c))            = (false) /\
-   ---@ (conf-labels-eqset?(NWC !c,WIS,NIS)) = (true)  /\
    ---@ (fresh-wp-id?(webapp(NWP), NWC !c))  = (true)  /\
    ---@ (fresh-np-id?(network(NNP),NWC !c))  = (true)
    --- these are strengthenings of the invariant above that allow the simplification rules to apply more often
@@ -87,7 +90,7 @@ loop rltl-init .
 --- set break on .
 --- break select step-action .
 set print conceal on .
-print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ _;_ . --- _`[_`] . --- _&&_ _|_
+print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`[_`] . --- _&&_ _|_
 (auto .)
 
 --- pa6-a
@@ -121,7 +124,33 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ _;_ . --- _`
 --- (auto .)
 
 --- new-url
+--- (auto .)
+
 --- kernelForwardsOpMessage
+(cases ({ < NWI:ConcNetWebProcId | A  > C }) on NWI:ConcNetWebProcId by (WI) U (NI) .)
+---
+(cases ({ < NI | fromKernel(F @ msg(PP1,         NI,MT:MsgType,U)),  A > C }) on MT:MsgType     by (MSG-FETCH-URL) U (N:NonFetchMsgType) .)
+(cases ({ < NI | fromKernel(F @ msg(P:ConcPipeId,NI,MT:MsgType,U)),  A > C }) on P:ConcPipeId   by (WI2:ConcWebProcId) U (NI2:ConcNetProcId) U (ui) .)
+(split ({ < NI | fromKernel(F @ msg(PP1,NI,MSG-FETCH-URL,U)),  A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pidP?(pi(PP1,IN),WIS)) = (tt) and (weblabel-by-pid(PP1,WIS) ~l nolabel) = (true) .)
+(split ({ < NI |                                               A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pidP?(pi(NI,IN,OUT),NIS)) = (tt) and (netlabelpair-by-pid(NI,NIS) ~lp nopair) = (true) .)
+---
+(split ({ < kernel | weblabels(pi(WI,IN),wp WIS), A > C })  by (in-confP?(WI,C)) = (tt) and (in-conf?(WI,C)) = (false) .)
+---
+(split ({ < WI | A > C }) by (in-attrsetP?(loading(true) | A)) = (tt) and (in-attrset?(loading(true) | A)) = (false) .)
+(split ({ < WI | loading(B:Bool), A > C }) by (B:Bool) = (true) and (B:Bool) = (false) .)
+---
+(split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN) = (IN2) and (IN ~l IN2) = (false) .)
+
+(split ({ < NI | fromKernel(F @ msg(WI,NI,MSG-FETCH-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U) = (OUT) and (U ~l OUT) = (false) .)
+
+(split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pidP?(pi(WI,IN),WIS)) = (tt) and (weblabel-by-pid(WI,WIS) ~l nolabel) = (true) .)
+(cases ({ < WI | fromKernel(F @ msg(PP1,WI,MT:MsgType,    U)), A > C }) on MT:MsgType by (MSG-RETURN-URL) U (N:NonRetMsgType) .)
+(split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(NIS), weblabels(pi(WI,IN),wp WIS), A' > C }) by (netlabelpair-by-pidP?(pi(PP1,IN,OUT),NIS)) = (tt) and (netlabelpair-by-pid(PP1,NIS) ~lp nopair) = (true) .)
+---
+(split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U) = (OUT) and (U ~l OUT) = (false) .)
+(auto .)
+
+
 --- (auto .)
 
 --- cc1a
