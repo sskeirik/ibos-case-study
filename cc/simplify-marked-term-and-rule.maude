@@ -20,10 +20,10 @@ fmod SIMPLIFY-MARKED-TERM&RULE is protecting MARKED-RULE .
 
   vars T T' T'' : GroundTerm . vars n m k : Nat .
   vars S S' S'' : SetM{Qid}  . var ES : EquationSet .
-  var U : Module .
+  var U : Module . var B : Bool .
 
   op simpl-mterm : Module MRule MTerm -> MTerm? .
-  op simpl-mrule : Module EquationSet MRule ->  MRule .
+  op simpl-mrule : Module Bool EquationSet MRule ->  MRule .
 
   eq simpl-mterm(U,T [n,S] => T' [m,S'],T'' [k,S'']) =
        if ((n > k) or ((S =< S'') =/= true) or ((n == k) and (S =/= S'')))
@@ -34,12 +34,12 @@ fmod SIMPLIFY-MARKED-TERM&RULE is protecting MARKED-RULE .
                  else getTerm(metaReduce(addEqs(eq T = T' [none] .,U),T''))
                                             size&ops(getTerm(metaReduce(addEqs(eq T = T' [none] .,U),T''))) fi fi .
 
-  eq simpl-mrule(U,ES,T [n,S] => T' [m,S']) =
+  eq simpl-mrule(U,B,ES,T [n,S] => T' [m,S']) =
       if getTerm(metaNormalize(U,T)) ==
          getTerm(metaReduce(addEqs(ES,U),T))
       then T [n,S] => getTerm(metaReduce(addEqs(ES,U),T'))
                       size&ops(getTerm(metaReduce(addEqs(ES,U),T')))
-      else make-rule(U,getTerm(metaReduce(addEqs(ES,U),T)),
-                       getTerm(metaReduce(addEqs(ES,U),T')))
+      else make-rule(U,B,getTerm(metaReduce(addEqs(ES,U),T)),
+                         getTerm(metaReduce(addEqs(ES,U),T')))
       fi .
 endfm

@@ -30,29 +30,29 @@
 fmod FREE-CONG-CLOSURE is
   pr CONG-CLOSURE-SHARED .
 
-  op [_,_,_,_,_,_] : Module List{MRule<} List{IMRule} EquationSet Process Nat -> CCState .
+  op [_,_,_,_,_,_,_] : Module Bool List{MRule<} List{IMRule} EquationSet Process Nat -> CCState .
 
-  op init-free-cc : Module List{MRule<} -> CCState .
+  op init-free-cc : Module Bool List{MRule<} -> CCState .
 
   vars T T' : GroundTerm .  var ES : EquationSet .  var AS : AttrSet .
   vars i j n m k l : Nat .  vars S S' : SetM{Qid} .  var f : Qid .
   var MR : MRule .  var IMR : IMRule .  var ORG MRL : List{MRule<} . var IMRL : List{IMRule} . var RS : Results .
-  var U : Module .
+  var U : Module . var B : Bool .
 
-  eq init-free-cc(U,ORG) = [U,ORG,nil,none,process-rules(ORG),1] .
+  eq init-free-cc(U,B,ORG) = [U,B,ORG,nil,none,process-rules(ORG),1] .
 
-  eq [U,ORG,IMRL,ES,MR MRL,j] =
-       if sm(U,ES,MR) == mt-mrule
-       then [U,ORG,IMRL,ES,MRL,j]
-       else [U,ORG,IMRL ([j] sm(U,ES,MR)),(eq left(sm(U,ES,MR)) = right(sm(U,ES,MR)) [meta(j)] .) ES,ri(U,sm(U,ES,MR),IMRL) # MRL,s(j)]
+  eq [U,B,ORG,IMRL,ES,MR MRL,j] =
+       if sm(U,B,ES,MR) == mt-mrule
+       then [U,B,ORG,IMRL,ES,MRL,j]
+       else [U,B,ORG,IMRL ([j] sm(U,B,ES,MR)),(eq left(sm(U,B,ES,MR)) = right(sm(U,B,ES,MR)) [meta(j)] .) ES,ri(U,B,sm(U,B,ES,MR),IMRL) # MRL,s(j)]
        fi .
 
-  eq [U,ORG,IMRL,ES,{i} RS # MRL,j] = [U,ORG,IMRL,ES, RS # MRL,j] .
+  eq [U,B,ORG,IMRL,ES,{i} RS # MRL,j] = [U,B,ORG,IMRL,ES, RS # MRL,j] .
 
-  eq [U,ORG,IMRL,ES,{f,[i] mt-mrule} RS # MRL,j] = [U,ORG,remove(i,IMRL),rem-att(i,ES), RS # MRL,j] .
+  eq [U,B,ORG,IMRL,ES,{f,[i] mt-mrule} RS # MRL,j] = [U,B,ORG,remove(i,IMRL),rem-att(i,ES), RS # MRL,j] .
 
-  eq [U,ORG,IMRL,ES,{f,[i] T [n,S] => T' [m,S']} RS # MRL,j] =
-       [U,ORG,remove(i,IMRL),rem-att(i,ES), RS # ins(T [n,S] => T' [m,S'],MRL),j] .
+  eq [U,B,ORG,IMRL,ES,{f,[i] T [n,S] => T' [m,S']} RS # MRL,j] =
+       [U,B,ORG,remove(i,IMRL),rem-att(i,ES), RS # ins(T [n,S] => T' [m,S'],MRL),j] .
 
-  eq [U,ORG,IMRL,ES,nil,j] = [ES,0,rewWithEqs(U,ES,ORG)] .
+  eq [U,B,ORG,IMRL,ES,nil,j] = [ES,0,rewWithEqs(U,ES,ORG)] .
 endfm

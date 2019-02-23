@@ -21,7 +21,7 @@ fmod MARKED-RULE is protecting AAC-RPO .
   op [_,_]       : GroundTerm GroundTerm -> GroundTermPair [ctor] .
   op mt-mrule    : -> MRule [ctor] .
 
-  op make-rule   : Module GroundTerm GroundTerm -> MRule .
+  op make-rule   : Module Bool GroundTerm GroundTerm -> MRule .
   ops left right : MRule -> [GroundTerm] .  --- undefined for mt-rule
   op _<_         : MRule MRule -> Bool .
 
@@ -30,19 +30,23 @@ fmod MARKED-RULE is protecting AAC-RPO .
   vars i j n m k l : Nat .
   var MR : MRule .
   var U : Module .
+  var B : Bool .
 
   eq left(T [n,S] => T' [m,S']) = T .
   eq right(T [n,S] => T' [m,S']) = T' .
 
-  eq make-rule(U,T,T') = if getTerm(metaReduce(U,T)) == getTerm(metaReduce(U,T'))
-                           then mt-mrule
-                           else if size(size&ops(T)) > size(size&ops(T'))
-                             then T size&ops(T) => T' size&ops(T')
-                             else if size(size&ops(T')) > size(size&ops(T))
-                               then  T' size&ops(T') =>  T size&ops(T)
-                               else if T >AAC{U} T'
-                                 then T size&ops(T) => T' size&ops(T')
-                                 else T' size&ops(T') =>  T size&ops(T) fi fi fi fi .
+  --- NB: if boolean flag is true, then order the equality using a total order
+  ---     comprised of the term size + AAC-RPO ordering; otherwise, just use the
+  ---     the AAC-RPO ordering
+  eq make-rule(U,B,T,T') = if getTerm(metaReduce(U,T)) == getTerm(metaReduce(U,T'))
+                             then mt-mrule
+                             else if B and-then  size(size&ops(T)) > size(size&ops(T'))
+                               then T size&ops(T) => T' size&ops(T')
+                               else if B and-then size(size&ops(T')) > size(size&ops(T))
+                                 then  T' size&ops(T') =>  T size&ops(T)
+                                 else if T >AAC{U} T'
+                                   then T size&ops(T) => T' size&ops(T')
+                                   else T' size&ops(T') =>  T size&ops(T) fi fi fi fi .
 
   eq mt-mrule < T [n,S] => T' [m,S'] = true . --- smaller righthand sides first preferred, then smaller lefthands
   eq MR < mt-mrule = false .

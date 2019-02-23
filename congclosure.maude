@@ -92,7 +92,10 @@ endfm
 ---    a. add given variables into the module as constants and
 ---       return a corresponding var-to-const substitution (components 1+2)
 ---    b. extract the id equations out of the module (component 3)
---- 2.
+--- 2. For congruence closure, return:
+---    a. identical to above
+---    b. the identity equations after reduction by congruence closure +
+---       the generated equations resulting from congruence closure
 fmod CONG-CLOSURE-RESULT is
   pr META-LEVEL .
   sort CCResult .
@@ -204,7 +207,7 @@ fmod CONG-CLOSURE-LIB is
 
   var U UCC : Module .
   var IDS : QidSet .
-  var ID-ES ES : EquationSet .
+  var ID-ES ES ES' : EquationSet .
   var MS-PCT T T' : Term .
   var M M' : Marking .
   var N : Nat .
@@ -213,39 +216,48 @@ fmod CONG-CLOSURE-LIB is
   var S : Substitution .
   var U2OMap : QidPairSet .
   var MRL : List{MRule<} .
+  var B : Bool .
 
-  op congClosure : Module PosEqConj -> CCResult .
-  eq congClosure(U,PC) =
+  op congClosure : Module Bool PosEqConj -> CCResult .
+  eq congClosure(U,B,PC) =
     if ccModData(U) :: QidSet and-then wellFormed(U,PC)
-      then congClosure1(U,ccModData(U),PC)
+      then congClosure1(U,B,ccModData(U),PC)
       else errCCResult(qidErrMsg(ccModData(U)))
     fi .
 
-  op congClosure1 : Module QidSet PosEqConj -> CCResult .
-  eq congClosure1(U,IDS,PC) =
-    congClosure2(enrichModuleForCongClosure(U,| IDS |,vars(PC)),IDS,PC) .
+  op congClosure1 : Module Bool QidSet PosEqConj -> CCResult .
+  eq congClosure1(U,B,IDS,PC) =
+    congClosure2(enrichModuleForCongClosure(U,| IDS |,vars(PC)),B,IDS,PC) .
 
   --- NOTE: two unsortify inverse maps below never conflict because:
   ---       one maps only constants and the other only variables
-  op congClosure2 : CCResult QidSet PosEqConj -> CCResult .
-  eq congClosure2((UCC,S,ID-ES),IDS,PC) =
+  op congClosure2 : CCResult Bool QidSet PosEqConj -> CCResult .
+  eq congClosure2((UCC,S,ID-ES),B,IDS,PC) =
     congClosure3(UCC,
                  S,
 		 unsortify-1(pruneBool(getSig(UCC))) | unsortify-1(pruneBool(getSig(UCC)),vars(ID-ES)),
 		 init-acu-cc(
 		   unsortify(pruneBool(getSig(UCC))),
+		   B,
 		   unsortify(pruneBool(getSig(UCC)),ID-ES),
 		   unsortify(pruneBool(getSig(UCC)),IDS),
-		   toMRules(unsortify(pruneBool(getSig(UCC))),unsortify(pruneBool(getSig(UCC)),PC << S)))) .
+		   toMRules(unsortify(pruneBool(getSig(UCC))),B,unsortify(pruneBool(getSig(UCC)),PC << S)))) .
 
   op congClosure3 : Module Substitution QidPairSet CCState -> CCResult .
   eq congClosure3(UCC,S,U2OMap,[ES,N,MRL]) =
     if MRL == nil
-      then (UCC,S,apply(U2OMap,true,ES))
+      then (UCC,S,congClosureDebugPrint(true,apply(U2OMap,true,ES)))
       else errCCResult('Congruence 'closure 'failed!)
     fi .
 
-  op toMRules : Module PosEqConj -> List{MRule<} .
-  eq toMRules(U,T ?= T' /\ PC?) = make-rule(U,T,T') toMRules(U,PC?) .
-  eq toMRules(U,mtForm)         = nil .
+  op toMRules : Module Bool PosEqConj -> List{MRule<} .
+  eq toMRules(U,B,T ?= T' /\ PC?) = make-rule(U,B,T,T') toMRules(U,B,PC?) .
+  eq toMRules(U,B,mtForm)         = nil .
+
+  op congClosureDebugPrint : Bool EquationSet -> EquationSet .
+  eq congClosureDebugPrint(false,ES) = ES .
+  eq congClosureDebugPrint(true, ES) = congClosureDebugPrint2(ES - getTaggedIdEqs(ES),ES) .
+
+  op congClosureDebugPrint2 : EquationSet EquationSet -> EquationSet .
+  eq congClosureDebugPrint2(ES',ES) = ES [print "CCRESULT: " ES'] .
 endfm

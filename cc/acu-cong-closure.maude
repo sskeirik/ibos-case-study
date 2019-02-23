@@ -46,52 +46,53 @@
 fmod A\/C\/U-CONG-CLOSURE is
   pr CONG-CLOSURE-SHARED .
 
-  op [_,_,_,_,_,_,_,_,_,_,_,_,_] : Module List{MRule<} List{IMRule} EquationSet EquationSet SetM{Qid} IMRuleTable FAxiomSet List{OInfo<} Process Nat Nat Nat -> CCState .
+  op [_,_,_,_,_,_,_,_,_,_,_,_,_,_] : Module Bool List{MRule<} List{IMRule} EquationSet EquationSet SetM{Qid} IMRuleTable FAxiomSet List{OInfo<} Process Nat Nat Nat -> CCState .
 
   vars T T' : GroundTerm .  var ES ES' : EquationSet .  var AS : AttrSet . var FAS : FAxiomSet . var OL : List{OInfo<} .
   var OI : OInfo . vars i j n m k l m0 : Nat .  vars S S' ID : SetM{Qid} . var f : Qid . var ID' : QidSet . var IMRT : IMRuleTable .
   var MR : MRule .  var IMR : IMRule .  var ORG MRL : List{MRule<} . var IMRL : List{IMRule} . var RS : Results . var U : FModule .
 
   var H : Header . var IL : ImportList .
+  var B : Bool .
 
-  op init-acu-cc : FModule EquationSet QidSet List{MRule<} -> CCState .
-  eq init-acu-cc(U,ES',ID',MRL) = [U,MRL,nil,ES',none,toSetM(ID'),init-imrtab(U),init-faxset(U),nil,process-rules(MRL),0,0,1] .
+  op init-acu-cc : FModule Bool EquationSet QidSet List{MRule<} -> CCState .
+  eq init-acu-cc(U,B,ES',ID',MRL) = [U,B,MRL,nil,ES',none,toSetM(ID'),init-imrtab(U),init-faxset(U),nil,process-rules(MRL),0,0,1] .
 
-  eq [U,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,MR MRL,m0,k,j] =
-       if sm(U,ES ES',MR) == mt-mrule
-          then [U,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,MRL,m0,k,j]
-          else if ax top(left(sm(U,ES ES',MR))) in FAS == free
-                 then if top(left(sm(U,ES ES',MR))) =< ID == true
-                         then [U,ORG,IMRL ([j] sm(U,ES ES',MR)),
-                                left-simplify(U,eq left(sm(U,ES ES',MR)) = right(sm(U,ES ES',MR)) [meta(none)] .,ES'),
-                                (eq left(sm(U,ES ES',MR)) = right(sm(U,ES ES',MR)) [meta(j)] .) ES,ID,
-                                IMRT,FAS,OL,ri(U,sm(U,ES ES',MR),IMRL) # MRL,m0,k,s(j)]
-                         else [U,ORG,IMRL ([j] sm(U,ES ES',MR)),ES',
-                                (eq left(sm(U,ES ES',MR)) = right(sm(U,ES ES',MR)) [meta(j)] .) ES,ID,
-                                IMRT,FAS,OL,ri(U,sm(U,ES ES',MR),IMRL) # MRL,m0,k,s(j)]
+  eq [U,B,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,MR MRL,m0,k,j] =
+       if sm(U,B,ES ES',MR) == mt-mrule
+          then [U,B,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,MRL,m0,k,j]
+          else if ax top(left(sm(U,B,ES ES',MR))) in FAS == free
+                 then if top(left(sm(U,B,ES ES',MR))) =< ID == true
+                         then [U,B,ORG,IMRL ([j] sm(U,B,ES ES',MR)),
+                                left-simplify(U,eq left(sm(U,B,ES ES',MR)) = right(sm(U,B,ES ES',MR)) [meta(none)] .,ES'),
+                                (eq left(sm(U,B,ES ES',MR)) = right(sm(U,B,ES ES',MR)) [meta(j)] .) ES,ID,
+                                IMRT,FAS,OL,ri(U,B,sm(U,B,ES ES',MR),IMRL) # MRL,m0,k,s(j)]
+                         else [U,B,ORG,IMRL ([j] sm(U,B,ES ES',MR)),ES',
+                                (eq left(sm(U,B,ES ES',MR)) = right(sm(U,B,ES ES',MR)) [meta(j)] .) ES,ID,
+                                IMRT,FAS,OL,ri(U,B,sm(U,B,ES ES',MR),IMRL) # MRL,m0,k,s(j)]
                       fi
-                 else [U,ORG,IMRL ([j] sm(U,ES ES',MR)),ES',
-                        (eq left(sm(U,ES ES',MR)) = right(sm(U,ES ES',MR)) [meta(j)] .) ES,ID,
-                        add-imrule(top(left(sm(U,ES ES',MR))),([j] sm(U,ES ES',MR)),IMRT),
-                        FAS,OL,ri(U,sm(U,ES ES',MR),IMRL) # MRL,m0,k,s(j)]
+                 else [U,B,ORG,IMRL ([j] sm(U,B,ES ES',MR)),ES',
+                        (eq left(sm(U,B,ES ES',MR)) = right(sm(U,B,ES ES',MR)) [meta(j)] .) ES,ID,
+                        add-imrule(top(left(sm(U,B,ES ES',MR))),([j] sm(U,B,ES ES',MR)),IMRT),
+                        FAS,OL,ri(U,B,sm(U,B,ES ES',MR),IMRL) # MRL,m0,k,s(j)]
                fi
        fi .
 
-  eq [U,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,{i} RS # MRL,m0,k,j] =
-       [U,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,RS # MRL,m0,k,j] .
+  eq [U,B,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,{i} RS # MRL,m0,k,j] =
+       [U,B,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,RS # MRL,m0,k,j] .
 
-  eq [U,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,{f,[i] mt-mrule} RS # MRL,m0,k,j] =
-       [U,ORG,remove(i,IMRL),ES',rem-att(i,ES),ID,remove([i,f],IMRT),FAS,OL, RS # MRL,m0,k,j] .
+  eq [U,B,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,{f,[i] mt-mrule} RS # MRL,m0,k,j] =
+       [U,B,ORG,remove(i,IMRL),ES',rem-att(i,ES),ID,remove([i,f],IMRT),FAS,OL, RS # MRL,m0,k,j] .
 
-  eq [U,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,{f,[i] T [n,S] => T' [m,S']} RS # MRL,m0,k,j] =
-       [U,ORG,remove(i,IMRL),ES',rem-att(i,ES),ID,remove([i,f],IMRT),FAS,OL,RS # ins(T [n,S] => T' [m,S'],MRL),m0,k,j] .
+  eq [U,B,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,{f,[i] T [n,S] => T' [m,S']} RS # MRL,m0,k,j] =
+       [U,B,ORG,remove(i,IMRL),ES',rem-att(i,ES),ID,remove([i,f],IMRT),FAS,OL,RS # ins(T [n,S] => T' [m,S'],MRL),m0,k,j] .
 
-  eq [U,ORG,IMRL,ES',ES,ID,IMRT,FAS,nil,nil,m0,k,s(j)] =
+  eq [U,B,ORG,IMRL,ES',ES,ID,IMRT,FAS,nil,nil,m0,k,s(j)] =
        if m0 == j
           then [ES ES',k,rewWithEqs(U,ES ES',ORG)]
-          else [U,ORG,IMRL,ES',ES,ID,IMRT,FAS,compute-overlaps(IMRT,m0),nil,j,s(k),s(j)]
+          else [U,B,ORG,IMRL,ES',ES,ID,IMRT,FAS,compute-overlaps(IMRT,m0),nil,j,s(k),s(j)]
        fi .
 
-  eq [U,ORG,IMRL,ES',ES,ID,IMRT,FAS,OI OL,nil,m0,k,j] =
-       [U,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,clean(sort(make-rule-map(U,CPS(U,OI,IMRT,FAS)))),m0,k,j] .
+  eq [U,B,ORG,IMRL,ES',ES,ID,IMRT,FAS,OI OL,nil,m0,k,j] =
+       [U,B,ORG,IMRL,ES',ES,ID,IMRT,FAS,OL,clean(sort(make-rule-map(U,B,CPS(U,OI,IMRT,FAS)))),m0,k,j] .
 endfm

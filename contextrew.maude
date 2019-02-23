@@ -102,7 +102,7 @@ fmod CONTEXT-REW is
   --- OUT: PosDisj? rewritten with equations from congruence closure of equations in NegDisj modulo B
   ---  NB: returns mtForm in case the antecedent is unsatisfiable
   op context-rew : Module NegDisj PosDisj ~> PosDisj .
-  eq context-rew(U,ND,PD) = context-rew1(congClosure(U,toNNF(~ ND)),PD) .
+  eq context-rew(U,ND,PD) = context-rew1(congClosure(U,false,toNNF(~ ND)),PD) .
 
   op context-rew1 : CCResult PosDisj ~> PosDisj .
   eq context-rew1(errCCResult(QL:QidList),PD) = error(string(QL:QidList)) .
@@ -146,8 +146,8 @@ fmod CONTEXT-REW is
   op cr-unsat' : Module Disj? -> MaybeBool .
   eq cr-unsat'(U,F   /\ D  ) = coerceBool(cr-unsat'(U,D),false) or-else cr-unsat'(U,F) .
   eq cr-unsat'(U,       D? ) = nobool [owise] .
-  eq cr-unsat'(U,NND \/ NPD) = cr-unsat'(congClosure(U,toNNF(~ NND))) .
-  eq cr-unsat'(U,NND       ) = cr-unsat'(congClosure(U,toNNF(~ NND))) .
+  eq cr-unsat'(U,NND \/ NPD) = cr-unsat'(congClosure(U,false,toNNF(~ NND))) .
+  eq cr-unsat'(U,NND       ) = cr-unsat'(congClosure(U,false,toNNF(~ NND))) .
 
   op cr-unsat' : CCResult -> MaybeBool .
   eq cr-unsat'(errCCResult(QL:QidList)) = nobool .
