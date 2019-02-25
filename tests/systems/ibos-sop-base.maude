@@ -732,6 +732,7 @@ fmod IBOS-SOP-PRED is
   var L IN OUT OUT1 OUT2 : Label .
 
   var MT : MsgType .
+  var RetMT : RetMsgType .
   var FetchMT : FetchMsgType .
   var NonFetchMT : NonFetchMsgType .
   var NonRetMT : NonRetMsgType .
@@ -864,14 +865,19 @@ fmod IBOS-SOP-PRED is
   --- TODO: case analysis should be keyed primarily on message TARGET and message TYPE
   --- NB: FetchMT cases needed for 6-a or 6-b
   --- NB: NEW-URL case needed for new-url
- ceq p(NWC < CPI | loading(true),  A >,WIS,NIS,msg(CPI,CPI',  FetchMT,    OUT)) = p(< CPI | loading(false), A > NWC,WIS,NIS,none) if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(CPI',NIS) .
-  eq p(NWC < CPI | loading(false), A >,WIS,NIS,msg(CPI,CPI',  FetchMT,    OUT)) = false .
- ceq p(NWC,                            WIS,NIS,msg(CPI,CPI',  FetchMT,    OUT)) = false                                           if in-conf?(CPI,NWC) = false .
- ceq p(NWC,                            WIS,NIS,msg(CPI,CPI',  NonFetchMT, OUT)) = p(NWC,                           WIS,NIS,none)  if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(CPI',NIS) .
   eq p(NWC,                            WIS,NIS,msg(ui, webapp,MSG-NEW-URL,OUT)) = p(NWC,WIS,NIS,none) .
-
- ceq p(NWC,                            WIS,NIS,msg(CPI,CPI',  MT,         OUT)) = p(NWC,                           WIS,NIS,none)  if (weblabel-by-pid(CPI',WIS),OUT) ~lp netlabelpair-by-pid(CPI, NIS) .
-  eq p(NWC,                            WIS,NIS,msg(CPI,WI,    NonRetMT,   OUT)) = p(NWC,                           WIS,NIS,none) .
+  ---
+ ceq p(NWC < CPI | loading(true),  A >,WIS,NIS,msg(CPI, NI, FetchMT,    OUT)) = p(< CPI | loading(false), A > NWC,WIS,NIS,none) if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) .
+  eq p(NWC < CPI | loading(false), A >,WIS,NIS,msg(CPI, NI, FetchMT,    OUT)) = false .
+ ceq p(NWC,                            WIS,NIS,msg(CPI, NI, FetchMT,    OUT)) = false                                           if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) = false  .
+ ceq p(NWC,                            WIS,NIS,msg(CPI, NI, NonFetchMT, OUT)) = p(NWC,                           WIS,NIS,none)  if pid-in-netlabels?(NI,NIS) .
+ ceq p(NWC,                            WIS,NIS,msg(CPI, NI, NonFetchMT, OUT)) = false                                           if pid-in-netlabels?(NI,NIS) = false .
+  --- TODO: add NonNetProc targetted NonFetchMT/FetchMT
+  ---
+ ceq p(NWC,                            WIS,NIS,msg(CPI, WI, RetMT,      OUT)) = p(NWC,                           WIS,NIS,none)  if (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(CPI, NIS) .
+ ceq p(NWC,                            WIS,NIS,msg(CPI, WI, RetMT,      OUT)) = false                                           if (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(CPI, NIS) = false .
+ ceq p(NWC,                            WIS,NIS,msg(CPI, WI, NonRetMT,   OUT)) = p(NWC,                           WIS,NIS,none)  if pid-in-weblabels?(WI,WIS) .
+ ceq p(NWC,                            WIS,NIS,msg(CPI, WI, NonRetMT,   OUT)) = false                                           if pid-in-weblabels?(WI,WIS) = false .
 
   --- process metadata invariant
  ceq p(NWC,(pi(WI,IN),wp WIS),                  NIS, M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ inlbl-in-netlabels?(IN,NIS) = false .
