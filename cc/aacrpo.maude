@@ -186,7 +186,6 @@ fmod TYPES-AUX is
   var EKOPDS : EKindOpDeclSetSet .
   vars FRes FRes' : FindResult .
   var Str : String .
-  var N : NzNat .
   var M : Module .
   vars AtS AtS1 AtS2 : AttrSet .
   var F   : Qid .
@@ -448,7 +447,7 @@ fmod WRAP-TERM-CONSTRUCTION is
   pr TERM-CONSTRUCTION .
 
   var F Q Q1 Q2 : Qid .
-  vars N N1 N2 : Nat .
+  vars N : Nat .
   vars Tp Tp1 Tp2 Tp3 TpI1 TpI2 : Type .
   var TpL TpL1 TpL2 TpL3 : TypeList .
   var AtS AtS1 AtS2 : AttrSet .
@@ -639,7 +638,7 @@ fmod WRAP-OP-COMPLETION is
   vars Tp Tp1 Tp2 TpI1 TpI2 : Type .
   vars AtS AtS1 AtS2 : AttrSet .
   vars NOPDL NOPDL1 NOPDL2 : NatOpDeclList .
-  var N : Nat .
+  var Z : Nat .
   var M : Module .
 
 --- fromOpDeclSetToNatOpDeclList - Set to List
@@ -686,7 +685,7 @@ fmod WRAP-OP-COMPLETION is
 --- f(x_1,...,x_n) > y_n) if f > g
   op constrSmallerEqs : OpDecl NatOpDeclList -> EquationSet .
   eq constrSmallerEqs(OPD, (nil).NatOpDeclList) = (none).EquationSet .
-  eq constrSmallerEqs((op Q1 : TpL1 -> Tp1 [AtS1] .), (N,(op Q2 : TpL2 -> Tp2 [AtS2] .)) NOPDL)
+  eq constrSmallerEqs((op Q1 : TpL1 -> Tp1 [AtS1] .), (Z,(op Q2 : TpL2 -> Tp2 [AtS2] .)) NOPDL)
    = if (isComm(AtS1) == true) and (isAssoc(AtS1) == true)
      then if (isComm(AtS2) == true) and (isAssoc(AtS2) == true)
           then --- AC AC
@@ -708,7 +707,7 @@ fmod WRAP-OP-COMPLETION is
 --- g(y_1,...,y_n) if f > g
   op aac-constrSmallerEqs : OpDecl NatOpDeclList -> EquationSet .
   eq aac-constrSmallerEqs(OPD, (nil).NatOpDeclList) = (none).EquationSet .
-  eq aac-constrSmallerEqs((op Q1 : TpL1 -> Tp1 [AtS1] .), (N,(op Q2 : TpL2 -> Tp2 [AtS2] .)) NOPDL)
+  eq aac-constrSmallerEqs((op Q1 : TpL1 -> Tp1 [AtS1] .), (Z,(op Q2 : TpL2 -> Tp2 [AtS2] .)) NOPDL)
    = if (isComm(AtS1) == true) and (isAssoc(AtS1) == true)
      then if (isComm(AtS2) == true) and (isAssoc(AtS2) == true)
           then --- AC AC
@@ -755,10 +754,10 @@ fmod WRAP-OP-COMPLETION is
   op constrWrapToTermEqs : NatOpDeclList -> EquationSet .
   eq constrWrapToTermEqs((nil).NatOpDeclList)
    = (none).EquationSet .
-  eq constrWrapToTermEqs((N,(op Q : TpI1 TpI2 -> Tp [assoc comm AtS] .)) NOPDL)
+  eq constrWrapToTermEqs((Z,(op Q : TpI1 TpI2 -> Tp [assoc comm AtS] .)) NOPDL)
    = (eq 'wrapToTerm['`[`[_`]`][constrTerm((op Q : TpI1 TpI2 -> Tp [assoc comm AtS] .),0)]] = qid("(" + alpha(string(Q)) + ",_)")[qid("tf-" + alpha(string(Q)))['`[`[_`]`][constrTerm((op Q : TpI1 TpI2 -> Tp [assoc comm AtS] .),0)]]] [none] .)
      constrWrapToTermEqs(NOPDL) .
-  eq constrWrapToTermEqs((N,(op Q : TpL -> Tp [AtS] .)) NOPDL) --- E0 case
+  eq constrWrapToTermEqs((Z,(op Q : TpL -> Tp [AtS] .)) NOPDL) --- E0 case
    = (eq 'wrapToTerm['`[`[_`]`][constrTerm((op Q : TpL -> Tp [AtS] .),0)]] = qid("(" + alpha(string(Q)) + ",_)")[constrWrapList(TpL,1)] [none] .)
      constrWrapToTermEqs(NOPDL) [owise] .
 
@@ -768,7 +767,7 @@ fmod WRAP-OP-COMPLETION is
   eq constrWrapEqs(NOPDL, (nil).NatOpDeclList)
    = (eq 'sharp['WS:OWrapSet,'N:ONat] = '`(_`,_`)['WS:OWrapSet,'N:ONat] [owise] .)
      constrWrapToTermEqs(NOPDL) .
-  eq constrWrapEqs(NOPDL1, (N,(op Q : TpL -> Tp [AtS] .)) NOPDL2)
+  eq constrWrapEqs(NOPDL1, (Z,(op Q : TpL -> Tp [AtS] .)) NOPDL2)
    = constrGreaterEqs((op Q : TpL -> Tp [AtS] .))
      constrSmallerEqs((op Q : TpL -> Tp [AtS] .),NOPDL1)
      constrEqualEqs((op Q : TpL -> Tp [AtS] .))
@@ -779,7 +778,7 @@ fmod WRAP-OP-COMPLETION is
         (none).EquationSet
       fi)
      constrSharpEqs((op Q : TpL -> Tp [AtS] .))
-     constrWrapEqs(NOPDL1 (N,(op Q : TpL -> Tp [AtS] .)), NOPDL2) .
+     constrWrapEqs(NOPDL1 (Z,(op Q : TpL -> Tp [AtS] .)), NOPDL2) .
 
 --- aac-constrWrapEqs - construct the ordering given the precedence as a
 --- list of operators
@@ -787,7 +786,7 @@ fmod WRAP-OP-COMPLETION is
   eq aac-constrWrapEqs(NOPDL, (nil).NatOpDeclList)
    = (eq 'sharp['WS:OWrapSet,'N:ONat] = '`(_`,_`)['WS:OWrapSet,'N:ONat] [owise] .)
      constrWrapToTermEqs(NOPDL) .
-  eq aac-constrWrapEqs(NOPDL1, (N,(op Q : TpL -> Tp [AtS] .)) NOPDL2)
+  eq aac-constrWrapEqs(NOPDL1, (Z,(op Q : TpL -> Tp [AtS] .)) NOPDL2)
    = aac-constrGreaterEqs((op Q : TpL -> Tp [AtS] .))
      aac-constrSmallerEqs((op Q : TpL -> Tp [AtS] .),NOPDL1)
      aac-constrEqualEqs((op Q : TpL -> Tp [AtS] .))
@@ -800,7 +799,7 @@ fmod WRAP-OP-COMPLETION is
       fi)
      constrSharpEqs((op Q : TpL -> Tp [AtS] .))
      aac-constrtfEqs((op Q : TpL -> Tp [AtS] .))
-     aac-constrWrapEqs(NOPDL1 (N,(op Q : TpL -> Tp [AtS] .)), NOPDL2) .
+     aac-constrWrapEqs(NOPDL1 (Z,(op Q : TpL -> Tp [AtS] .)), NOPDL2) .
 
 --- constACEqs - If f is AC then we construct the tf-f, embSmall4-f,
 --- embSmall5-f and noSmalHead-f equations
@@ -811,7 +810,7 @@ fmod WRAP-OP-COMPLETION is
     (eq qid("embSmall4-" + alpha(string(Q)))['WS1:OWrapSet,'WS2:OWrapSet,qid("(" + alpha(string(Q)) + ",_)")['WS3:OWrapSet]] = qid("embSmall5-" + alpha(string(Q)))['empty.OWrapSet,'WS3:OWrapSet,qid("(" + alpha(string(Q)) + ",_)")['_`,_['WS1:OWrapSet,'WS2:OWrapSet]]] [owise] .)
     (eq qid("embSmall5-" + alpha(string(Q)))['WS1:OWrapSet,'WS2:OWrapSet,qid("(" + alpha(string(Q)) + ",_)")['WS3:OWrapSet]] = '_and_['_>>=v_[qid("noSmallHead-" + alpha(string(Q)))['WS3:OWrapSet],qid("noSmallHead-" + alpha(string(Q)))['_`,_['WS1:OWrapSet,'WS2:OWrapSet]]],'_or_['_>>v_[qid("bigHead-" + alpha(string(Q)))['empty.OWrapSet,'WS3:OWrapSet],qid("bigHead-" + alpha(string(Q)))['empty.OWrapSet,'_`,_['WS1:OWrapSet,'WS2:OWrapSet]]],'_or_['_>_['sharp['WS3:OWrapSet,'0.ONat],'sharp['_`,_['WS1:OWrapSet,'WS2:OWrapSet],'0.ONat]],'_and_['_>=_['sharp['WS3:OWrapSet,'0.ONat],'sharp['_`,_['WS1:OWrapSet,'WS2:OWrapSet],'0.ONat]],'_>>v_['WS3:OWrapSet,'_`,_['WS1:OWrapSet,'WS2:OWrapSet]]]]]] [owise] .)
     (eq qid("noSmallHead-" + alpha(string(Q)))['WS:OWrapSet] = 'WS:OWrapSet [owise] .) .
- eq constrACEqs((op Q1 : TpI1 TpI2 -> Tp1 [AtS1] .), (N,(op Q2 : TpL2 -> Tp2 [AtS2] .)) NOPDL)
+ eq constrACEqs((op Q1 : TpI1 TpI2 -> Tp1 [AtS1] .), (Z,(op Q2 : TpL2 -> Tp2 [AtS2] .)) NOPDL)
   = (eq qid("embSmall4-" + alpha(string(Q1)))['WS1:OWrapSet,'_`,_['`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),0)],'WS2:OWrapSet],'T:OTerm] = mountEmbSmall4((op Q1 : TpI1 TpI2 -> Tp1 [AtS1] .), (op Q2 : TpL2 -> Tp2 [AtS2] .),TpL2,1) [none] .)
     (eq qid("embSmall5-" + alpha(string(Q1)))['WS1:OWrapSet,'_`,_['`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),0)],'WS2:OWrapSet],'T:OTerm] = mountEmbSmall5((op Q1 : TpI1 TpI2 -> Tp1 [AtS1] .), (op Q2 : TpL2 -> Tp2 [AtS2] .),TpL2,1) [none] .)
     (eq qid("noSmallHead-" + alpha(string(Q1)))['_`,_['`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),0)],'WS:OWrapSet]] = qid("noSmallHead-" + alpha(string(Q1)))['WS:OWrapSet] [none] .)
@@ -821,7 +820,7 @@ fmod WRAP-OP-COMPLETION is
  op constrBHEqs : OpDecl NatOpDeclList -> EquationSet .
  eq constrBHEqs((op Q : TpI1 TpI2 -> Tp [AtS] .), (nil).NatOpDeclList)
   = (eq qid("bigHead-" + alpha(string(Q)))['WS1:OWrapSet,'WS2:OWrapSet] = 'WS1:OWrapSet [owise] .) .
- eq constrBHEqs((op Q1 : TpI1 TpI2 -> Tp1 [AtS1] .), (N,(op Q2 : TpL2 -> Tp2 [AtS2] .)) NOPDL)
+ eq constrBHEqs((op Q1 : TpI1 TpI2 -> Tp1 [AtS1] .), (Z,(op Q2 : TpL2 -> Tp2 [AtS2] .)) NOPDL)
   = (eq qid("bigHead-" + alpha(string(Q1)))['WS1:OWrapSet,'_`,_['`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),0)],'WS2:OWrapSet]] = qid("bigHead-" + alpha(string(Q1)))['_`,_['WS1:OWrapSet,'`[`[_`]`][constrTerm((op Q2 : TpL2 -> Tp2 [AtS2] .),0)]],'WS2:OWrapSet] [none] .)
     constrBHEqs((op Q1 : TpI1 TpI2 -> Tp1 [AtS1] .), NOPDL) .
 
