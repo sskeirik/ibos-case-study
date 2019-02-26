@@ -128,6 +128,8 @@ fmod PROC-ID is
   var  CPP : ConcPipeId .
   var  WP  : ConcWebProcId .
   var  NP  : ConcNetProcId .
+  var  AWP : AbsWebProcId .
+  var  ANP : AbsNetProcId .
   var  UI  : UIId .
   vars N M : Nat .
   var  Z   : NzNat .
@@ -145,13 +147,13 @@ fmod PROC-ID is
   --- PipeId Disequality
   eq APP            ~p CPP        = false [variant] .
   --- AbsPipeId Disequality
-  eq network        ~p webapp     = false [variant] .
+  eq AWP            ~p ANP        = false [variant] .
   --- ConcPipeId Disequality
-  eq network(N)     ~p webapp (M) = false [variant] .
+  eq WP             ~p NP         = false [variant] .
+  eq NP             ~p UI         = false [variant] .
+  eq WP             ~p UI         = false [variant] .
   eq network(N + Z) ~p network(N) = false [variant] .
   eq webapp (N + Z) ~p webapp (N) = false [variant] .
-  eq network(N)     ~p ui         = false [variant] .
-  eq webapp (N)     ~p ui         = false [variant] .
 endfm
 
 fmod SYS is
