@@ -640,10 +640,16 @@ fmod FOFORM-TUPLES is
   op ((_,_)) : FOForm? Nat          -> FOFormNatPair [ctor] .
   op ((_,_)) : FOForm? FOForm?      -> FOFormPair    [ctor] .
 
-  var ML : NeModuleList . var F : FOForm? .
+  var ML : NeModuleList . var F G : FOForm? .
 
   op getForm : NeModListFOFormPair ~> FOForm? .
   eq getForm((ML,F)) = F .
+
+  op FormPairP1 : FOFormPair -> FOForm? .
+  eq FormPairP1((F,G)) = F .
+
+  op FormPairP2 : FOFormPair -> FOForm? .
+  eq FormPairP2((F,G)) = G .
 endfm
 
 fmod FOFORM-SUBSTITUTION is
