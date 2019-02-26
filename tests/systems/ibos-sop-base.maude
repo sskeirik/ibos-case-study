@@ -669,11 +669,19 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq weblabel-by-pid(WP, (pi(WP,IN),wp WIS)) = IN .
  ceq weblabel-by-pid(P?, (pi(WP,IN),wp WIS)) = weblabel-by-pid(P?,WIS) if P? ~p WP = false .
   eq weblabel-by-pid(P?, mtWPIS)             = nolabel .
+  eq weblabel-by-pid(NP, WIS)                = nolabel .
+  eq weblabel-by-pid(ui, WIS)                = nolabel .
+  eq weblabel-by-pid(A:AbsPipeId, WIS)       = nolabel .
+  eq weblabel-by-pid(N:NonPipeId, WIS)       = nolabel .
 
   op netlabelpair-by-pid : ProcessId NetProcInfoSet -> MaybeLabelPair [metadata "122"] .
   eq netlabelpair-by-pid(NP, (pi(NP,IN,OUT),np NIS)) = (IN,OUT) .
  ceq netlabelpair-by-pid(P?, (pi(NP,IN,OUT),np NIS)) = netlabelpair-by-pid(P?,NIS) if P? ~p NP = false .
   eq netlabelpair-by-pid(P?, mtNPIS)                 = nopair .
+  eq netlabelpair-by-pid(WP, NIS)                    = nopair .
+  eq netlabelpair-by-pid(ui, NIS)                    = nopair .
+  eq netlabelpair-by-pid(A:AbsPipeId, NIS)           = nopair .
+  eq netlabelpair-by-pid(N:NonPipeId, NIS)           = nopair .
 
   op in-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel [metadata "123"] .
   eq in-netlabel-by-pid(P?,NIS) = inlbl(netlabelpair-by-pid(P?,NIS)) .
@@ -691,8 +699,8 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
 
   --- Other predicates
   op conf-labels-eqset? : NetWebProcConfig WebProcInfoSet NetProcInfoSet -> Bool [metadata "127"] .
-  eq conf-labels-eqset?(< WP | A > NWC,(pi(WP,L),wp WIS),NIS                  ) = conf-labels-eqset?(NWC,WIS,NIS) .
-  eq conf-labels-eqset?(< NP | A > NWC,              WIS, (pi(NP,L,L'),np NIS)) = conf-labels-eqset?(NWC,WIS,NIS) .
+ ceq conf-labels-eqset?(< WP | A > NWC,WIS,NIS) = conf-labels-eqset?(NWC,WIS,NIS) if pid-in-weblabels?(WP,WIS) .
+ ceq conf-labels-eqset?(< NP | A > NWC,WIS,NIS) = conf-labels-eqset?(NWC,WIS,NIS) if pid-in-netlabels?(NP,NIS) .
   eq conf-labels-eqset?(none,mtWPIS, mtNPIS) = true  .
   eq conf-labels-eqset?(none,NWIS,   NIS   ) = false .
   eq conf-labels-eqset?(NNWC,mtWPIS, NIS   ) = false .
