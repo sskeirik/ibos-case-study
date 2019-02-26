@@ -12,13 +12,14 @@ fmod MAYBE-BOOL is
   op nobool :         -> NoBool [ctor] .
   op errb   : QidList -> [Bool] [ctor] .
 
-  op _and_      : MaybeBool MaybeBool -> MaybeBool [assoc comm prec 55] .
-  op _or_       : MaybeBool MaybeBool -> MaybeBool [assoc comm prec 59] .
-  op _xor_      : MaybeBool MaybeBool -> MaybeBool [assoc comm prec 57] .
-  op not_       : MaybeBool           -> MaybeBool [prec 53] .
-  op _implies_  : MaybeBool MaybeBool -> MaybeBool [gather (e E) prec 61] .
-  op _and-then_ : MaybeBool MaybeBool -> MaybeBool [strat (1 0) gather (e E) prec 55] .
-  op _or-else_  : MaybeBool MaybeBool -> MaybeBool [strat (1 0) gather (e E) prec 59] .
+  op _and_             : MaybeBool MaybeBool -> MaybeBool [assoc comm prec 55] .
+  op _or_              : MaybeBool MaybeBool -> MaybeBool [assoc comm prec 59] .
+  op _xor_             : MaybeBool MaybeBool -> MaybeBool [assoc comm prec 57] .
+  op not_              : MaybeBool           -> MaybeBool [prec 53] .
+  op _implies_         : MaybeBool MaybeBool -> MaybeBool [gather (e E) prec 61] .
+  op _and-then_        : MaybeBool MaybeBool -> MaybeBool [strat (1 0) gather (e E) prec 55] .
+  op _or-else_         : MaybeBool MaybeBool -> MaybeBool [strat (1 0) gather (e E) prec 59] .
+  op _defined-or-else_ : MaybeBool MaybeBool -> MaybeBool [strat (1 0) gather (e E) prec 59] .
 
   var A : MaybeBool . var QL : QidList . var B : Bool . var BK : [Bool] .
 
@@ -30,6 +31,9 @@ fmod MAYBE-BOOL is
   eq A implies nobool = nobool .
   eq nobool and-then A = nobool .
   eq nobool or-else A = nobool .
+
+  eq nobool defined-or-else BK = BK .
+  eq B      defined-or-else BK = BK .
 
   op strict-and : MaybeBool MaybeBool -> MaybeBool .
   eq strict-and(false,A) = false .
