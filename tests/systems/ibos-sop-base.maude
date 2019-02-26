@@ -540,13 +540,18 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq attr-subset?(none  | AS') = true .
 endfm
 
-fmod KERNEL-POLICIES-NONFVP-EXT is
-  pr KERNEL-POLICIES-NONFVP .
+fmod IBOS-SOP-FVP is
   pr CONFIGURATION-FVP-EXT .
   pr LABEL-FVP-EXT .
   pr MSG-FVP-EXT .
-  pr ATTRIBUTE-NONFVP-EXT .
   pr KERNEL-METADATA-FVP-EXT .
+  pr ATTRIBUTE-FVP-EXT .
+endfm
+
+fmod KERNEL-POLICIES-NONFVP-EXT is
+  pr IBOS-SOP-FVP .
+  pr KERNEL-POLICIES-NONFVP .
+  pr ATTRIBUTE-NONFVP-EXT .
 
   var W N M : Nat .
   var Z     : NzNat .
@@ -580,7 +585,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   op _!c : Configuration -> Configuration       [metadata "107"] .
   op _!c : NetWebProcConfig -> NetWebProcConfig [metadata "107"] .
   eq (< P | A > C) !c = < P | A !a > (C !c) .
-  eq none           !c = none .
+  eq none          !c = none .
 
   op in-conf? : ProcessId Configuration -> Bool [metadata "108"] .
   eq in-conf?(P, < P   | A' > C) = true .
@@ -715,13 +720,6 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
 
  ceq conf-labels-eqset?(NWC,(pi(WP,L),wp WIS),NIS)    = false if in-conf?(WP,NWC) = false .
  ceq conf-labels-eqset?(NWC,WIS,(pi(NP,L,L'),np NIS)) = false if in-conf?(NP,NWC) = false .
-endfm
-
-fmod IBOS-SOP-FVP is
-  pr CONFIGURATION-FVP-EXT .
-  pr MSG-FVP-EXT .
-  pr KERNEL-METADATA-FVP-EXT .
-  pr ATTRIBUTE-FVP-EXT .
 endfm
 
 fmod IBOS-SOP-PRED is
