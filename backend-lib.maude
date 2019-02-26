@@ -20,6 +20,7 @@ load proofstate.maude     --- models the state of our proofs
 
 fmod RLTOOL-BACKEND is
   pr FOFORM .
+  pr FOFORM-FILTER .
   pr MAYBE-BOOL .
   pr REACH-PROOF-STATE .
   pr TRANSITION-OPERATIONS . --- wellFormed
@@ -47,7 +48,11 @@ fmod RLTOOL-BACKEND is
   eq checkUnsat((reg(SR) ; D),F)  = checkUnsatInit(SR['unsatisfiability,(nil).ScopedMapList],(reg(SR) ; D),F) .
   eq checkUnsatInit(nil,D,F) = errb('No 'unsatisfiability 'checkers 'loaded; 'did 'you 'forget 'to 'load 'one 'and/or 'mistype 'the 'loading 'directive?) .
   eq checkUnsatInit(MQL,D,F) = checkUnsatFindTool(MQL,D,F) [owise] .
-  eq checkUnsatFindTool(SM MQL,D,F) = if wellFormed(getmodules(SM),F) then beDebugPrint(true,"UNSAT",checkUnsat(SM,MQL,D,F),F) else checkUnsatFindTool(MQL,D,F) fi .
+  eq checkUnsatFindTool(SM MQL,D,F) =
+    if formOrConjFrag(getmodules(SM),F) :: QFForm?
+      then beDebugPrint(true,"UNSAT",checkUnsat(SM,MQL,D,formOrConjFrag(getmodules(SM),F)),formOrConjFrag(getmodules(SM),F))
+      else nobool
+    fi defined-or-else checkUnsatFindTool(MQL,D,F) .
   eq checkUnsatFindTool(nil,D,F) = errb('No 'acceptable 'unsatisfiability 'checker 'loaded) .
 
   op performSimp : ProofMetadata QFForm? -> MaybeBool .
