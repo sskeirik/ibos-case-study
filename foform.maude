@@ -1254,6 +1254,8 @@ fmod FOFORM-FILTER is
   var U : Module . var B : Bool .
   var EA : EqAtom . var A : Atom .
   var D1 D2 D3 : Disj? . var C1 C2 C3 : Conj? .
+  var F  : QFForm .
+  var F? : QFForm? .
 
   --- OUT: filters atoms in D1 into D2 iff they are wellFormed() EqAtoms in Module and into D3 otherwise
   op filter-disj : Module Disj? ~> FOFormPair .
@@ -1270,6 +1272,13 @@ fmod FOFORM-FILTER is
   eq filter-disj(U,B,mtForm,D2,D3)   = (D2,D3) .
 
   --- OUT: filters atoms in C1 into C2 iff they are wellFormed() EqAtoms in Module and into C3 otherwise
+  op formOrConjFrag : Module QFForm? ~> QFForm? .
+  eq formOrConjFrag(U,F) = if wellFormed(U,F) then F else if filtered-conj(U,F) :: EqConj then filtered-conj(U,F) else error("Not form or conjunctive fragment") fi fi .
+
+  op filtered-conj : Module QFForm? -> EqConj? .
+  eq filtered-conj(U,C1) = FormPairP1(filter-conj(U,C1)) .
+  eq filtered-conj(U,F?) = mtForm .
+
   op filter-conj : Module Conj? ~> FOFormPair .
   eq filter-conj(U,C1) = filter-conj(U,C1,mtForm,mtForm) .
 
