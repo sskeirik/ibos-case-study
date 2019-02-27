@@ -74,6 +74,13 @@ fmod TERM-EXTRA is
   eq head(Q[NTL]) = Q .
   eq head(TQ) = TQ .
 
+  --- OUT: self-explanatory
+  op termSize : TermList -> Nat .
+  eq termSize(TQ)     = 1 .
+  eq termSize(Q[NTL]) = 1 + termSize(NTL) .
+  eq termSize((T,TL)) = termSize(T) + termSize(TL) .
+  eq termSize(empty)  = 0 .
+
   --- PRE: the module is sort-decreasing
   --- OUT: true iff one of the terms is provably not equal to other
   ---      to the other because either: one is a ground constructor
