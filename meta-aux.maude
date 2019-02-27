@@ -1971,6 +1971,31 @@ fmod CTOR-SIG is
     setRls(setEqs(setMbs(setOps(M,ctors(getOps(M))),none),none),none) .
 endfm
 
+fmod HIJACK-BUILTINS is
+  pr META-LEVEL .
+  pr ATTR-EXTRA .
+
+  var M : Module .
+  var Q : Qid .
+  var AS : AttrSet .
+  var TL : TypeList .
+  var T : Type .
+  var OS : OpDeclSet .
+
+  op hijackQid : Module ~> Type .
+  eq hijackQid(M) = hijackQid(getOps(M)) .
+
+  op hijackQid : OpDeclSet ~> Type .
+  eq hijackQid(op Q : TL -> T [AS]. OS) = if hijackQid?(AS)
+                                            then T
+                                            else hijackQid(OS)
+                                          fi .
+
+  op hijackQid? : AttrSet -> Bool .
+  eq hijackQid?(special(id-hook('QuotedIdentifierSymbol, nil)) AS) = true .
+  eq hijackQid?(AS) = false [owise] .
+endfm
+
 fmod HETEROGENEOUS-LIST-FUNCTOR is
   pr META-LEVEL .
   pr UNIT-FM .
