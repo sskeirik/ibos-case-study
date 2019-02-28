@@ -90,7 +90,7 @@ fmod CRITICAL-PAIR is
   op imrtab      : FAxiomSet -> IMRuleTable .
   op faxset      : OpDeclSet -> FAxiomSet .
 
-  op make-rule-map : Module Bool List{GroundTermPair}  -> List{MRule<} .
+  op make-rule-map : Module Module QidPairSet Substitution Bool List{GroundTermPair}  -> List{MRule<} .
 
   op CPS         : Module OInfo IMRuleTable FAxiomSet -> List{GroundTermPair} .
   op ax-CPS      : Module FAxiomSet MRule MRule FAxiom -> List{GroundTermPair} . --- CPS of two rules with same top axiom
@@ -103,7 +103,7 @@ fmod CRITICAL-PAIR is
   var TYL : TypeList . var AT : Attr . var ATS : AttrSet .  var ODS : OpDeclSet .
   vars T T' T'' T''' : GroundTerm . var TPL : List{GroundTermPair} .  var NPS NPS' : NatPairSet .
   vars i j n m k l : Nat .  var MR MR' : MRule .  var IMRS : Set{IMRule} .  var IMRT : IMRuleTable .
-  vars S S' S'' S''' : SetM{Qid} . var SUB : Substitution . var U : Module .
+  vars S S' S'' S''' : SetM{Qid} . var SUB : Substitution . var U CU : Module . var QPS : QidPairSet .
   var L L' : NeTermList . var L1 L2 L1' L2' : TermList . var B : Bool .
 
   --- Miscellaneous equations
@@ -132,8 +132,8 @@ fmod CRITICAL-PAIR is
   eq faxset(ODS) = mt-fax [owise] .
 
   --- Rule Building
-  eq make-rule-map(U,B,nil) = nil .
-  eq make-rule-map(U,B,[T,T'] TPL) = make-rule(U,B,T,T') make-rule-map(U,B,TPL) .
+  eq make-rule-map(U,CU,QPS,SUB,B,nil) = nil .
+  eq make-rule-map(U,CU,QPS,SUB,B,[T,T'] TPL) = make-rule(U,CU,QPS,SUB,B,T,T') make-rule-map(U,CU,QPS,SUB,B,TPL) .
 
   --- Critical pair generation
   eq CPS(U,[[i,f],[i,i] & NPS],[f,(([i] MR),IMRS)] @ IMRT,[f,AX] @ FAS) =

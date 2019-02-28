@@ -14,28 +14,29 @@ fmod PROCESS is  pr MARKED-RULES .  pr SIMPLIFY-MARKED-TERM&RULE .
   op {_} : Nat -> Result [ctor] .
   op _#_ : Results List{MRule<} -> Process [ctor] .
 
-  op reduce-imrules : Module Bool MRule List{IMRule} -> Results .
-  op reduce-imrule  : Module Bool MRule IMRule       -> Result .
+  op reduce-imrules : Module Module QidPairSet Substitution Bool MRule List{IMRule} -> Results .
+  op reduce-imrule  : Module Module QidPairSet Substitution Bool MRule IMRule       -> Result .
 
   vars T T' T'' T''' : GroundTerm . vars i j n m k l : Nat . vars S S' S'' S''' : SetM{Qid} .
   var MR : MRule . var IMR : IMRule . var MRL : List{MRule<} . var IMRL : List{IMRule} .
-  var U : Module . var ES : EquationSet . var B : Bool .
+  var U CU : Module . var ES : EquationSet . var B : Bool . var QPS : QidPairSet .
+  var SUB : Substitution .
 
   eq nil # MRL = MRL .
 
-  eq reduce-imrules(U,B,T [n,S] => T' [m,S'],nil) = nil .
-  eq reduce-imrules(U,B,T [n,S] => T' [m,S'],IMR IMRL) = reduce-imrule(U,B,T [n,S] => T' [m,S'],IMR)
-                                                         reduce-imrules(U,B,T [n,S] => T' [m,S'],IMRL) .
+  eq reduce-imrules(U,CU,QPS,SUB,B,T [n,S] => T' [m,S'],nil) = nil .
+  eq reduce-imrules(U,CU,QPS,SUB,B,T [n,S] => T' [m,S'],IMR IMRL) = reduce-imrule (U,CU,QPS,SUB,B,T [n,S] => T' [m,S'],IMR)
+                                                                reduce-imrules(U,CU,QPS,SUB,B,T [n,S] => T' [m,S'],IMRL) .
 
-  eq reduce-imrule(U,B,T [n,S] => T' [m,S'],[i] T'' [k,S''] => T''' [l,S''']) =
+  eq reduce-imrule(U,CU,QPS,SUB,B,T [n,S] => T' [m,S'],[i] T'' [k,S''] => T''' [l,S''']) =
      if simpl-mterm(U,T [n,S] => T' [m,S'],T'' [k,S'']) == failure
         then if simpl-mterm(U,T [n,S] => T' [m,S'],T''' [l,S''']) == failure
                 then {i}
                 else {top(T''),[i] T'' [k,S''] => simpl-mterm(U,T [n,S] => T' [m,S'],T''' [l,S'''])}
              fi
         else if simpl-mterm(U,T [n,S] => T' [m,S'],T''' [l,S''']) == failure
-                then {top(T''),[i] make-rule(U,B,p1(simpl-mterm(U,T [n,S] => T' [m,S'],T'' [k,S''])),T''')}
-                else {top(T''),[i] make-rule(U,B,p1(simpl-mterm(U,T [n,S] => T' [m,S'],T'' [k,S''])),
+                then {top(T''),[i] make-rule(U,CU,QPS,SUB,B,p1(simpl-mterm(U,T [n,S] => T' [m,S'],T'' [k,S''])),T''')}
+                else {top(T''),[i] make-rule(U,CU,QPS,SUB,B,p1(simpl-mterm(U,T [n,S] => T' [m,S'],T'' [k,S''])),
                                              p1(simpl-mterm(U,T [n,S] => T' [m,S'],T''' [k,S'''])))}
              fi
      fi .

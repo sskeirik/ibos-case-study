@@ -199,13 +199,16 @@ fmod CONG-CLOSURE-LIB is
   pr UNSORTIFY-FOFORM .
   pr QIDPAIRSET-TERMAPPLY .
   pr EQUALITY-FUNCTOR . --- pruneBool()
+  pr CTOR-REFINE .
   pr CONG-CLOSURE-SAFETY .
   pr CONG-CLOSURE-ENRICHMENT .
   pr CONG-CLOSURE *
      (op `[_`,_`] to mr,
       op `{_`} to res) .
 
-  var U UCC : Module .
+  var U UCC CU : Module .
+  var Q : Qid .
+  var Y : Sort .
   var IDS : QidSet .
   var ID-ES ES ES' : EquationSet .
   var MS-PCT T T' : Term .
@@ -217,6 +220,10 @@ fmod CONG-CLOSURE-LIB is
   var U2OMap : QidPairSet .
   var MRL : List{MRule<} .
   var B : Bool .
+  var V : Variable .
+  var C : Constant .
+  var QPS : QidPairSet .
+  var OS : OpDeclSet .
 
   op congClosure : Module Bool PosEqConj -> CCResult .
   eq congClosure(U,B,PC) =
@@ -238,10 +245,15 @@ fmod CONG-CLOSURE-LIB is
 		 unsortify-1(pruneBool(getSig(UCC))) | unsortify-1(pruneBool(getSig(UCC)),vars(ID-ES)),
 		 init-acu-cc(
 		   unsortify(pruneBool(getSig(UCC))),
+		   ctor-refine(markVarConstsAsCtors(getVarConsts(S),pruneBool(getSig(UCC)))),
+		   unsortify-1(pruneBool(getSig(UCC))) | unsortify-1(pruneBool(getSig(UCC)),vars(ID-ES)),
+		   S,
 		   B,
 		   unsortify(pruneBool(getSig(UCC)),ID-ES),
 		   unsortify(pruneBool(getSig(UCC)),IDS),
-		   toMRules(unsortify(pruneBool(getSig(UCC))),B,unsortify(pruneBool(getSig(UCC)),PC << S)))) .
+		   toMRules(unsortify(pruneBool(getSig(UCC))),ctor-refine(markVarConstsAsCtors(getVarConsts(S),pruneBool(getSig(UCC)))),
+		     unsortify-1(pruneBool(getSig(UCC))) | unsortify-1(pruneBool(getSig(UCC)),vars(ID-ES)),S,
+		     B,unsortify(pruneBool(getSig(UCC)),PC << S)))) .
 
   op congClosure3 : Module Substitution QidPairSet CCState -> CCResult .
   eq congClosure3(UCC,S,U2OMap,[ES,N,MRL]) =
@@ -250,9 +262,9 @@ fmod CONG-CLOSURE-LIB is
       else errCCResult('Congruence 'closure 'failed!)
     fi .
 
-  op toMRules : Module Bool PosEqConj -> List{MRule<} .
-  eq toMRules(U,B,T ?= T' /\ PC?) = make-rule(U,B,T,T') toMRules(U,B,PC?) .
-  eq toMRules(U,B,mtForm)         = nil .
+  op toMRules : Module Module QidPairSet Substitution Bool PosEqConj -> List{MRule<} .
+  eq toMRules(U,CU,QPS,S,B,T ?= T' /\ PC?) = make-rule(U,CU,QPS,S,B,T,T') toMRules(U,CU,QPS,S,B,PC?) .
+  eq toMRules(U,CU,QPS,S,B,mtForm)         = nil .
 
   op congClosureDebugPrint : Bool EquationSet -> EquationSet .
   eq congClosureDebugPrint(false,ES) = ES .
@@ -260,4 +272,16 @@ fmod CONG-CLOSURE-LIB is
 
   op congClosureDebugPrint2 : EquationSet EquationSet -> EquationSet .
   eq congClosureDebugPrint2(ES',ES) = ES [print "CCRESULT: " ES'] .
+
+  op markVarConstsAsCtors : QidPairSet Module -> Module .
+  eq markVarConstsAsCtors(QPS,U) = markVarConstsAsCtors(QPS,getOps(U),U) .
+
+  op markVarConstsAsCtors : QidPairSet OpDeclSet Module -> Module .
+  eq markVarConstsAsCtors(qp(Q,Y) | QPS,op Q : nil -> Y [none]. OS, U) =
+    markVarConstsAsCtors(QPS,op Q : nil -> Y [ctor]. OS, U) .
+  eq markVarConstsAsCtors(none, OS, U) = setOps(U,OS) .
+
+  op getVarConsts : Substitution -> QidPairSet .
+  eq getVarConsts(V <- C ; S) = qp(getName(C),getType(C)) | getVarConsts(S) .
+  eq getVarConsts(none)       = none .
 endfm

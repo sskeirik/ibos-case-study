@@ -13,6 +13,7 @@ fmod MARKED-RULE is protecting AAC-RPO .
                     protecting MARKED-TERM .
                     protecting NAT .
                     protecting META-LEVEL .
+		    protecting QIDTUPLESET .
 
   sorts MRule IMRule GroundTermPair .
 
@@ -21,7 +22,7 @@ fmod MARKED-RULE is protecting AAC-RPO .
   op [_,_]       : GroundTerm GroundTerm -> GroundTermPair [ctor] .
   op mt-mrule    : -> MRule [ctor] .
 
-  op make-rule   : Module Bool GroundTerm GroundTerm -> MRule .
+  op make-rule   : Module Module QidPairSet Substitution Bool GroundTerm GroundTerm -> MRule .
   ops left right : MRule -> [GroundTerm] .  --- undefined for mt-rule
   op _<_         : MRule MRule -> Bool .
 
@@ -29,8 +30,10 @@ fmod MARKED-RULE is protecting AAC-RPO .
   vars S S' S'' S''' : SetM{Qid} .
   vars i j n m k l : Nat .
   var MR : MRule .
-  var U : Module .
+  var U CU : Module .
+  var QPS : QidPairSet .
   var B : Bool .
+  var SUB : Substitution .
 
   eq left(T [n,S] => T' [m,S']) = T .
   eq right(T [n,S] => T' [m,S']) = T' .
@@ -38,7 +41,7 @@ fmod MARKED-RULE is protecting AAC-RPO .
   --- NB: if boolean flag is true, then order the equality using a total order
   ---     comprised of the term size + AAC-RPO ordering; otherwise, just use the
   ---     the AAC-RPO ordering
-  eq make-rule(U,B,T,T') = if getTerm(metaReduce(U,T)) == getTerm(metaReduce(U,T'))
+  eq make-rule(U,CU,QPS,SUB,B,T,T') = if getTerm(metaReduce(U,T)) == getTerm(metaReduce(U,T'))
                              then mt-mrule
                              else if B and-then  size(size&ops(T)) > size(size&ops(T'))
                                then T size&ops(T) => T' size&ops(T')

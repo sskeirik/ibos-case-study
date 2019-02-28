@@ -10,12 +10,12 @@ load process.maude
 load fi-and-IMR-tables-and-overlaps.maude
 load critical-pair.maude
 load cc-shared.maude
-load free-cong-closure.maude
-load ac-cong-closure.maude
+--- load free-cong-closure.maude
+--- load ac-cong-closure.maude
 load acu-cong-closure.maude
 
 fmod CONG-CLOSURE is
-  pr FREE-CONG-CLOSURE .
-  pr A\/C-CONG-CLOSURE .
+  --- pr FREE-CONG-CLOSURE .
+  --- pr A\/C-CONG-CLOSURE .
   pr A\/C\/U-CONG-CLOSURE .
 endfm
