@@ -13,7 +13,8 @@ fmod MARKED-RULE is protecting AAC-RPO .
                     protecting MARKED-TERM .
                     protecting NAT .
                     protecting META-LEVEL .
-		    protecting QIDTUPLESET .
+                    protecting QIDPAIRSET-TERMAPPLY .
+                    protecting MGCI .
 
   sorts MRule IMRule GroundTermPair .
 
@@ -47,9 +48,13 @@ fmod MARKED-RULE is protecting AAC-RPO .
                                then T size&ops(T) => T' size&ops(T')
                                else if B and-then size(size&ops(T')) > size(size&ops(T))
                                  then  T' size&ops(T') =>  T size&ops(T)
-                                 else if T >AAC{U} T'
-                                   then T size&ops(T) => T' size&ops(T')
-                                   else T' size&ops(T') =>  T size&ops(T) fi fi fi fi .
+                                 else if orientDefToCtor(specialConst?(T),specialConst?(T'),T,T') =/= mt-mrule
+                                   then orientDefToCtor(specialConst?(T),specialConst?(T'),T,T')
+                                   else if orientDefToCtor(CU,QPS,T,T') =/= mt-mrule
+                                     then orientDefToCtor(CU,QPS,T,T')
+                                     else if T >AAC{U} T'
+                                       then T size&ops(T) => T' size&ops(T')
+                                       else T' size&ops(T') =>  T size&ops(T) fi fi fi fi fi fi .
 
   eq mt-mrule < T [n,S] => T' [m,S'] = true . --- smaller righthand sides first preferred, then smaller lefthands
   eq MR < mt-mrule = false .
@@ -60,6 +65,21 @@ fmod MARKED-RULE is protecting AAC-RPO .
                                                                        else false
                                                                    fi
                                                            fi .
+
+  --- HACK: orient towards these constants which are known to be bottom of the hierarchy;
+  ---       these names are hard-coded for IBOS
+  op specialConst? : Term -> Bool .
+  eq specialConst?(C:Constant) = C:Constant in ('trueKind#1.U ; 'falseKind#1.U) .
+  eq specialConst?(T)          = false .
+
+  op orientDefToCtor : Module QidPairSet Term Term -> MRule .
+  eq orientDefToCtor(CU,QPS,T,T') = orientDefToCtor(ctor-term?(CU,apply(QPS,true,T)),ctor-term?(CU,apply(QPS,true,T')),T,T') .
+
+  op orientDefToCtor : Bool Bool Term Term -> MRule .
+  eq orientDefToCtor(true, false,T,T') = T' size&ops(T') => T  size&ops(T) .
+  eq orientDefToCtor(false,true, T,T') = T  size&ops(T') => T' size&ops(T) .
+  eq orientDefToCtor(true, true, T,T') = mt-mrule .
+  eq orientDefToCtor(false,false,T,T') = mt-mrule .
 endfm
 
 view IMRule from TRIV to MARKED-RULE is

@@ -245,7 +245,7 @@ fmod CONG-CLOSURE-LIB is
 		 unsortify-1(pruneBool(getSig(UCC))) | unsortify-1(pruneBool(getSig(UCC)),vars(ID-ES)),
 		 init-acu-cc(
 		   unsortify(pruneBool(getSig(UCC))),
-		   ctor-refine(markVarConstsAsCtors(getVarConsts(S),pruneBool(getSig(UCC)))),
+		   markVarConstsAsCtors(getVarConsts(S),pruneBool(getSig(UCC))),
 		   unsortify-1(pruneBool(getSig(UCC))) | unsortify-1(pruneBool(getSig(UCC)),vars(ID-ES)),
 		   S,
 		   B,
