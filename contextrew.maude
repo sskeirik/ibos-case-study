@@ -90,7 +90,7 @@ fmod CONTEXT-REW is
   var S : Substitution . var Sz : Nat .
   var ND  : NegDisj? . var PD : PosDisj? . var D? : Disj? .
   var NND : NegDisj . var NPD : PosDisj . var D : Disj .
-  var F   : QFForm . var F? : QFForm? .
+  var F   : QFForm . var F? : QFForm? . var FK : [QFForm?] .
   var CC  : CCState .
 
   --- INP: Module NegDisj PosDisj
@@ -126,7 +126,9 @@ fmod CONTEXT-REW is
   eq cr-simp'(U,D /\ F) = cr-simp'(U,D) /\ cr-simp'(U,F) .
   eq cr-simp'(U,NND \/ NPD) = cr-simp'(U,size(NND \/ NPD),NND,context-rew(U,NND,NPD)) .
   eq cr-simp'(U,D?) = D? [owise] .
+
   eq cr-simp'(U,Sz,NND,PD) = if size(NND \/ PD) < Sz then tt else mtForm fi \/ NND \/ PD .
+  eq cr-simp'(U,Sz,NND,FK) = FK .
 
   --- OUT: debugging printer
   op print-disj : PosDisj ~> PosDisj .
@@ -182,10 +184,12 @@ fmod CONTEXT-REW-SOLVER is
   eq crv-conj(ML,D) = crv-disj(ML,D) .
   eq crv-conj(ML,mtForm) = mtForm .
   eq crv-disj(ML,D) =
-    if crv-run(ML,D) == D
-      then D
-      else crv'(ML,crv-run(ML,D))
-    fi .
+    if not crv-run(ML,D) :: QFForm?
+      then error(getFOFormErrMsg(crv-run(ML,D)))
+      else if crv-run(ML,D) == D
+        then D
+        else crv'(ML,crv-run(ML,D))
+    fi fi .
   eq crv-run(RewMod ; VSMod ; SimpMod ; CRMod,D) =
     cr-simp(CRMod,downTerm(modReduce(SimpMod,
       upTerm(reduce(RewMod,false,
