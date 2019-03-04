@@ -180,6 +180,17 @@ fmod FOFORM is
   --- Remove useless quantifiers
   eq  A[none] F:AEQForm = F:AEQForm .
   eq  E[none] F:AEQForm = F:AEQForm .
+
+  var S : String . var FK FK' : [FOForm] . var QS : QidSet .
+
+  op getFOFormErrMsg : [FOForm] -> String .
+  eq getFOFormErrMsg(FK /\ FK') = getFOFormErrMsg(FK) + getFOFormErrMsg(FK') .
+  eq getFOFormErrMsg(FK \/ FK') = getFOFormErrMsg(FK) + getFOFormErrMsg(FK') .
+  eq getFOFormErrMsg(A[QS] FK)  = getFOFormErrMsg(FK) .
+  eq getFOFormErrMsg(E[QS] FK)  = getFOFormErrMsg(FK) .
+  eq getFOFormErrMsg(~ FK)      = getFOFormErrMsg(FK) .
+  eq getFOFormErrMsg(error(S))  = S .
+  eq getFOFormErrMsg(FK)        = "" [owise] .
 endfm
 
 fmod FOFORMSET is
