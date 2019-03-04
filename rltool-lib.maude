@@ -481,7 +481,10 @@ mod RLTL-ACTION-IMPL is
   --- goal printing operators
   -------------------------------------------------
   op printDescendants : Proof Set{Nat} -> QidList .
-  eq printDescendants(P,NS) = printGoals(get-mod(data(P)),readyGoals(getleaves(getdescendants(NS,get-prf(data(P)))))) .
+  eq printDescendants(P,NS) = printDescendants2(get-mod(data(P)),readyGoals(getleaves(getdescendants(NS,get-prf(data(P)))))) .
+
+  op printDescendants2 : Module ProofGoalSet -> QidList .
+  eq printDescendants2(U,GS) = if GS == mt then 'none else printGoals(U,GS) fi .
 
   op printGoalsOrSuccess : Proof -> QidList .
   eq printGoalsOrSuccess(P) =
