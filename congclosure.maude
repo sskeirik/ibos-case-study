@@ -224,6 +224,8 @@ fmod CONG-CLOSURE-LIB is
   var C : Constant .
   var QPS : QidPairSet .
   var OS : OpDeclSet .
+  var AS : AttrSet .
+  var CSK : [CCState] .
 
   op congClosure : Module Bool PosEqConj -> CCResult .
   eq congClosure(U,B,PC) =
@@ -259,8 +261,9 @@ fmod CONG-CLOSURE-LIB is
   eq congClosure3(UCC,S,U2OMap,[ES,N,MRL]) =
     if MRL == nil
       then (UCC,S,congClosureDebugPrint(true,apply(U2OMap,true,ES)))
-      else errCCResult('Congruence 'closure 'failed!)
+      else errCCResult('Congruence 'closure 'did 'not 'terminate)
     fi .
+  eq congClosure3(UCC,S,U2OMap,CSK) = errCCResult('Congruence 'closure 'failed) [owise] .
 
   op toMRules : Module Module QidPairSet Substitution Bool PosEqConj -> List{MRule<} .
   eq toMRules(U,CU,QPS,S,B,T ?= T' /\ PC?) = make-rule(U,CU,QPS,S,B,T,T') toMRules(U,CU,QPS,S,B,PC?) .
@@ -277,9 +280,10 @@ fmod CONG-CLOSURE-LIB is
   eq markVarConstsAsCtors(QPS,U) = markVarConstsAsCtors(QPS,getOps(U),U) .
 
   op markVarConstsAsCtors : QidPairSet OpDeclSet Module -> Module .
-  eq markVarConstsAsCtors(qp(Q,Y) | QPS,op Q : nil -> Y [none]. OS, U) =
-    markVarConstsAsCtors(QPS,op Q : nil -> Y [ctor]. OS, U) .
+  eq markVarConstsAsCtors(qp(Q,Y) | QPS,op Q : nil -> Y [AS]. OS, U) =
+    markVarConstsAsCtors(QPS,op Q : nil -> Y [ctor AS]. OS, U) .
   eq markVarConstsAsCtors(none, OS, U) = setOps(U,OS) .
+  eq markVarConstsAsCtors(qp(Q,Y) | QPS,OS,U) = noModule [owise] .
 
   op getVarConsts : Substitution -> QidPairSet .
   eq getVarConsts(V <- C ; S) = qp(getName(C),getType(C)) | getVarConsts(S) .
