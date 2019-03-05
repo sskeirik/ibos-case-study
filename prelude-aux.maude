@@ -33,7 +33,7 @@ fmod MAYBE-BOOL is
   eq nobool or-else A = nobool .
 
   eq nobool defined-or-else BK = BK .
-  eq B      defined-or-else BK = BK .
+  eq B      defined-or-else BK = B  .
 
   op strict-and : MaybeBool MaybeBool -> MaybeBool .
   eq strict-and(false,A) = false .
