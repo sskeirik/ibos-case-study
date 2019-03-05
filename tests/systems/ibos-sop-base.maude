@@ -60,6 +60,9 @@ endfm
 fmod CONFIGURATION-FVP-EXT is
   pr PROC-ID-FVP-EXT .
   pr KERNEL-POLICIES-FVP .
+
+  var P : ConcProcId . var A : AttributeSet . var C : Configuration .
+
   sorts NetWebProcObject NetWebProcConfig NetWebProcNeConfig .
   subsort NetWebProcObject < Object .
   subsort NetWebProcObject < NetWebProcNeConfig < NeConfiguration NetWebProcConfig < Configuration .
@@ -67,6 +70,9 @@ fmod CONFIGURATION-FVP-EXT is
   op <_|_> : ConcNetWebProcId AttributeSet -> NetWebProcObject [ctor ditto metadata "33"] .
   op __ : NetWebProcConfig   NetWebProcConfig -> NetWebProcConfig   [ctor ditto metadata "35"] .
   op __ : NetWebProcNeConfig NetWebProcConfig -> NetWebProcNeConfig [ctor ditto metadata "35"] .
+
+  op in-confP? : ProcessId Configuration -> Pred [ctor metadata "128"] .
+  eq in-confP?(P,< P | A > C) = tt [variant] .
 endfm
 
 fmod LABEL-FVP-EXT is
@@ -137,6 +143,11 @@ endfm
 
 fmod KERNEL-METADATA-FVP-EXT is
   pr KERNEL-POLICIES-FVP .
+  pr LABEL-FVP-EXT .
+
+  var WI : WebProcInfo . var WIS : WebProcInfoSet .
+  var NI : NetProcInfo . var NIS : NetProcInfoSet .
+
   sort NeWebProcInfoSet .
   subsort WebProcInfo < NeWebProcInfoSet < WebProcInfoSet .
   sort NeNetProcInfoSet .
@@ -144,6 +155,12 @@ fmod KERNEL-METADATA-FVP-EXT is
   ---------------------------------------------------------
   op _,wp_ : NeWebProcInfoSet WebProcInfoSet -> NeWebProcInfoSet [ctor ditto metadata "72"] .
   op _,np_ : NeNetProcInfoSet NetProcInfoSet -> NeNetProcInfoSet [ctor ditto metadata "75"] .
+
+  op weblabel-by-pidP? : WebProcInfo WebProcInfoSet -> Pred [ctor metadata "129"] .
+  eq weblabel-by-pidP?(WI,(WI ,wp WIS)) = tt [variant] .
+
+  op netlabelpair-by-pidP? : NetProcInfo NetProcInfoSet -> Pred [ctor metadata "130"] .
+  eq netlabelpair-by-pidP?(NI,(NI ,np NIS)) = tt [variant] .
 endfm
 
 fmod ATTRIBUTE-FVP-EXT is
