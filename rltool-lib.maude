@@ -682,7 +682,7 @@ mod RLTL-PROC-CMD is
                                      then 'Parents: printNatSet(getparentsR(get-prf(R),NS,BD))
 				     else 'One 'or 'more 'goals 'not 'found
 				   fi) .
-  eq proc(showgoal(NS),     R) = write('Show 'goals: printGoals(get-mod(R),getgl(get-prf(R),NS))) .
+  eq proc(showgoal(NS),     R) = write('Show 'goals: '\n printGoals(get-mod(R),getgl(get-prf(R),NS))) .
 endm
 
 mod RLTL-UI is
