@@ -894,6 +894,10 @@ fmod QIDSET-REFINEMENT is
   op _;_ : NeConstantSet ConstantSet -> NeConstantSet [ctor ditto] .
   op _;_ : VariableSet VariableSet   -> VariableSet   [ctor ditto] .
   op _;_ : NeVariableSet VariableSet -> NeVariableSet [ctor ditto] .
+
+  op pickAny : QidSet -> [Qid] .
+  op pickAny : NeQidSet -> Qid .
+  eq pickAny(Q:Qid ; QS:QidSet) = Q:Qid .
 endfm
 
 fmod SUBSTITUTION-REFINEMENT is
@@ -1969,6 +1973,144 @@ endfm
 ---
 --- # Meta-Level Functors
 ---
+
+--- Refine and extend the built-in meta-level renaming operators
+fmod META-LEVEL-RENAMING-EXT is
+  pr META-LEVEL .
+  pr QIDSET-REFINEMENT .
+  pr TYPE-EXTRA .
+
+  var R  : Renaming    .
+  var RS : RenamingSet .
+  var S  : Sort .
+  var Q  : Qid .
+  var TL : TypeList .
+  var T  : Type .
+  var A  : AttrSet .
+
+  sort EmptyRenamingSet .
+
+  sort SortRenaming SortRenamingSet .
+  sort   OpRenaming   OpRenamingSet .
+
+  subsort SortRenaming < SortRenamingSet .
+  subsort   OpRenaming <   OpRenamingSet .
+
+  subsort SortRenaming    OpRenaming    < Renaming    .
+  subsort SortRenamingSet OpRenamingSet < RenamingSet .
+
+  subsort EmptyRenamingSet < SortRenamingSet OpRenamingSet < RenamingSet .
+
+  op none : -> EmptyRenamingSet [ctor] .
+
+  op _,_ : EmptyRenamingSet EmptyRenamingSet -> EmptyRenamingSet [ctor ditto] .
+  op _,_ :  SortRenamingSet  SortRenamingSet ->  SortRenamingSet [ctor ditto] .
+  op _,_ :    OpRenamingSet    OpRenamingSet ->    OpRenamingSet [ctor ditto] .
+
+  op sort_to_       : Sort Sort                     -> SortRenaming [ctor ditto] .
+  op op_to_[_]      : Qid Qid AttrSet               ->   OpRenaming [ctor ditto] .
+  op op_:_->_to_[_] : Qid TypeList Type Qid AttrSet ->   OpRenaming [ctor ditto] .
+  op label_to_      : Qid Qid                       ->   OpRenaming [ctor ditto] .
+
+  eq R  , R    = R  .
+  eq RS , none = RS .
+
+  op removeId : RenamingSet -> RenamingSet .
+  eq removeId(sort S         to S,     RS) = removeId(RS) .
+  eq removeId(label Q        to Q,     RS) = removeId(RS) .
+  eq removeId(                         RS) = RS [owise]   .
+  --- NB: technically, these might change the attributes
+  --- eq removeId(op Q           to Q [A], RS) = removeId(RS) .
+  --- eq removeId(op Q : TL -> T to Q [A], RS) = removeId(RS) .
+endfm
+
+--- For renaming purposes, whether we are renaming a term, a piece of a module, or a entire module,
+--- we always want the ENTIRE flattened module that the term, piece, or module lives in as context.
+--- In the code below, I use the variable FM to represent "Flattened Module" and M for "Module."
+fmod MODULE-RENAMING is
+  pr META-LEVEL-RENAMING-EXT .
+
+  var FM : Module .
+  var S S1 S2 : Sort .
+  var SDS : SubsortDeclSet .
+  var K  : Kind .
+  var T T1 T2 : Type .
+  var TL TL1 TL2 : TypeList .
+  var TS : TypeSet .
+  var SRS : SortRenamingSet .
+  var ORS : OpRenamingSet .
+  var Q Q1 Q2 : Qid .
+  var A : AttrSet .
+  var ODS : OpDeclSet .
+
+  --- Rename sorts/kinds
+  ----------------------
+  op rename : Module SortRenamingSet TypeList -> TypeList .
+  op rename : Module SortRenamingSet TypeSet  -> TypeSet .
+  op rename : Module SortRenamingSet Type     -> Type .
+  op rename : Module SortRenamingSet Kind     -> Kind .
+  op rename : Module SortRenamingSet Sort     -> Sort .
+  op rename :        SortRenamingSet Sort     -> Sort .
+
+  eq rename(FM,SRS,T TL) = rename(FM,SRS,T) rename(SRS,TL) .
+  eq rename(FM,SRS,nil)  = nil .
+
+  eq rename(FM,SRS,T ; T1 ; TS) = rename(FM,SRS,T) ; rename(SRS,T1 ; TS) .
+  eq rename(FM,SRS,none)   = none .
+
+  eq rename(FM,SRS,K) = qid("[" + string(rename(SRS,pickAny(maximalSorts(FM,K)))) + "]") .
+  eq rename(FM,SRS,S) = rename(SRS,S) .
+
+  eq rename((sort S1 to S2, SRS),S) = if S == S1 then S2 else rename(SRS,S) fi .
+  eq rename((sort S1 to S2),     S) = if S == S1 then S2 else S fi .
+  eq rename( none,               S) = S .
+
+  --- Rename SubsortDeclSets
+  --------------------------
+  op rename : SortRenamingSet SubsortDeclSet -> SubsortDeclSet .
+  eq rename(SRS,subsort S1 < S2 . SDS) =
+    (subsort rename(SRS,S1) < rename(SRS,S2) .)
+     rename(SRS,SDS) .
+  eq rename(SRS,(none).SubsortDeclSet) = none .
+
+  --- Rename OpDeclSets
+  ---------------------
+  op rename : Module SortRenamingSet OpRenamingSet OpDeclSet -> OpDeclSet .
+  eq rename(FM,SRS,ORS,(op Q : TL -> T [A]. ODS)) =
+    if $renOp(FM,ORS,Q,TL,T) =/= none
+      then (op $renOpId($renOp(FM,ORS,Q,TL,T),Q) : rename(FM,SRS,TL) -> rename(FM,SRS,T) [rename(FM,SRS,ORS,A)].)
+      else op Q : TL -> T [A].
+    fi rename(FM,SRS,ORS,ODS) .
+  eq rename(FM,SRS,ORS,(none).OpDeclSet) = none .
+
+  --- Rename AttrSets
+  -------------------
+  op rename : Module SortRenamingSet OpRenamingSet AttrSet -> AttrSet .
+
+  --- Auxiliary operators - rename operator ids - assumes complete kind names
+  ---------------------------------------------------------------------------
+  op $renOpId : OpRenaming Qid ~> Qid .
+  eq $renOpId((op Q           to Q2 [A]),Q) = Q2 .
+  eq $renOpId((op Q : TL -> T to Q2 [A]),Q) = Q2 .
+
+  op $renOp : Module OpRenamingSet Qid TypeList Type -> OpRenamingSet .
+  eq $renOp(FM,ORS,Q,TL,T) = $renOp(ORS,Q,$renKind(FM,TL),$renKind(FM,T)) .
+
+  op $renOp : OpRenamingSet Qid TypeList Type -> OpRenamingSet .
+  eq $renOp((op Q1             to Q2 [A], ORS),Q,TL,T) = if Q      == Q1        then (op Q1             to Q2 [A]) else $renOp(ORS,Q,TL,T) fi .
+  eq $renOp((op Q1 : TL1 -> T1 to Q2 [A], ORS),Q,TL,T) = if Q T TL == Q1 T1 TL1 then (op Q1 : TL1 -> T1 to Q2 [A]) else $renOp(ORS,Q,TL,T) fi .
+  eq $renOp((op Q1             to Q2 [A]),     Q,TL,T) = if Q      == Q1        then (op Q1             to Q2 [A]) else none fi .
+  eq $renOp((op Q1 : TL1 -> T1 to Q2 [A]),     Q,TL,T) = if Q T TL == Q1 T1 TL1 then (op Q1 : TL1 -> T1 to Q2 [A]) else none fi .
+  eq $renOp((label Q1 to Q2,              ORS),Q,TL,T) = $renOp(ORS,Q,TL,T) .
+  eq $renOp((label Q1 to Q2),                  Q,TL,T) = none .
+
+  op $renKind : Module TypeList -> TypeList .
+  eq $renKind(FM,T T1 TL1) = $renKind(FM,T) $renKind(FM,T1 TL1) .
+  eq $renKind(FM,nil)      = nil .
+  eq $renKind(FM,S)        = S .
+  eq $renKind(FM,K)        = getKind(FM,K) .
+endfm
+
 fmod CTOR-SIG is
   pr UNIT-FM .
   pr OPDECLSET-EXTRA .
