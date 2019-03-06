@@ -748,7 +748,7 @@ fmod IBOS-SOP-PRED is
   var B : Bool .
   var NWC : NetWebProcConfig .
   var W N NNP NWA : Nat .
-  var A : AttributeSet .
+  var A A' : AttributeSet .
   var WIS : WebProcInfoSet .
   var NIS : NetProcInfoSet .
   var ML ML2 : MessageList .
@@ -802,8 +802,8 @@ fmod IBOS-SOP-PRED is
 
   --- Prop 1 ---
   --- any FETCH message in fromKernel queue of NetProc, agrees with kernel metadata
- ceq p(< NI | fromKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) =
-     p(< NI | fromKernel(ML @                                 ML2), A > NWC,WIS,NIS,M?)
+ ceq p(< NI | fromKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT) @ ML2), A > < PI | loading(true),  A' > NWC,WIS,NIS,M?) =
+     p(< NI | fromKernel(ML @                                 ML2), A > < PI | loading(false), A' > NWC,WIS,NIS,M?)
   if (weblabel-by-pid(PI,WIS),OUT) ~lp netlabelpair-by-pid(PI',NIS) .
 
  ceq p(< NI | fromKernel(ML @ NFM                            @ ML2), A > NWC, WIS, NIS,M?) =
@@ -812,6 +812,17 @@ fmod IBOS-SOP-PRED is
 
   eq p(< NI | fromKernel(mt),     A > NWC, WIS, NIS, M?) =
      p(< NI | fromKernel(nolist), A > NWC, WIS, NIS, M?) .
+
+  --- Prop 1 Negation ---
+ ceq p(< NI | fromKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) = false
+  if (weblabel-by-pid(PI,WIS),OUT) ~lp netlabelpair-by-pid(PI',NIS) = false .
+
+ ceq p(< NI | fromKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT) @ ML2), A > < PI | A' > NWC,WIS,NIS,M?) = false
+  if in-attrset?(loading(true) | A') = false .
+
+  eq p(< NI | fromKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT) @ ML2), A > < PI | loading(false),  A' > NWC,WIS,NIS,M?) = false .
+
+ --- ceq p(< NI | fromKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT) @ ML2), A >  NWC,WIS,NIS,M?) = false if in-conf?(PI,NWC) = false .
 
   --- Prop 2 ---
   --- mem-in() attr correlates with kernel metadata
