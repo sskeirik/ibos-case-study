@@ -737,6 +737,9 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
 
  ceq conf-labels-eqset?(NWC,(pi(WP,L),wp WIS),NIS)    = false if in-conf?(WP,NWC) = false .
  ceq conf-labels-eqset?(NWC,WIS,(pi(NP,L,L'),np NIS)) = false if in-conf?(NP,NWC) = false .
+
+ ceq conf-labels-eqset?(NWC !c,WIS,NIS) = false if conf-labels-eqset?(NWC,WIS,NIS) = false .
+ ceq conf-labels-eqset?(NWC !c,WIS,NIS) = true  if conf-labels-eqset?(NWC,WIS,NIS) = true  .
 endfm
 
 fmod IBOS-SOP-PRED is
