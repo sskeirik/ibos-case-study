@@ -126,9 +126,17 @@ fmod MSG-FVP-EXT is
   op mt  : -> EmptyMessageList [ctor ditto metadata "5"] .
   op _@_ : EmptyMessageList EmptyMessageList -> EmptyMessageList [ctor ditto metadata "52"] .
 
-  sort NonFetchMsgList HasFetchMsgList .
-  subsort EmptyMessageList NonFetchMsg < NonFetchMsgList < MessageList .
-  subsort FetchMsg < HasFetchMsgList < MessageList .
+  sort NeMessageList .
+  subsort Message < NeMessageList < MessageList .
+  op _@_ : NeMessageList MessageList -> NeMessageList [ctor ditto metadata "52"] .
+  op _@_ : MessageList NeMessageList -> NeMessageList [ctor ditto metadata "52"] .
+
+  sort NonFetchMsgList NeNonFetchMsgList HasFetchMsgList .
+  subsort EmptyMessageList < NonFetchMsgList < MessageList .
+  subsort NonFetchMsg < NeNonFetchMsgList < NonFetchMsgList NeMessageList .
+  subsort FetchMsg < HasFetchMsgList < NeMessageList .
+  op _@_ : NonFetchMsgList NeNonFetchMsgList -> NeNonFetchMsgList [ctor ditto metadata "52"] .
+  op _@_ : NeNonFetchMsgList NonFetchMsgList -> NeNonFetchMsgList [ctor ditto metadata "52"] .
   op _@_ : NonFetchMsgList NonFetchMsgList -> NonFetchMsgList [ctor ditto metadata "52"] .
   op _@_ : NonFetchMsgList HasFetchMsgList -> HasFetchMsgList [ctor ditto metadata "52"] .
   op _@_ : HasFetchMsgList NonFetchMsgList -> HasFetchMsgList [ctor ditto metadata "52"] .
