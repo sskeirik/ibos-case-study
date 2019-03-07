@@ -938,6 +938,9 @@ fmod IBOS-SOP-PRED is
   eq p(< WI | toKernel(nolist), fromKernel(nolist),                                    A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
   eq p(< NI | toKernel(nolist), fromKernel(nolist), mem-in(nolabel), mem-out(nolabel), A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
 
+  --- simplification rules
+  eq p(< WI | rendered(L), A > NWC,WIS,NIS,M?) = p(< WI | rendered(nolabel), A > NWC,WIS,NIS,M?) .
+
   --- true case
   eq p(none,mtWPIS,mtNPIS,none) = true .
 
