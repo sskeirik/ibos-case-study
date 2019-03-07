@@ -865,6 +865,10 @@ fmod IBOS-SOP-PRED is
   ---eq p(< WI | loading(false), fromKernel(NRL                                       ), A > NWC,(pi(WI,IN),np WIS),                   NIS, M?) =
   ---   p(< WI | loading(false), fromKernel(mt                                        ), A > NWC,(pi(WI,IN),np WIS),                   NIS, M?) .
 
+  --- Prop 4 -- Negation
+ ceq p(< WI | loading(true),  fromKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) = false
+  if (weblabel-by-pid(PI',WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) = false .
+
   --- Other needed pieces:
   --- WebProc toKernel queue invariant
   --- only one fetch msg that correlates with loading predicate
