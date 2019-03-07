@@ -57,7 +57,7 @@ loop rltl-init .
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (AWP:WebProcId) U
 	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:ConcNetProcId) U (NI?:NetProcId) U
 	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (IN:Label) U (IN2:Label) U (OUT:Label) U
-	      (A:AttributeSet) U (A':AttributeSet) U (MT:MsgType) U
+	      (A:AttributeSet) U (A':AttributeSet) U (MT:MsgType) U (LL:LabelList) U
 	      (NWI:ConcNetWebProcId) U (WI:ConcWebProcId) U (PP1:ConcPipeId) U (PP2:ConcPipeId) .)
 (def-term-set ([C:Configuration]) | true .)
 --- INV is a generalized multiset equality between:
@@ -174,3 +174,7 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (auto .)
 
 --- proc-in
+(split ({ < NI |             A > < kernel | netlabels(NIS), A' > C }) by
+  (netlabelpair-by-pidP?(pi(NI,IN,OUT),NIS)) = (tt) and (netlabelpair-by-pid(NI,NIS) ~lp nopair) = (true) .)
+(split ({ < NI | in(LL ; U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U) = (OUT) and (U ~l OUT) = (false) .)
+(auto .)
