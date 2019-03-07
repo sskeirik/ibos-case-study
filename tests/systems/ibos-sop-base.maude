@@ -844,11 +844,19 @@ fmod IBOS-SOP-PRED is
      p(< NI | mem-in(nolabel),  A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT .
 
+  --- Prop 2 Negation ---
+ ceq p(< NI | mem-in(OUT),      A > NWC,WIS,NIS,M?) = false
+  if out-netlabel-by-pid(NI,NIS) ~l OUT = false .
+
   --- Prop 3 ---
   --- mem-out() attr correlates with kernel metadata
  ceq p(< NI | mem-out(OUT),     A > NWC,WIS,NIS,M?) =
      p(< NI | mem-out(nolabel), A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT .
+
+  --- Prop 3 Negation ---
+ ceq p(< NI | mem-out(OUT),     A > NWC,WIS,NIS,M?) = false
+  if out-netlabel-by-pid(NI,NIS) ~l OUT = false .
 
   --- Prop 4 ---
   --- NOTE: should false case be relaxed to don't care instead of NonRetMsgList
