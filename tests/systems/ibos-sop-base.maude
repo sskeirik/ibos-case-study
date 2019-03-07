@@ -771,6 +771,7 @@ fmod IBOS-SOP-PRED is
   var PI PI' : PipeId .
   var CPI CPI' : ConcPipeId .
   var L IN OUT OUT1 OUT2 : Label .
+  var LL LL' : LabelList .
 
   var MT : MsgType .
   var RetMT : RetMsgType .
@@ -916,6 +917,25 @@ fmod IBOS-SOP-PRED is
      p(< NI | toKernel(nolist),                                     A > NWC,WIS,NIS,M?)
   if pid-in-netlabels?(NI,NIS) .
 
+  --- in/out invariants
+ ceq p(< NI | out(LL ; OUT ; LL'),  A > < WI | loading(true),  A' > NWC,WIS,NIS,M?) =
+     p(< NI | out(LL ;       LL'),  A > < WI | loading(false), A' > NWC,WIS,NIS,M?)
+  if (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) .
+
+ ceq p(< NI | in(LL ; OUT ; LL'), A > NWC,WIS,NIS,M?) =
+     p(< NI | in(LL ;       LL'), A > NWC,WIS,NIS,M?)
+  if out-netlabel-by-pid(NI,NIS) ~l OUT .
+
+  --- in/out invariant negation
+ ceq p(< NI | in(LL ; OUT ; LL'),  A > NWC,WIS,NIS,M?) = false
+  if out-netlabel-by-pid(NI,NIS) ~l OUT = false .
+
+ ceq p(< NI | out(LL ; OUT ; LL'), A > < WI | loading(false), A' > NWC,WIS,NIS,M?) = false
+  if (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) .
+
+ ceq p(< NI | out(LL ; OUT ; LL'),  A > < WI | loading(true),  A' > NWC,WIS,NIS,M?) = false
+  if (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) = false .
+
   --- currentlyHandled() attr invariant
   --- TODO: complete this case analysis
   --- TODO: case analysis should be keyed primarily on message TARGET and message TYPE
@@ -943,8 +963,8 @@ fmod IBOS-SOP-PRED is
  ceq p(NWC,(pi(WI,IN),wp WIS),                  NIS, M?) = true              if p(NWC,WIS,NIS,M?) = true .
 
   --- process invariant
-  eq p(< WI | toKernel(nolist), fromKernel(nolist),                                    A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
-  eq p(< NI | toKernel(nolist), fromKernel(nolist), mem-in(nolabel), mem-out(nolabel), A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
+  eq p(< WI | toKernel(nolist), fromKernel(nolist),                                                         A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
+  eq p(< NI | toKernel(nolist), fromKernel(nolist), mem-in(nolabel), mem-out(nolabel), in(mtLL), out(mtLL), A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
 
   --- simplification rules
   eq p(< WI | rendered(L),   A > NWC,WIS,NIS,M?) = p(< WI | rendered(nolabel), A > NWC,WIS,NIS,M?) .
