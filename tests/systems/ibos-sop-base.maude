@@ -176,6 +176,7 @@ fmod ATTRIBUTE-FVP-EXT is
   pr MSG-FVP-EXT .
   var A A' : Attribute . var AS AS' : AttributeSet .
 
+  op rendered   : MaybeLabel       -> Attribute [ctor metadata "56"] .
   op fromKernel : MaybeMessageList -> Attribute [ctor metadata "53"] .
   op toKernel   : MaybeMessageList -> Attribute [ctor metadata "54"] .
 
@@ -183,7 +184,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq fromKernel      (X:MaybeMessageList) ~a fromKernel      (Y:MaybeMessageList) = true [variant] .
   eq toKernel        (X:MaybeMessageList) ~a toKernel        (Y:MaybeMessageList) = true [variant] .
   eq nextWPN         (X:Nat)              ~a nextWPN         (Y:Nat)              = true [variant] .
-  eq rendered        (X:Label)            ~a rendered        (Y:Label)            = true [variant] .
+  eq rendered        (X:MaybeLabel)       ~a rendered        (Y:MaybeLabel)       = true [variant] .
   eq URL             (X:Label)            ~a URL             (Y:Label)            = true [variant] .
   eq loading         (X:Bool)             ~a loading         (Y:Bool)             = true [variant] .
   eq returnTo        (X:PipeId)           ~a returnTo        (Y:PipeId)           = true [variant] .
@@ -204,7 +205,7 @@ fmod ATTRIBUTE-FVP-EXT is
 
   eq fromKernel      (X:MaybeMessageList) ~a toKernel        (Y:MaybeMessageList) = false [variant] .
   eq fromKernel      (X:MaybeMessageList) ~a nextWPN         (Y:Nat)              = false [variant] .
-  eq fromKernel      (X:MaybeMessageList) ~a rendered        (Y:Label)            = false [variant] .
+  eq fromKernel      (X:MaybeMessageList) ~a rendered        (Y:MaybeLabel)       = false [variant] .
   eq fromKernel      (X:MaybeMessageList) ~a URL             (Y:Label)            = false [variant] .
   eq fromKernel      (X:MaybeMessageList) ~a loading         (Y:Bool)             = false [variant] .
   eq fromKernel      (X:MaybeMessageList) ~a returnTo        (Y:PipeId)           = false [variant] .
@@ -224,7 +225,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq fromKernel      (X:MaybeMessageList) ~a activeWebapp    (Y:WebProcId)        = false [variant] .
 
   eq toKernel        (X:MaybeMessageList) ~a nextWPN         (Y:Nat)              = false [variant] .
-  eq toKernel        (X:MaybeMessageList) ~a rendered        (Y:Label)            = false [variant] .
+  eq toKernel        (X:MaybeMessageList) ~a rendered        (Y:MaybeLabel)       = false [variant] .
   eq toKernel        (X:MaybeMessageList) ~a URL             (Y:Label)            = false [variant] .
   eq toKernel        (X:MaybeMessageList) ~a loading         (Y:Bool)             = false [variant] .
   eq toKernel        (X:MaybeMessageList) ~a returnTo        (Y:PipeId)           = false [variant] .
@@ -243,7 +244,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq toKernel        (X:MaybeMessageList) ~a displayedContent(Y:Label)            = false [variant] .
   eq toKernel        (X:MaybeMessageList) ~a activeWebapp    (Y:WebProcId)        = false [variant] .
 
-  eq nextWPN         (X:Nat)              ~a rendered        (Y:Label)            = false [variant] .
+  eq nextWPN         (X:Nat)              ~a rendered        (Y:MaybeLabel)       = false [variant] .
   eq nextWPN         (X:Nat)              ~a URL             (Y:Label)            = false [variant] .
   eq nextWPN         (X:Nat)              ~a loading         (Y:Bool)             = false [variant] .
   eq nextWPN         (X:Nat)              ~a returnTo        (Y:PipeId)           = false [variant] .
@@ -262,23 +263,23 @@ fmod ATTRIBUTE-FVP-EXT is
   eq nextWPN         (X:Nat)              ~a displayedContent(Y:Label)            = false [variant] .
   eq nextWPN         (X:Nat)              ~a activeWebapp    (Y:WebProcId)        = false [variant] .
 
-  eq rendered        (X:Label)            ~a URL             (Y:Label)            = false [variant] .
-  eq rendered        (X:Label)            ~a loading         (Y:Bool)             = false [variant] .
-  eq rendered        (X:Label)            ~a returnTo        (Y:PipeId)           = false [variant] .
-  eq rendered        (X:Label)            ~a in              (Y:LabelList)        = false [variant] .
-  eq rendered        (X:Label)            ~a out             (Y:LabelList)        = false [variant] .
-  eq rendered        (X:Label)            ~a mem-in          (Y:MaybeLabel)       = false [variant] .
-  eq rendered        (X:Label)            ~a mem-out         (Y:MaybeLabel)       = false [variant] .
-  eq rendered        (X:Label)            ~a nic-in          (Y:LabelList)        = false [variant] .
-  eq rendered        (X:Label)            ~a nic-out         (Y:LabelSet)         = false [variant] .
-  eq rendered        (X:Label)            ~a msgPolicy       (Y:PolicySet)        = false [variant] .
-  eq rendered        (X:Label)            ~a nextNPN         (Y:Nat)              = false [variant] .
-  eq rendered        (X:Label)            ~a handledCurrently(Y:Message?)         = false [variant] .
-  eq rendered        (X:Label)            ~a weblabels       (Y:WebProcInfoSet)   = false [variant] .
-  eq rendered        (X:Label)            ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
-  eq rendered        (X:Label)            ~a displayedTopBar (Y:Label)            = false [variant] .
-  eq rendered        (X:Label)            ~a displayedContent(Y:Label)            = false [variant] .
-  eq rendered        (X:Label)            ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a URL             (Y:Label)            = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a loading         (Y:Bool)             = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a returnTo        (Y:PipeId)           = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a in              (Y:LabelList)        = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a out             (Y:LabelList)        = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a mem-in          (Y:MaybeLabel)       = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a mem-out         (Y:MaybeLabel)       = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a nic-in          (Y:LabelList)        = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a nic-out         (Y:LabelSet)         = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a msgPolicy       (Y:PolicySet)        = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a nextNPN         (Y:Nat)              = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a handledCurrently(Y:Message?)         = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a weblabels       (Y:WebProcInfoSet)   = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a displayedTopBar (Y:Label)            = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a displayedContent(Y:Label)            = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a activeWebapp    (Y:WebProcId)        = false [variant] .
 
   eq URL             (X:Label)            ~a loading         (Y:Bool)             = false [variant] .
   eq URL             (X:Label)            ~a returnTo        (Y:PipeId)           = false [variant] .
@@ -436,7 +437,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq in-attrsetP?(fromKernel      (X:MaybeMessageList) | (fromKernel      (Y:MaybeMessageList), AS)) = tt [variant] .
   eq in-attrsetP?(toKernel        (X:MaybeMessageList) | (toKernel        (Y:MaybeMessageList), AS)) = tt [variant] .
   eq in-attrsetP?(nextWPN         (X:Nat)              | (nextWPN         (Y:Nat),              AS)) = tt [variant] .
-  eq in-attrsetP?(rendered        (X:Label)            | (rendered        (Y:Label),            AS)) = tt [variant] .
+  eq in-attrsetP?(rendered        (X:MaybeLabel)       | (rendered        (Y:MaybeLabel),       AS)) = tt [variant] .
   eq in-attrsetP?(URL             (X:Label)            | (URL             (Y:Label),            AS)) = tt [variant] .
   eq in-attrsetP?(loading         (X:Bool)             | (loading         (Y:Bool),             AS)) = tt [variant] .
   eq in-attrsetP?(returnTo        (X:PipeId)           | (returnTo        (Y:PipeId),           AS)) = tt [variant] .
@@ -459,7 +460,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq attr-duplP?(fromKernel      (X:MaybeMessageList), fromKernel      (Y:MaybeMessageList), AS) = tt [variant] .
   eq attr-duplP?(toKernel        (X:MaybeMessageList), toKernel        (Y:MaybeMessageList), AS) = tt [variant] .
   eq attr-duplP?(nextWPN         (X:Nat),              nextWPN         (Y:Nat),              AS) = tt [variant] .
-  eq attr-duplP?(rendered        (X:Label),            rendered        (Y:Label),            AS) = tt [variant] .
+  eq attr-duplP?(rendered        (X:MaybeLabel),       rendered        (Y:MaybeLabel),       AS) = tt [variant] .
   eq attr-duplP?(URL             (X:Label),            URL             (Y:Label),            AS) = tt [variant] .
   eq attr-duplP?(loading         (X:Bool),             loading         (Y:Bool),             AS) = tt [variant] .
   eq attr-duplP?(returnTo        (X:PipeId),           returnTo        (Y:PipeId),           AS) = tt [variant] .
@@ -487,7 +488,7 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq (fromKernel      (X:MaybeMessageList), AS) !a = fromKernel(mt),                (AS !a) .
   eq (toKernel        (X:MaybeMessageList), AS) !a = toKernel(mt),                  (AS !a) .
   eq (nextWPN         (X:Nat),              AS) !a = nextWPN(0),                    (AS !a) .
-  eq (rendered        (X:Label),            AS) !a = rendered(about-blank),         (AS !a) .
+  eq (rendered        (X:MaybeLabel),       AS) !a = rendered(about-blank),         (AS !a) .
   eq (URL             (X:Label),            AS) !a = URL(about-blank),              (AS !a) .
   eq (loading         (X:Bool),             AS) !a = loading(true),                 (AS !a) .
   eq (returnTo        (X:PipeId),           AS) !a = returnTo(ui),                  (AS !a) .
@@ -512,7 +513,7 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq in-attrset?(fromKernel      (X:MaybeMessageList) | (fromKernel      (Y:MaybeMessageList), AS)) = true .
   eq in-attrset?(toKernel        (X:MaybeMessageList) | (toKernel        (Y:MaybeMessageList), AS)) = true .
   eq in-attrset?(nextWPN         (X:Nat)              | (nextWPN         (Y:Nat),              AS)) = true .
-  eq in-attrset?(rendered        (X:Label)            | (rendered        (Y:Label),            AS)) = true .
+  eq in-attrset?(rendered        (X:MaybeLabel)       | (rendered        (Y:MaybeLabel),       AS)) = true .
   eq in-attrset?(URL             (X:Label)            | (URL             (Y:Label),            AS)) = true .
   eq in-attrset?(loading         (X:Bool)             | (loading         (Y:Bool),             AS)) = true .
   eq in-attrset?(returnTo        (X:PipeId)           | (returnTo        (Y:PipeId),           AS)) = true .
@@ -538,7 +539,7 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq attr-dupl?(fromKernel      (X:MaybeMessageList), fromKernel      (Y:MaybeMessageList), AS) = true .
   eq attr-dupl?(toKernel        (X:MaybeMessageList), toKernel        (Y:MaybeMessageList), AS) = true .
   eq attr-dupl?(nextWPN         (X:Nat),              nextWPN         (Y:Nat),              AS) = true .
-  eq attr-dupl?(rendered        (X:Label),            rendered        (Y:Label),            AS) = true .
+  eq attr-dupl?(rendered        (X:MaybeLabel),       rendered        (Y:MaybeLabel),       AS) = true .
   eq attr-dupl?(URL             (X:Label),            URL             (Y:Label),            AS) = true .
   eq attr-dupl?(loading         (X:Bool),             loading         (Y:Bool),             AS) = true .
   eq attr-dupl?(returnTo        (X:PipeId),           returnTo        (Y:PipeId),           AS) = true .
@@ -656,7 +657,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   op nwp-reqattrs? : NetWebProcConfig -> Bool [metadata "114"] .
   eq nwp-reqattrs?(< NP | toKernel(TK:MessageList), fromKernel(FK:MessageList), returnTo(P:PipeId), mem-in(M1:MaybeLabel), mem-out(M2:MaybeLabel), A > C)
    = nwp-reqattrs?(C) .
-  eq nwp-reqattrs?(< WP | toKernel(TK:MessageList), fromKernel(FK:MessageList), URL(L1:Label), rendered(L2:Label), loading(B:Bool), A > C)
+  eq nwp-reqattrs?(< WP | toKernel(TK:MessageList), fromKernel(FK:MessageList), URL(L1:Label), rendered(L2:MaybeLabel), loading(B:Bool), A > C)
    = nwp-reqattrs?(C) .
  ceq nwp-reqattrs?(< NP | A > C) = false if attr-subset?(toKernel(mt),fromKernel(mt),returnTo(ui),mem-in(nolabel),mem-out(nolabel)        | A) = false .
  ceq nwp-reqattrs?(< WP | A > C) = false if attr-subset?(toKernel(mt),fromKernel(mt),URL(about-blank),rendered(about-blank),loading(true) | A) = false .
