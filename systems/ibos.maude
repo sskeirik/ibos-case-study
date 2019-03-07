@@ -321,9 +321,9 @@ endfm
 **** need the capability to check whether a process id is for a netproc
 **** this is now handled by subsorting
 fmod NETPROC is inc LABEL-LIST . inc SYS .
-  op returnTo : PipeId    -> Attribute [ctor metadata "59"] .
-  op in       : LabelList -> Attribute [ctor metadata "60"] .
-  op out      : LabelList -> Attribute [ctor metadata "61"] .
+  op returnTo : ConcPipeId -> Attribute [ctor metadata "59"] .
+  op in       : LabelList  -> Attribute [ctor metadata "60"] .
+  op out      : LabelList  -> Attribute [ctor metadata "61"] .
 endfm
 
 fmod MEMORY is inc SYS . inc LABEL .
