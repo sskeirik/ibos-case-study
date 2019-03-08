@@ -44,11 +44,12 @@ loop rltl-init .
 --- 6. kernelForwardsOPMessage
 --- 7. render
 --- 8. request-from-webapp
+--- 9. proc-in
 
 --- Todo:
 
 --- Usage: select-rls ...
-(select-rls proc-in .)
+(select-rls proc-out .)
 
 (use tool conrew for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool varsat for validity         on IBOS-SOP-FVP-NOID .)
@@ -174,7 +175,9 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (auto .)
 
 --- proc-in
-(split ({ < NI |             A > < kernel | netlabels(NIS), A' > C }) by
-  (netlabelpair-by-pidP?(pi(NI,IN,OUT),NIS)) = (tt) and (netlabelpair-by-pid(NI,NIS) ~lp nopair) = (true) .)
-(split ({ < NI | in(LL ; U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U) = (OUT) and (U ~l OUT) = (false) .)
-(auto .)
+--- (split ({ < NI |             A > < kernel | netlabels(NIS), A' > C }) by
+---   (netlabelpair-by-pidP?(pi(NI,IN,OUT),NIS)) = (tt) and (netlabelpair-by-pid(NI,NIS) ~lp nopair) = (true) .)
+--- (split ({ < NI | in(LL ; U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U) = (OUT) and (U ~l OUT) = (false) .)
+--- (auto .)
+
+--- proc-out
