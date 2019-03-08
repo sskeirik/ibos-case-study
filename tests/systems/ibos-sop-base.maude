@@ -816,8 +816,8 @@ fmod IBOS-SOP-PRED is
 
   --- Prop 1 ---
   --- any FETCH message in fromKernel queue of NetProc, agrees with kernel metadata
- ceq p(< NI | fromKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT) @ ML2), A > < PI | loading(true),  A' > NWC,WIS,NIS,M?) =
-     p(< NI | fromKernel(ML @                                 ML2), A > < PI | loading(false), A' > NWC,WIS,NIS,M?)
+ ceq p(< NI | fromKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT) @ ML2), A > < PI | loading(true), A' > NWC,WIS,NIS,M?) =
+     p(< NI | fromKernel(ML @                                 ML2), A > < PI | loading(true), A' > NWC,WIS,NIS,M?)
   if (weblabel-by-pid(PI,WIS),OUT) ~lp netlabelpair-by-pid(PI',NIS) .
 
  ceq p(< NI | fromKernel(ML @ NFM                            @ ML2), A > NWC, WIS, NIS,M?) =
@@ -884,13 +884,15 @@ fmod IBOS-SOP-PRED is
 
   --- Other needed pieces:
   --- WebProc toKernel queue invariant
-  --- only one fetch msg that correlates with loading predicate
+  --- fetch msg in queue if and only if loading(true)
+  --- Extends to greater state:
+  --- fetch msg in state if and only if loading(true)
  ceq p(< WI | loading(B), toKernel(NFL),             A > NWC,WIS,NIS,M?) =
      p(< WI | loading(B), toKernel(nolist),          A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS) .
 
- ceq p(< WI | loading(true),  URL(OUT1), toKernel(NFL @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ NFL2), A > NWC,WIS,NIS,M?) =
-     p(< WI | loading(false), URL(OUT1), toKernel(NFL @                                  NFL2), A > NWC,WIS,NIS,M?)
+ ceq p(< WI | loading(true), URL(OUT1), toKernel(NFL @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ NFL2), A > NWC,WIS,NIS,M?) =
+     p(< WI | loading(true), URL(OUT1), toKernel(NFL @                                  NFL2), A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS)
   /\ PI   ~p WI
   /\ PI'  ~p network
@@ -898,9 +900,6 @@ fmod IBOS-SOP-PRED is
 
  ceq p(< WI | URL(OUT1), toKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ ML2), A > NWC,WIS,NIS,M?) = false
   if pid-in-weblabels?(WI,WIS) and PI ~p WI and PI' ~p network and OUT1 ~l OUT2 = false .
-
- ceq p(< WI | toKernel(HFL @ HFL2), A > NWC,WIS,NIS,M?) = false
-  if pid-in-weblabels?(WI,WIS) .
 
  ceq p(< WI | loading(false), toKernel(HFL), A > NWC,WIS,NIS,M?) = false
   if pid-in-weblabels?(WI,WIS) .
@@ -926,8 +925,8 @@ fmod IBOS-SOP-PRED is
   if pid-in-netlabels?(NI,NIS) .
 
   --- in/out invariants
- ceq p(< NI | out(LL ; OUT ; LL'),  A > < WI | loading(true),  A' > NWC,WIS,NIS,M?) =
-     p(< NI | out(LL ;       LL'),  A > < WI | loading(false), A' > NWC,WIS,NIS,M?)
+ ceq p(< NI | out(LL ; OUT ; LL'),  A > < WI | loading(true), A' > NWC,WIS,NIS,M?) =
+     p(< NI | out(LL ;       LL'),  A > < WI | loading(true), A' > NWC,WIS,NIS,M?)
   if (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) .
 
  ceq p(< NI | in(LL ; OUT ; LL'), A > NWC,WIS,NIS,M?) =
@@ -951,7 +950,7 @@ fmod IBOS-SOP-PRED is
   --- NB: NEW-URL case needed for new-url
   eq p(NWC,                            WIS,NIS,msg(ui, webapp,MSG-NEW-URL,OUT)) = p(NWC,WIS,NIS,none) .
   ---
- ceq p(NWC < CPI | loading(true),  A >,WIS,NIS,msg(CPI, NI, FetchMT,    OUT)) = p(< CPI | loading(false), A > NWC,WIS,NIS,none) if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) .
+ ceq p(NWC < CPI | loading(true),  A >,WIS,NIS,msg(CPI, NI, FetchMT,    OUT)) = p(< CPI | loading(true), A > NWC,WIS,NIS,none) if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) .
   eq p(NWC < CPI | loading(false), A >,WIS,NIS,msg(CPI, NI, FetchMT,    OUT)) = false .
  ceq p(NWC,                            WIS,NIS,msg(CPI, NI, FetchMT,    OUT)) = false                                           if (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) = false  .
  ceq p(NWC,                            WIS,NIS,msg(CPI, NI, NonFetchMT, OUT)) = p(NWC,                           WIS,NIS,none)  if pid-in-netlabels?(NI,NIS) .
