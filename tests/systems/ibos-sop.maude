@@ -81,13 +81,13 @@ loop rltl-init .
    (p(NWC,WIS,NIS,MSG?))                = (true)  /\
    (nwp-reqattrs?(NWC !c))              = (true)  /\
    (weblabels-dupl?(WIS))               = (false) /\
-   (netlabels-dupl?(NIS))               = (false)
-   ---@ (conf-attr-dupl?(NWC !c))            = (false) /\
+   (netlabels-dupl?(NIS))               = (false) /\
+   (conf-attr-dupl?(NWC !c))            = (false) /\
+   (conf-dupl?(NWC))                    = (false)
    ---@ (fresh-wp-id?(webapp(NWP), NWC !c))  = (true)  /\
    ---@ (fresh-np-id?(network(NNP),NWC !c))  = (true)
    --- these are strengthenings of the invariant above that allow the simplification rules to apply more often
    --- they are not strictly needed for correctness --- the invariant above should be enough
-   ---@ (dupl?(NWC))                 = (false)
 .)
 (start-proof .)
 --- set break on .
