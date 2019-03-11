@@ -26,12 +26,12 @@ fmod CONG-CLOSURE-SAFETY is
   pr OPDECL-EXTRA . --- provides metadata() function
   pr OP-FAMILY .    --- provides getOpFamilies() and OpFamilyMap datastructure
   pr CONVERSION .   --- provides rat() function
-  pr STRING-PAIR .  --- provides split function for strings
+  pr STRING-LIST .  --- provides split function for strings
   pr MAYBE-QID .
   pr QID-JOIN .
 
   var O O' : OpDecl   . var OS       : OpDeclSet   . var Q QI QN : Qid . var QIS QNS : QidSet .
-  var TYL  : TypeList . var OFM OFM' : OpFamilyMap . var U : Module  . var MD NUM ID : String .
+  var TYL  : TypeList . var OFM OFM' : OpFamilyMap . var U : Module  . var MD NUM ID FVP REST : String .
 
   sort CCMetadata .
   op cc : Qid -> CCMetadata [ctor] .
@@ -84,7 +84,9 @@ fmod CONG-CLOSURE-SAFETY is
 
   op ccParseDeclData : Module String ~> CCMetadata .
  ceq ccParseDeclData(U,MD) = cc(qid(MD))          if rat(MD,10) :: Nat .
- ceq ccParseDeclData(U,MD) = cc(qid(NUM),qid(ID)) if (NUM,ID) := split1(MD," ") /\ rat(NUM,10) :: Nat /\ wellFormed(U,qid(ID)) .
+ ceq ccParseDeclData(U,MD) = cc(qid(NUM))         if NUM FVP         := split(MD," ") /\ rat(NUM,10) :: Nat .
+ ceq ccParseDeclData(U,MD) = cc(qid(NUM),qid(ID)) if NUM     "ID" ID := split(MD," ") /\ rat(NUM,10) :: Nat /\ wellFormed(U,qid(ID)) .
+ ceq ccParseDeclData(U,MD) = cc(qid(NUM),qid(ID)) if NUM FVP "ID" ID := split(MD," ") /\ rat(NUM,10) :: Nat /\ wellFormed(U,qid(ID)) .
 endfm
 
 --- As it turns out, we can use this struct for two related but different tasks
