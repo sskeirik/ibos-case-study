@@ -2242,24 +2242,37 @@ fmod EQUALITY-FUNCTOR is
   pr UNIT-FM .
   pr CTOR-SIG .
 
-  var M : Module . var OS : OpDeclSet .
+  var M : Module . var OS : OpDeclSet . var T T' : Term .
 
   --- PRE: Module does not have sorts/ops with the prefix/suffix @##/##@
   --- OUT: A module with an universal equality operator
   op equal-func : FModule -> FModule [memo] .
   eq equal-func(M) =
-    setEqs(addOps((op '##/\## : '@##Bool##@ '@##Bool##@ -> '@##Bool##@ [none] .
-     op '##unequal## : 'Universal 'Universal -> '@##Bool##@ [poly(1 2) special(
-      id-hook('EqualitySymbol, nil)
-      term-hook('equalTerm, '##false##.@##Bool##@)
-      term-hook('notEqualTerm, '##true##.@##Bool##@))] .
-     op '##false## : nil -> '@##Bool##@ [ctor special(
-      id-hook('SystemFalse, nil))] .
-     op '##true## : nil -> '@##Bool##@ [ctor special(
-      id-hook('SystemTrue, nil))] .),
+    setEqs(addOps((
+     op '##/\##      : '@##Bool##@ '@##Bool##@ -> '@##Bool##@ [none].
+     op '##false##   : nil                     -> '@##Bool##@ [ctor special(id-hook('SystemFalse, nil))].
+     op '##true##    : nil                     -> '@##Bool##@ [ctor special(id-hook('SystemTrue,  nil))].
+     op '##equal##   : 'Universal  'Universal  -> '@##Bool##@ [poly(1 2) special(
+      id-hook  ('EqualitySymbol, nil)
+      term-hook('equalTerm,      '##true##.@##Bool##@ )
+      term-hook('notEqualTerm,   '##false##.@##Bool##@))].
+     op '##unequal## : 'Universal  'Universal  -> '@##Bool##@ [poly(1 2) special(
+      id-hook  ('EqualitySymbol, nil)
+      term-hook('equalTerm,      '##false##.@##Bool##@)
+      term-hook('notEqualTerm,   '##true##.@##Bool##@ ))].),
     addSorts('@##Bool##@,setOps(M,pruneBool(getOps(ctor-sig(M)))))),
-    eq '##/\##['##true##.@##Bool##@,'B:@##Bool##@] = 'B:@##Bool##@ [none].
-    eq '##/\##['##false##.@##Bool##@,'B:@##Bool##@] = '##false##.@##Bool##@ [none].) .
+     eq '##/\##['##true##.@##Bool##@, 'B:@##Bool##@] =         'B:@##Bool##@ [none].
+     eq '##/\##['##false##.@##Bool##@,'B:@##Bool##@] = '##false##.@##Bool##@ [none].) .
+
+  op check-equal   : FModule Term Term ~> Bool .
+  eq check-equal(M,T,T')   =     $check-equal(getTerm(metaReduce(equal-func(M),  '##equal##[T,T']))) .
+
+  op check-unequal : FModule Term Term ~> Bool .
+  eq check-unequal(M,T,T') = not $check-equal(getTerm(metaReduce(equal-func(M),'##unequal##[T,T']))) .
+
+  op $check-equal  : Term ~> Bool .
+  eq $check-equal( '##true##.@##Bool##@) = true  .
+  eq $check-equal('##false##.@##Bool##@) = false .
 
   --- TODO: deal with non-empty hooklists
   --- PRE: None
