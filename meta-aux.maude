@@ -6,10 +6,12 @@
 --- ### New
 fmod TERM-EXTRA is
   pr META-LEVEL .
+  pr CONVERSION .
 
   var TQ : TermQid . var Q : Qid . var QS QS' QS'' : QidSet . var V : Variable .
   var T T' : Term . var NTL : NeTermList . var C : Constant . var TS : TypeSet .
-  var M : Module . var TL : TermList . var X Y : Type .
+  var M : Module . var TL : TermList . var X Y : Type . var YL : TypeList .
+  var N : Nat .
 
   --- OUT: The set of variables in a term
   op vars : TermList -> QidSet .
@@ -107,6 +109,25 @@ fmod TERM-EXTRA is
   --- OUT: The reduced term in the module
   op metaReduce2 : Module Term ~> Term .
   eq metaReduce2(M,T) = getTerm(metaReduce(M,T)) .
+
+  --- OUT: Generate term from:
+  ---      [1] OpDecl
+  ---      [2] Fresh Variable Postfix
+  --- PRE: OpDecl should not be poly
+  op buildTerm : OpDecl Nat -> Term .
+  eq buildTerm(op Q : YL -> Y [A:AttrSet].,N) = buildTerm(Q,N,YL,Y) .
+
+  --- OUT: Generate term from:
+  ---      [1] Operator Name
+  ---      [2] Fresh Variable Postfix
+  ---      [3] List of Types
+  op buildTerm : Qid Nat TypeList Type -> Term .
+  eq buildTerm(Q,N,Y YL,X) = Q[buildTerm'(N,Y YL)] .
+  eq buildTerm(Q,N,nil ,X) = qid(string(Q) + "." + string(X)) .
+
+  op buildTerm' : Nat TypeList -> Term .
+  eq buildTerm'(N,Y YL) = qid("@" + string(N,10) + ":" + string(Y)), buildTerm'(s(N),YL) .
+  eq buildTerm'(N,nil ) = empty .
 endfm
 
 --- copy of code in FULL-MAUDE (fortunately, interpreter does not complain)
@@ -126,6 +147,9 @@ fmod TERMSET-FM is
   var V : Variable .
   var TQ : TermQid .
   var QS : QidSet .
+  var O O' : OpDecl .
+  var OS : OpDeclSet .
+  var N : Nat .
 
   eq T | T = T .
 
@@ -179,6 +203,10 @@ fmod TERMSET-FM is
   op TermList : TermSet -> TermList .
   eq TermList(T | TS) = T,TermList(TS) .
   eq TermList(emptyTermSet) = empty .
+
+  op buildTerm : OpDeclSet Nat -> TermSet .
+  eq buildTerm(O O' OS,N) = buildTerm(O,N) buildTerm(O' OS,N) .
+  eq buildTerm(none,N)    = emptyTermSet .
 endfm
 
 --- copy of code in FULL-MAUDE (fortunately, interpreter does not complain)
