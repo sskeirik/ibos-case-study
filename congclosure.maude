@@ -84,7 +84,7 @@ fmod CONG-CLOSURE-SAFETY is
 
   op ccParseDeclData : Module String ~> CCMetadata .
  ceq ccParseDeclData(U,MD) = cc(qid(MD))          if rat(MD,10) :: Nat .
- ceq ccParseDeclData(U,MD) = cc(qid(NUM),qid(ID)) if (NUM,ID) := split(MD," ") /\ rat(NUM,10) :: Nat /\ wellFormed(U,qid(ID)) .
+ ceq ccParseDeclData(U,MD) = cc(qid(NUM),qid(ID)) if (NUM,ID) := split1(MD," ") /\ rat(NUM,10) :: Nat /\ wellFormed(U,qid(ID)) .
 endfm
 
 --- As it turns out, we can use this struct for two related but different tasks
@@ -148,7 +148,7 @@ fmod CONG-CLOSURE-ENRICHMENT is
   eq shiftMetadata(N,M,none,OS')                                     = OS' .
 
   op shiftMetadata : String Nat Nat ~> String .
-  eq shiftMetadata(STR,N,M) = if rat(STR,10) :: Nat then if rat(STR,10) > N then string(rat(STR,10) + M,10) else STR fi else shiftMetadata2(split(STR," "),N,M) fi .
+  eq shiftMetadata(STR,N,M) = if rat(STR,10) :: Nat then if rat(STR,10) > N then string(rat(STR,10) + M,10) else STR fi else shiftMetadata2(split1(STR," "),N,M) fi .
 
   op shiftMetadata2 : StringPair Nat Nat ~> String .
  ceq shiftMetadata2((STR,STR'),N,M) = shiftMetadata(STR,N,M) if rat(STR,10) :: Nat .

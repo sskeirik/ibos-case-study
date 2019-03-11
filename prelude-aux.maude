@@ -186,13 +186,33 @@ fmod STRING-PAIR is
   var S S'   : String .
   var B L    : Nat .
 
-  op split   : String String ~> StringPair .
-  op rsplit  : String String ~> StringPair .
-  op split   : String Nat Nat -> StringPair .
+  op split1  : String String  ~> StringPair .
+  op rsplit1 : String String  ~> StringPair .
+  op split1  : String Nat Nat -> StringPair .
 
-  eq  split(S,S')  = split(S, find(S,S',0),length(S')) .
-  eq rsplit(S,S')  = split(S,rfind(S,S',length(S)),length(S')) .
-  eq  split(S,B,L) = (substr(S,0,B),substr(S,B + L,length(S))) .
+  eq  split1(S,S')  = split1(S, find(S,S',0),length(S')) .
+  eq rsplit1(S,S')  = split1(S,rfind(S,S',length(S)),length(S')) .
+  eq  split1(S,B,L) = (substr(S,0,B),substr(S,B + L,length(S))) .
+endfm
+
+fmod STRING-LIST is
+  pr LIST{String} *
+    (sort   List{String} to   StringList,
+     sort NeList{String} to NeStringList) .
+
+  var SL   : StringList .
+  var S S' : String .
+  var B L  : Nat .
+
+  op split : String String -> NeStringList .
+  eq split(S,S') = split(S,S',nil) .
+
+  op split : String String StringList -> NeStringList .
+  eq split(S,S',SL) = split(S,S',find(S,S',0),SL) .
+
+  op split : String String FindResult StringList -> NeStringList .
+  eq split(S,S',notFound,SL) = SL S .
+  eq split(S,S',L,       SL) = split(substr(S,L + length(S'),length(S)),S',SL substr(S,0,L)) .
 endfm
 
 --- NOTE: these are used for creating views from the empty theory

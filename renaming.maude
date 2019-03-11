@@ -200,7 +200,7 @@ fmod PARSE-METAVARS is
   eq #parse-metavar (V,T)                  = $check-type(0,V,getType(V),T) .
   eq #parse-metavar (C:Constant,T)         = #parse-metavar (stripQuotes(string(C:Constant),0),T) .
   eq #parse-metavar ((S,R),T)              = #parse-metavar1(R,(S,R),T) .
-  eq #parse-metavar1(R,(S,s(N)),T)         = #parse-metavar1(R,N,rsplit(S,"."),T) .
+  eq #parse-metavar1(R,(S,s(N)),T)         = #parse-metavar1(R,N,rsplit1(S,"."),T) .
   eq #parse-metavar1(R,N,(S,"Constant"),T) = #parse-metavar1(R,(S,N),T) .
   eq #parse-metavar1(R,0,(S,"Variable"),T) = $check-type(R,qid(S),getType(qid(S)),T) .
   eq $check-type(R,V,TY,TY ; T)            =  (R,V) .
