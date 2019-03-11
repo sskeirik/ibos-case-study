@@ -209,6 +209,15 @@ fmod TERMSET-FM is
   eq buildTerm(none,N)    = emptyTermSet .
 endfm
 
+fmod TERMPAIRSET is
+  pr META-LEVEL .
+  sort TermPair TermPairSet .
+  subsort TermPair < TermPairSet .
+  op ((_:_))      : Term Term -> TermPair [ctor] .
+  op _|_          : TermPairSet TermPairSet -> TermPairSet [ctor assoc comm id: .TermPairSet] .
+  op .TermPairSet : -> TermPairSet [ctor] .
+endfm
+
 --- copy of code in FULL-MAUDE (fortunately, interpreter does not complain)
 fmod UNIT-FM is
   inc META-LEVEL .
