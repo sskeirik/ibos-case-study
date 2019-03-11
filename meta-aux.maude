@@ -2832,6 +2832,26 @@ fmod GENERIC-PRINTER is
   eq printMeta(M,B) = '`( 'Error: 'printMeta 'module 'failure '`) [owise] .
 endfm
 
+fmod META-PARSE is
+  pr LEXICAL .
+  pr META-LEVEL .
+
+  var U  : Module .
+  var S  : String .
+  var Y  : Type   .
+  var Y? : Type?  .
+  var T  : Term   .
+
+  op metaParse : Module String Type? ~> ResultPair? .
+  eq metaParse(U,S,Y?) = metaParse(U,tokenize(S),Y?) .
+
+  op stringToTerm : Module String ~> Term .
+  eq stringToTerm(U,S) = stringToTerm(metaParse(U,S,anyType)) .
+
+  op stringToTerm : ResultPair? ~> Term .
+  eq stringToTerm({T,Y}) = T .
+endfm
+
 --- This module stores a mapping of qids to qidlists
 --- it is designed to be used for hooking in new functionality into an existing function at runtime
 --- to use it, one should declare a function in advance of the form:
