@@ -2921,6 +2921,9 @@ fmod UNIFIERS is
   op sharedMatch : ModuleSubstPair Term Term -> SubstitutionSet .
  ceq sharedMatch(M,SharedVars,T,T') = sharedMatch(varsToConsts#(M,prefix,SharedVars),T,T') if intersection(vars(T),vars(T')) \ SharedVars == none .
   eq sharedMatch((M,S),T,T') = constsToVars(S,matches(M,T << S,T' << S)) .
+
+  op matches? : Module Term Term -> Bool .
+  eq matches?(M,T,T') = metaMatch(M,T,T',nil,0) :: Substitution .
 endfm
 
 fmod EQ-VARIANT is
