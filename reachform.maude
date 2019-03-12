@@ -699,7 +699,7 @@ fmod VAR-UNIF-SIMPLIFY is
   eq varunif-simp1(noModule,FSS) = FSS . --- HACK: this line must go first---owise case analysis will fail
   eq varunif-simp1(M,(F,S) & FSS) =
     if lhs-cond(F) :: Conj then
-      varunif-simp2(M,(F,S),filter-conj(M,lhs-cond(F)))
+      varunif-simp2(M,(F,S),filterConjByPolicy(M,lhs-cond(F)))
     else
       (F,S)
     fi & varunif-simp1(M,FSS) .
