@@ -614,11 +614,71 @@ endfm
 
 view NeModListReachFormSubstTuple from TRIV to TRANSITION-TUPLES is sort Elt to NeModListReachFormSubstTuple . endv
 
+--- this module provides support for partially FVP function symbols to
+--- the variant-unification based simplification; it essentially a copy
+--- of similar functionality in FOFORM-FILTER with slight modifications
+fmod VAR-UNIF-PARTIAL-FVP is
+  pr FOFORM-FILTER .
+  pr TERMPAIRSET .
+  pr STRING-LIST .
+  pr META-PARSE .
+  pr UNIFIERS .
+
+  var U : Module .
+  var EA : EqAtom . var A : Atom .
+  var C1 C2 C3 : Conj? .
+  var P1 P2 L R : Term .
+  var TPS : TermPairSet .
+  var O : OpDecl .
+  var OS : OpDeclSet .
+  var S S1 S2 S3 : String .
+
+  --- OUT: like filter-conj but excludes certain atoms
+  ---      that do not conform to the policy specified by
+  ---      metadata in the module
+  ---  NB: currently, we only support a policy that specifies
+  ---      throws out any equalities which are partially FVP
+  ---      and not solveable
+  op filterConjByPolicy : Module Conj? ~> FOFormPair .
+  eq filterConjByPolicy(U,C1) = filterConjByPolicy(U,getFilterPolicy(U),C1,mtForm,mtForm) .
+
+  op filterConjByPolicy : Module TermPairSet Conj? Conj? Conj? ~> FOFormPair .
+  eq filterConjByPolicy(U,TPS,EA /\ C1,C2,C3) = if wellFormed(U,EA) and filterPolicy(U,TPS,EA) then filterConjByPolicy(U,TPS,C1,C2 /\ EA,C3) else filterConjByPolicy(U,TPS,C1,C2,C3 /\ EA) fi .
+  eq filterConjByPolicy(U,TPS,A  /\ C1,C2,C3) = filterConjByPolicy(U,TPS,C1,C2,C3 /\ A) .
+  eq filterConjByPolicy(U,TPS,mtForm,  C2,C3) = (C2,C3) .
+
+  op filterPolicy : Module TermPairSet EqAtom -> Bool .
+  eq filterPolicy(U,TPS,L ?= R) = filterPolicy(U,TPS,L,R) .
+  eq filterPolicy(U,TPS,L != R) = filterPolicy(U,TPS,L,R) .
+
+  op filterPolicy : Module TermPairSet Term Term -> Bool .
+  eq filterPolicy(U,(P1 : P2) | TPS,L,R) =
+    (matches?(U,P1,L) implies matches?(U,P2,R)) and (matches?(U,P1,R) implies matches?(U,P2,L)) and-then filterPolicy(U,TPS,L,R) .
+  eq filterPolicy(U,.TermPairSet,   L,R) = true .
+
+  op getFilterPolicy : Module ~> TermPairSet [memo] .
+  eq getFilterPolicy(U) = getFilterPolicy(U,getOps(U)) .
+
+  op getFilterPolicy : Module OpDeclSet ~> TermPairSet .
+  eq getFilterPolicy(U,O OS) =
+    if metadata(O) :: String and-then parseFilterMetadata(U,metadata(O)) :: Term
+      then (buildTerm(O,0) : parseFilterMetadata(U,metadata(O)))
+      else .TermPairSet
+    fi | getFilterPolicy(U,OS) .
+  eq getFilterPolicy(U,none) = .TermPairSet .
+
+  op parseFilterMetadata : Module String ~> Term .
+ ceq parseFilterMetadata(U,S) = stringToTerm(U,S2) if S1 S2         := split(S," ") .
+ ceq parseFilterMetadata(U,S) = stringToTerm(U,S2) if S1    "ID" S2 := split(S," ") /\ false .
+ ceq parseFilterMetadata(U,S) = stringToTerm(U,S2) if S1 S2 "ID" S3 := split(S," ") /\ stringToTerm(U,S2) :: Term .
+endfm
+
 fmod VAR-UNIF-SIMPLIFY is
   pr TRANSITION-TUPLES .
   pr FOFORM-FILTER .
   pr CTOR-VARIANT .
   pr SUBSTITUTION-RENAME .
+  pr VAR-UNIF-PARTIAL-FVP .
 
   var M : Module .
   var F : ReachForm . var S : Substitution .
