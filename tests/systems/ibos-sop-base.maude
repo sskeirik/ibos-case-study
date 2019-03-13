@@ -650,10 +650,10 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq weblabels-dupl?(mtWPIS)                         = false .
 
   op netlabels-dupl? : NetProcInfoSet -> Bool [metadata "116"] .
-  eq netlabels-dupl?(pi(NP,L,L') ,np pi(NP',L1,L2) ,np NIS) = true .
- ceq netlabels-dupl?(pi(NP,L,L') ,np                   NIS) = netlabels-dupl?(NIS) if pid-in-netlabels?(NP,NIS) = false .
-  eq netlabels-dupl?(pi(NP,L,L'))                           = false .
-  eq netlabels-dupl?(mtNPIS)                                = false .
+  eq netlabels-dupl?(pi(NP,L,L') ,np pi(NP,L1,L2) ,np NIS) = true .
+ ceq netlabels-dupl?(pi(NP,L,L') ,np                  NIS) = netlabels-dupl?(NIS) if pid-in-netlabels?(NP,NIS) = false .
+  eq netlabels-dupl?(pi(NP,L,L'))                          = false .
+  eq netlabels-dupl?(mtNPIS)                               = false .
 
   op fresh-weblabel? : Nat WebProcInfoSet -> Bool [metadata "117"] .
   eq fresh-weblabel?(N + Z,(pi(network(N    ),L),wp WIS)) = fresh-weblabel?(N + Z,WIS) .
