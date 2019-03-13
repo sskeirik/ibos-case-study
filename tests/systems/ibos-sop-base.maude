@@ -155,8 +155,11 @@ fmod KERNEL-METADATA-FVP-EXT is
   pr KERNEL-POLICIES-FVP .
   pr LABEL-FVP-EXT .
 
-  var WI : WebProcInfo . var WIS : WebProcInfoSet .
-  var NI : NetProcInfo . var NIS : NetProcInfoSet .
+  var WI WI' : WebProcInfo . var WIS : WebProcInfoSet .
+  var NI NI' : NetProcInfo . var NIS : NetProcInfoSet .
+  var WP WP' : ConcWebProcId .
+  var NP NP' : ConcNetProcId .
+  var L1 L2 L3 L4 : Label .
 
   sort NeWebProcInfoSet .
   subsort WebProcInfo < NeWebProcInfoSet < WebProcInfoSet .
@@ -166,11 +169,21 @@ fmod KERNEL-METADATA-FVP-EXT is
   op _,wp_ : NeWebProcInfoSet WebProcInfoSet -> NeWebProcInfoSet [ctor ditto metadata "72"] .
   op _,np_ : NeNetProcInfoSet NetProcInfoSet -> NeNetProcInfoSet [ctor ditto metadata "75"] .
 
-  op weblabel-by-pidP? : WebProcInfo WebProcInfoSet -> Pred [ctor metadata "129"] .
-  eq weblabel-by-pidP?(WI,(WI ,wp WIS)) = tt [variant] .
+  op _~wpi_ : WebProcInfo WebProcInfo -> Bool [metadata ""] .
+  eq pi(WP,L1)    ~wpi pi(WP',L2)    = WP ~p WP' and L1 ~l L2 .
 
-  op netlabelpair-by-pidP? : NetProcInfo NetProcInfoSet -> Pred [ctor metadata "130"] .
-  eq netlabelpair-by-pidP?(NI,(NI ,np NIS)) = tt [variant] .
+  op _~npi_ : NetProcInfo NetProcInfo -> Bool [metadata ""] .
+  eq pi(NP,L1,L2) ~npi pi(NP',L3,L4) = NP ~p NP' and L1 ~l L3 and L2 ~l L4 .
+
+  op weblabel-and-pid? : WebProcInfo WebProcInfoSet -> Bool [ctor metadata "129 true"] .
+  eq weblabel-and-pid?(WI,(WI  ,wp WIS)) = true [variant] .
+ ceq weblabel-and-pid?(WI,(WI' ,wp WIS)) = false if WI ~wpi WI' = false /\ weblabel-and-pid?(WI,WIS) = false .
+  eq weblabel-and-pid?(WI,mtWPIS)        = false .
+
+  op netlabelpair-and-pid? : NetProcInfo NetProcInfoSet -> Bool [ctor metadata "130 true"] .
+  eq netlabelpair-and-pid?(NI,(NI ,np NIS)) = true [variant] .
+ ceq netlabelpair-and-pid?(NI,(NI',np NIS)) = false if NI ~npi NI' = false /\ netlabelpair-and-pid?(NI,NIS) = false .
+  eq netlabelpair-and-pid?(NI,mtNPIS)       = false .
 endfm
 
 fmod ATTRIBUTE-FVP-EXT is
