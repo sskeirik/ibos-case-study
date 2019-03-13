@@ -450,51 +450,55 @@ fmod ATTRIBUTE-FVP-EXT is
 
   eq displayedContent(X:Label)            ~a activeWebapp    (Y:WebProcId)        = false [variant] .
 
-  op in-attrsetP?(_|_) : Attribute AttributeSet -> Pred [ctor metadata "101"] .
-  eq in-attrsetP?(fromKernel      (X:MaybeMessageList) | (fromKernel      (Y:MaybeMessageList), AS)) = tt [variant] .
-  eq in-attrsetP?(toKernel        (X:MaybeMessageList) | (toKernel        (Y:MaybeMessageList), AS)) = tt [variant] .
-  eq in-attrsetP?(nextWPN         (X:Nat)              | (nextWPN         (Y:Nat),              AS)) = tt [variant] .
-  eq in-attrsetP?(rendered        (X:MaybeLabel)       | (rendered        (Y:MaybeLabel),       AS)) = tt [variant] .
-  eq in-attrsetP?(URL             (X:Label)            | (URL             (Y:Label),            AS)) = tt [variant] .
-  eq in-attrsetP?(loading         (X:Bool)             | (loading         (Y:Bool),             AS)) = tt [variant] .
-  eq in-attrsetP?(returnTo        (X:MaybeConcPipeId)  | (returnTo        (Y:MaybeConcPipeId),  AS)) = tt [variant] .
-  eq in-attrsetP?(in              (X:LabelList)        | (in              (Y:LabelList),        AS)) = tt [variant] .
-  eq in-attrsetP?(out             (X:LabelList)        | (out             (Y:LabelList),        AS)) = tt [variant] .
-  eq in-attrsetP?(mem-in          (X:MaybeLabel)       | (mem-in          (Y:MaybeLabel),       AS)) = tt [variant] .
-  eq in-attrsetP?(mem-out         (X:MaybeLabel)       | (mem-out         (Y:MaybeLabel),       AS)) = tt [variant] .
-  eq in-attrsetP?(nic-in          (X:LabelList)        | (nic-in          (Y:LabelList),        AS)) = tt [variant] .
-  eq in-attrsetP?(nic-out         (X:LabelSet)         | (nic-out         (Y:LabelSet),         AS)) = tt [variant] .
-  eq in-attrsetP?(msgPolicy       (X:PolicySet)        | (msgPolicy       (Y:PolicySet),        AS)) = tt [variant] .
-  eq in-attrsetP?(nextNPN         (X:Nat)              | (nextNPN         (Y:Nat),              AS)) = tt [variant] .
-  eq in-attrsetP?(handledCurrently(X:Message?)         | (handledCurrently(Y:Message?),         AS)) = tt [variant] .
-  eq in-attrsetP?(weblabels       (X:WebProcInfoSet)   | (weblabels       (Y:WebProcInfoSet),   AS)) = tt [variant] .
-  eq in-attrsetP?(netlabels       (X:NetProcInfoSet)   | (netlabels       (Y:NetProcInfoSet),   AS)) = tt [variant] .
-  eq in-attrsetP?(displayedTopBar (X:Label)            | (displayedTopBar (Y:Label),            AS)) = tt [variant] .
-  eq in-attrsetP?(displayedContent(X:Label)            | (displayedContent(Y:Label),            AS)) = tt [variant] .
-  eq in-attrsetP?(activeWebapp    (X:WebProcId)        | (activeWebapp    (Y:WebProcId),        AS)) = tt [variant] .
+  op in-attrset?(_|_) : Attribute AttributeSet -> Bool [metadata "104 true"] .
+  eq in-attrset?(fromKernel      (X:MaybeMessageList) | (fromKernel      (Y:MaybeMessageList), AS)) = true [variant] .
+  eq in-attrset?(toKernel        (X:MaybeMessageList) | (toKernel        (Y:MaybeMessageList), AS)) = true [variant] .
+  eq in-attrset?(nextWPN         (X:Nat)              | (nextWPN         (Y:Nat),              AS)) = true [variant] .
+  eq in-attrset?(rendered        (X:MaybeLabel)       | (rendered        (Y:MaybeLabel),       AS)) = true [variant] .
+  eq in-attrset?(URL             (X:Label)            | (URL             (Y:Label),            AS)) = true [variant] .
+  eq in-attrset?(loading         (X:Bool)             | (loading         (Y:Bool),             AS)) = true [variant] .
+  eq in-attrset?(returnTo        (X:MaybeConcPipeId)  | (returnTo        (Y:MaybeConcPipeId),  AS)) = true [variant] .
+  eq in-attrset?(in              (X:LabelList)        | (in              (Y:LabelList),        AS)) = true [variant] .
+  eq in-attrset?(out             (X:LabelList)        | (out             (Y:LabelList),        AS)) = true [variant] .
+  eq in-attrset?(mem-in          (X:MaybeLabel)       | (mem-in          (Y:MaybeLabel),       AS)) = true [variant] .
+  eq in-attrset?(mem-out         (X:MaybeLabel)       | (mem-out         (Y:MaybeLabel),       AS)) = true [variant] .
+  eq in-attrset?(nic-in          (X:LabelList)        | (nic-in          (Y:LabelList),        AS)) = true [variant] .
+  eq in-attrset?(nic-out         (X:LabelSet)         | (nic-out         (Y:LabelSet),         AS)) = true [variant] .
+  eq in-attrset?(msgPolicy       (X:PolicySet)        | (msgPolicy       (Y:PolicySet),        AS)) = true [variant] .
+  eq in-attrset?(nextNPN         (X:Nat)              | (nextNPN         (Y:Nat),              AS)) = true [variant] .
+  eq in-attrset?(handledCurrently(X:Message?)         | (handledCurrently(Y:Message?),         AS)) = true [variant] .
+  eq in-attrset?(weblabels       (X:WebProcInfoSet)   | (weblabels       (Y:WebProcInfoSet),   AS)) = true [variant] .
+  eq in-attrset?(netlabels       (X:NetProcInfoSet)   | (netlabels       (Y:NetProcInfoSet),   AS)) = true [variant] .
+  eq in-attrset?(displayedTopBar (X:Label)            | (displayedTopBar (Y:Label),            AS)) = true [variant] .
+  eq in-attrset?(displayedContent(X:Label)            | (displayedContent(Y:Label),            AS)) = true [variant] .
+  eq in-attrset?(activeWebapp    (X:WebProcId)        | (activeWebapp    (Y:WebProcId),        AS)) = true [variant] .
+ ceq in-attrset?(A | A', AS) = false if  A ~a A' = false /\ in-attrset?(A | AS) = false .
+  eq in-attrset?(A | none)   = false .
 
-  op attr-duplP? : AttributeSet -> Pred [ctor metadata "102"] .
-  eq attr-duplP?(fromKernel      (X:MaybeMessageList), fromKernel      (Y:MaybeMessageList), AS) = tt [variant] .
-  eq attr-duplP?(toKernel        (X:MaybeMessageList), toKernel        (Y:MaybeMessageList), AS) = tt [variant] .
-  eq attr-duplP?(nextWPN         (X:Nat),              nextWPN         (Y:Nat),              AS) = tt [variant] .
-  eq attr-duplP?(rendered        (X:MaybeLabel),       rendered        (Y:MaybeLabel),       AS) = tt [variant] .
-  eq attr-duplP?(URL             (X:Label),            URL             (Y:Label),            AS) = tt [variant] .
-  eq attr-duplP?(loading         (X:Bool),             loading         (Y:Bool),             AS) = tt [variant] .
-  eq attr-duplP?(returnTo        (X:MaybeConcPipeId),  returnTo        (Y:MaybeConcPipeId),  AS) = tt [variant] .
-  eq attr-duplP?(in              (X:LabelList),        in              (Y:LabelList),        AS) = tt [variant] .
-  eq attr-duplP?(out             (X:LabelList),        out             (Y:LabelList),        AS) = tt [variant] .
-  eq attr-duplP?(mem-in          (X:MaybeLabel),       mem-in          (Y:MaybeLabel),       AS) = tt [variant] .
-  eq attr-duplP?(mem-out         (X:MaybeLabel),       mem-out         (Y:MaybeLabel),       AS) = tt [variant] .
-  eq attr-duplP?(nic-in          (X:LabelList),        nic-in          (Y:LabelList),        AS) = tt [variant] .
-  eq attr-duplP?(nic-out         (X:LabelSet),         nic-out         (Y:LabelSet),         AS) = tt [variant] .
-  eq attr-duplP?(msgPolicy       (X:PolicySet),        msgPolicy       (Y:PolicySet),        AS) = tt [variant] .
-  eq attr-duplP?(nextNPN         (X:Nat),              nextNPN         (Y:Nat),              AS) = tt [variant] .
-  eq attr-duplP?(handledCurrently(X:Message?),         handledCurrently(Y:Message?),         AS) = tt [variant] .
-  eq attr-duplP?(weblabels       (X:WebProcInfoSet),   weblabels       (Y:WebProcInfoSet),   AS) = tt [variant] .
-  eq attr-duplP?(netlabels       (X:NetProcInfoSet),   netlabels       (Y:NetProcInfoSet),   AS) = tt [variant] .
-  eq attr-duplP?(displayedTopBar (X:Label),            displayedTopBar (Y:Label),            AS) = tt [variant] .
-  eq attr-duplP?(displayedContent(X:Label),            displayedContent(Y:Label),            AS) = tt [variant] .
-  eq attr-duplP?(activeWebapp    (X:WebProcId),        activeWebapp    (Y:WebProcId),        AS) = tt [variant] .
+  op attr-dupl? : AttributeSet -> Bool [metadata "105 true"] .
+  eq attr-dupl?(fromKernel      (X:MaybeMessageList), fromKernel      (Y:MaybeMessageList), AS) = true [variant] .
+  eq attr-dupl?(toKernel        (X:MaybeMessageList), toKernel        (Y:MaybeMessageList), AS) = true [variant] .
+  eq attr-dupl?(nextWPN         (X:Nat),              nextWPN         (Y:Nat),              AS) = true [variant] .
+  eq attr-dupl?(rendered        (X:MaybeLabel),       rendered        (Y:MaybeLabel),       AS) = true [variant] .
+  eq attr-dupl?(URL             (X:Label),            URL             (Y:Label),            AS) = true [variant] .
+  eq attr-dupl?(loading         (X:Bool),             loading         (Y:Bool),             AS) = true [variant] .
+  eq attr-dupl?(returnTo        (X:MaybeConcPipeId),  returnTo        (Y:MaybeConcPipeId),  AS) = true [variant] .
+  eq attr-dupl?(in              (X:LabelList),        in              (Y:LabelList),        AS) = true [variant] .
+  eq attr-dupl?(out             (X:LabelList),        out             (Y:LabelList),        AS) = true [variant] .
+  eq attr-dupl?(mem-in          (X:MaybeLabel),       mem-in          (Y:MaybeLabel),       AS) = true [variant] .
+  eq attr-dupl?(mem-out         (X:MaybeLabel),       mem-out         (Y:MaybeLabel),       AS) = true [variant] .
+  eq attr-dupl?(nic-in          (X:LabelList),        nic-in          (Y:LabelList),        AS) = true [variant] .
+  eq attr-dupl?(nic-out         (X:LabelSet),         nic-out         (Y:LabelSet),         AS) = true [variant] .
+  eq attr-dupl?(msgPolicy       (X:PolicySet),        msgPolicy       (Y:PolicySet),        AS) = true [variant] .
+  eq attr-dupl?(nextNPN         (X:Nat),              nextNPN         (Y:Nat),              AS) = true [variant] .
+  eq attr-dupl?(handledCurrently(X:Message?),         handledCurrently(Y:Message?),         AS) = true [variant] .
+  eq attr-dupl?(weblabels       (X:WebProcInfoSet),   weblabels       (Y:WebProcInfoSet),   AS) = true [variant] .
+  eq attr-dupl?(netlabels       (X:NetProcInfoSet),   netlabels       (Y:NetProcInfoSet),   AS) = true [variant] .
+  eq attr-dupl?(displayedTopBar (X:Label),            displayedTopBar (Y:Label),            AS) = true [variant] .
+  eq attr-dupl?(displayedContent(X:Label),            displayedContent(Y:Label),            AS) = true [variant] .
+  eq attr-dupl?(activeWebapp    (X:WebProcId),        activeWebapp    (Y:WebProcId),        AS) = true [variant] .
+ ceq attr-dupl?(A,AS) = false if in-attrset?(A | AS) = false /\ attr-dupl?(AS) = false .
+  eq attr-dupl?(none) = false .
 endfm
 
 fmod ATTRIBUTE-NONFVP-EXT is
@@ -526,56 +530,7 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq none !a = none .
   eq (AS !a) !a = AS !a .
 
-  op in-attrset?(_|_) : Attribute AttributeSet -> Bool [metadata "104"] .
-  eq in-attrset?(fromKernel      (X:MaybeMessageList) | (fromKernel      (Y:MaybeMessageList), AS)) = true .
-  eq in-attrset?(toKernel        (X:MaybeMessageList) | (toKernel        (Y:MaybeMessageList), AS)) = true .
-  eq in-attrset?(nextWPN         (X:Nat)              | (nextWPN         (Y:Nat),              AS)) = true .
-  eq in-attrset?(rendered        (X:MaybeLabel)       | (rendered        (Y:MaybeLabel),       AS)) = true .
-  eq in-attrset?(URL             (X:Label)            | (URL             (Y:Label),            AS)) = true .
-  eq in-attrset?(loading         (X:Bool)             | (loading         (Y:Bool),             AS)) = true .
-  eq in-attrset?(returnTo        (X:MaybeConcPipeId)  | (returnTo        (Y:MaybeConcPipeId),  AS)) = true .
-  eq in-attrset?(in              (X:LabelList)        | (in              (Y:LabelList),        AS)) = true .
-  eq in-attrset?(out             (X:LabelList)        | (out             (Y:LabelList),        AS)) = true .
-  eq in-attrset?(mem-in          (X:MaybeLabel)       | (mem-in          (Y:MaybeLabel),       AS)) = true .
-  eq in-attrset?(mem-out         (X:MaybeLabel)       | (mem-out         (Y:MaybeLabel),       AS)) = true .
-  eq in-attrset?(nic-in          (X:LabelList)        | (nic-in          (Y:LabelList),        AS)) = true .
-  eq in-attrset?(nic-out         (X:LabelSet)         | (nic-out         (Y:LabelSet),         AS)) = true .
-  eq in-attrset?(msgPolicy       (X:PolicySet)        | (msgPolicy       (Y:PolicySet),        AS)) = true .
-  eq in-attrset?(nextNPN         (X:Nat)              | (nextNPN         (Y:Nat),              AS)) = true .
-  eq in-attrset?(handledCurrently(X:Message?)         | (handledCurrently(Y:Message?),         AS)) = true .
-  eq in-attrset?(weblabels       (X:WebProcInfoSet)   | (weblabels       (Y:WebProcInfoSet),   AS)) = true .
-  eq in-attrset?(netlabels       (X:NetProcInfoSet)   | (netlabels       (Y:NetProcInfoSet),   AS)) = true .
-  eq in-attrset?(displayedTopBar (X:Label)            | (displayedTopBar (Y:Label),            AS)) = true .
-  eq in-attrset?(displayedContent(X:Label)            | (displayedContent(Y:Label),            AS)) = true .
-  eq in-attrset?(activeWebapp    (X:WebProcId)        | (activeWebapp    (Y:WebProcId),        AS)) = true .
-  eq in-attrset?(A | none) = false .
- ceq in-attrset?(A | A', AS) = in-attrset?(A | AS) if A ~a A' = false .
   eq in-attrset?(A | (AS !a), AS') = in-attrset?(A | AS, AS') .
-
-  op attr-dupl? : AttributeSet -> Bool [metadata "105"] .
-  eq attr-dupl?(fromKernel      (X:MaybeMessageList), fromKernel      (Y:MaybeMessageList), AS) = true .
-  eq attr-dupl?(toKernel        (X:MaybeMessageList), toKernel        (Y:MaybeMessageList), AS) = true .
-  eq attr-dupl?(nextWPN         (X:Nat),              nextWPN         (Y:Nat),              AS) = true .
-  eq attr-dupl?(rendered        (X:MaybeLabel),       rendered        (Y:MaybeLabel),       AS) = true .
-  eq attr-dupl?(URL             (X:Label),            URL             (Y:Label),            AS) = true .
-  eq attr-dupl?(loading         (X:Bool),             loading         (Y:Bool),             AS) = true .
-  eq attr-dupl?(returnTo        (X:MaybeConcPipeId),  returnTo        (Y:MaybeConcPipeId),  AS) = true .
-  eq attr-dupl?(in              (X:LabelList),        in              (Y:LabelList),        AS) = true .
-  eq attr-dupl?(out             (X:LabelList),        out             (Y:LabelList),        AS) = true .
-  eq attr-dupl?(mem-in          (X:MaybeLabel),       mem-in          (Y:MaybeLabel),       AS) = true .
-  eq attr-dupl?(mem-out         (X:MaybeLabel),       mem-out         (Y:MaybeLabel),       AS) = true .
-  eq attr-dupl?(nic-in          (X:LabelList),        nic-in          (Y:LabelList),        AS) = true .
-  eq attr-dupl?(nic-out         (X:LabelSet),         nic-out         (Y:LabelSet),         AS) = true .
-  eq attr-dupl?(msgPolicy       (X:PolicySet),        msgPolicy       (Y:PolicySet),        AS) = true .
-  eq attr-dupl?(nextNPN         (X:Nat),              nextNPN         (Y:Nat),              AS) = true .
-  eq attr-dupl?(handledCurrently(X:Message?),         handledCurrently(Y:Message?),         AS) = true .
-  eq attr-dupl?(weblabels       (X:WebProcInfoSet),   weblabels       (Y:WebProcInfoSet),   AS) = true .
-  eq attr-dupl?(netlabels       (X:NetProcInfoSet),   netlabels       (Y:NetProcInfoSet),   AS) = true .
-  eq attr-dupl?(displayedTopBar (X:Label),            displayedTopBar (Y:Label),            AS) = true .
-  eq attr-dupl?(displayedContent(X:Label),            displayedContent(Y:Label),            AS) = true .
-  eq attr-dupl?(activeWebapp    (X:WebProcId),        activeWebapp    (Y:WebProcId),        AS) = true .
-  eq attr-dupl?(A) = false .
- ceq attr-dupl?(A,AS) = attr-dupl?(AS) if in-attrset?(A | AS) = false .
 
   op attr-subset?(_|_) : AttributeSet AttributeSet -> Bool [metadata "106"] .
  ceq attr-subset?(A, AS | AS') = attr-subset?(AS | AS') if in-attrset?(A | AS') .
