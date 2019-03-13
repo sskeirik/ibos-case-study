@@ -184,8 +184,8 @@ fmod FOFORM is
   var S : String . var FK FK' : [FOForm] . var QS : QidSet .
 
   op getFOFormErrMsg : [FOForm] -> String .
-  eq getFOFormErrMsg(FK /\ FK') = getFOFormErrMsg(FK) + getFOFormErrMsg(FK') .
-  eq getFOFormErrMsg(FK \/ FK') = getFOFormErrMsg(FK) + getFOFormErrMsg(FK') .
+ ceq getFOFormErrMsg(FK /\ FK') = getFOFormErrMsg(FK) + getFOFormErrMsg(FK') if FK =/= mtForm and FK' =/= mtForm .
+ ceq getFOFormErrMsg(FK \/ FK') = getFOFormErrMsg(FK) + getFOFormErrMsg(FK') if FK =/= mtForm and FK' =/= mtForm .
   eq getFOFormErrMsg(A[QS] FK)  = getFOFormErrMsg(FK) .
   eq getFOFormErrMsg(E[QS] FK)  = getFOFormErrMsg(FK) .
   eq getFOFormErrMsg(~ FK)      = getFOFormErrMsg(FK) .
