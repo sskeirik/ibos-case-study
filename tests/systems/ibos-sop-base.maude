@@ -63,7 +63,8 @@ fmod CONFIGURATION-FVP-EXT is
   pr PROC-ID-FVP-EXT .
   pr KERNEL-POLICIES-FVP .
 
-  var P : ConcProcId . var A : AttributeSet . var C : Configuration .
+  var P P' : ConcProcId . var A A' : AttributeSet . var C : Configuration .
+  var P? : ProcessId .
 
   sorts NetWebProcObject NetWebProcConfig NetWebProcNeConfig .
   subsort NetWebProcObject < Object .
@@ -73,8 +74,10 @@ fmod CONFIGURATION-FVP-EXT is
   op __ : NetWebProcConfig   NetWebProcConfig -> NetWebProcConfig   [ctor ditto metadata "35"] .
   op __ : NetWebProcNeConfig NetWebProcConfig -> NetWebProcNeConfig [ctor ditto metadata "35"] .
 
-  op in-confP? : ProcessId Configuration -> Pred [ctor metadata "128"] .
-  eq in-confP?(P,< P | A > C) = tt [variant] .
+  op in-conf? : ProcessId Configuration -> Bool [metadata "108 true"] .
+  eq in-conf?(P, < P   | A' > C) = true [variant] .
+ ceq in-conf?(P?,< P'  | A' > C) = false if P? ~p P' = false /\ in-conf?(P?,C) = false .
+  eq in-conf?(P?,none)           = false .
 endfm
 
 fmod LABEL-FVP-EXT is
@@ -526,6 +529,9 @@ fmod ATTRIBUTE-NONFVP-EXT is
   pr ATTRIBUTE-FVP-EXT .
   var A A' : Attribute . var AS AS' : AttributeSet .
 
+  --- lemmas for FVP symbols
+  eq in-attrset?(A | (AS !a), AS') = in-attrset?(A | AS, AS') .
+
   op _!a : AttributeSet -> AttributeSet [metadata "103"] .
   eq (fromKernel      (X:MaybeMessageList), AS) !a = fromKernel(mt),                (AS !a) .
   eq (toKernel        (X:MaybeMessageList), AS) !a = toKernel(mt),                  (AS !a) .
@@ -550,8 +556,6 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq (activeWebapp    (X:WebProcId),        AS) !a = activeWebapp(webapp(0)),       (AS !a) .
   eq none !a = none .
   eq (AS !a) !a = AS !a .
-
-  eq in-attrset?(A | (AS !a), AS') = in-attrset?(A | AS, AS') .
 
   op attr-subset?(_|_) : AttributeSet AttributeSet -> Bool [metadata "106"] .
  ceq attr-subset?(A, AS | AS') = attr-subset?(AS | AS') if in-attrset?(A | AS') .
@@ -592,22 +596,16 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var MSGL : MessageList .
   var L L' L1 L2 IN OUT : Label .
 
-  --- lemma
- ceq proc-loaded?(P,                          C) = false if in-conf?(P,C) = false .
+  --- lemmas for FVP symbols
+ ceq proc-loaded?(P,C) = false if in-conf?(P,C) = false .
+ ceq in-conf?(NP,C) = false if fresh-np-id?(NP,C) = true .
+ ceq in-conf?(WP,C) = false if fresh-wp-id?(WP,C) = true .
 
   --- Configuration predicates
   op _!c : Configuration -> Configuration       [metadata "107"] .
   op _!c : NetWebProcConfig -> NetWebProcConfig [metadata "107"] .
   eq (< P | A > C) !c = < P | A !a > (C !c) .
   eq none          !c = none .
-
-  op in-conf? : ProcessId Configuration -> Bool [metadata "108"] .
-  eq in-conf?(P, < P   | A' > C) = true .
- ceq in-conf?(P?,< P'  | A' > C) = in-conf?(P?,C) if P? ~p P' = false .
-  eq in-conf?(P?,none)           = false .
-  --- lemmas helpful for proof
- ceq in-conf?(NP,           C) = false if fresh-np-id?(NP,C) = true .
- ceq in-conf?(WP,           C) = false if fresh-wp-id?(WP,C) = true .
 
   op conf-dupl? : Configuration -> Bool [metadata "109"] .
   eq conf-dupl?(< P | A  > < P | A' > C) = true .
