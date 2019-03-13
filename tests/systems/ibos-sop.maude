@@ -181,3 +181,9 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (auto .)
 
 --- proc-out
+--- (split ({ < NI | A > < kernel | netlabels(NIS), A' > C }) by
+---   (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
+--- (split ({ < NI | A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by
+---   (proc-loaded-ind?(NI,NIS,WIS,C)) = (true) and (proc-loaded-ind?(NI,NIS,WIS,C)) = (false) .)
+--- (split ({ < NI | mem-out(U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- (auto .)
