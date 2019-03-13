@@ -172,18 +172,18 @@ fmod KERNEL-METADATA-FVP-EXT is
   op _,wp_ : NeWebProcInfoSet WebProcInfoSet -> NeWebProcInfoSet [ctor ditto metadata "72"] .
   op _,np_ : NeNetProcInfoSet NetProcInfoSet -> NeNetProcInfoSet [ctor ditto metadata "75"] .
 
-  op _~wpi_ : WebProcInfo WebProcInfo -> Bool [metadata ""] .
+  op _~wpi_ : WebProcInfo WebProcInfo -> Bool [metadata "129"] .
   eq pi(WP,L1)    ~wpi pi(WP',L2)    = WP ~p WP' and L1 ~l L2 .
 
-  op _~npi_ : NetProcInfo NetProcInfo -> Bool [metadata ""] .
+  op _~npi_ : NetProcInfo NetProcInfo -> Bool [metadata "130"] .
   eq pi(NP,L1,L2) ~npi pi(NP',L3,L4) = NP ~p NP' and L1 ~l L3 and L2 ~l L4 .
 
-  op weblabel-and-pid? : WebProcInfo WebProcInfoSet -> Bool [ctor metadata "129 true"] .
+  op weblabel-and-pid? : WebProcInfo WebProcInfoSet -> Bool [ctor metadata "131 true"] .
   eq weblabel-and-pid?(WI,(WI  ,wp WIS)) = true [variant] .
  ceq weblabel-and-pid?(WI,(WI' ,wp WIS)) = false if WI ~wpi WI' = false /\ weblabel-and-pid?(WI,WIS) = false .
   eq weblabel-and-pid?(WI,mtWPIS)        = false .
 
-  op netlabelpair-and-pid? : NetProcInfo NetProcInfoSet -> Bool [ctor metadata "130 true"] .
+  op netlabelpair-and-pid? : NetProcInfo NetProcInfoSet -> Bool [ctor metadata "132 true"] .
   eq netlabelpair-and-pid?(NI,(NI ,np NIS)) = true [variant] .
  ceq netlabelpair-and-pid?(NI,(NI',np NIS)) = false if NI ~npi NI' = false /\ netlabelpair-and-pid?(NI,NIS) = false .
   eq netlabelpair-and-pid?(NI,mtNPIS)       = false .
@@ -516,7 +516,7 @@ fmod IBOS-SOP-FVP is
   var A : AttributeSet .
 
   --- needs conf-dupl and conf-attr-dupl to work correctly
-  op proc-loaded? : MaybeConcPipeId Configuration -> Bool [ctor metadata "131 true"] .
+  op proc-loaded? : MaybeConcPipeId Configuration -> Bool [ctor metadata "133 true"] .
   eq proc-loaded?(P,< P  | loading(true),  A > C) = true [variant] .
  ceq proc-loaded?(P,< P  | loading(false), A > C) = false if                                           proc-loaded?(P,< P | A > C) = false .
  ceq proc-loaded?(P,< P  |                 A > C) = false if in-attrset?(loading(true) | A) = false /\ proc-loaded?(P,          C) = false .
