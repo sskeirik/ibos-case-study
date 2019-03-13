@@ -105,7 +105,7 @@ fmod CONTEXT-REW is
   eq context-rew(U,ND,PD) = context-rew1(congClosure(U,false,toNNF(~ ND)),PD) .
 
   op context-rew1 : CCResult PosDisj ~> PosDisj .
-  eq context-rew1(errCCResult(QL:QidList),PD) = error(string(QL:QidList)) .
+  eq context-rew1(errCCResult(QL:QidList),PD) = error($join(QL:QidList," ")) .
   eq context-rew1((UCC,S,ES),PD) =
     print-disj(
       constsToVars(S,
