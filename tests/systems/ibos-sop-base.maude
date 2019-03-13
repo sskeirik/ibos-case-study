@@ -702,6 +702,14 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq netlabelpair-by-pid(A:AbsPipeId, NIS)           = nopair .
   eq netlabelpair-by-pid(N:NonPipeId, NIS)           = nopair .
 
+  op webprocid-by-np : ConcNetProcId NetProcInfoSet WebProcInfoSet -> MaybeConcPipeId [metadata "128"] .
+  eq webprocid-by-np(NP,pi(NP ,IN,OUT),np NIS,pi(WP,IN),wp WIS) = WP .
+ ceq webprocid-by-np(NP,pi(NP',IN,OUT),np NIS,             WIS) = webprocid-by-np(NP,NIS,WIS) if NP ~p NP'                 = false .
+ ceq webprocid-by-np(NP,pi(NP ,IN,OUT),np NIS,             WIS) = webprocid-by-np(NP,NIS,WIS) if lbl-in-weblabels?(IN,WIS) = false .
+ ceq webprocid-by-np(NP,                  NIS,             WIS) = none if pid-in-netlabels?(NP,NIS) = false .
+  eq webprocid-by-np(NP,               mtNPIS,             WIS) = none .
+  eq webprocid-by-np(NP,                  NIS,          mtWPIS) = none .
+
   op in-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel [metadata "123"] .
   eq in-netlabel-by-pid(P?,NIS) = inlbl(netlabelpair-by-pid(P?,NIS)) .
 
