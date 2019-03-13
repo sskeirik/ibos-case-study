@@ -549,8 +549,11 @@ fmod IBOS-SOP-FVP is
   var C : Configuration .
   var A : AttributeSet .
 
-  op proc-loadedP? : ConcProcId Configuration -> Pred [ctor metadata "131"] .
-  eq proc-loadedP?(P,< P | loading(true), A > C) = tt .
+  --- needs conf-dupl and conf-attr-dupl to work correctly
+  op proc-loaded? : ConcProcId Configuration -> Bool [ctor metadata "131 true"] .
+  eq proc-loaded?(P,< P | loading(true),  A > C) = true [variant] .
+ ceq proc-loaded?(P,< P | loading(false), A > C) = false if proc-loaded?(P,< P | A > C) = false .
+ ceq proc-loaded?(P,< P |                 A > C) = false if in-attrset?(loading(true) | A) = false /\ proc-loaded?(P,C) = false .
 endfm
 
 fmod KERNEL-POLICIES-NONFVP-EXT is
@@ -585,6 +588,9 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
 
   var MSGL : MessageList .
   var L L' L1 L2 IN OUT : Label .
+
+  --- lemma
+ ceq proc-loaded?(P,                          C) = false if in-conf?(P,C) = false .
 
   --- Configuration predicates
   op _!c : Configuration -> Configuration       [metadata "107"] .
@@ -728,13 +734,6 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
 
  ceq conf-labels-eqset?(NWC !c,WIS,NIS) = false if conf-labels-eqset?(NWC,WIS,NIS) = false .
  ceq conf-labels-eqset?(NWC !c,WIS,NIS) = true  if conf-labels-eqset?(NWC,WIS,NIS) = true  .
-
-  --- needs conf-dupl and conf-attr-dupl to work correctly
-  op proc-loaded? : ConcProcId Configuration -> Bool [metadata "132"] .
-  eq proc-loaded?(P,< P | loading(true),  A > C) = true .
-  eq proc-loaded?(P,< P | loading(false), A > C) = proc-loaded?(P,< P | A > C) .
- ceq proc-loaded?(P,< P |                 A > C) = proc-loaded?(P,          C) if in-attrset?(loading(true) | A) = false .
- ceq proc-loaded?(P,                          C) = false                       if in-conf?(P,C) = false .
 endfm
 
 fmod IBOS-SOP-PRED is
