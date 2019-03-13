@@ -51,9 +51,9 @@ loop rltl-init .
 --- Usage: select-rls ...
 (select-rls proc-out .)
 
-(use tool conrew for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
-(use tool varsat for validity         on IBOS-SOP-FVP-NOID .)
-(use tool conrew for unsatisfiability on IBOS-SOP-PRED-NOID .)
+(use tool conrew  for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
+(use tool conrew  for unsatisfiability on IBOS-SOP-PRED-NOID .)
+(use tool varunif for varunif          on IBOS-SOP-FVP-NOID  .)
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (AWP:WebProcId) U
 	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:ConcNetProcId) U (NI?:NetProcId) U
