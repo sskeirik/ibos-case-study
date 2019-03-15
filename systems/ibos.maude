@@ -179,6 +179,8 @@ endfm
 
 fmod LABEL is pr NAT-NO-BUILTIN .
   var L : MaybeLabel .
+  var N : Nat .
+  var P : NzNat .
 
   sorts Label MaybeLabel .
   subsorts Label < MaybeLabel .
@@ -187,11 +189,11 @@ fmod LABEL is pr NAT-NO-BUILTIN .
   op nolabel     :     -> MaybeLabel [ctor metadata "39"] .
 
   **** Equality enrichment (added by Camilo)
-  op _~l_ : Label Label -> Bool [comm metadata "42"] .
-  eq L            ~l L           = true            [variant] .
-  eq about-blank  ~l url(N:Nat)  = false           [variant] .
-  eq nolabel      ~l L           = false           [variant] .
-  eq url(N:Nat)   ~l url(N':Nat) = N:Nat ~n N':Nat [variant] .
+  op _~l_ : MaybeLabel MaybeLabel -> Bool [comm metadata "42"] .
+  eq L            ~l L          = true  [variant] .
+  eq about-blank  ~l url(N)     = false [variant] .
+  eq nolabel      ~l L          = false [variant] .
+  eq url(N)       ~l url(N + P) = false [variant] .
 endfm
 
 fmod LABEL-LIST is pr LABEL .
