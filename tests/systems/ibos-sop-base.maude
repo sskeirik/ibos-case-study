@@ -565,6 +565,18 @@ fmod IBOS-SOP-FVP is
   eq lbl-in-weblabels?(IN,(pi(WP,IN ),wp WIS)) = true [variant] .
  ceq lbl-in-weblabels?(IN,(pi(WP,IN'),wp WIS)) = false if IN ~l IN' = false /\ lbl-in-weblabels?(IN,WIS) = false .
   eq lbl-in-weblabels?(IN,mtWPIS)             = false .
+
+  op proc-loaded-ind? : MaybeConcPipeId NetProcInfoSet WebProcInfoSet Configuration -> Bool [metadata "134 true"] .
+  eq proc-loaded-ind?(NP,pi(NP ,IN,OUT),np NIS,pi(WP,IN),wp WIS,< WP | loading(true), A > C) = true  [variant] .
+ ceq proc-loaded-ind?(NP,pi(NP ,IN,OUT),np NIS,pi(WP,IN),wp WIS,                          C) = false if proc-loaded?(WP,C)          = false /\ proc-loaded-ind?(NP,NIS,WIS,C) = false .
+ ceq proc-loaded-ind?(NP,pi(NP',IN,OUT),np NIS,             WIS,                          C) = false if NP ~p NP'                   = false /\ proc-loaded-ind?(NP,NIS,WIS,C) = false .
+ ceq proc-loaded-ind?(NP,pi(NP ,IN,OUT),np NIS,             WIS,                          C) = false if lbl-in-weblabels?(IN,WIS)   = false /\ proc-loaded-ind?(NP,NIS,WIS,C) = false .
+ ceq proc-loaded-ind?(NP,                  NIS,             WIS,                          C) = false if netlabelpair-by-pid(NP,NIS) = nopair .
+  eq proc-loaded-ind?(NP,               mtNPIS,             WIS,                          C) = false .
+  eq proc-loaded-ind?(NP,                  NIS,          mtWPIS,                          C) = false .
+  eq proc-loaded-ind?(WP,                  NIS,             WIS,                          C) = false .
+  eq proc-loaded-ind?(ui,                  NIS,             WIS,                          C) = false .
+  eq proc-loaded-ind?(none,                NIS,             WIS,                          C) = false .
 endfm
 
 fmod ATTRIBUTE-NONFVP-EXT is
@@ -629,6 +641,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var NNP    : NonNetPipeId .
   var WP WP' : ConcWebProcId .
   var NWP    : NonWebPipeId .
+  var NNWP   : NonConcNetWebProcId .
 
   var NIS  : NetProcInfoSet .
   var WIS  : WebProcInfoSet .
@@ -642,6 +655,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
  ceq proc-loaded?(P,C) = false if in-conf?(P,C) = false .
  ceq in-conf?(NP,C) = false if fresh-np-id?(NP,C) = true .
  ceq in-conf?(WP,C) = false if fresh-wp-id?(WP,C) = true .
+  eq proc-loaded-ind?(NP,NIS,WIS,< NNWP | A > C) = proc-loaded-ind?(NP,NIS,WIS,C) .
 
   --- Configuration predicates
   op _!c : Configuration -> Configuration       [metadata "107"] .
