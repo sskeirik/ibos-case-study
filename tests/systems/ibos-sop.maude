@@ -57,11 +57,12 @@ loop rltl-init .
 --- 12. mem-out
 --- 13. mem-in
 --- 19. kernelReceivesOPMessage-pa8
+--- 20. kernelReceivesOPMessage-pa9
 
 --- Todo:
 
 --- Usage: select-rls ...
-(select-rls kernelReceivesOPMessage-pa8 .)
+(select-rls kernelReceivesOPMessage-pa9 .)
 
 (use tool conrew  for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool conrew  for unsatisfiability on IBOS-SOP-PRED-NOID .)
@@ -139,7 +140,7 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (pid-in-weblabels?(WI,WIS)) = (false) and (pid-in-weblabels?(WI,WIS)) = (true) .)
 --- (auto .)
 
---- new-url, nic1, kernelReceivesOPMessage-pa8
+--- new-url, nic1, kernelReceivesOPMessage-pa8, kernelReceivesOPMessage-pa9
 (auto .)
 
 --- kernelForwardsOpMessage
