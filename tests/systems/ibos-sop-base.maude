@@ -591,9 +591,6 @@ fmod ATTRIBUTE-NONFVP-EXT is
   pr ATTRIBUTE-FVP-EXT .
   var A A' : Attribute . var AS AS' : AttributeSet .
 
-  --- lemmas for FVP symbols
-  eq in-attrset?(A | (AS !a), AS') = in-attrset?(A | AS, AS') .
-
   op _!a : AttributeSet -> AttributeSet [metadata "103"] .
   eq (fromKernel      (X:MaybeMessageList), AS) !a = fromKernel(mt),                (AS !a) .
   eq (toKernel        (X:MaybeMessageList), AS) !a = toKernel(mt),                  (AS !a) .
@@ -660,9 +657,13 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var L L' L1 L2 IN OUT : Label .
 
   --- lemmas for FVP symbols
+  eq attr-dupl?((A !a), A') = attr-dupl?(A, A') .
+  eq in-attrset?(At | (A !a), A') = in-attrset?(At | A, A') .
+ ceq in-attrset?(At | At', A) = in-attrset?(At | A) if At ~a At' = false .
  ceq proc-loaded?(P,C) = false if in-conf?(P,C) = false .
  ceq in-conf?(NP,C) = false if fresh-np-id?(NP,C) = true .
  ceq in-conf?(WP,C) = false if fresh-wp-id?(WP,C) = true .
+ ceq in-conf?(P?,< P'  | A' > C) = in-conf?(P?,C) if P? ~p P' = false .
   eq proc-loaded?(P,< NNWP | A > C) = proc-loaded?(P,C) .
   eq proc-loaded-ind?(NP,NIS,WIS,< NNWP | A > C) = proc-loaded-ind?(NP,NIS,WIS,C) .
 
