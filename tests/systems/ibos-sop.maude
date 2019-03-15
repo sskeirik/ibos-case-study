@@ -163,12 +163,12 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (auto .)
 
 --- request-from-webapp
-(split ({ < NI | A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
-(split ({ < NI | returnTo(PP1), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(PP1,WIS)) = (IN) and (weblabel-by-pid(PP1,WIS)) = (nolabel) .)
-(split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
-(split ({ < NI | out(LL ; U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
-(split ({ < NI | returnTo(PP1), A > C }) by (proc-loaded?(PP1,C)) = (true) and (proc-loaded?(PP1,C)) = (false) .)
-(auto .)
+--- (split ({ < NI | A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
+--- (split ({ < NI | returnTo(PP1), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(PP1,WIS)) = (IN) and (weblabel-by-pid(PP1,WIS)) = (nolabel) .)
+--- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
+--- (split ({ < NI | out(LL ; U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- (split ({ < NI | returnTo(PP1), A > C }) by (proc-loaded?(PP1,C)) = (true) and (proc-loaded?(PP1,C)) = (false) .)
+--- (auto .)
 
 --- proc-in
 --- (split ({ < NI |             A > < kernel | netlabels(NIS),                  A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
@@ -177,9 +177,7 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (auto .)
 
 --- proc-out
---- (split ({ < NI | A > < kernel | netlabels(NIS), A' > C }) by
----   (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
---- (split ({ < NI | A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by
----   (proc-loaded-ind?(NI,NIS,WIS,C)) = (true) and (proc-loaded-ind?(NI,NIS,WIS,C)) = (false) .)
+--- (split ({ < NI | A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
+--- (split ({ < NI | A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by (proc-loaded-ind?(NI,NIS,WIS,C)) = (true) and (proc-loaded-ind?(NI,NIS,WIS,C)) = (false) .)
 --- (split ({ < NI | mem-out(U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
 --- (auto .)
