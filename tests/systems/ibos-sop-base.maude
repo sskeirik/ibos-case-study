@@ -666,6 +666,8 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
  ceq in-conf?(P?,< P'  | A' > C) = in-conf?(P?,C) if P? ~p P' = false .
   eq proc-loaded?(P,< NNWP | A > C) = proc-loaded?(P,C) .
   eq proc-loaded-ind?(NP,NIS,WIS,< NNWP | A > C) = proc-loaded-ind?(NP,NIS,WIS,C) .
+ ceq weblabel-by-pid(WP,WIS) = nolabel if fresh-weblabel?(WP,WIS) .
+ ceq netlabelpair-by-pid(NP,NIS) = nopair if fresh-netlabel?(NP,NIS) .
 
   --- Configuration predicates
   op _!c : Configuration -> Configuration       [metadata "107"] .
