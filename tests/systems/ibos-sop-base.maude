@@ -858,28 +858,28 @@ fmod IBOS-SOP-PRED is
  ceq p(< NI | mem-in(OUT),      A > NWC,WIS,NIS,M?) =
      p(< NI | mem-in(nolabel),  A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT
-  /\ proc-loaded?(webprocid-by-np(NI,NIS,WIS),NWC) .
+  /\ proc-loaded-ind?(NI,NIS,WIS,NWC) .
 
   --- Prop 2 Negation ---
  ceq p(< NI | mem-in(OUT),      A > NWC,WIS,NIS,M?) = false
   if out-netlabel-by-pid(NI,NIS) ~l OUT             = false .
 
  ceq p(< NI | mem-in(OUT),      A > NWC,WIS,NIS,M?) = false
-  if proc-loaded?(webprocid-by-np(NI,NIS,WIS),NWC)  = false .
+  if proc-loaded-ind?(NI,NIS,WIS,NWC)               = false .
 
   --- Prop 3 ---
   --- mem-out() attr correlates with kernel metadata
  ceq p(< NI | mem-out(OUT),     A > NWC,WIS,NIS,M?) =
      p(< NI | mem-out(nolabel), A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT
-  /\ proc-loaded?(webprocid-by-np(NI,NIS,WIS),NWC) .
+  /\ proc-loaded-ind?(NI,NIS,WIS,NWC) .
 
   --- Prop 3 Negation ---
  ceq p(< NI | mem-out(OUT),     A > NWC,WIS,NIS,M?) = false
-  if out-netlabel-by-pid(NI,NIS) ~l OUT = false .
+  if out-netlabel-by-pid(NI,NIS) ~l OUT             = false .
 
  ceq p(< NI | mem-out(OUT),     A > NWC,WIS,NIS,M?) = false
-  if  proc-loaded?(webprocid-by-np(NI,NIS,WIS),NWC) = false .
+  if  proc-loaded-ind?(NI,NIS,WIS,NWC)              = false .
 
   --- Prop 4 ---
   --- NOTE: should false case be relaxed to don't care instead of NonRetMsgList
@@ -956,19 +956,19 @@ fmod IBOS-SOP-PRED is
  ceq p(< NI | out(LL ; OUT ; LL'),  A > NWC,WIS,NIS,M?) =
      p(< NI | out(LL ;       LL'),  A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT
-  /\ proc-loaded?(webprocid-by-np(NI,NIS,WIS),NWC) .
+  /\ proc-loaded-ind?(NI,NIS,WIS,NWC) .
 
  ceq p(< NI | in(LL ; OUT ; LL'), A > NWC,WIS,NIS,M?) =
      p(< NI | in(LL ;       LL'), A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT
-  /\ proc-loaded?(webprocid-by-np(NI,NIS,WIS),NWC) .
+  /\ proc-loaded-ind?(NI,NIS,WIS,NWC) .
 
   --- in/out invariant negation
  ceq p(< NI | in (LL ; OUT ; LL'), A > NWC,WIS,NIS,M?) = false
-  if out-netlabel-by-pid(NI,NIS) ~l OUT and proc-loaded?(webprocid-by-np(NI,NIS,WIS),NWC) = false .
+  if out-netlabel-by-pid(NI,NIS) ~l OUT and proc-loaded-ind?(NI,NIS,WIS,NWC) = false .
 
  ceq p(< NI | out(LL ; OUT ; LL'), A > NWC,WIS,NIS,M?) = false
-  if out-netlabel-by-pid(NI,NIS) ~l OUT and proc-loaded?(webprocid-by-np(NI,NIS,WIS),NWC) = false .
+  if out-netlabel-by-pid(NI,NIS) ~l OUT and proc-loaded-ind?(NI,NIS,WIS,NWC) = false .
 
   --- currentlyHandled() attr invariant
   --- TODO: complete this case analysis
@@ -985,7 +985,7 @@ fmod IBOS-SOP-PRED is
   ---
  ceq p(NWC,WIS,NIS,msg(CPI, WI, RetMT,      OUT)) = p(NWC,WIS,NIS,none)  if proc-loaded?(WI,NWC) /\ (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(CPI, NIS) .
  ceq p(NWC,WIS,NIS,msg(CPI, WI, NonRetMT,   OUT)) = p(NWC,WIS,NIS,none)  if pid-in-weblabels?(WI,WIS) .
- ceq p(NWC,WIS,NIS,msg(CPI, WI, RetMT,      OUT)) = false                if proc-loaded?(CPI,NWC) and (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(CPI, NIS) = false .
+ ceq p(NWC,WIS,NIS,msg(CPI, WI, RetMT,      OUT)) = false                if proc-loaded?(WI,NWC) and (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(CPI, NIS) = false .
  ceq p(NWC,WIS,NIS,msg(CPI, WI, NonRetMT,   OUT)) = false                if pid-in-weblabels?(WI,WIS) = false .
 
   --- process metadata invariant
