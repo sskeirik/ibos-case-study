@@ -35,6 +35,13 @@ loop rltl-init .
 
 (select IBOS-SOP-NOID .)
 
+--- Do not unify with invariant state:
+--- 14. kernelReceivesOPMessage-pa1
+--- 15. kernelReceivesOPMessage-pa2
+--- 16. kernelReceivesOPMessage-pa3
+--- 17. kernelReceivesOPMessage-pa4
+--- 18. kernelReceivesOPMessage-pa5
+
 --- Solved:
 --- 1. fetch
 --- 2. kernelReceivesOPMessage-pa7
@@ -49,11 +56,12 @@ loop rltl-init .
 --- 11. msg-to-kernel
 --- 12. mem-out
 --- 13. mem-in
+--- 19. kernelReceivesOPMessage-pa8
 
 --- Todo:
 
 --- Usage: select-rls ...
-(select-rls mem-in .)
+(select-rls kernelReceivesOPMessage-pa8 .)
 
 (use tool conrew  for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool conrew  for unsatisfiability on IBOS-SOP-PRED-NOID .)
@@ -131,8 +139,8 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (pid-in-weblabels?(WI,WIS)) = (false) and (pid-in-weblabels?(WI,WIS)) = (true) .)
 --- (auto .)
 
---- new-url, nic1
---- (auto .)
+--- new-url, nic1, kernelReceivesOPMessage-pa8
+(auto .)
 
 --- kernelForwardsOpMessage
 --- NOTE: nice way of handling requires extension of partially FVP theory
@@ -200,5 +208,5 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (auto .)
 
 ---- mem-out/mem-in
-(split ({ < NI | A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by (proc-loaded-ind?(NI,NIS,WIS,C)) = (true) and (proc-loaded-ind?(NI,NIS,WIS,C)) = (false) .)
-(auto .)
+--- (split ({ < NI | A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by (proc-loaded-ind?(NI,NIS,WIS,C)) = (true) and (proc-loaded-ind?(NI,NIS,WIS,C)) = (false) .)
+--- (auto .)
