@@ -30,6 +30,9 @@ fmod RLTOOL-BACKEND is
   var F : QFForm? .
   var SM : ScopedMap .
   var MQL : ScopedMapList .
+  var B : Bool .
+  var MB : MaybeBool .
+  var MK : [Bool] .
 
   op checkVal : ProofMetadata QFForm? -> MaybeBool .
   op checkValInit : ScopedMapList ProofMetadata QFForm? -> MaybeBool .
@@ -71,7 +74,8 @@ fmod RLTOOL-BACKEND is
   eq beDebugPrint(true, "VAL",   true,        F) = true  [print "VAL: " F] .
   eq beDebugPrint(true, "VAL",   false,       F) = false [print "NOT VAL: " F] .
   eq beDebugPrint(true, S:String,nobool,      F) = nobool .
-  eq beDebugPrint(false,S:String,MB:MaybeBool,F) = MB:MaybeBool .
+  eq beDebugPrint(false,S:String,MB,          F) = MB:MaybeBool .
+ ceq beDebugPrint(B,    S:String,MK,          F) = MK if not (MK :: MaybeBool) [print S:String " ERROR: " MK] .
 endfm
 
 --- a backend implementation for testing purposes
