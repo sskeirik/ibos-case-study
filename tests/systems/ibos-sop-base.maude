@@ -690,6 +690,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq fresh-np-id?(network(N    ), none                     ) = true .
   eq fresh-np-id?(network(M    ), < NP             | NA > C) = fresh-np-id?(network(M), < NP | none > C) .
  ceq fresh-np-id?(network(N + 1),                         C) = true if fresh-np-id?(network(N),C) .
+  eq fresh-np-id?(NP,C !c)                                   = fresh-np-id?(NP,C) .
 
   op fresh-wp-id? : ConcWebProcId Configuration -> Bool [metadata "111"] .
   eq fresh-wp-id?(webapp(N    ), < webapp(N + M)  | A  > C) = false .
@@ -700,6 +701,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq fresh-wp-id?(webapp(N    ), none                     ) = true .
   eq fresh-wp-id?(webapp(M    ), < WP             | NA > C) = fresh-wp-id?(webapp(M), < WP | none > C) .
  ceq fresh-wp-id?(webapp(N + 1),                         C) = true if fresh-wp-id?(webapp(N),C) .
+  eq fresh-wp-id?(WP,C !c)                                  = fresh-wp-id?(WP,C) .
 
   op conf-attr-dupl? : Configuration -> Bool [metadata "112"] .
  ceq conf-attr-dupl?(< P | At, At', A > C) = conf-attr-dupl?(< P | A > C) if At ~a At' = false /\ attr-dupl?(At, A) = false /\ attr-dupl?(At', A) = false .
