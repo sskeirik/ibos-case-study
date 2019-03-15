@@ -551,8 +551,8 @@ fmod IBOS-SOP-FVP is
 
   op webprocid-by-np : ConcNetProcId NetProcInfoSet WebProcInfoSet -> MaybeConcPipeId [metadata "128 W:WebProcId"] .
   eq webprocid-by-np(NP,pi(NP ,IN,OUT),np NIS,pi(WP,IN),wp WIS) = WP [variant] .
- ceq webprocid-by-np(NP,pi(NP',IN,OUT),np NIS,             WIS) = webprocid-by-np(NP,NIS,WIS) if NP ~p NP'                 = false .
- ceq webprocid-by-np(NP,pi(NP ,IN,OUT),np NIS,             WIS) = webprocid-by-np(NP,NIS,WIS) if lbl-in-weblabels?(IN,WIS) = false .
+ ceq webprocid-by-np(NP,pi(NP',IN,OUT),np NIS,             WIS) = none if NP ~p NP'                 = false /\ webprocid-by-np(NP,NIS,WIS) = none .
+ ceq webprocid-by-np(NP,pi(NP ,IN,OUT),np NIS,             WIS) = none if lbl-in-weblabels?(IN,WIS) = false /\ webprocid-by-np(NP,NIS,WIS) = none .
  ceq webprocid-by-np(NP,                  NIS,             WIS) = none if netlabelpair-by-pid(NP,NIS) = nopair .
   eq webprocid-by-np(NP,               mtNPIS,             WIS) = none .
   eq webprocid-by-np(NP,                  NIS,          mtWPIS) = none .
