@@ -699,7 +699,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
  ceq fresh-wp-id?(webapp(N + 1),                         C) = true if fresh-wp-id?(webapp(N),C) .
 
   op conf-attr-dupl? : Configuration -> Bool [metadata "112"] .
- ceq conf-attr-dupl?(< P | At, At', A > C) = conf-attr-dupl?(< P | A > C) if At ~a At' = false .
+ ceq conf-attr-dupl?(< P | At, At', A > C) = conf-attr-dupl?(< P | A > C) if At ~a At' = false /\ attr-dupl?(At, A) = false /\ attr-dupl?(At', A) = false .
   eq conf-attr-dupl?(< P | At         > C) = conf-attr-dupl?(          C) .
   eq conf-attr-dupl?(< P | none       > C) = conf-attr-dupl?(          C) .
  ceq conf-attr-dupl?(< P |          A > C) = true                         if attr-dupl?(A) .
