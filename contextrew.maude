@@ -192,6 +192,7 @@ fmod CONTEXT-REW-SOLVER is
   var RewMod VSMod SimpMod CRMod : Module .
   var D : Disj .
   var F : QFForm .
+  var TA : TruthAtom .
 
   --- validity check goes as follows:
   eq crv (ML,F) = simplify(crv'(ML,F)) .
@@ -206,11 +207,12 @@ fmod CONTEXT-REW-SOLVER is
         then D
         else crv'(ML,crv-run(ML,D))
     fi fi .
+  eq crv-run(ML,TA) = TA .
   eq crv-run(RewMod ; VSMod ; SimpMod ; CRMod,D) =
     cr-simp(CRMod,downTerm(modReduce(SimpMod,
       upTerm(reduce(RewMod,false,
                extract-clause-sub(RewMod,
-                 vu-clause-simp(VSMod,D))))),error("crv-disj failed"))) .
+                 vu-clause-simp(VSMod,D))))),error("crv-disj failed"))) [owise] .
 endfm
 
 fmod CONTEXT-REW-BACKEND-IMPL is
