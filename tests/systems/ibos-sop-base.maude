@@ -659,6 +659,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
  ceq proc-loaded?(P,C) = false if in-conf?(P,C) = false .
  ceq in-conf?(NP,C) = false if fresh-np-id?(NP,C) = true .
  ceq in-conf?(WP,C) = false if fresh-wp-id?(WP,C) = true .
+  eq proc-loaded?(P,< NNWP | A > C) = proc-loaded?(P,C) .
   eq proc-loaded-ind?(NP,NIS,WIS,< NNWP | A > C) = proc-loaded-ind?(NP,NIS,WIS,C) .
 
   --- Configuration predicates
