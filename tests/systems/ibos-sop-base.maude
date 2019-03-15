@@ -50,10 +50,11 @@ fmod PROC-ID-FVP-EXT is
   sort NonConcNetWebProcId .
   subsort UIId NonPipeId < NonConcNetWebProcId .
 
-  sort MaybeConcPipeId MaybeProcessId .
+  sort MaybeConcPipeId MaybePipeId MaybeProcessId .
+  subsort PipeId     < MaybePipeId .
   subsort ConcPipeId < MaybeConcPipeId .
-  subsort ProcessId < MaybeProcessId .
-  subsort MaybeConcPipeId < MaybeProcessId .
+  subsort ProcessId  < MaybeProcessId .
+  subsort MaybeConcPipeId < MaybePipeId < MaybeProcessId .
   op none : -> MaybeConcPipeId [ctor metadata "87"] .
 
   op _~p_ : MaybeProcessId MaybeProcessId -> Bool [ditto metadata "32"] .
