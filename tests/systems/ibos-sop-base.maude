@@ -931,8 +931,8 @@ fmod IBOS-SOP-PRED is
      p(< WI | loading(B), toKernel(nolist),          A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS) .
 
- ceq p(< WI | loading(true), URL(OUT1), toKernel(NFL @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ NFL2), A > NWC,WIS,NIS,M?) =
-     p(< WI | loading(true), URL(OUT1), toKernel(NFL @                                  NFL2), A > NWC,WIS,NIS,M?)
+ ceq p(< WI | loading(true), URL(OUT1), toKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ ML2), A > NWC,WIS,NIS,M?) =
+     p(< WI | loading(true), URL(OUT1), toKernel(ML @                                  ML2), A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS)
   /\ PI   ~p WI
   /\ PI'  ~p network
@@ -1017,6 +1017,7 @@ fmod IBOS-SOP-PRED is
   eq p(< NI | toKernel(nolist), fromKernel(nolist), mem-in(nolabel), mem-out(nolabel), in(mtLL), out(mtLL), A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
 
   --- simplification rules
+ ceq p(< WI | loading(true), A > NWC,WIS,NIS,M?) = true if p(< WI | loading(false), A > NWC,WIS,NIS,M?) .
   eq p(< WI | rendered(L),   A > NWC,WIS,NIS,M?) = p(< WI | rendered(nolabel), A > NWC,WIS,NIS,M?) .
   eq p(< NI | returnTo(CPI), A > NWC,WIS,NIS,M?) = p(< NI | returnTo(none),    A > NWC,WIS,NIS,M?) .
 
