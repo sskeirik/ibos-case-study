@@ -262,7 +262,7 @@ fmod CONG-CLOSURE-LIB is
   op congClosure3 : Module Substitution QidPairSet CCState -> CCResult .
   eq congClosure3(UCC,S,U2OMap,[ES,N,MRL]) =
     if MRL == nil
-      then (UCC,S,congClosureDebugPrint(true,apply(U2OMap,true,ES)))
+      then (UCC,S,congClosureDebugPrint(false,apply(U2OMap,true,ES)))
       else errCCResult('Congruence 'closure 'did 'not 'terminate)
     fi .
   eq congClosure3(UCC,S,U2OMap,CSK) = errCCResult('Congruence 'closure 'failed) [owise] .
