@@ -49,7 +49,7 @@ loop rltl-init .
 --- Todo:
 
 --- Usage: select-rls ...
-(select-rls fetch .)
+(select-rls kernelReceivesOPMessage-pa7 .)
 
 (use tool conrew  for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool conrew  for unsatisfiability on IBOS-SOP-PRED-NOID .)
@@ -116,15 +116,16 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (auto .)
 
 --- pa7
---- (split ({ C }) | (true) = (p(< NI | toKernel(msg(PP1,WI,MSG-RETURN-URL,U) @ T), A > NWC,WIS,NIS,none)) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
---- (split ({ C }) | (true) = (p(< NI | toKernel(msg(PP1,WI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,none)) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
---- (split ({ < kernel | handledCurrently(msg(NI,WI,MSG-RETURN-URL,U)), netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
---- (auto .)
+(split ({ C }) | (true) = (p(< NI | toKernel(msg(PP1,WI,MSG-RETURN-URL,U) @ T), A > NWC,WIS,NIS,none)) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
+(split ({ C }) | (true) = (p(< NI | toKernel(msg(PP1,WI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,none)) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
+(split ({ < kernel | handledCurrently(msg(NI,WI,MSG-RETURN-URL,U)), netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+(split ({ < kernel | handledCurrently(msg(NI,WI,MSG-RETURN-URL,U)), A > C }) by (proc-loaded?(WI,C)) = (true) and (proc-loaded?(WI,C)) = (false) .)
+(auto .)
 
 --- fetch
 --- TODO: check that ceq flipping true to false is sound
-(split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (pid-in-weblabels?(WI,WIS)) = (false) and (pid-in-weblabels?(WI,WIS)) = (true) .)
-(auto .)
+--- (split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (pid-in-weblabels?(WI,WIS)) = (false) and (pid-in-weblabels?(WI,WIS)) = (true) .)
+--- (auto .)
 
 --- new-url
 --- (auto .)
