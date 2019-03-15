@@ -728,15 +728,17 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq netlabels-dupl?(pi(NP,L,L'))                          = false .
   eq netlabels-dupl?(mtNPIS)                               = false .
 
-  op fresh-weblabel? : Nat WebProcInfoSet -> Bool [metadata "117"] .
-  eq fresh-weblabel?(N + Z,(pi(network(N    ),L),wp WIS)) = fresh-weblabel?(N + Z,WIS) .
-  eq fresh-weblabel?(N,    (pi(network(N + M),L),wp WIS)) = false .
-  eq fresh-weblabel?(N,mtWPIS)                            = true .
+  op fresh-weblabel? : ConcWebProcId WebProcInfoSet -> Bool [metadata "117"] .
+  eq fresh-weblabel?(webapp(N + Z),(pi(webapp(N    ),L),wp WIS)) = fresh-weblabel?(webapp(N + Z),WIS) .
+  eq fresh-weblabel?(webapp(N),    (pi(webapp(N + M),L),wp WIS)) = false .
+  eq fresh-weblabel?(webapp(N),mtWPIS)                           = true .
+ ceq fresh-weblabel?(webapp(N + Z),WIS)                          = true if fresh-weblabel?(webapp(N),WIS) .
 
-  op fresh-netlabel? : Nat NetProcInfoSet -> Bool [metadata "118"] .
-  eq fresh-netlabel?(N + Z,(pi(network(N    ),L,L'),np NIS)) = fresh-netlabel?(N + Z,NIS) .
-  eq fresh-netlabel?(N,    (pi(network(N + M),L,L'),np NIS)) = false .
-  eq fresh-netlabel?(N,mtNPIS)                               = true .
+  op fresh-netlabel? : ConcNetProcId NetProcInfoSet -> Bool [metadata "118"] .
+  eq fresh-netlabel?(network(N + Z),(pi(network(N    ),L,L'),np NIS)) = fresh-netlabel?(network(N + Z),NIS) .
+  eq fresh-netlabel?(network(N),    (pi(network(N + M),L,L'),np NIS)) = false .
+  eq fresh-netlabel?(network(N),mtNPIS)                               = true .
+ ceq fresh-netlabel?(network(N + Z),NIS)                              = true if fresh-netlabel?(network(N),NIS) .
 
   op inlbl-in-netlabels? : Label NetProcInfoSet -> Bool [metadata "120"] .
   eq inlbl-in-netlabels?(IN,(pi(NP,IN,OUT),np NIS)) = true .
