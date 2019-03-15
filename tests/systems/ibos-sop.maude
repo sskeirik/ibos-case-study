@@ -49,7 +49,7 @@ loop rltl-init .
 --- Todo:
 
 --- Usage: select-rls ...
-(select-rls render .)
+(select-rls kernelForwardsOPMessage .)
 
 (use tool conrew  for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool conrew  for unsatisfiability on IBOS-SOP-PRED-NOID .)
@@ -130,36 +130,41 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (auto .)
 
 --- kernelForwardsOpMessage
---- (cases ({ < NWI:ConcNetWebProcId | A  > C }) on NWI:ConcNetWebProcId by (WI) U (NI) .)
---- ---
---- (cases ({ < NI | fromKernel(F @ msg(PP1,         NI,MT:MsgType,U)),  A > C }) on MT:MsgType     by (MSG-FETCH-URL) U (N:NonFetchMsgType) .)
---- (cases ({ < NI | fromKernel(F @ msg(P:ConcPipeId,NI,MT:MsgType,U)),  A > C }) on P:ConcPipeId   by (WI2:ConcWebProcId) U (NI2:ConcNetProcId) U (ui) .)
---- (split ({ < NI | fromKernel(F @ msg(PP1,NI,MSG-FETCH-URL,U)),  A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pidP?(pi(PP1,IN),WIS)) = (tt) and (weblabel-by-pid(PP1,WIS) ~l nolabel) = (true) .)
---- (split ({ < NI |                                               A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pidP?(pi(NI,IN,OUT),NIS)) = (tt) and (netlabelpair-by-pid(NI,NIS) ~lp nopair) = (true) .)
---- ---
---- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), A > C })  by (in-confP?(WI,C)) = (tt) and (in-conf?(WI,C)) = (false) .)
---- ---
---- (split ({ < WI | A > C }) by (in-attrsetP?(loading(true) | A)) = (tt) and (in-attrset?(loading(true) | A)) = (false) .)
---- (split ({ < WI | loading(B:Bool), A > C }) by (B:Bool) = (true) and (B:Bool) = (false) .)
---- ---
---- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN) = (IN2) and (IN ~l IN2) = (false) .)
+--- NOTE: nice way of handling requires extension of partially FVP theory
+(cases ({ < NWI:ConcNetWebProcId | A  > C }) on NWI:ConcNetWebProcId by (WI) U (NI) .)
+--- NetProc Case
+--- Split on Message Type
+(cases ({ < NI | fromKernel(F @ msg(PP1,NI,MT:MsgType,   U)), A > C }) on MT:MsgType by (MSG-FETCH-URL) U (N:NonFetchMsgType) .)
+--- Setup Metadata/Process/Message Consistency
+(split ({ < NI | fromKernel(F @ msg(PP1,NI,MSG-FETCH-URL,U)), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(PP1,WIS)) = (IN) and (weblabel-by-pid(PP1,WIS)) = (nolabel) .)
+(split ({ < NI |                                              A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
+(split ({ < NI | fromKernel(F @ msg(PP1,NI,MSG-FETCH-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- Ensure loading? flag is set
+(split ({ < NI | A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (proc-loaded?(WI,C)) = (true) and (proc-loaded?(WI,C)) = (false) .)
+--- WebProc Case
+--- Split on Message Type
+(cases ({ < WI | fromKernel(F @ msg(PP1,WI,MT:MsgType,    U)), A > C }) on MT:MsgType by (MSG-RETURN-URL) U (N:NonRetMsgType) .)
+--- Setup Metadata/Process/Message Consistency
+(split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
+(split ({ < WI |                                               A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+(split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- Ensure loading? flag is set
+(split ({ < WI |             A > C }) by (in-attrset?(loading(true) | A)) = (true) and (in-attrset?(loading(true) | A)) = (false) .)
+(split ({ < WI | loading(L), A > C }) by (in-attrset?(loading(true) | A)) = (true) and (in-attrset?(loading(true) | A)) = (false) .)
+(split ({ < WI | loading(L), A > C }) by (L) = (true) and (L) = (false) .)
+(split ({ < WI | A             > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
+--- Link metadata pieces
+(split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
 ---
---- (split ({ < NI | fromKernel(F @ msg(WI,NI,MSG-FETCH-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U) = (OUT) and (U ~l OUT) = (false) .)
----
---- (split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pidP?(pi(WI,IN),WIS)) = (tt) and (weblabel-by-pid(WI,WIS) ~l nolabel) = (true) .)
---- (cases ({ < WI | fromKernel(F @ msg(PP1,WI,MT:MsgType,    U)), A > C }) on MT:MsgType by (MSG-RETURN-URL) U (N:NonRetMsgType) .)
---- (split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(NIS), weblabels(pi(WI,IN),wp WIS), A' > C }) by (netlabelpair-by-pidP?(pi(PP1,IN,OUT),NIS)) = (tt) and (netlabelpair-by-pid(PP1,NIS) ~lp nopair) = (true) .)
---- ---
---- (split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U) = (OUT) and (U ~l OUT) = (false) .)
---- (auto .)
+(auto .)
 
 --- render
-(split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
-(split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U) @ F), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
-(split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
-(split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
-(split ({ < WI | rendered(U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
-(auto .)
+--- (split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+--- (split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U) @ F), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
+--- (split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
+--- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
+--- (split ({ < WI | rendered(U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- (auto .)
 
 --- request-from-webapp
 --- (split ({ < NI | A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
