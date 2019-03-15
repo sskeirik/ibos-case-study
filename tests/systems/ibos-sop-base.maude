@@ -47,6 +47,8 @@ fmod PROC-ID-FVP-EXT is
 
   sort ConcNetWebProcId .
   subsort ConcNetProcId ConcWebProcId < ConcNetWebProcId < ConcPipeId .
+  sort NonConcNetWebProcId .
+  subsort UIId NonPipeId < NonConcNetWebProcId .
 
   sort MaybeConcPipeId MaybeProcessId .
   subsort ConcPipeId < MaybeConcPipeId .
