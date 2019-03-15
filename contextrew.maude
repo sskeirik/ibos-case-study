@@ -127,7 +127,7 @@ fmod CONTEXT-REW is
 
   --- OUT: simplify QFForm by contextual rewriting if it is a clause
   op context-rew-simp  : Module QFForm? -> QFForm? .
-  eq context-rew-simp(U,NND \/ NPD) = context-rew(U,NND,NPD) .
+  eq context-rew-simp(U,NND \/ NPD) = NND \/ context-rew(U,NND,NPD) .
   eq context-rew-simp(U,F?)         = F? [owise] .
 
   --- OUT: debugging printer
