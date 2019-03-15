@@ -125,18 +125,10 @@ fmod CONTEXT-REW is
           fi
         fi)) .
 
-  --- OUT: simplify QFForm by contextual rewriting so that solved equalities become tt
-  op cr-simp  : Module QFForm? -> QFForm? .
-  op cr-simp' : Module Disj? -> Disj? .
-  op cr-simp' : Module Nat NegDisj PosDisj? ~> Disj .
-  ---
-  eq cr-simp (U,F?) = cr-simp'(U,toCNF(F?)) .
-  eq cr-simp'(U,D /\ F) = cr-simp'(U,D) /\ cr-simp'(U,F) .
-  eq cr-simp'(U,NND \/ NPD) = cr-simp'(U,size(NND \/ NPD),NND,context-rew(U,NND,NPD)) .
-  eq cr-simp'(U,D?) = D? [owise] .
-
-  eq cr-simp'(U,Sz,NND,PD) = if size(NND \/ PD) < Sz then tt else mtForm fi \/ NND \/ PD .
-  eq cr-simp'(U,Sz,NND,FK) = FK .
+  --- OUT: simplify QFForm by contextual rewriting if it is a clause
+  op context-rew-simp  : Module QFForm? -> QFForm? .
+  eq context-rew-simp(U,NND \/ NPD) = context-rew(U,NND,NPD) .
+  eq context-rew-simp(U,F?)         = F? [owise] .
 
   --- OUT: debugging printer
   op context-rew-debug-print : Bool PosDisj ~> PosDisj .
@@ -190,8 +182,11 @@ fmod CONTEXT-REW-SOLVER is
 
   var ML : [NeModuleList] .
   var RewMod VSMod SimpMod CRMod : Module .
-  var D : Disj .
+  var D D' : Disj .
   var F : QFForm .
+  var ND ND' : NegEqDisj? .
+  var PD' : PosEqDisj? .
+  var NPD : PosEqDisj  .
   var TA : TruthAtom .
 
   --- validity check goes as follows:
@@ -209,10 +204,19 @@ fmod CONTEXT-REW-SOLVER is
     fi fi .
   eq crv-run(ML,TA) = TA .
   eq crv-run(RewMod ; VSMod ; SimpMod ; CRMod,D) =
-    cr-simp(CRMod,downTerm(modReduce(SimpMod,
-      upTerm(reduce(RewMod,false,
-               extract-clause-sub(RewMod,
-                 vu-clause-simp(VSMod,D))))),error("crv-disj failed"))) [owise] .
+    cr-success?(D,
+      simplify(context-rew-simp(CRMod,downTerm(modReduce(SimpMod,
+        upTerm(reduce(RewMod,false,
+                 extract-clause-sub(RewMod,
+                   vu-clause-simp(VSMod,D))))),error("crv-disj failed"))))) [owise] .
+
+  op cr-success? : Disj QFForm? -> Disj .
+  eq cr-success?(D,tt) = tt                                                       [print "CR-SUCCESS-TO-TRUE: " D] .
+  eq cr-success?(D,ff) = tt                                                       [print "CR-FAIL-TO-FALSE: "   D] .
+ ceq cr-success?(D,D) = D                            if not D :: TruthAtom        [print "NO-CHANGE: "          D] .
+ ceq cr-success?(ND \/ NPD,ND' \/ PD') =  tt         if     size(PD') < size(NPD) [print "CR-SUCCESS-SMALLER: " NPD " or " ND " to " PD' " or " ND'] .
+ ceq cr-success?(ND \/ NPD,ND' \/ PD') =  ND' \/ PD' if not size(PD') < size(NPD) [print "CR-FAIL-SMALLER: "    NPD " or " ND " to " PD' " or " ND'] .
+  eq cr-success?(D,F) = F                                                         [owise print "CR-FAIL-COMPLEX: " D " with " F] .
 endfm
 
 fmod CONTEXT-REW-BACKEND-IMPL is
