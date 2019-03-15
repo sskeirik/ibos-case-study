@@ -84,12 +84,13 @@ endfm
 
 fmod LABEL-FVP-EXT is
   pr LABEL .
-  var L1 L2 L1' L2' : Label .
+  var L1 L2 L1' L2' : MaybeLabel .
   var MLP : MaybeLabelPair .
   sort LabelPair MaybeLabelPair .
   subsort LabelPair < MaybeLabelPair .
-  op ((_,_)) : Label Label -> LabelPair      [ctor metadata "88"] .
-  op nopair  :             -> MaybeLabelPair [ctor metadata "89"] .
+  op ((_,_)) : Label Label           -> LabelPair      [ctor metadata "88"] .
+  op ((_,_)) : MaybeLabel MaybeLabel -> MaybeLabelPair [ctor metadata "88"] .
+  op nopair  :                       -> MaybeLabelPair [ctor metadata "89"] .
 
   op _~lp_ : MaybeLabelPair MaybeLabelPair -> Bool [comm metadata "90"] .
   eq MLP     ~lp MLP       = true .
