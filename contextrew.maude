@@ -115,7 +115,7 @@ fmod CONTEXT-REW is
   op context-rew1 : CCResult PosDisj ~> PosDisj .
   eq context-rew1(errCCResult(QL:QidList),PD) = error($join(QL:QidList," ")) .
   eq context-rew1((UCC,S,ES),PD) =
-    print-disj(
+    context-rew-debug-print(false,
       constsToVars(S,
         if size(reduce(setEqs(UCC,ES),PD << S)) < size(PD)
           then reduce(setEqs(UCC,ES),PD << S)
@@ -139,8 +139,9 @@ fmod CONTEXT-REW is
   eq cr-simp'(U,Sz,NND,FK) = FK .
 
   --- OUT: debugging printer
-  op print-disj : PosDisj ~> PosDisj .
-  eq print-disj(PD) = PD [print "RESULT: " PD] .
+  op context-rew-debug-print : Bool PosDisj ~> PosDisj .
+  eq context-rew-debug-print(true, PD) = PD [print "RESULT: " PD] .
+  eq context-rew-debug-print(false,PD) = PD .
 
   --- OUT: true iff true and false contradict
   ---  NB: if DBG == true we use debugging mode where we call metaRewrite
