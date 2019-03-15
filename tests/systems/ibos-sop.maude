@@ -48,11 +48,12 @@ loop rltl-init .
 --- 10. proc-out
 --- 11. msg-to-kernel
 --- 12. mem-out
+--- 13. mem-in
 
 --- Todo:
 
 --- Usage: select-rls ...
-(select-rls mem-out .)
+(select-rls mem-in .)
 
 (use tool conrew  for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool conrew  for unsatisfiability on IBOS-SOP-PRED-NOID .)
@@ -198,6 +199,6 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < NI | toKernel(T @ msg(NI,PP1,MSG-RETURN-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
 --- (auto .)
 
----- mem-out
+---- mem-out/mem-in
 (split ({ < NI | A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by (proc-loaded-ind?(NI,NIS,WIS,C)) = (true) and (proc-loaded-ind?(NI,NIS,WIS,C)) = (false) .)
 (auto .)
