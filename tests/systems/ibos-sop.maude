@@ -45,11 +45,13 @@ loop rltl-init .
 --- 7. render
 --- 8. request-from-webapp
 --- 9. proc-in
+--- 10. proc-out
+--- 11. msg-to-kernel
 
 --- Todo:
 
 --- Usage: select-rls ...
-(select-rls kernelReceivesOPMessage-pa6-b .)
+(select-rls msg-to-kernel .)
 
 (use tool conrew  for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool conrew  for unsatisfiability on IBOS-SOP-PRED-NOID .)
@@ -98,22 +100,22 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 
 --- pa6-a
 --- pa6-b
-(split ({ < WI | A > C }) by (in-attrset?(URL(about-blank) | A)) = (true) and (in-attrset?(URL(about-blank) | A)) = (false) .)
-(split ({ < WI | A > C }) by (in-attrset?(loading(true)    | A)) = (true) and (in-attrset?(loading(true)    | A)) = (false) .)
-(split ({ < WI | loading(B:Bool), A > C}) by (B:Bool) = (true) and (B:Bool) = (false) .)
----
-(cases+ ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T:MessageList), A > NWC,WIS,NIS,none)) on T:MessageList by (N:NonFetchMsgList) U (H:HasFetchMsgList) .)
----
-(split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (PP1 ~p WI)      = (true) and (PP1 ~p WI)      = (false) .)
-(split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (PP1 ~p WI)      = (true) and (PP1 ~p WI)      = (false) .)
----
-(split ({ C }) | (true) = (p(< WI | URL(OUT), toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (U ~l OUT)       = (true) and (U ~l OUT)       = (false) .)
-(split ({ C }) | (true) = (p(< WI | URL(OUT), toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (U ~l OUT)       = (true) and (U ~l OUT)       = (false) .)
----
-(split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (NI? ~p network) = (true) and (NI? ~p network) = (false) .)
-(split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (NI? ~p network) = (true) and (NI? ~p network) = (false) .)
----
-(auto .)
+--- (split ({ < WI | A > C }) by (in-attrset?(URL(about-blank) | A)) = (true) and (in-attrset?(URL(about-blank) | A)) = (false) .)
+--- (split ({ < WI | A > C }) by (in-attrset?(loading(true)    | A)) = (true) and (in-attrset?(loading(true)    | A)) = (false) .)
+--- (split ({ < WI | loading(B:Bool), A > C}) by (B:Bool) = (true) and (B:Bool) = (false) .)
+--- ---
+--- (cases+ ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T:MessageList), A > NWC,WIS,NIS,none)) on T:MessageList by (N:NonFetchMsgList) U (H:HasFetchMsgList) .)
+--- ---
+--- (split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (PP1 ~p WI)      = (true) and (PP1 ~p WI)      = (false) .)
+--- (split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (PP1 ~p WI)      = (true) and (PP1 ~p WI)      = (false) .)
+--- ---
+--- (split ({ C }) | (true) = (p(< WI | URL(OUT), toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (U ~l OUT)       = (true) and (U ~l OUT)       = (false) .)
+--- (split ({ C }) | (true) = (p(< WI | URL(OUT), toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (U ~l OUT)       = (true) and (U ~l OUT)       = (false) .)
+--- ---
+--- (split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (NI? ~p network) = (true) and (NI? ~p network) = (false) .)
+--- (split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (NI? ~p network) = (true) and (NI? ~p network) = (false) .)
+--- ---
+--- (auto .)
 
 --- pa7
 --- (split ({ C }) | (true) = (p(< NI | toKernel(msg(PP1,WI,MSG-RETURN-URL,U) @ T), A > NWC,WIS,NIS,none)) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
@@ -127,7 +129,7 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (pid-in-weblabels?(WI,WIS)) = (false) and (pid-in-weblabels?(WI,WIS)) = (true) .)
 --- (auto .)
 
---- new-url
+--- new-url, nic1
 --- (auto .)
 
 --- kernelForwardsOpMessage
@@ -186,3 +188,11 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < NI | A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by (proc-loaded-ind?(NI,NIS,WIS,C)) = (true) and (proc-loaded-ind?(NI,NIS,WIS,C)) = (false) .)
 --- (split ({ < NI | mem-out(U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
 --- (auto .)
+
+--- msg-to-kernel
+(split ({ < NI | A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
+(split ({ < NI | returnTo(PP1), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(PP1,WIS)) = (IN) and (weblabel-by-pid(PP1,WIS)) = (nolabel) .)
+(split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
+(split ({ < NI | returnTo(PP1), A > C }) by (proc-loaded?(PP1,C)) = (true) and (proc-loaded?(PP1,C)) = (false) .)
+(split ({ < NI | toKernel(T @ msg(NI,PP1,MSG-RETURN-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+(auto .)
