@@ -86,6 +86,7 @@ endfm
 fmod LABEL-FVP-EXT is
   pr LABEL .
   var L1 L2 L1' L2' : MaybeLabel .
+  var MMLP : MaybeMaybeLabel+Pair .
   var MLP : MaybeLabelPair .
   sort LabelPair MaybeLabelPair MaybeLabel+Pair MaybeMaybeLabel+Pair .
   subsort LabelPair < MaybeLabelPair  < MaybeMaybeLabel+Pair .
@@ -95,17 +96,19 @@ fmod LABEL-FVP-EXT is
   op nopair  :                       -> MaybeLabelPair       [ctor metadata "89"] .
 
   op _~lp_ : MaybeMaybeLabel+Pair MaybeMaybeLabel+Pair -> Bool [comm metadata "90"] .
-  eq MLP     ~lp MLP       = true .
-  eq (L1,L2) ~lp (L1',L2') = L1 ~l L1' and L2 ~l L2' .
-  eq nopair  ~lp (L1, L2 ) = false .
+  eq MMLP         ~lp MMLP      = true                    [variant] .
+  eq (L1,L2)      ~lp (L1',L2') = L1 ~l L1' and L2 ~l L2' [variant] .
+  eq nopair       ~lp (L1, L2 ) = false                   [variant] .
+  eq (nolabel,L2) ~lp MLP       = false                   [variant] .
+  eq (L1,nolabel) ~lp MLP       = false                   [variant] .
 
   op inlbl : MaybeLabelPair -> MaybeLabel [metadata "91"] .
-  eq inlbl((L1,L2)) = L1 .
-  eq inlbl(nopair)  = nolabel .
+  eq inlbl((L1,L2))  = L1      [variant] .
+  eq inlbl(nopair)   = nolabel [variant] .
 
   op outlbl : MaybeLabelPair -> MaybeLabel [metadata "92"] .
-  eq outlbl((L1,L2)) = L2 .
-  eq outlbl(nopair)  = nolabel .
+  eq outlbl((L1,L2)) = L2      [variant] .
+  eq outlbl(nopair)  = nolabel [variant] .
 endfm
 
 fmod MSG-FVP-EXT is
