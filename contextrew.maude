@@ -60,17 +60,24 @@ fmod META-SEARCH-EXT is
   var U : Module .
   var E1 E2 : Equation .
   var T1 T2 : Term .
+  var DBG : Bool .
 
-  op pairSearch : Module Equation Equation -> Bool .
-  eq pairSearch(U,E1,E2) =
+  op pairSearch : Module Bool Equation Equation -> Bool .
+  eq pairSearch(U,DBG,E1,E2) =
     if lhs(E1) in (lhs(E2) | rhs(E2)) or-else
        rhs(E1) in (lhs(E2) | rhs(E2))
-      then metaNormalForm?(rulify-func(U),toEqSetTerm(U,E1),toEqSetTerm(U,E2))
-      else false
+      then if DBG
+        then getTerm(metaRewrite(rulify-func(setEqs(U,getEqs(U) - E1)),lhs(E1),unbounded)) == $metaNeg(lhs(E2))
+	else metaNormalForm?(rulify-func(U),toEqSetTerm(U,E1),toEqSetTerm(U,E2))
+      fi else false
     fi .
 
   op metaNormalForm? : Module Term Term -> Bool .
   eq metaNormalForm?(U,T1,T2) = metaSearch(U,T1,T2,nil,'!,unbounded,0) :: ResultTriple .
+
+  op $metaNeg : Term ~> Term .
+  eq $metaNeg('true.Bool ) = 'false.Bool .
+  eq $metaNeg('false.Bool) = 'true.Bool  .
 endfm
 
 --- Module provides the actual implemnation of contextual rewriting
@@ -92,6 +99,7 @@ fmod CONTEXT-REW is
   var NND : NegDisj . var NPD : PosDisj . var D : Disj .
   var F   : QFForm . var F? : QFForm? . var FK : [QFForm?] .
   var CC  : CCState .
+  var DBG : Bool .
 
   --- INP: Module NegDisj PosDisj
   --- PRE: [1] Disj are well-formed with respect to Module
@@ -111,7 +119,7 @@ fmod CONTEXT-REW is
       constsToVars(S,
         if size(reduce(setEqs(UCC,ES),PD << S)) < size(PD)
           then reduce(setEqs(UCC,ES),PD << S)
-          else if truefalseContradict(addEqs(ES,UCC),ES - getTaggedIdEqs(ES))
+          else if truefalseContradict(addEqs(ES,UCC),false,ES - getTaggedIdEqs(ES))
 	    then mtForm
 	    else reduce(addEqs(ES,UCC),PD << S)
           fi
@@ -135,25 +143,32 @@ fmod CONTEXT-REW is
   eq print-disj(PD) = PD [print "RESULT: " PD] .
 
   --- OUT: true iff true and false contradict
-  op truefalseContradict : Module EquationSet -> Bool .
-  eq truefalseContradict(U,E ES) =
-    pairSearch(U,E,eq 'true.Bool = 'false.Bool [none].)
-      or-else truefalseContradict(U,ES) .
-  eq truefalseContradict(U,none) = false .
+  ---  NB: if DBG == true we use debugging mode where we call metaRewrite
+  ---      instead of metaSearch so we can observe the rewrite path in a
+  ---      step-by-step fashion
+  op truefalseContradict : Module Bool EquationSet -> Bool .
+  eq truefalseContradict(U,DBG,E ES) =
+    pairSearch(U,DBG,E,eq 'true.Bool = 'false.Bool [none].)
+      or-else truefalseContradict(U,DBG,ES) .
+  eq truefalseContradict(U,DBG,none) = false .
 
   --- OUT: true iff formula is unsatisfiable
   op cr-unsat : Module QFForm? -> MaybeBool .
-  eq cr-unsat(U,F?) = cr-unsat'(U,toCNF(~ F?)) .
+  eq cr-unsat(U,F?) = cr-unsat(U,false,F?) .
 
-  op cr-unsat' : Module Disj? -> MaybeBool .
-  eq cr-unsat'(U,F   /\ D  ) = coerceBool(cr-unsat'(U,D),false) or-else cr-unsat'(U,F) .
-  eq cr-unsat'(U,       D? ) = nobool [owise] .
-  eq cr-unsat'(U,NND \/ NPD) = cr-unsat'(congClosure(U,false,toNNF(~ NND))) .
-  eq cr-unsat'(U,NND       ) = cr-unsat'(congClosure(U,false,toNNF(~ NND))) .
+  --- NB: Bool argument is debugging flag
+  op cr-unsat : Module Bool QFForm? -> MaybeBool .
+  eq cr-unsat(U,DBG,F?) = cr-unsat'(U,DBG,toCNF(~ F?)) .
 
-  op cr-unsat' : CCResult -> MaybeBool .
-  eq cr-unsat'(errCCResult(QL:QidList)) = nobool .
-  eq cr-unsat'((UCC,S,ES)) = if truefalseContradict(addEqs(ES,UCC),ES - getTaggedIdEqs(ES)) then true else nobool fi .
+  op cr-unsat' : Module Bool Disj? -> MaybeBool .
+  eq cr-unsat'(U,DBG,F   /\ D  ) = coerceBool(cr-unsat'(U,DBG,D),false) or-else cr-unsat'(U,DBG,F) .
+  eq cr-unsat'(U,DBG,       D? ) = nobool [owise] .
+  eq cr-unsat'(U,DBG,NND \/ NPD) = cr-unsat'(DBG,congClosure(U,false,toNNF(~ NND))) .
+  eq cr-unsat'(U,DBG,NND       ) = cr-unsat'(DBG,congClosure(U,false,toNNF(~ NND))) .
+
+  op cr-unsat' : Bool CCResult -> MaybeBool .
+  eq cr-unsat'(DBG,errCCResult(QL:QidList)) = nobool .
+  eq cr-unsat'(DBG,(UCC,S,ES)) = if truefalseContradict(addEqs(ES,UCC),DBG,ES - getTaggedIdEqs(ES)) then true else nobool fi .
 endfm
 
 --- Module provides an implementation of contextual-rewriting based satisfiability
