@@ -821,6 +821,29 @@ fmod IBOS-SOP-PRED is
   var NRM : NonRetMsg .
   var NFM : NonFetchMsg .
 
+  op newurl-nodupl? : Label MessageList -> Bool [metadata "198 false"] .
+  eq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-NEW-URL,   L)   @ ML2) = false [variant] .
+ ceq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-NEW-URL,   OUT) @ ML2) = true if L ~l OUT = false /\ newurl-nodupl?(L,ML @ ML2) = true .
+ ceq newurl-nodupl?(L,ML @ msg(PI,PI',RetMT,         OUT) @ ML2) = true if                     newurl-nodupl?(L,ML @ ML2) = true .
+ ceq newurl-nodupl?(L,ML @ msg(PI,PI',FetchMT,       OUT) @ ML2) = true if                     newurl-nodupl?(L,ML @ ML2) = true .
+ ceq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-SWITCH-TAB,OUT) @ ML2) = true if                     newurl-nodupl?(L,ML @ ML2) = true .
+  eq newurl-nodupl?(L,mt)                                        = true .
+
+  op ui-consistent? : MessageList WebProcInfoSet -> Bool [metadata "199"] .
+  --- SWITCH-TAB
+ ceq ui-consistent?(ML @ msg(PI,PI',MSG-SWITCH-TAB,OUT) @ ML2,WIS) = ui-consistent?(ML @ ML2,WIS)
+  if pid-in-weblabels?(PI',WIS) .
+ ceq ui-consistent?(ML @ msg(PI,PI',MSG-SWITCH-TAB,OUT) @ ML2,WIS) = false
+  if pid-in-weblabels?(PI',WIS) = false .
+  --- NEW-URL
+ ceq ui-consistent?(ML @ msg(PI,webapp,MSG-NEW-URL,OUT) @ ML2,WIS) = ui-consistent?(ML @ ML2,WIS)
+  if newurl-nodupl?(OUT,ML @ ML2) .
+ ceq ui-consistent?(ML @ msg(PI,PI',MSG-NEW-URL,OUT) @ ML2,WIS) = false
+  if PI' ~p webapp and newurl-nodupl?(OUT,ML @ ML2) = false .
+  --- OTHER MESSAGES
+  eq ui-consistent?(ML @ msg(PI,PI',RetMT,  OUT) @ ML2,WIS) = false .
+  eq ui-consistent?(ML @ msg(PI,PI',FetchMT,OUT) @ ML2,WIS) = false .
+  eq ui-consistent?(mt,WIS) = true .
 
   --- Here, we prove two kinds of invariants:
   --- 1. check that the messages in an object's message queue are
@@ -1002,7 +1025,9 @@ fmod IBOS-SOP-PRED is
   --- TODO: add NonNetProc targetted NonFetchMT/FetchMT
   --- NB: FetchMT cases needed for 6-a or 6-b
   --- NB: NEW-URL case needed for new-url
-  eq p(NWC,                            WIS,NIS,msg(ui, webapp,MSG-NEW-URL,OUT)) = p(NWC,WIS,NIS,none) .
+  eq p(NWC,                            WIS,NIS,msg(ui, webapp,MSG-NEW-URL,   OUT)) = p(NWC,WIS,NIS,none) .
+ ceq p(NWC,                            WIS,NIS,msg(ui, CPI,   MSG-SWITCH-TAB,OUT)) = p(NWC,WIS,NIS,none) if pid-in-weblabels?(CPI,WIS) .
+ ceq p(NWC,                            WIS,NIS,msg(ui, CPI,   MSG-SWITCH-TAB,OUT)) = false               if pid-in-weblabels?(CPI,WIS) = false .
   ---
  ceq p(NWC,WIS,NIS,msg(CPI, NI, FetchMT,    OUT)) = p(NWC,WIS,NIS,none) if proc-loaded?(CPI,NWC) /\ (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) .
  ceq p(NWC,WIS,NIS,msg(CPI, NI, NonFetchMT, OUT)) = p(NWC,WIS,NIS,none) if pid-in-netlabels?(NI,NIS) .
