@@ -178,7 +178,8 @@ fmod SYS is
 endfm
 
 fmod LABEL is pr NAT-NO-BUILTIN .
-  var L : MaybeLabel .
+  var ML : MaybeLabel .
+  var L : Label .
   var N : Nat .
   var P : NzNat .
 
@@ -190,7 +191,7 @@ fmod LABEL is pr NAT-NO-BUILTIN .
 
   **** Equality enrichment (added by Camilo)
   op _~l_ : MaybeLabel MaybeLabel -> Bool [comm metadata "42"] .
-  eq L            ~l L          = true  [variant] .
+  eq ML           ~l ML         = true  [variant] .
   eq about-blank  ~l url(N)     = false [variant] .
   eq nolabel      ~l L          = false [variant] .
   eq url(N)       ~l url(N + P) = false [variant] .
