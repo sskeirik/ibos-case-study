@@ -489,6 +489,7 @@ mod KERNEL is
 
   var ORG         : ConcPipeId   .
   var PPI1 PPI2   : ConcPipeId   .
+  var GPPI        : PipeId .
 
   var WI WI'      : ConcWebProcId .
   var NI NI'      : ConcNetProcId .
@@ -733,7 +734,7 @@ mod KERNEL is
   **** no policy allowed this, therefore implicitly disallowed and dropped
   rl [kernelReceivesOPMessage-pa10] :
      { < kernel | handledCurrently(none), msgPolicy(MP),  Att  >
-       < PPI1   | toKernel(msg(ORG, PPI2, MT, L) @ ML),   Att2 > Cnf }
+       < PPI1   | toKernel(msg(ORG, GPPI, MT, L) @ ML),   Att2 > Cnf }
   =>
      { < kernel | handledCurrently(none), msgPolicy(MP), Att  >
        < PPI1   | toKernel(ML),                          Att2 > Cnf } .
