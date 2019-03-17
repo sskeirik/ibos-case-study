@@ -927,8 +927,8 @@ fmod IBOS-SOP-PRED is
   --- fetch msg in queue if and only if loading(true)
   --- Extends to greater state:
   --- fetch msg in state if and only if loading(true)
- ceq p(< WI | loading(B), toKernel(NFL),             A > NWC,WIS,NIS,M?) =
-     p(< WI | loading(B), toKernel(nolist),          A > NWC,WIS,NIS,M?)
+ ceq p(< WI | toKernel(ML @ NFM @ ML2), A > NWC,WIS,NIS,M?) =
+     p(< WI | toKernel(ML @       ML2), A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS) .
 
  ceq p(< WI | loading(true), URL(OUT1), toKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ ML2), A > NWC,WIS,NIS,M?) =
@@ -938,11 +938,20 @@ fmod IBOS-SOP-PRED is
   /\ PI'  ~p network
   /\ OUT1 ~l OUT2 .
 
- ceq p(< WI | URL(OUT1), toKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ ML2), A > NWC,WIS,NIS,M?) = false
-  if pid-in-weblabels?(WI,WIS) and PI ~p WI and PI' ~p network and OUT1 ~l OUT2 = false .
-
- ceq p(< WI | loading(false), toKernel(HFL), A > NWC,WIS,NIS,M?) = false
+ ceq p(< WI | toKernel(mt),     A > NWC,WIS,NIS,M?) =
+     p(< WI | toKernel(nolist), A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS) .
+
+ ceq p(< WI | A > NWC,WIS,NIS,M?) = false
+  if pid-in-weblabels?(WI,WIS) = false .
+
+ ceq p(< WI | URL(OUT1), toKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ ML2), A > NWC,WIS,NIS,M?) = false
+  if OUT1 ~l OUT2 = false .
+
+ ceq p(< WI | toKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT2) @ ML2), A > NWC,WIS,NIS,M?) = false
+  if PI ~p WI and PI' ~p network = false .
+
+  eq p(< WI | loading(false), toKernel(HFL), A > NWC,WIS,NIS,M?) = false .
 
   --- NetProc toKernel queue invariant
   --- If the message type is MSG-RETURN-URL, then:
