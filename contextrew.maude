@@ -147,7 +147,10 @@ fmod CONTEXT-REW is
 
   --- OUT: true iff formula is unsatisfiable
   op cr-unsat : Module QFForm? -> MaybeBool .
-  eq cr-unsat(U,F?) = cr-unsat(U,false,F?) .
+  eq cr-unsat(U,DBG,mtForm) = nobool .
+  eq cr-unsat(U,DBG,tt)     = false .
+  eq cr-unsat(U,DBG,ff)     = true .
+  eq cr-unsat(U,F?)         = cr-unsat(U,false,F?) [owise] .
 
   --- NB: Bool argument is debugging flag
   op cr-unsat : Module Bool QFForm? -> MaybeBool .
