@@ -93,7 +93,7 @@ loop rltl-init .
                  policy(ui,     webapp, MSG-NEW-URL   ),ps
 		 policy(ui,     webapp, MSG-SWITCH-TAB),ps
 		 policy(network,webapp, MSG-RETURN-URL)) > }) |
-   (conf-labels-eqset?(NWC !c,WIS,NIS)) = (true)  /\
+   (conf-labels-eqset?(NWC,WIS,NIS))    = (true)  /\
    (p(NWC,WIS,NIS,MSG?))                = (true)  /\
    (nwp-reqattrs?(NWC !c))              = (true)  /\
    (weblabels-dupl?(WIS))               = (false) /\
