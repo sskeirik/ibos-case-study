@@ -536,8 +536,8 @@ fmod IBOS-SOP-FVP is
   var C : Configuration .
   var At : Attribute .
   var A : AttributeSet .
-  var WP : WebProcId .
-  var NP NP' : NetProcId .
+  var WP : ConcWebProcId .
+  var NP NP' : ConcNetProcId .
   var WIS : WebProcInfoSet .
   var NIS : NetProcInfoSet .
   var IN IN' OUT : Label .
