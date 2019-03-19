@@ -852,6 +852,7 @@ fmod IBOS-SOP-PRED is
   var NRM : NonRetMsg .
   var NFM : NonFetchMsg .
 
+  --- an auxiliary predicate for ui-consistent
   op newurl-nodupl? : Label MessageList -> Bool [metadata "198 false"] .
   eq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-NEW-URL,   L)   @ ML2) = false [variant] .
  ceq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-NEW-URL,   OUT) @ ML2) = true if L ~l OUT = false /\ newurl-nodupl?(L,ML @ ML2) = true .
@@ -860,6 +861,7 @@ fmod IBOS-SOP-PRED is
  ceq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-SWITCH-TAB,OUT) @ ML2) = true if                     newurl-nodupl?(L,ML @ ML2) = true .
   eq newurl-nodupl?(L,mt)                                        = true .
 
+  --- this predicate is needed for prevention of races
   op ui-consistent? : MessageList WebProcInfoSet -> Bool [metadata "199"] .
   --- SWITCH-TAB
  ceq ui-consistent?(ML @ msg(PI,PI',MSG-SWITCH-TAB,OUT) @ ML2,WIS) = ui-consistent?(ML @ ML2,WIS)
@@ -877,6 +879,12 @@ fmod IBOS-SOP-PRED is
   eq ui-consistent?(mt,WIS) = true .
   --- Simplification of WIS
  ceq ui-consistent?(ML,pi(WI,IN),wp WIS) = true if fresh-weblabel?(WI,WIS) /\ ui-consistent?(ML,WIS) .
+
+  --- this predicate is needed for ABC
+  op netlabels-match? : NetProcInfoSet -> Bool [metadata "197"] .
+ ceq netlabels-match?(pi(NI,IN,OUT),np NIS) = netlabels-match?(NIS) if IN ~l OUT .
+ ceq netlabels-match?(pi(NI,IN,OUT),np NIS) = false                 if IN ~l OUT = false .
+  eq netlabels-match?(              mtNPIS) = true .
 
   --- Here, we prove two kinds of invariants:
   --- 1. check that the messages in an object's message queue are
