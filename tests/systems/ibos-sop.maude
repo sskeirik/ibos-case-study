@@ -104,7 +104,8 @@ loop rltl-init .
    (fresh-np-id?(network(NNP),NWC))     = (true)  /\
    (fresh-weblabel?(webapp(NWP),WIS))   = (true)  /\
    (fresh-netlabel?(network(NNP),NIS))  = (true)  /\
-   (ui-consistent?(UIML,WIS))           = (true)
+   (ui-consistent?(UIML,WIS))           = (true)  /\
+   (netlabels-match?(NIS))              = (true)
 .)
 (start-proof .)
 --- set break on .
@@ -130,6 +131,9 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (NI? ~p network) = (true) and (NI? ~p network) = (false) .)
 --- (split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (NI? ~p network) = (true) and (NI? ~p network) = (false) .)
 --- ---
+--- --- --- NB: only needed in 6-b case, so ensure match fails for 6-a
+--- (split ({ < NI | A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
+--- ---
 --- (auto .)
 
 --- pa7
@@ -140,7 +144,7 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (auto .)
 
 --- fetch
---- TODO: check that ceq flipping true to false is sound
+--- --- TODO: check that ceq flipping true to false is sound
 --- (split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (pid-in-weblabels?(WI,WIS)) = (false) and (pid-in-weblabels?(WI,WIS)) = (true) .)
 --- (auto .)
 
@@ -181,6 +185,7 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < WI | A             > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
 --- --- Link metadata pieces
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
+--- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- ---
 --- (auto .)
 
@@ -263,7 +268,8 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- --- Ensure loading? flag is set
 --- (split  ({ < NI | A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (proc-loaded?(WI,C)) = (true) and (proc-loaded?(WI,C)) = (false) .)
 --- --- Link metadata pieces
---- (split  ({ < NI | A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
+--- (split  ({ < NI | A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN  ~l IN2) = (true) and (IN  ~l IN2) = (false) .)
+--- (split  ({ < NI | A > < kernel |                              netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN2 ~l OUT) = (true) and (IN2 ~l OUT) = (false) .)
 --- ---
 --- --- UI case
 --- (cases+ ({ C }) | (ui-consistent?(msg(PP1,GPPI,MT:MsgType,U) @ T,WIS)) = (true) on MT:MsgType by (MSG-FETCH-URL) U (MSG-RETURN-URL) U (MSG-SWITCH-TAB) U (MSG-NEW-URL) .)
