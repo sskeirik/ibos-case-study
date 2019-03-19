@@ -157,8 +157,6 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 
 --- kernelForwardsOpMessage
 --- NOTE: nice way of handling requires extension of partially FVP theory
---- TODO: investiage why final split fails to match any goals
----       and why at that point, only one goal is active
 --- (cases ({ < NWI:ConcNetWebProcId | A  > C }) on NWI:ConcNetWebProcId by (WI) U (NI) .)
 --- --- NetProc Case
 --- --- Split on Message Type
@@ -280,3 +278,5 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- ---
 --- --- Finish
 --- (auto .)
+
+---quit
