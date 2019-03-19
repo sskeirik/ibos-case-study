@@ -532,6 +532,7 @@ fmod IBOS-SOP-FVP is
   pr ATTRIBUTE-FVP-EXT .
 
   var P? : ProcessId .
+  var P : ConcProcId .
   var PP PP' : ConcPipeId .
   var C : Configuration .
   var At : Attribute .
@@ -540,7 +541,7 @@ fmod IBOS-SOP-FVP is
   var NP NP' : ConcNetProcId .
   var WIS : WebProcInfoSet .
   var NIS : NetProcInfoSet .
-  var IN IN' OUT : Label .
+  var IN IN' OUT U R : Label .
 
   --- needs conf-dupl and conf-attr-dupl to work correctly
   op proc-loaded? : MaybePipeId Configuration -> Bool [metadata "133 true"] .
@@ -596,6 +597,12 @@ fmod IBOS-SOP-FVP is
   eq proc-loaded-ind?(ui,                  NIS,             WIS,                          C) = false .
   eq proc-loaded-ind?(A:AbsPipeId,         NIS,             WIS,                          C) = false .
   eq proc-loaded-ind?(none,                NIS,             WIS,                          C) = false .
+
+  op webapp-url-render : ConcWebProcId Configuration -> MaybeLabelPair [metadata "135 L:LabelPair"] .
+  eq webapp-url-render(WP,< WP | URL(U), rendered(R), A > C) = (U,R) [variant] .
+ ceq webapp-url-render(WP,< P  |                      A > C) = webapp-url-render(WP,C) if WP ~p P = false .
+  eq webapp-url-render(WP,                             none) = nopair .
+ ceq webapp-url-render(WP,< WP |                      A > C) = nopair if in-attrset?(URL(about-blank) | A) and in-attrset?(rendered(about-blank) | A) = false /\ webapp-url-render(WP,C) = nopair .
 endfm
 
 fmod ATTRIBUTE-NONFVP-EXT is
