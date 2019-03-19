@@ -802,6 +802,20 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   --- lemmas
  ceq conf-labels-eqset?(C !c C',WIS,NIS) = false if conf-labels-eqset?(C C',WIS,NIS) = false .
  ceq conf-labels-eqset?(C !c C',WIS,NIS) = true  if conf-labels-eqset?(C C',WIS,NIS) = true  .
+
+ op webapp-url-eqset? : Configuration WebProcInfoSet -> Bool [metadata "137"] .
+ ---
+ eq webapp-url-eqset?(< ui  | A > C,WIS) = webapp-url-eqset?(C,WIS) .
+ eq webapp-url-eqset?(< NPP | A > C,WIS) = webapp-url-eqset?(C,WIS) .
+ eq webapp-url-eqset?(< NP  | A > C,WIS) = webapp-url-eqset?(C,WIS) .
+ ---
+ eq webapp-url-eqset?(< WP | URL(L), A > C,(pi(WP,L ),wp WIS)) = webapp-url-eqset?(C,WIS) .
+ eq webapp-url-eqset?(none,                           mtWPIS ) = true .
+ eq webapp-url-eqset?(NC,                             mtWPIS ) = false .
+ eq webapp-url-eqset?(none,                             NWIS ) = false .
+ceq webapp-url-eqset?(< WP | URL(L), A > C,(pi(WP,L'),wp WIS)) = false if L ~l L' = false .
+ceq webapp-url-eqset?(< WP |         A > C,              WIS ) = false if pid-in-weblabels?(WP,WIS) = false .
+ceq webapp-url-eqset?(                   C,(pi(WP,L ),wp WIS)) = false if in-conf?(WP,C) = false .
 endfm
 
 fmod IBOS-SOP-PRED is
