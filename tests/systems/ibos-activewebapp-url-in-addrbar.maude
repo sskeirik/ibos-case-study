@@ -20,6 +20,7 @@ load ../../rltool.maude
 --- NOTE: These are not used anymore for
 ---/\ (in-conf?(W,C))                    = (false)    --- Now process W directly appears in the invariant state
 ---/\ (webapp-url-render?(W,C))          = ((U,RNDR)) --- This made the RNDR variable free, which causes problems, so now it appears in the state
+---/\ (conf-labels-eqset?((C < W | none >) !c,WIS,NIS))           = (true)     --- ensure WIS and C are consistent
 
 
 (select     IBOS-SOP-NOID .)
@@ -30,8 +31,9 @@ load ../../rltool.maude
 --- Sovled rules:
 --- new-url
 --- tab-change
+--- change-display
 
-(select-rls new-url .)
+(select-rls change-display .)
 (declare-vars (C:Configuration) U
               (NWP:Nat) U (NNP:Nat) U (DISP:Label) U (U:Label) U (U':Label) U (RNDR:Label) U (BAR:Label) U (W:ConcWebProcId) U (W':ConcWebProcId) U (A:AttributeSet) U (A':AttributeSet) U (A'':AttributeSet) U
               (NIS:NetProcInfoSet) U (WIS:WebProcInfoSet) U (PS:PolicySet) U (MSG?:Message?) U (B:Bool) U (FK:MessageList) U (TK:MessageList) .)
@@ -51,7 +53,6 @@ load ../../rltool.maude
  /\ (conf-attr-dupl?((C < W | URL(U), rendered(RNDR), A >) !c)) = (false)    --- no duplicate webapp attrs in any webapp
  /\ (fresh-wp-id?(webapp(NWP), < W | none > C))                 = (true)     --- NWP counter is larger than any current webapp id in Configuration
  /\ (fresh-weblabel?(webapp(NWP),WIS))                          = (true)     --- NWP counter is larger than any current webapp id in weblabels()
- /\ (conf-labels-eqset?((C < W | none >) !c,WIS,NIS))           = (true)     --- ensure WIS and C are consistent
  /\ (weblabel-by-pid(W,WIS))                                    = (U)        --- the webapp has a URL
  /\ (weblabels-dupl?(WIS))                                      = (false)    --- no duplicate process ids in weblabels() set
  /\ (DISP blank-or-equal RNDR)                                  = (true)     --- DISP is about-blank or equal to RNDR
@@ -62,7 +63,7 @@ load ../../rltool.maude
 (start-proof .)
 (auto .)
 
---- new-url
+--- new-url, change-display
 (auto .)
 
 --- tab-change
