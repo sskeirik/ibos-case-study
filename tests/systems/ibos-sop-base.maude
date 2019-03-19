@@ -703,24 +703,20 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   op fresh-np-id? : ConcNetProcId Configuration -> Bool [metadata "110"] .
   eq fresh-np-id?(network(N    ), < network(N + M) | A  > C) = false .
   eq fresh-np-id?(network(N + Z), < network(N)     | A  > C) = fresh-np-id?(network(N + Z),C) .
-  eq fresh-np-id?(network(N    ), < network        | A  > C) = fresh-np-id?(network(N),C) .
-  eq fresh-np-id?(network(N    ), < N:NonNetPipeId | A  > C) = fresh-np-id?(network(N),C) .
-  eq fresh-np-id?(network(N    ), < NPP            | A  > C) = fresh-np-id?(network(N),C) .
-  eq fresh-np-id?(network(N    ), none                     ) = true .
-  eq fresh-np-id?(network(M    ), < NP             | NA > C) = fresh-np-id?(network(M), < NP | none > C) .
+  eq fresh-np-id?(NP,             none                     ) = true .
+  eq fresh-np-id?(NP,             < N:NonNetPipeId | A  > C) = fresh-np-id?(NP,C) .
+  eq fresh-np-id?(NP,             < NPP            | A  > C) = fresh-np-id?(NP,C) .
+  eq fresh-np-id?(NP,             < P              | NA > C) = fresh-np-id?(NP, < P | none > C) .
  ceq fresh-np-id?(network(N + 1),                         C) = true if fresh-np-id?(network(N),C) .
-  eq fresh-np-id?(NP,C !c)                                   = fresh-np-id?(NP,C) .
 
   op fresh-wp-id? : ConcWebProcId Configuration -> Bool [metadata "111"] .
   eq fresh-wp-id?(webapp(N    ), < webapp(N + M)  | A  > C) = false .
   eq fresh-wp-id?(webapp(N + Z), < webapp(N)      | A  > C) = fresh-wp-id?(webapp(N + Z),C) .
-  eq fresh-wp-id?(webapp(N    ), < webapp         | A  > C) = fresh-wp-id?(webapp(N),C) .
-  eq fresh-wp-id?(webapp(N    ), < N:NonWebPipeId | A  > C) = fresh-wp-id?(webapp(N),C) .
-  eq fresh-wp-id?(webapp(N    ), < NPP            | A  > C) = fresh-wp-id?(webapp(N),C) .
-  eq fresh-wp-id?(webapp(N    ), none                     ) = true .
-  eq fresh-wp-id?(webapp(M    ), < WP             | NA > C) = fresh-wp-id?(webapp(M), < WP | none > C) .
+  eq fresh-wp-id?(WP,            none                     ) = true .
+  eq fresh-wp-id?(WP,            < N:NonWebPipeId | A  > C) = fresh-wp-id?(WP,C) .
+  eq fresh-wp-id?(WP,            < NPP            | A  > C) = fresh-wp-id?(WP,C) .
+  eq fresh-wp-id?(WP,            < P              | NA > C) = fresh-wp-id?(WP, < P | none > C) .
  ceq fresh-wp-id?(webapp(N + 1),                         C) = true if fresh-wp-id?(webapp(N),C) .
-  eq fresh-wp-id?(WP,C !c)                                  = fresh-wp-id?(WP,C) .
 
   op conf-attr-dupl? : Configuration -> Bool [metadata "112"] .
  ceq conf-attr-dupl?(< P | At, At', A > C) = conf-attr-dupl?(< P | A > C) if At ~a At' = false /\ attr-dupl?(At, A) = false /\ attr-dupl?(At', A) = false .
