@@ -33,8 +33,11 @@ load ../../rltool.maude
 --- tab-change
 --- change-display
 --- fetch
+--- render rule requires we prove an invariant that we already know --- rendered attribute must be either be URL(U) or about-blank
+--- TODO: use strengthening of p() invariant in  < WI  |fromKernel() > case so that p fails if this property doesn't hold
+---       restructure ABC proof to use a state similar to the SOP one so that we can use the p() predicate
 
-(select-rls fetch .)
+(select-rls render .)
 (declare-vars (C:Configuration) U
               (NWP:Nat) U (NNP:Nat) U (DISP:Label) U (U:Label) U (U':Label) U (RNDR:Label) U (BAR:Label) U (W:ConcWebProcId) U (W':ConcWebProcId) U (A:AttributeSet) U (A':AttributeSet) U (A'':AttributeSet) U
               (NIS:NetProcInfoSet) U (WIS:WebProcInfoSet) U (PS:PolicySet) U (MSG?:Message?) U (B:Bool) U (FK:MessageList) U (TK:MessageList) .)
@@ -56,7 +59,7 @@ load ../../rltool.maude
  /\ (fresh-weblabel?(webapp(NWP),WIS))                          = (true)     --- NWP counter is larger than any current webapp id in weblabels()
  /\ (weblabel-by-pid(W,WIS) ~l U)                               = (true)     --- the webapp has a URL
  /\ (weblabels-dupl?(WIS))                                      = (false)    --- no duplicate process ids in weblabels() set
- /\ (DISP blank-or-equal RNDR)                                  = (true)     --- DISP is about-blank or equal to RNDR
+ /\ (DISP blank-or-equal RNDR)                                  = (true)     --- DISP is about-blank or equal to RNDRn
  /\ (U ~l U')                                                   = (true)     ---
  /\ (webapp-url-eqset?(C < W | URL(U) >,WIS))                   = (true)
 .)
@@ -73,6 +76,11 @@ load ../../rltool.maude
 --- (auto .)
 
 --- fetch
+(split ({ < W | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(W,WIS)) = (U) and (weblabel-by-pid(W,WIS)) = (nolabel) .)
+(split ({ < W | A > < W' | A' > C }) by (W ~p W') = (true) and (W ~p W') = (false) .)
+(auto .)
+
+--- render --- similar to fetch rule but more might be required
 (split ({ < W | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(W,WIS)) = (U) and (weblabel-by-pid(W,WIS)) = (nolabel) .)
 (split ({ < W | A > < W' | A' > C }) by (W ~p W') = (true) and (W ~p W') = (false) .)
 (auto .)
