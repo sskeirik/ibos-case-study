@@ -498,11 +498,6 @@ fmod ATTRIBUTE-FVP-EXT is
  ceq in-attrset?(A | A', AS) = false if  A ~a A' = false /\ in-attrset?(A | AS) = false .
   eq in-attrset?(A | none)   = false .
 
-  op val-in-attrset?(_|_) : Attribute AttributeSet -> Bool [metadata "104 true"] .
-  eq val-in-attrset?(A | A,  AS) = true [variant] .
- ceq val-in-attrset?(A | A', AS) = false if A ~a A' = false /\ val-in-attrset?(A | AS) = false .
-  eq val-in-attrset?(A | none  ) = false .
-
   op attr-dupl? : AttributeSet -> Bool [metadata "105 true"] .
   eq attr-dupl?(fromKernel      (X:MaybeMessageList), fromKernel      (Y:MaybeMessageList), AS) = true [variant] .
   eq attr-dupl?(toKernel        (X:MaybeMessageList), toKernel        (Y:MaybeMessageList), AS) = true [variant] .
