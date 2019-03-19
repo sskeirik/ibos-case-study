@@ -875,6 +875,8 @@ fmod IBOS-SOP-PRED is
   eq ui-consistent?(ML @ msg(PI,PI',RetMT,  OUT) @ ML2,WIS) = false .
   eq ui-consistent?(ML @ msg(PI,PI',FetchMT,OUT) @ ML2,WIS) = false .
   eq ui-consistent?(mt,WIS) = true .
+  --- Simplification of WIS
+ ceq ui-consistent?(ML,pi(WI,IN),wp WIS) = true if fresh-weblabel?(WI,WIS) /\ ui-consistent?(ML,WIS) .
 
   --- Here, we prove two kinds of invariants:
   --- 1. check that the messages in an object's message queue are
