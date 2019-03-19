@@ -109,6 +109,17 @@ fmod LABEL-FVP-EXT is
   op outlbl : MaybeLabelPair -> MaybeLabel [metadata "92"] .
   eq outlbl((L1,L2)) = L2      [variant] .
   eq outlbl(nopair)  = nolabel [variant] .
+
+  var L L' : Label .
+  var N : Nat .
+  var P : NzNat .
+
+  op _blank-or-equal_ : Label Label -> Bool [metadata "136"] .
+  eq about-blank blank-or-equal L           = true  [variant] .
+  eq L           blank-or-equal L           = true  [variant] .
+  eq url(N)      blank-or-equal about-blank = false [variant] .
+  eq url(N)      blank-or-equal url(N + P)  = false [variant] .
+  eq url(N + P)  blank-or-equal url(N)      = false [variant] .
 endfm
 
 fmod MSG-FVP-EXT is
