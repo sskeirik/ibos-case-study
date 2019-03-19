@@ -32,8 +32,9 @@ load ../../rltool.maude
 --- new-url
 --- tab-change
 --- change-display
+--- fetch
 
-(select-rls change-display .)
+(select-rls fetch .)
 (declare-vars (C:Configuration) U
               (NWP:Nat) U (NNP:Nat) U (DISP:Label) U (U:Label) U (U':Label) U (RNDR:Label) U (BAR:Label) U (W:ConcWebProcId) U (W':ConcWebProcId) U (A:AttributeSet) U (A':AttributeSet) U (A'':AttributeSet) U
               (NIS:NetProcInfoSet) U (WIS:WebProcInfoSet) U (PS:PolicySet) U (MSG?:Message?) U (B:Bool) U (FK:MessageList) U (TK:MessageList) .)
@@ -53,7 +54,7 @@ load ../../rltool.maude
  /\ (conf-attr-dupl?((C < W | URL(U), rendered(RNDR), A >) !c)) = (false)    --- no duplicate webapp attrs in any webapp
  /\ (fresh-wp-id?(webapp(NWP), < W | none > C))                 = (true)     --- NWP counter is larger than any current webapp id in Configuration
  /\ (fresh-weblabel?(webapp(NWP),WIS))                          = (true)     --- NWP counter is larger than any current webapp id in weblabels()
- /\ (weblabel-by-pid(W,WIS))                                    = (U)        --- the webapp has a URL
+ /\ (weblabel-by-pid(W,WIS) ~l U)                               = (true)     --- the webapp has a URL
  /\ (weblabels-dupl?(WIS))                                      = (false)    --- no duplicate process ids in weblabels() set
  /\ (DISP blank-or-equal RNDR)                                  = (true)     --- DISP is about-blank or equal to RNDR
  /\ (U ~l U')                                                   = (true)     ---
@@ -64,9 +65,14 @@ load ../../rltool.maude
 (auto .)
 
 --- new-url, change-display
-(auto .)
+--- (auto .)
 
 --- tab-change
 --- (split ({ < W | A > < kernel | weblabels(pi(W,U),wp pi(W',U'),wp WIS), A' > C }) by (webapp-url-render(W',C)) = ((U,RNDR)) and (webapp-url-render(W',C)) = (nopair) .)
 --- (split ({ < W | URL(U), A > < display | activeWebapp(W), A' > < kernel | displayedTopBar(U'), A'' > C }) by (U ~l U') = (true) and (U ~l U') = (false) .)
 --- (auto .)
+
+--- fetch
+(split ({ < W | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(W,WIS)) = (U) and (weblabel-by-pid(W,WIS)) = (nolabel) .)
+(split ({ < W | A > < W' | A' > C }) by (W ~p W') = (true) and (W ~p W') = (false) .)
+(auto .)
