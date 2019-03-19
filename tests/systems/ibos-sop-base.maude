@@ -799,9 +799,8 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
  ceq conf-labels-eqset?(< NP | A > C,  WIS,                NIS ) = false if pid-in-netlabels?(NP,NIS) = false .
  ceq conf-labels-eqset?(C,(pi(WP,L),wp WIS),               NIS ) = false if in-conf?(WP,C)            = false .
  ceq conf-labels-eqset?(C,             WIS,(pi(NP,L,L'),np NIS)) = false if in-conf?(NP,C)            = false .
-  --- lemmas
- ceq conf-labels-eqset?(C !c C',WIS,NIS) = false if conf-labels-eqset?(C C',WIS,NIS) = false .
- ceq conf-labels-eqset?(C !c C',WIS,NIS) = true  if conf-labels-eqset?(C C',WIS,NIS) = true  .
+  --- simplification
+  eq conf-labels-eqset?(< P | NA > C,WIS,NIS) = conf-labels-eqset?(< P | none > C,WIS,NIS) .
 
  op webapp-url-eqset? : Configuration WebProcInfoSet -> Bool [metadata "137"] .
  ---
