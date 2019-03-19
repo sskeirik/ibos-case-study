@@ -681,6 +681,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
  ceq proc-loaded?(P,C) = false if in-conf?(P,C) = false .
  ceq in-conf?(NP,C) = false if fresh-np-id?(NP,C) = true .
  ceq in-conf?(WP,C) = false if fresh-wp-id?(WP,C) = true .
+ ceq in-conf?(WP,C) = false if webapp-url-render(WP,C) = nopair .
  ceq in-conf?(P?,< P'  | A' > C) = in-conf?(P?,C) if P? ~p P' = false .
   eq proc-loaded?(P,< NNWP | A > C) = proc-loaded?(P,C) .
  ceq proc-loaded?(P,< P' | A > C) = proc-loaded?(P,C) if P ~p P' = false .
