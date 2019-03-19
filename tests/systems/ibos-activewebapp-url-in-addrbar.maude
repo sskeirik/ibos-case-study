@@ -6,8 +6,9 @@ set show advisories off .
 set print attribute on .
 ---set print with parentheses on .
 
-load ../../rltool-lib.maude
+load ../../rltool.maude
 
+--- activeWebapp's id and URL appear in weblabels(), URL appears in displayedTopBar()
 --- NOTE: this property has expanded to encompass attributes:
 ---       display: activeWebapp, displayedContent
 ---       kernel: displayedTopBar, weblabels
@@ -16,6 +17,9 @@ load ../../rltool-lib.maude
 --- NOTE: due to the changeTab rule requiring synchronization between the weblabels attribute and the state of the system, we either need to:
 ---       [i]  use a recursive (non-FVP) predicate to describe the required relationship (strengthen the invariant + proof subcalculus to reason about it)
 ---       [ii] strengthen the changeTab rule in our specification by strengthening its condition
+--- NOTE: These are not used anymore for
+---/\ (in-conf?(W,C))                    = (false)    --- Now process W directly appears in the invariant state
+---/\ (webapp-url-render?(W,C))          = ((U,RNDR)) --- This made the RNDR variable free, which causes problems, so now it appears in the state
 
 
 (select     IBOS-SOP-NOID .)
@@ -23,37 +27,45 @@ load ../../rltool-lib.maude
 (use tool conrew  for unsatisfiability on IBOS-SOP-PRED-NOID .)
 (use tool varunif for varunif          on IBOS-SOP-FVP-NOID  .)
 
-(select-rls! new-url change-display tab-change stop .)
+--- Sovled rules:
+--- new-url
+--- tab-change
+
+(select-rls new-url .)
 (declare-vars (C:Configuration) U
-              (NWP:Nat) U (NNP:Nat) U (DISP:Label) U (URL:Label) U (RNDR:Label) U (BAR:Label) U (W:ConcWebProcId) U
-              (NIS:NetworkProcInfoSet) U (WIS:WebappProcInfoSet) U (PS:PolicySet) U (MSG:Message) U (B:Bool) U (FK:MessageList) U (TK:MessageList) .)
+              (NWP:Nat) U (NNP:Nat) U (DISP:Label) U (U:Label) U (U':Label) U (RNDR:Label) U (BAR:Label) U (W:ConcWebProcId) U (W':ConcWebProcId) U (A:AttributeSet) U (A':AttributeSet) U (A'':AttributeSet) U
+              (NIS:NetProcInfoSet) U (WIS:WebProcInfoSet) U (PS:PolicySet) U (MSG?:Message?) U (B:Bool) U (FK:MessageList) U (TK:MessageList) .)
 (def-term-set ([C]) | true .)
-(inv to '`[_`] on ({C 
-                    < display   | activeWebapp(W), displayedContent(DISP) > --- activeWebapp() process id refers to process in soup
-                    < webappmgr | nextWAN(NWP) >
-                    < kernel    | handledCurrently(MSG), msgPolicy(PS), networklabels(NIS),
-                                  weblabels(WIS), displayedTopBar(URL), nextNetworkProc(NNP) > })
+(inv abc to '`[_`] on ({C
+                        < W         | URL(U), rendered(RNDR), A >
+                        < display   | activeWebapp(W), displayedContent(DISP) > --- activeWebapp() process id refers to process in soup
+                        < webappmgr | nextWPN(NWP) >
+                        < kernel    | handledCurrently(MSG?), msgPolicy(PS), netlabels(NIS),
+                                      weblabels(WIS), displayedTopBar(U'), nextNPN(NNP)  >
+			}) |
+    (conf-dupl?(C
+                < W         | none >
+                < webappmgr | none >
+                < kernel    | none >
+                < display   | none >))                          = (false)    --- no duplicate process ids in soup
+ /\ (conf-attr-dupl?((C < W | URL(U), rendered(RNDR), A >) !c)) = (false)    --- no duplicate webapp attrs in any webapp
+ /\ (fresh-wp-id?(webapp(NWP), < W | none > C))                 = (true)     --- NWP counter is larger than any current webapp id in Configuration
+ /\ (fresh-weblabel?(webapp(NWP),WIS))                          = (true)     --- NWP counter is larger than any current webapp id in weblabels()
+ /\ (conf-labels-eqset?((C < W | none >) !c,WIS,NIS))           = (true)     --- ensure WIS and C are consistent
+ /\ (weblabel-by-pid(W,WIS))                                    = (U)        --- the webapp has a URL
+ /\ (weblabels-dupl?(WIS))                                      = (false)    --- no duplicate process ids in weblabels() set
+ /\ (DISP blank-or-equal RNDR)                                  = (true)     --- DISP is about-blank or equal to RNDR
+ /\ (U ~l U')                                                   = (true)     ---
+ /\ (webapp-url-eqset?(C < W | URL(U) >,WIS))                   = (true)
+.)
 
-    | --- activeWebapp's id and URL appear in weblabels(), URL appears in displayedTopBar()
-
-       (conf-dupl?(C < webappmgr | none > < kernel | none > < display | none >)) = (true) --- no duplicate process ids in soup
-    /\ (conf-attr-dupl(C !c))               = (true)                                      --- no duplicate webapp attrs in any webapp
-    /\ (fresh-wp-id?(W,C !c))               = (true)                                      --- NWP counter is larger than any current webapp id in Configuration
-    /\ (fresh-weblabel?(W,WIS))             = (true)                                      --- NWP counter is larger than any current webapp id in weblabels()
-    /\ (in-conf?(W,C))                      = (true)                                      --- the webapp id refers to a process
-    /\ (weblabel-by-pid(W,WIS))             = (URL)                                       --- the webapp has a URL
-    /\ (conf-labels-eqset?(NWC !c,WIS,NIS)) = (true)                                      --- ensure WIS and C are consistent
-    /\ (weblabels-dupl?(WIS))               = (false)                                     --- no duplicate process ids in weblabels() set
-
-    ---/\ ((W,URL) inWL C) = (tt)                                                         --- [W,URL] tuple exists in C
-    ---/\ (DISP ~b1 RNDR) = (tt)                                                          --- DISP is about-blank or equal to RNDR
-    ---/\ ((W,URL,RNDR) inWUR C) = (tt)                                                   --- activeWebapp/URL/RNDR all exist in the soup
-    .)
-
-set print attribute on .
-print reveal _&_ .
 (start-proof .)
-(step .)
-(list-goals .)
 (auto .)
-quit
+
+--- new-url
+(auto .)
+
+--- tab-change
+--- (split ({ < W | A > < kernel | weblabels(pi(W,U),wp pi(W',U'),wp WIS), A' > C }) by (webapp-url-render(W',C)) = ((U,RNDR)) and (webapp-url-render(W',C)) = (nopair) .)
+--- (split ({ < W | URL(U), A > < display | activeWebapp(W), A' > < kernel | displayedTopBar(U'), A'' > C }) by (U ~l U') = (true) and (U ~l U') = (false) .)
+--- (auto .)
