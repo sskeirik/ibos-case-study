@@ -648,9 +648,8 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var W N M : Nat .
   var Z     : NzNat .
 
-  var C    : Configuration .
-  var NWC  : NetWebProcConfig .
-  var NNWC : NetWebProcNeConfig .
+  var C C' : Configuration .
+  var NC : NeConfiguration .
 
   var At At' : Attribute .
   var A A'   : AttributeSet .
@@ -780,26 +779,29 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
  ceq pid-in-weblabels?(P?,WIS) = false if (weblabel-by-pid(P?,WIS) ~l nolabel) = true  .
 
   --- Other predicates
-  op conf-labels-eqset? : NetWebProcConfig WebProcInfoSet NetProcInfoSet -> Bool [metadata "127"] .
- ceq conf-labels-eqset?(< WP | A > NWC,WIS,NIS) = conf-labels-eqset?(NWC,WIS,NIS) if pid-in-weblabels?(WP,WIS) .
- ceq conf-labels-eqset?(< NP | A > NWC,WIS,NIS) = conf-labels-eqset?(NWC,WIS,NIS) if pid-in-netlabels?(NP,NIS) .
+  op conf-labels-eqset? : Configuration WebProcInfoSet NetProcInfoSet -> Bool [metadata "127"] .
+  --- throw away useless processes
+  eq conf-labels-eqset?(< ui  | A > C,WIS,NIS) = conf-labels-eqset?(C,WIS,NIS) .
+  eq conf-labels-eqset?(< NPP | A > C,WIS,NIS) = conf-labels-eqset?(C,WIS,NIS) .
+  --- check web/netprocs are compatible
+  eq conf-labels-eqset?(< WP | A > C,(pi(WP,L),wp WIS),                NIS ) = conf-labels-eqset?(C,WIS,NIS) .
+  eq conf-labels-eqset?(< NP | A > C,             WIS, (pi(NP,L,L'),np NIS)) = conf-labels-eqset?(C,WIS,NIS) .
+  --- non-recursive failure modes
   eq conf-labels-eqset?(none,mtWPIS, mtNPIS) = true  .
   eq conf-labels-eqset?(none,NWIS,   NIS   ) = false .
-  eq conf-labels-eqset?(NNWC,mtWPIS, NIS   ) = false .
+  eq conf-labels-eqset?(NC  ,mtWPIS, NIS   ) = false .
   eq conf-labels-eqset?(none,WIS,    NNIS  ) = false .
-  eq conf-labels-eqset?(NNWC,WIS,    mtNPIS) = false .
-  eq conf-labels-eqset?(NWC, mtWPIS, NNIS  ) = false .
-  eq conf-labels-eqset?(NWC, NWIS,   mtNPIS) = false .
-
+  eq conf-labels-eqset?(NC  ,WIS,    mtNPIS) = false .
+  eq conf-labels-eqset?(C,   mtWPIS, NNIS  ) = false .
+  eq conf-labels-eqset?(C,   NWIS,   mtNPIS) = false .
+  --- recursive failure modes
+ ceq conf-labels-eqset?(< WP | A > C,  WIS,                NIS ) = false if pid-in-weblabels?(WP,WIS) = false .
+ ceq conf-labels-eqset?(< NP | A > C,  WIS,                NIS ) = false if pid-in-netlabels?(NP,NIS) = false .
+ ceq conf-labels-eqset?(C,(pi(WP,L),wp WIS),               NIS ) = false if in-conf?(WP,C)            = false .
+ ceq conf-labels-eqset?(C,             WIS,(pi(NP,L,L'),np NIS)) = false if in-conf?(NP,C)            = false .
   --- lemmas
- ceq conf-labels-eqset?(< WP | A > NWC,WIS,NIS) = false if pid-in-weblabels?(WP,WIS) = false .
- ceq conf-labels-eqset?(< NP | A > NWC,WIS,NIS) = false if pid-in-netlabels?(NP,NIS) = false .
-
- ceq conf-labels-eqset?(NWC,(pi(WP,L),wp WIS),NIS)    = false if in-conf?(WP,NWC) = false .
- ceq conf-labels-eqset?(NWC,WIS,(pi(NP,L,L'),np NIS)) = false if in-conf?(NP,NWC) = false .
-
- ceq conf-labels-eqset?(NWC !c,WIS,NIS) = false if conf-labels-eqset?(NWC,WIS,NIS) = false .
- ceq conf-labels-eqset?(NWC !c,WIS,NIS) = true  if conf-labels-eqset?(NWC,WIS,NIS) = true  .
+ ceq conf-labels-eqset?(C !c C',WIS,NIS) = false if conf-labels-eqset?(C C',WIS,NIS) = false .
+ ceq conf-labels-eqset?(C !c C',WIS,NIS) = true  if conf-labels-eqset?(C C',WIS,NIS) = true  .
 endfm
 
 fmod IBOS-SOP-PRED is
