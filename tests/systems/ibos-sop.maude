@@ -100,8 +100,8 @@ loop rltl-init .
    (netlabels-dupl?(NIS))               = (false) /\
    (conf-attr-dupl?(NWC !c))            = (false) /\
    (conf-dupl?(NWC))                    = (false) /\
-   (fresh-wp-id?(webapp(NWP), NWC !c))  = (true)  /\
-   (fresh-np-id?(network(NNP),NWC !c))  = (true)  /\
+   (fresh-wp-id?(webapp(NWP), NWC))     = (true)  /\
+   (fresh-np-id?(network(NNP),NWC))     = (true)  /\
    (fresh-weblabel?(webapp(NWP),WIS))   = (true)  /\
    (fresh-netlabel?(network(NNP),NIS))  = (true)  /\
    (ui-consistent?(UIML,WIS))           = (true)
