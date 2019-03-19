@@ -532,7 +532,7 @@ fmod IBOS-SOP-FVP is
   pr ATTRIBUTE-FVP-EXT .
 
   var P? : ProcessId .
-  var P P' : ConcPipeId .
+  var PP PP' : ConcPipeId .
   var C : Configuration .
   var At : Attribute .
   var A : AttributeSet .
@@ -544,14 +544,14 @@ fmod IBOS-SOP-FVP is
 
   --- needs conf-dupl and conf-attr-dupl to work correctly
   op proc-loaded? : MaybePipeId Configuration -> Bool [metadata "133 true"] .
-  eq proc-loaded?(P,< P  | loading(true),  A > C) = true [variant] .
- ceq proc-loaded?(P,< P  | loading(false), A > C) = false if                                           proc-loaded?(P,< P | A > C) = false .
- ceq proc-loaded?(P,< P  | At,             A > C) = false if loading(true) ~a At            = false /\ proc-loaded?(P,< P | A > C) = false .
- ceq proc-loaded?(P,< P  |                 A > C) = false if in-attrset?(loading(true) | A) = false /\ proc-loaded?(P,          C) = false .
- ceq proc-loaded?(P,< P' |                 A > C) = false if P ~p P' = false                        /\ proc-loaded?(P,          C) = false .
-  eq proc-loaded?(none,                        C) = false .
-  eq proc-loaded?(P,                        none) = false .
-  eq proc-loaded?(A:AbsPipeId,                 C) = false .
+  eq proc-loaded?(PP,< PP  | loading(true),  A > C) = true [variant] .
+ ceq proc-loaded?(PP,< PP  | loading(false), A > C) = false if                                           proc-loaded?(PP,< PP | A > C) = false .
+ ceq proc-loaded?(PP,< PP  | At,             A > C) = false if loading(true) ~a At            = false /\ proc-loaded?(PP,< PP | A > C) = false .
+ ceq proc-loaded?(PP,< PP  |                 A > C) = false if in-attrset?(loading(true) | A) = false /\ proc-loaded?(PP,           C) = false .
+ ceq proc-loaded?(PP,< PP' |                 A > C) = false if PP ~p PP' = false                      /\ proc-loaded?(PP,           C) = false .
+  eq proc-loaded?(none,                          C) = false .
+  eq proc-loaded?(PP,                         none) = false .
+  eq proc-loaded?(A:AbsPipeId,                   C) = false .
 
   op weblabel-by-pid : ProcessId WebProcInfoSet -> MaybeLabel [metadata "121 L:Label"] .
   eq weblabel-by-pid(WP, (pi(WP,IN),wp WIS)) = IN [variant] .
