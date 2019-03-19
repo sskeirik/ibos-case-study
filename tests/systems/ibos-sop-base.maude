@@ -556,7 +556,7 @@ fmod IBOS-SOP-FVP is
 
   op weblabel-by-pid : ProcessId WebProcInfoSet -> MaybeLabel [metadata "121 L:Label"] .
   eq weblabel-by-pid(WP, (pi(WP,IN),wp WIS)) = IN [variant] .
- ceq weblabel-by-pid(P?, (pi(WP,IN),wp WIS)) = nolabel if P? ~p WP = false /\ weblabel-by-pid(P?,WIS) = nolabel .
+ ceq weblabel-by-pid(P?, (pi(WP,IN),wp WIS)) = weblabel-by-pid(P?,WIS) if P? ~p WP = false . --- FIXME: this rule needed to solve problem in ABC proof
   eq weblabel-by-pid(P?, mtWPIS)             = nolabel .
   eq weblabel-by-pid(NP, WIS)                = nolabel .
   eq weblabel-by-pid(ui, WIS)                = nolabel .
