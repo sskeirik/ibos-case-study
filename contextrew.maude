@@ -242,7 +242,7 @@ fmod CONTEXT-REW-BACKEND-IMPL is
       --- FIXME: set output back to false when we are done
       if @ppCNF(true,'tt.Pred,
         crv(get-mod(D) ;
-	    getbackend('validity,'varsat,get-reg(D)) ;
+	    getbackend('varunif,'varunif,get-reg(D)) ;
 	    ModArgs ;
 	    toFModule(getbackend('validity,'conrew,get-reg(D))),F)) == tt then true else nobool fi
       else errb('conrew 'requires 'single 'module 'argument)
