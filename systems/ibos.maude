@@ -513,6 +513,8 @@ mod KERNEL is
   var NNPI1 NNPI2 : NonNetPipeId .
   var NWPI1 NWPI2 : NonWebPipeId .
 
+  var MWI : MaybeConcWebProcId .
+
   **** Page Fault and other invalid messages need not be modeled, as
   **** they are simply dropped in the actual source code, and in the
   **** model they will never be generated.
@@ -770,7 +772,7 @@ mod KERNEL is
            weblabels(pi(WI', L'),wp WPIS),
            Att >
        < display |
-           activeWebapp(WI),
+           activeWebapp(MWI),
            displayedContent(L3),
            Att2 >
        Cnf }
@@ -809,7 +811,7 @@ mod KERNEL is
            weblabels(WPIS),
            Att >
        < display   |
-           activeWebapp(WI),
+           activeWebapp(MWI),
            displayedContent(L'),
            Att2 >
        < webappmgr | nextWPN(N), Att3 > Cnf }
