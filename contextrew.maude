@@ -187,6 +187,7 @@ fmod CONTEXT-REW-SOLVER is
   var RewMod VSMod SimpMod CRMod : Module .
   var D D' : Disj .
   var F : QFForm .
+  var FK : [QFForm] .
   var ND ND' : NegEqDisj? .
   var PD' : PosEqDisj? .
   var NPD : PosEqDisj  .
@@ -211,7 +212,7 @@ fmod CONTEXT-REW-SOLVER is
       simplify(context-rew-simp(CRMod,downTerm(modReduce(SimpMod,
         upTerm(reduce(RewMod,false,
                  extract-clause-sub(RewMod,
-                   vu-clause-simp(VSMod,D))))),error("crv-disj failed"))))) [owise] .
+                   vu-clause-simp(VSMod,D))))),error("cr modreduce failed"))))) [owise] .
 
   op cr-success? : Disj QFForm? -> Disj .
   eq cr-success?(D,tt) = tt                                                       [print "CR-SUCCESS-TO-TRUE: " D] .
@@ -220,6 +221,7 @@ fmod CONTEXT-REW-SOLVER is
  ceq cr-success?(ND \/ NPD,ND' \/ PD') =  tt         if     size(PD') < size(NPD) [print "CR-SUCCESS-SMALLER: " NPD " or " ND " to " PD' " or " ND'] .
  ceq cr-success?(ND \/ NPD,ND' \/ PD') =  ND' \/ PD' if not size(PD') < size(NPD) [print "CR-FAIL-SMALLER: "    NPD " or " ND " to " PD' " or " ND'] .
   eq cr-success?(D,F) = F                                                         [owise print "CR-FAIL-COMPLEX: " D " with " F] .
+ ceq cr-success?(D,FK) = error("cr unknown fail") if not FK :: QFForm             [owise print "CR-ERROR: " FK " from " D] .
 endfm
 
 fmod CONTEXT-REW-BACKEND-IMPL is
