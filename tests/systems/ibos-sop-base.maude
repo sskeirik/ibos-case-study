@@ -879,6 +879,17 @@ fmod IBOS-SOP-PRED is
  ceq netlabels-match?(pi(NI,IN,OUT),np NIS) = false                 if IN ~l OUT = false .
   eq netlabels-match?(              mtNPIS) = true .
 
+  --- this predicate is needed for ABC
+  op render-consistent? : NetWebProcConfig -> Bool [metadata "196"] .
+  eq render-consistent?(< NI | A >                        NWC) = render-consistent?(NWC) .
+ ceq render-consistent?(< WI | URL(OUT), rendered(L), A > NWC) = render-consistent?(NWC) if L blank-or-equal OUT .
+ ceq render-consistent?(< WI | URL(OUT), rendered(L), A > NWC) = false                   if L blank-or-equal OUT = false .
+  eq render-consistent?(none) = true .
+  ---
+  eq render-consistent?(< WI | loading(B),     A > NWC) = render-consistent?(< WI | A > NWC) .
+  eq render-consistent?(< WI | toKernel(ML),   A > NWC) = render-consistent?(< WI | A > NWC) .
+  eq render-consistent?(< WI | fromKernel(ML), A > NWC) = render-consistent?(< WI | A > NWC) .
+
   --- Here, we prove two kinds of invariants:
   --- 1. check that the messages in an object's message queue are
   ---    consistent with our security policy
@@ -1148,9 +1159,4 @@ endfm
 mod IBOS-SOP is
   pr IBOS-SOP-PRED .
   pr IBOS-STOP .
-endm
-
-mod IBOS-ABC is
-  pr IBOS-SOP-PRED .
-  pr IBOS-STOP-EXT .
 endm
