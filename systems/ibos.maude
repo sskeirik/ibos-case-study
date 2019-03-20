@@ -429,9 +429,9 @@ fmod KERNEL-POLICIES-FVP is
   ****
   **** Made into a topmost rule in module KERNEL
   ****
-  op displayedTopBar  : Label      -> Attribute [ctor metadata "77"] . **** kernel-owned address bar - part of the 'secure' UI
-  op activeWebapp     : WebProcId  -> Attribute [ctor metadata "78"] . **** display memory modeled as an object.
-  op displayedContent : Label      -> Attribute [ctor metadata "79"] . **** label of the things being displayed as an attribute of that object
+  op displayedTopBar  : Label               -> Attribute [ctor metadata "77"] . **** kernel-owned address bar - part of the 'secure' UI
+  op activeWebapp     : MaybeConcWebProcId  -> Attribute [ctor metadata "78"] . **** display memory modeled as an object.
+  op displayedContent : Label               -> Attribute [ctor metadata "79"] . **** label of the things being displayed as an attribute of that object
   ****
   **** Once the policy has been checked, further processing is taken care of;
   **** switching the active tab in the UI is done here.
