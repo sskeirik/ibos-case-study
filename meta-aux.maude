@@ -723,6 +723,9 @@ fmod SUBSTITUTIONSET is
    = (S .. S')
      |
      (S ...' SS') .
+
+  op anySub : NeSubstitutionSet -> Substitution .
+  eq anySub(S | SS) = S .
 endfm
 
 fmod SUBSTITUTIONSETPAIR is
