@@ -664,6 +664,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   var NWIS : NeWebProcInfoSet .
   var NNIS : NeNetProcInfoSet .
 
+  var B : Bool .
   var MSGL : MessageList .
   var L L' L1 L2 IN OUT : Label .
 
@@ -809,6 +810,11 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
 ceq webapp-url-eqset?(< WP | URL(L), A > C,(pi(WP,L'),wp WIS)) = false if L ~l L' = false .
 ceq webapp-url-eqset?(< WP |         A > C,              WIS ) = false if pid-in-weblabels?(WP,WIS) = false .
 ceq webapp-url-eqset?(                   C,(pi(WP,L ),wp WIS)) = false if in-conf?(WP,C) = false .
+ ---
+ eq webapp-url-eqset?(< WP | toKernel(MSGL),   A > C,WIS) = webapp-url-eqset?(< WP | A > C,WIS) .
+ eq webapp-url-eqset?(< WP | fromKernel(MSGL), A > C,WIS) = webapp-url-eqset?(< WP | A > C,WIS) .
+ eq webapp-url-eqset?(< WP | rendered(L),      A > C,WIS) = webapp-url-eqset?(< WP | A > C,WIS) .
+ eq webapp-url-eqset?(< WP | loading(B),       A > C,WIS) = webapp-url-eqset?(< WP | A > C,WIS) .
 endfm
 
 fmod IBOS-SOP-PRED is
