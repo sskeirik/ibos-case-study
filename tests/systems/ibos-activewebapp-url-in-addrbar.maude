@@ -8,6 +8,18 @@ set print attribute on .
 
 load ../../rltool.maude
 
+---@ \/
+---@ ({ < ui | toKernel(UIML) >
+---@    < display | activeWebapp(none), displayedContent(about-blank) >
+---@    < nic | in(mtLL), nic-out(mtLS) >
+---@    < webappmgr | nextWPN(NWP) >
+---@    < kernel | weblabels(mtWPIS), netlabels(mtNPIS), displayedTopBar(about-blank), handledCurrently(none), nextNPN(0),
+---@        msgPolicy(policy(webapp, network,MSG-FETCH-URL ),ps
+---@                  policy(ui,     webapp, MSG-NEW-URL   ),ps
+---@ 		 policy(ui,     webapp, MSG-SWITCH-TAB),ps
+---@ 		 policy(network,webapp, MSG-RETURN-URL)) > }) |
+---@    true
+
 --- activeWebapp's id and URL appear in weblabels(), URL appears in displayedTopBar()
 --- NOTE: this property has expanded to encompass attributes:
 ---       display: activeWebapp, displayedContent
@@ -37,38 +49,54 @@ load ../../rltool.maude
 --- TODO: use strengthening of p() invariant in  < WI  |fromKernel() > case so that p fails if this property doesn't hold
 ---       restructure ABC proof to use a state similar to the SOP one so that we can use the p() predicate
 
-(select-rls render .)
-(declare-vars (C:Configuration) U
-              (NWP:Nat) U (NNP:Nat) U (DISP:Label) U (U:Label) U (U':Label) U (RNDR:Label) U (BAR:Label) U (W:ConcWebProcId) U (W':ConcWebProcId) U (A:AttributeSet) U (A':AttributeSet) U (A'':AttributeSet) U
-              (NIS:NetProcInfoSet) U (WIS:WebProcInfoSet) U (PS:PolicySet) U (MSG?:Message?) U (B:Bool) U (FK:MessageList) U (TK:MessageList) .)
-(def-term-set ([C]) | true .)
-(inv abc to '`[_`] on ({C
-                        < W         | URL(U), rendered(RNDR), A >
-                        < display   | activeWebapp(W), displayedContent(DISP) > --- activeWebapp() process id refers to process in soup
-                        < webappmgr | nextWPN(NWP) >
-                        < kernel    | handledCurrently(MSG?), msgPolicy(PS), netlabels(NIS),
-                                      weblabels(WIS), displayedTopBar(U'), nextNPN(NNP)  >
-			}) |
-    (conf-dupl?(C
-                < W         | none >
-                < webappmgr | none >
-                < kernel    | none >
-                < display   | none >))                          = (false)    --- no duplicate process ids in soup
- /\ (conf-attr-dupl?((C < W | URL(U), rendered(RNDR), A >) !c)) = (false)    --- no duplicate webapp attrs in any webapp
- /\ (fresh-wp-id?(webapp(NWP), < W | none > C))                 = (true)     --- NWP counter is larger than any current webapp id in Configuration
- /\ (fresh-weblabel?(webapp(NWP),WIS))                          = (true)     --- NWP counter is larger than any current webapp id in weblabels()
- /\ (weblabel-by-pid(W,WIS) ~l U)                               = (true)     --- the webapp has a URL
- /\ (weblabels-dupl?(WIS))                                      = (false)    --- no duplicate process ids in weblabels() set
- /\ (DISP blank-or-equal RNDR)                                  = (true)     --- DISP is about-blank or equal to RNDRn
- /\ (U ~l U')                                                   = (true)     ---
- /\ (webapp-url-eqset?(C < W | URL(U) >,WIS))                   = (true)
+(select-rls new-url .)
+
+(declare-vars (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
+              (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U
+	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:ConcNetProcId) U (NI?:NetProcId) U
+	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (IN:Label) U (IN2:Label) U (OUT:Label) U
+	      (A:AttributeSet) U (A':AttributeSet) U (MT:MsgType) U (LL:LabelList) U (RNDR:Label) U
+	      (NWI:ConcNetWebProcId) U (WI:ConcWebProcId) U (PP1:ConcPipeId) U (GPPI:PipeId) .)
+(def-term-set ([C:Configuration]) | true .)
+(inv abc to '`[_`] on
+({ NWC
+   < WI | URL(U), rendered(RNDR), A >
+   < ui | toKernel(UIML) >
+   < display | activeWebapp(WI), displayedContent(DISP) >
+   < nic | in(NICIN), nic-out(NICOUT) >
+   < webappmgr | nextWPN(NWP) >
+   < kernel | weblabels(WIS), netlabels(NIS), displayedTopBar(CURR), handledCurrently(MSG?), nextNPN(NNP),
+       msgPolicy(policy(webapp, network,MSG-FETCH-URL ),ps
+                 policy(ui,     webapp, MSG-NEW-URL   ),ps
+		 policy(ui,     webapp, MSG-SWITCH-TAB),ps
+		 policy(network,webapp, MSG-RETURN-URL)) > }) |
+   (p(NWC < WI | URL(U), rendered(RNDR), A >,WIS,NIS,MSG?))       = (true)  /\
+   (nwp-reqattrs?((NWC < WI | URL(U), rendered(RNDR), A >) !c))   = (true)  /\
+   (conf-attr-dupl?((NWC < WI | URL(U), rendered(RNDR), A >) !c)) = (false) /\
+   (conf-labels-eqset?(NWC < WI | none >,WIS,NIS))                = (true)  /\
+   (weblabels-dupl?(WIS))                                         = (false) /\
+   (netlabels-dupl?(NIS))                                         = (false) /\
+   (conf-dupl?(NWC < WI | none >))                                = (false) /\
+   (fresh-wp-id?(webapp(NWP), NWC < WI | none >))                 = (true)  /\
+   (fresh-np-id?(network(NNP),NWC < WI | none >))                 = (true)  /\
+   (fresh-weblabel?(webapp(NWP),WIS))                             = (true)  /\
+   (fresh-netlabel?(network(NNP),NIS))                            = (true)  /\
+   ---
+   (netlabels-match?(NIS))                                        = (true)  /\
+   (webapp-url-eqset?(NWC < WI | URL(U) >,WIS))                   = (true)  /\
+   (weblabel-by-pid(WI,WIS) ~l U)                                 = (true)  /\
+   (DISP blank-or-equal RNDR)                                     = (true)  /\
+   (U ~l CURR)                                                    = (true)
 .)
+
+set print conceal on .
+print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`[_`] . --- _&&_ _|_
 
 (start-proof .)
 (auto .)
 
 --- new-url, change-display
---- (auto .)
+(auto .)
 
 --- tab-change
 --- (split ({ < W | A > < kernel | weblabels(pi(W,U),wp pi(W',U'),wp WIS), A' > C }) by (webapp-url-render(W',C)) = ((U,RNDR)) and (webapp-url-render(W',C)) = (nopair) .)
@@ -76,11 +104,11 @@ load ../../rltool.maude
 --- (auto .)
 
 --- fetch
-(split ({ < W | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(W,WIS)) = (U) and (weblabel-by-pid(W,WIS)) = (nolabel) .)
-(split ({ < W | A > < W' | A' > C }) by (W ~p W') = (true) and (W ~p W') = (false) .)
-(auto .)
+---(split ({ < W | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(W,WIS)) = (U) and (weblabel-by-pid(W,WIS)) = (nolabel) .)
+---(split ({ < W | A > < W' | A' > C }) by (W ~p W') = (true) and (W ~p W') = (false) .)
+---(auto .)
 
 --- render --- similar to fetch rule but more might be required
-(split ({ < W | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(W,WIS)) = (U) and (weblabel-by-pid(W,WIS)) = (nolabel) .)
-(split ({ < W | A > < W' | A' > C }) by (W ~p W') = (true) and (W ~p W') = (false) .)
-(auto .)
+---(split ({ < W | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(W,WIS)) = (U) and (weblabel-by-pid(W,WIS)) = (nolabel) .)
+---(split ({ < W | A > < W' | A' > C }) by (W ~p W') = (true) and (W ~p W') = (false) .)
+---(auto .)
