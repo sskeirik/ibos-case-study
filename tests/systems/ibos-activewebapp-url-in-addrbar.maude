@@ -45,18 +45,20 @@ load ../../rltool.maude
 --- tab-change
 --- change-display
 --- fetch
+
+--- Unsovled rules:
 --- render rule requires we prove an invariant that we already know --- rendered attribute must be either be URL(U) or about-blank
 --- TODO: use strengthening of p() invariant in  < WI  |fromKernel() > case so that p fails if this property doesn't hold
 ---       restructure ABC proof to use a state similar to the SOP one so that we can use the p() predicate
 
-(select-rls new-url .)
+(select-rls fetch .)
 
-(declare-vars (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
+(declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U
 	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:ConcNetProcId) U (NI?:NetProcId) U
-	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (IN:Label) U (IN2:Label) U (OUT:Label) U
-	      (A:AttributeSet) U (A':AttributeSet) U (MT:MsgType) U (LL:LabelList) U (RNDR:Label) U
-	      (NWI:ConcNetWebProcId) U (WI:ConcWebProcId) U (PP1:ConcPipeId) U (GPPI:PipeId) .)
+	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (U':Label) U (IN:Label) U (IN2:Label) U (OUT:Label) U
+	      (A:AttributeSet) U (A':AttributeSet) U (A'':AttributeSet) U (MT:MsgType) U (LL:LabelList) U (RNDR:Label) U
+	      (NWI:ConcNetWebProcId) U (WI:ConcWebProcId) U (WI':ConcWebProcId) U (PP1:ConcPipeId) U (GPPI:PipeId) .)
 (def-term-set ([C:Configuration]) | true .)
 (inv abc to '`[_`] on
 ({ NWC
@@ -96,19 +98,19 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 (auto .)
 
 --- new-url, change-display
-(auto .)
+--- (auto .)
 
 --- tab-change
---- (split ({ < W | A > < kernel | weblabels(pi(W,U),wp pi(W',U'),wp WIS), A' > C }) by (webapp-url-render(W',C)) = ((U,RNDR)) and (webapp-url-render(W',C)) = (nopair) .)
---- (split ({ < W | URL(U), A > < display | activeWebapp(W), A' > < kernel | displayedTopBar(U'), A'' > C }) by (U ~l U') = (true) and (U ~l U') = (false) .)
+--- (split ({ < WI | A > < kernel | weblabels(pi(WI,U),wp pi(WI',U'),wp WIS), A' > C }) by (webapp-url-render(WI',C)) = ((U,RNDR)) and (webapp-url-render(WI',C)) = (nopair) .)
+--- (split ({ < WI | URL(U), A > < display | activeWebapp(WI), A' > < kernel | displayedTopBar(U'), A'' > C }) by (U ~l U') = (true) and (U ~l U') = (false) .)
 --- (auto .)
 
 --- fetch
----(split ({ < W | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(W,WIS)) = (U) and (weblabel-by-pid(W,WIS)) = (nolabel) .)
----(split ({ < W | A > < W' | A' > C }) by (W ~p W') = (true) and (W ~p W') = (false) .)
----(auto .)
+--- (split ({ < WI | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (U) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+--- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
+--- (auto .)
 
 --- render --- similar to fetch rule but more might be required
----(split ({ < W | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(W,WIS)) = (U) and (weblabel-by-pid(W,WIS)) = (nolabel) .)
----(split ({ < W | A > < W' | A' > C }) by (W ~p W') = (true) and (W ~p W') = (false) .)
----(auto .)
+--- (split ({ < W | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(W,WIS)) = (U) and (weblabel-by-pid(W,WIS)) = (nolabel) .)
+--- (split ({ < W | A > < W' | A' > C }) by (W ~p W') = (true) and (W ~p W') = (false) .)
+--- (auto .)
