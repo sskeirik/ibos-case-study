@@ -427,8 +427,8 @@ fmod REACH-PROOF-GOALSET is
 
   op #goalsByMatch1 : Module QFCTerm ProofGoalSet -> [ProofGoalSubstPairSet] .
   eq #goalsByMatch1(U,(T | C),G && GS) =
-    if matches#(U,(T | C),antc(getbody(G))) :: Substitution
-      then (G,matches#(U,(T | C),antc(getbody(G))))
+    if matches#(U,(T | C),antc(getbody(G))) :: NeSubstitutionSet
+      then (G,anySub(matches#(U,(T | C),antc(getbody(G)))))
       else .ProofGoalSubstPairSet
     fi && #goalsByMatch1(U,(T | C),GS) .
   eq #goalsByMatch1(U,(T | C),mt) = .ProofGoalSubstPairSet .
