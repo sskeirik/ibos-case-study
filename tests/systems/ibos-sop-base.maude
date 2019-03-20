@@ -42,24 +42,10 @@ load ../../systems/ibos.maude
 fmod PROC-ID-FVP-EXT is
   pr PROC-ID .
 
-  var P  : ProcessId .
-  var MP : MaybeProcessId .
-
   sort ConcNetWebProcId .
   subsort ConcNetProcId ConcWebProcId < ConcNetWebProcId < ConcPipeId .
   sort NonConcNetWebProcId .
   subsort UIId NonPipeId < NonConcNetWebProcId .
-
-  sort MaybeConcPipeId MaybePipeId MaybeProcessId .
-  subsort PipeId     < MaybePipeId .
-  subsort ConcPipeId < MaybeConcPipeId .
-  subsort ProcessId  < MaybeProcessId .
-  subsort MaybeConcPipeId < MaybePipeId < MaybeProcessId .
-  op none : -> MaybeConcPipeId [ctor metadata "87"] .
-
-  op _~p_ : MaybeProcessId MaybeProcessId -> Bool [ditto metadata "32"] .
-  eq MP   ~p MP = true  [variant] .
-  eq none ~p P  = false [variant] .
 endfm
 
 fmod CONFIGURATION-FVP-EXT is
