@@ -63,6 +63,14 @@ fmod CONFIGURATION-FVP-EXT is
   op __ : NetWebProcConfig   NetWebProcConfig -> NetWebProcConfig   [ctor ditto metadata "36"] .
   op __ : NetWebProcNeConfig NetWebProcConfig -> NetWebProcNeConfig [ctor ditto metadata "36"] .
 
+  sorts SpecialObject SpecialConfig SpecialNeConfig .
+  subsort SpecialObject < Object .
+  subsort SpecialObject < SpecialNeConfig < NeConfiguration SpecialConfig < Configuration .
+  subsort EmptyConfiguration < SpecialConfig .
+  op <_|_> : NonConcNetWebProcId AttributeSet -> SpecialObject [ctor ditto metadata "34"] .
+  op __ : SpecialConfig   SpecialConfig -> SpecialConfig   [ctor ditto metadata "36"] .
+  op __ : SpecialNeConfig SpecialConfig -> SpecialNeConfig [ctor ditto metadata "36"] .
+
   op in-conf? : ProcessId Configuration -> Bool [metadata "108 true"] .
   eq in-conf?(P, < P   | A' > C) = true [variant] .
  ceq in-conf?(P?,< P'  | A' > C) = false if P? ~p P' = false /\ in-conf?(P?,C) = false .
@@ -1140,4 +1148,9 @@ endfm
 mod IBOS-SOP is
   pr IBOS-SOP-PRED .
   pr IBOS-STOP .
+endm
+
+mod IBOS-ABC is
+  pr IBOS-SOP-PRED .
+  pr IBOS-STOP-EXT .
 endm
