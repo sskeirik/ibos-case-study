@@ -108,7 +108,7 @@ fmod LABEL-FVP-EXT is
   var N : Nat .
   var P : NzNat .
 
-  op _blank-or-equal_ : Label Label -> Bool [metadata "136"] .
+  op _blank-or-equal_ : Label Label -> Bool [metadata "94"] .
   eq about-blank blank-or-equal L           = true  [variant] .
   eq L           blank-or-equal L           = true  [variant] .
   eq url(N)      blank-or-equal about-blank = false [variant] .
