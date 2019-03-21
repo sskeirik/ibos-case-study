@@ -49,7 +49,7 @@ load ../../rltool.maude
 
 --- Unsovled rules:
 
-(select-rls render .)
+(select-rls fetch .)
 
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U
@@ -60,7 +60,7 @@ load ../../rltool.maude
 (def-term-set ([C:Configuration]) | true .)
 (inv abc to '`[_`] on
 ({ NWC
-   < WI | URL(U), rendered(RNDR), A >
+   --- < WI | URL(U), rendered(RNDR), A >
    < ui | toKernel(UIML) >
    < display | activeWebapp(WI), displayedContent(DISP) >
    < nic | in(NICIN), nic-out(NICOUT) >
@@ -70,24 +70,25 @@ load ../../rltool.maude
                  policy(ui,     webapp, MSG-NEW-URL   ),ps
 		 policy(ui,     webapp, MSG-SWITCH-TAB),ps
 		 policy(network,webapp, MSG-RETURN-URL)) > }) |
-   (p(NWC < WI | URL(U), rendered(RNDR), A >,WIS,NIS,MSG?))       = (true)  /\
-   (nwp-reqattrs?((NWC < WI | URL(U), rendered(RNDR), A >) !c))   = (true)  /\
-   (conf-attr-dupl?((NWC < WI | URL(U), rendered(RNDR), A >) !c)) = (false) /\
-   (conf-labels-eqset?(NWC < WI | none >,WIS,NIS))                = (true)  /\
+   (p(NWC,WIS,NIS,MSG?))                                          = (true)  /\
+   (nwp-reqattrs?(NWC !c))                                        = (true)  /\
+   (conf-attr-dupl?(NWC !c))                                      = (false) /\
+   (conf-labels-eqset?(NWC,WIS,NIS))                              = (true)  /\
    (weblabels-dupl?(WIS))                                         = (false) /\
    (netlabels-dupl?(NIS))                                         = (false) /\
-   (conf-dupl?(NWC < WI | none >))                                = (false) /\
-   (fresh-wp-id?(webapp(NWP), NWC < WI | none >))                 = (true)  /\
-   (fresh-np-id?(network(NNP),NWC < WI | none >))                 = (true)  /\
+   (conf-dupl?(NWC))                                              = (false) /\
+   (fresh-wp-id?(webapp(NWP), NWC))                               = (true)  /\
+   (fresh-np-id?(network(NNP),NWC))                               = (true)  /\
    (fresh-weblabel?(webapp(NWP),WIS))                             = (true)  /\
    (fresh-netlabel?(network(NNP),NIS))                            = (true)  /\
    ---
    (netlabels-match?(NIS))                                        = (true)  /\
-   (webapp-url-eqset?(NWC < WI | URL(U) >,WIS))                   = (true)  /\
-   (weblabel-by-pid(WI,WIS) ~l U)                                 = (true)  /\
-   (DISP blank-or-equal RNDR)                                     = (true)  /\
-   (U ~l CURR)                                                    = (true)  /\
-   (render-consistent?(NWC < WI | URL(U), rendered(RNDR), A >))   = (true)
+   (webapp-url-eqset?(NWC,WIS))                                   = (true)  /\
+   (weblabel-by-pid(WI,WIS) ~l CURR)                              = (true)  /\
+   (display-topbar-consistent?(WI,DISP,CURR,NWC))                 = (true)  /\
+   (render-consistent?(NWC))                                      = (true)
+   ---@ (DISP blank-or-equal RNDR)                                     = (true)  /\
+   ---@ (U ~l CURR)                                                    = (true)  /\
 .)
 
 set print conceal on .
