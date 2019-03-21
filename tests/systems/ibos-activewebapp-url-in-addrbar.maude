@@ -45,18 +45,16 @@ load ../../rltool.maude
 --- tab-change
 --- change-display
 --- fetch
+--- render
 
 --- Unsovled rules:
---- render rule requires we prove an invariant that we already know --- rendered attribute must be either be URL(U) or about-blank
---- TODO: use strengthening of p() invariant in  < WI  |fromKernel() > case so that p fails if this property doesn't hold
----       restructure ABC proof to use a state similar to the SOP one so that we can use the p() predicate
 
-(select-rls fetch .)
+(select-rls render .)
 
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U
 	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:ConcNetProcId) U (NI?:NetProcId) U
-	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (U':Label) U (IN:Label) U (IN2:Label) U (OUT:Label) U
+	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (U':Label) U (U2:Label) U (IN:Label) U (IN2:Label) U (OUT:Label) U
 	      (A:AttributeSet) U (A':AttributeSet) U (A'':AttributeSet) U (MT:MsgType) U (LL:LabelList) U (RNDR:Label) U
 	      (NWI:ConcNetWebProcId) U (WI:ConcWebProcId) U (WI':ConcWebProcId) U (PP1:ConcPipeId) U (GPPI:PipeId) .)
 (def-term-set ([C:Configuration]) | true .)
@@ -88,7 +86,8 @@ load ../../rltool.maude
    (webapp-url-eqset?(NWC < WI | URL(U) >,WIS))                   = (true)  /\
    (weblabel-by-pid(WI,WIS) ~l U)                                 = (true)  /\
    (DISP blank-or-equal RNDR)                                     = (true)  /\
-   (U ~l CURR)                                                    = (true)
+   (U ~l CURR)                                                    = (true)  /\
+   (render-consistent?(NWC < WI | URL(U), rendered(RNDR), A >))   = (true)
 .)
 
 set print conceal on .
@@ -110,7 +109,31 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- (auto .)
 
---- render --- similar to fetch rule but more might be required
 --- (split ({ < W | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(W,WIS)) = (U) and (weblabel-by-pid(W,WIS)) = (nolabel) .)
 --- (split ({ < W | A > < W' | A' > C }) by (W ~p W') = (true) and (W ~p W') = (false) .)
+--- (auto .)
+
+--- render --- single process
+--- (focus 272 -- 279, 284 -- 291 .)
+--- (split ({ < WI | loading(true), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+--- (split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U) @ F), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
+--- (split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
+--- (split ({ < WI | loading(true), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
+--- (split ({ < WI | loading(true), rendered(U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- (split ({ < kernel | netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN2 ~l OUT) = (true) and (IN2 ~l OUT) = (false) .)
+--- (split ({ C }) | (render-consistent?(< WI | URL(U), rendered(U'), A > NWC)) = (true) by (U' blank-or-equal U) = (true) and (U' blank-or-equal U) = (false) .)
+--- (auto .)
+
+--- render --- multi process
+--- (focus 280 -- 283, 292 -- 295 .)
+--- (split ({ < WI | loading(true),         A > < kernel | weblabels(             WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+--- (split ({ < WI | loading(true), URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
+--- (split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U) @ F), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
+--- (split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
+--- (split ({ < WI | loading(true), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
+--- (split ({ < WI | loading(true), rendered(U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- (split ({ < kernel | netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN2 ~l OUT) = (true) and (IN2 ~l OUT) = (false) .)
+--- (split ({ C }) | (render-consistent?(< WI | URL(U),  rendered(U'), A > < WI' | A' > NWC)) = (true) by (U' blank-or-equal U) = (true) and (U' blank-or-equal U) = (false) .)
+--- (split ({ C }) | (render-consistent?(< WI | URL(U),  rendered(U'), A' >             NWC)) = (true) by (U' blank-or-equal U) = (true) and (U' blank-or-equal U) = (false) .)
+--- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- (auto .)
