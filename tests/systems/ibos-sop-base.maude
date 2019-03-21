@@ -597,6 +597,14 @@ fmod IBOS-SOP-FVP is
  ceq webapp-url-render(WP,< P  |                      A > C) = webapp-url-render(WP,C) if WP ~p P = false .
   eq webapp-url-render(WP,                             none) = nopair .
  ceq webapp-url-render(WP,< WP |                      A > C) = nopair if in-attrset?(URL(about-blank) | A) and in-attrset?(rendered(about-blank) | A) = false /\ webapp-url-render(WP,C) = nopair .
+
+  op display-topbar-consistent? : ConcWebProcId Label Label Configuration -> Bool [metadata "136 true"] .
+  eq display-topbar-consistent?(WP,about-blank,U,< WP |              URL(U), A > C) = true [variant] .
+  eq display-topbar-consistent?(WP,R,U,          < WP | rendered(R), URL(U), A > C) = true [variant] .
+ ceq display-topbar-consistent?(WP,R,U,          < P  |                      A > C) = display-topbar-consistent?(WP,R,U,C) if WP ~p P = false .
+ ceq display-topbar-consistent?(WP,R,U,          < WP |                      A > C) = display-topbar-consistent?(WP,R,U,C) if                             in-attrset?(URL(about-blank)      | A) = false .
+ ceq display-topbar-consistent?(WP,R,U,          < WP |                      A > C) = display-topbar-consistent?(WP,R,U,C) if R ~l about-blank = false /\ in-attrset?(rendered(about-blank) | A) = false .
+  eq display-topbar-consistent?(WP,R,U,                                       none) = false .
 endfm
 
 fmod ATTRIBUTE-NONFVP-EXT is
