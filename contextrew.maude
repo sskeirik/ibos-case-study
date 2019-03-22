@@ -215,11 +215,12 @@ fmod CONTEXT-REW-SOLVER is
                    vu-clause-simp(VSMod,D))))),error("cr modreduce failed"))))) [owise] .
 
   op cr-success? : Disj QFForm? -> Disj .
-  eq cr-success?(D,tt) = tt                                                       [print "CR-SUCCESS-TO-TRUE: " D] .
-  eq cr-success?(D,ff) = tt                                                       [print "CR-FAIL-TO-FALSE: "   D] .
- ceq cr-success?(D,D) = D                            if not D :: TruthAtom        [print "NO-CHANGE: "          D] .
- ceq cr-success?(ND \/ NPD,ND' \/ PD') =  tt         if     size(PD') < size(NPD) [print "CR-SUCCESS-SMALLER: " NPD " or " ND " to " PD' " or " ND'] .
- ceq cr-success?(ND \/ NPD,ND' \/ PD') =  ND' \/ PD' if not size(PD') < size(NPD) [print "CR-FAIL-SMALLER: "    NPD " or " ND " to " PD' " or " ND'] .
+  eq cr-success?(D,tt) = tt                                                       . ---[print "CR-SUCCESS-TO-TRUE: " D] .
+  eq cr-success?(D,ff) = ff                                                       [print "CR-FAIL-TO-FALSE: "   D] .
+ ceq cr-success?(D,D) = D                            if not D :: TruthAtom        . ---[print "NO-CHANGE: "          D] .
+ ceq cr-success?(ND \/ NPD,ND' \/ PD') =  tt         if     size(PD') < size(NPD) . ---[print "CR-SUCCESS-SMALLER: " NPD " or " ND " to " PD' " or " ND'] .
+ ceq cr-success?(ND \/ NPD,ND' \/ PD') =  ND' \/ PD' if PD' =/= NPD and-then not size(PD') < size(NPD) [print "CR-FAIL: "    NPD " to " PD' " with " ND'] .
+  eq cr-success?(ND \/ NPD,ND' \/ NPD) =  ND' \/ NPD [print "CR-FAIL-RHS-UNREDUCED: " NPD] .
   eq cr-success?(D,F) = F                                                         [owise print "CR-FAIL-COMPLEX: " D " with " F] .
  ceq cr-success?(D,FK) = error("cr unknown fail") if not FK :: QFForm             [owise print "CR-ERROR: " FK " from " D] .
 endfm
