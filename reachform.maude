@@ -627,13 +627,14 @@ fmod VAR-UNIF-PARTIAL-FVP is
   var U : Module .
   var EA : EqAtom . var A : Atom .
   var C1 C2 C3 : Conj? .
+  var D1 D2 D3 : Disj? .
   var P1 P2 L R : Term .
   var TPS : TermPairSet .
   var O : OpDecl .
   var OS : OpDeclSet .
   var S S1 S2 S3 : String .
 
-  --- OUT: like filter-conj but excludes certain atoms
+  --- OUT: like filter-conj/disj but excludes certain atoms
   ---      that do not conform to the policy specified by
   ---      metadata in the module
   ---  NB: currently, we only support a policy that specifies
@@ -646,6 +647,14 @@ fmod VAR-UNIF-PARTIAL-FVP is
   eq filterConjByPolicy(U,TPS,EA /\ C1,C2,C3) = if wellFormed(U,EA) and filterPolicy(U,TPS,EA) then filterConjByPolicy(U,TPS,C1,C2 /\ EA,C3) else filterConjByPolicy(U,TPS,C1,C2,C3 /\ EA) fi .
   eq filterConjByPolicy(U,TPS,A  /\ C1,C2,C3) = filterConjByPolicy(U,TPS,C1,C2,C3 /\ A) .
   eq filterConjByPolicy(U,TPS,mtForm,  C2,C3) = (C2,C3) .
+
+  op filterDisjByPolicy : Module Disj? ~> FOFormPair .
+  eq filterDisjByPolicy(U,D1) = filterDisjByPolicy(U,getFilterPolicy(U),D1,mtForm,mtForm) .
+
+  op filterDisjByPolicy : Module TermPairSet Disj? Disj? Disj? ~> FOFormPair .
+  eq filterDisjByPolicy(U,TPS,EA /\ D1,D2,D3) = if wellFormed(U,EA) and filterPolicy(U,TPS,EA) then filterDisjByPolicy(U,TPS,D1,D2 /\ EA,D3) else filterDisjByPolicy(U,TPS,D1,D2,D3 /\ EA) fi .
+  eq filterDisjByPolicy(U,TPS,A  /\ D1,D2,D3) = filterDisjByPolicy(U,TPS,D1,D2,D3 /\ A) .
+  eq filterDisjByPolicy(U,TPS,mtForm,  D2,D3) = (D2,D3) .
 
   op filterPolicy : Module TermPairSet EqAtom -> Bool .
   eq filterPolicy(U,TPS,L ?= R) = filterPolicy(U,TPS,L,R) .
