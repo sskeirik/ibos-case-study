@@ -12,6 +12,7 @@ fmod VAR-UNIF-CLAUSE-SIMPLIFIER is
   pr EQ-VARIANT .             --- provides var-unifiers()
   pr FOFORM-SUBSTITUTIONSET . --- provides _<<_ operator for SubstitutionSets
   pr UNIT-FM .                --- provides noModule
+  pr VAR-UNIF-PARTIAL-FVP .
 
   op vu-clause-simp  : Module Disj? ~> QFForm? .
   op vu-clause-simp2 : Module FOFormPair PosDisj ~> QFForm? .
@@ -21,7 +22,7 @@ fmod VAR-UNIF-CLAUSE-SIMPLIFIER is
   --- INP: Module DisjSet (ClauseSet)
   --- PRE: Module has FVP
   --- OUT: DisjSet' where any FVP part of any clause has been solved
-  eq vu-clause-simp(U,ND \/ PD)    = if U == noModule then ND \/ PD else vu-clause-simp2(U,filter-disj(U,ND,mtForm,mtForm),PD) fi .
+  eq vu-clause-simp(U,ND \/ PD)    = if U == noModule then ND \/ PD else vu-clause-simp2(U,filterDisjByPolicy(U,ND),PD) fi .
   eq vu-clause-simp(U,D1)          = D1 [owise] .
   eq vu-clause-simp2(U,(N1,N2),PD) = if N1 =/= mtForm then vu-clause-simp(U,simplify(disj-join((N2 \/ PD) << var-unifiers(U,toUnifProb(toNNF(~ N1)))))) else N1 \/ N2 \/ PD fi .
 endfm
