@@ -67,7 +67,7 @@ fmod META-SEARCH-EXT is
     if lhs(E1) in (lhs(E2) | rhs(E2)) or-else
        rhs(E1) in (lhs(E2) | rhs(E2))
       then if DBG
-        then getTerm(metaRewrite(rulify-func(setEqs(U,getEqs(U) - E1)),lhs(E1),unbounded)) == $metaNeg(lhs(E2))
+        then getTerm(metaRewrite(rulify-func(setEqs(U,getEqs(U) - E1)),lhs(E1),unbounded)) == $metaNeg(rhs(E1))
 	else metaNormalForm?(rulify-func(U),toEqSetTerm(U,E1),toEqSetTerm(U,E2))
       fi else false
     fi .
