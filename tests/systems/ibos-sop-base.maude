@@ -540,10 +540,10 @@ fmod IBOS-SOP-FVP is
   --- needs conf-dupl and conf-attr-dupl to work correctly
   op proc-loaded? : MaybePipeId Configuration -> Bool [metadata "133 true"] .
   eq proc-loaded?(PP,< PP  | loading(true),  A > C) = true [variant] .
- ceq proc-loaded?(PP,< PP  | loading(false), A > C) = false if                                           proc-loaded?(PP,< PP | A > C) = false .
- ceq proc-loaded?(PP,< PP  | At,             A > C) = false if loading(true) ~a At            = false /\ proc-loaded?(PP,< PP | A > C) = false .
- ceq proc-loaded?(PP,< PP  |                 A > C) = false if in-attrset?(loading(true) | A) = false /\ proc-loaded?(PP,           C) = false .
- ceq proc-loaded?(PP,< PP' |                 A > C) = false if PP ~p PP' = false                      /\ proc-loaded?(PP,           C) = false .
+  eq proc-loaded?(PP,< PP  | loading(false), A > C) = proc-loaded?(PP,< PP | A > C) .
+ ceq proc-loaded?(PP,< PP  | At,             A > C) = proc-loaded?(PP,< PP | A > C) if loading(true) ~a At            = false .
+ ceq proc-loaded?(PP,< PP  |                 A > C) = proc-loaded?(PP,           C) if in-attrset?(loading(true) | A) = false .
+ ceq proc-loaded?(PP,< PP' |                 A > C) = proc-loaded?(PP,           C) if PP ~p PP' = false .
   eq proc-loaded?(none,                          C) = false .
   eq proc-loaded?(PP,                         none) = false .
   eq proc-loaded?(A:AbsPipeId,                   C) = false .
@@ -559,7 +559,7 @@ fmod IBOS-SOP-FVP is
 
   op netlabelpair-by-pid : ProcessId NetProcInfoSet -> MaybeLabelPair [metadata "122 L:LabelPair"] .
   eq netlabelpair-by-pid(NP, (pi(NP,IN,OUT),np NIS)) = (IN,OUT) [variant] .
- ceq netlabelpair-by-pid(P?, (pi(NP,IN,OUT),np NIS)) = nopair if P? ~p NP = false /\ netlabelpair-by-pid(P?,NIS) = nopair .
+ ceq netlabelpair-by-pid(P?, (pi(NP,IN,OUT),np NIS)) = netlabelpair-by-pid(P?,NIS) if P? ~p NP = false .
   eq netlabelpair-by-pid(P?, mtNPIS)                 = nopair .
   eq netlabelpair-by-pid(WP, NIS)                    = nopair .
   eq netlabelpair-by-pid(ui, NIS)                    = nopair .
@@ -576,8 +576,8 @@ fmod IBOS-SOP-FVP is
 
   op lbl-in-weblabels? : Label WebProcInfoSet -> Bool [metadata "119 true"] .
   eq lbl-in-weblabels?(IN,(pi(WP,IN ),wp WIS)) = true [variant] .
- ceq lbl-in-weblabels?(IN,(pi(WP,IN'),wp WIS)) = false if IN ~l IN' = false /\ lbl-in-weblabels?(IN,WIS) = false .
-  eq lbl-in-weblabels?(IN,mtWPIS)             = false .
+ ceq lbl-in-weblabels?(IN,(pi(WP,IN'),wp WIS)) = lbl-in-weblabels?(IN,WIS) if IN ~l IN' = false .
+  eq lbl-in-weblabels?(IN,mtWPIS)              = false .
 
   op proc-loaded-ind? : MaybePipeId NetProcInfoSet WebProcInfoSet Configuration -> Bool [metadata "134 true"] .
   eq proc-loaded-ind?(NP,pi(NP ,IN,OUT),np NIS,pi(WP,IN),wp WIS,< WP | loading(true), A > C) = true  [variant] .
