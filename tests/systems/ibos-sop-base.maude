@@ -579,7 +579,12 @@ fmod IBOS-SOP-FVP is
  ceq lbl-in-weblabels?(IN,(pi(WP,IN'),wp WIS)) = lbl-in-weblabels?(IN,WIS) if IN ~l IN' = false .
   eq lbl-in-weblabels?(IN,mtWPIS)              = false .
 
-  op proc-loaded-ind? : MaybePipeId NetProcInfoSet WebProcInfoSet Configuration -> Bool [metadata "134 true"] .
+  op np-by-inlbl? : Label NetProcInfoSet -> Bool [metadata "134 true"] .
+  eq np-by-inlbl?(IN,pi(NP,IN, OUT),np NIS) = true [variant] .
+ ceq np-by-inlbl?(IN,pi(NP,IN',OUT),np NIS) = np-by-inlbl?(IN,NIS) if IN ~l IN' = false .
+  eq np-by-inlbl?(IN,               mtNPIS) = false .
+
+  op proc-loaded-ind? : MaybePipeId NetProcInfoSet WebProcInfoSet Configuration -> Bool [metadata "135 true"] .
   eq proc-loaded-ind?(NP,pi(NP ,IN,OUT),np NIS,pi(WP,IN),wp WIS,< WP | loading(true), A > C) = true  [variant] .
  ceq proc-loaded-ind?(NP,pi(NP ,IN,OUT),np NIS,pi(WP,IN),wp WIS,                          C) = false if proc-loaded?(WP,C)          = false /\ proc-loaded-ind?(NP,NIS,WIS,C) = false .
  ceq proc-loaded-ind?(NP,pi(NP',IN,OUT),np NIS,             WIS,                          C) = false if NP ~p NP'                   = false /\ proc-loaded-ind?(NP,NIS,WIS,C) = false .
@@ -592,13 +597,13 @@ fmod IBOS-SOP-FVP is
   eq proc-loaded-ind?(A:AbsPipeId,         NIS,             WIS,                          C) = false .
   eq proc-loaded-ind?(none,                NIS,             WIS,                          C) = false .
 
-  op webapp-url-render : ConcWebProcId Configuration -> MaybeLabelPair [metadata "135 L:LabelPair"] .
+  op webapp-url-render : ConcWebProcId Configuration -> MaybeLabelPair [metadata "136 L:LabelPair"] .
   eq webapp-url-render(WP,< WP | URL(U), rendered(R), A > C) = (U,R) [variant] .
  ceq webapp-url-render(WP,< P  |                      A > C) = webapp-url-render(WP,C) if WP ~p P = false .
   eq webapp-url-render(WP,                             none) = nopair .
  ceq webapp-url-render(WP,< WP |                      A > C) = nopair if in-attrset?(URL(about-blank) | A) and in-attrset?(rendered(about-blank) | A) = false /\ webapp-url-render(WP,C) = nopair .
 
-  op display-topbar-consistent? : ConcWebProcId Label Label Configuration -> Bool [metadata "136 true"] .
+  op display-topbar-consistent? : ConcWebProcId Label Label Configuration -> Bool [metadata "137 true"] .
   eq display-topbar-consistent?(WP,about-blank,U,< WP |              URL(U), A > C) = true [variant] .
   eq display-topbar-consistent?(WP,R,U,          < WP | rendered(R), URL(U), A > C) = true [variant] .
  ceq display-topbar-consistent?(WP,R,U,          < P  |                      A > C) = display-topbar-consistent?(WP,R,U,C) if WP ~p P = false .
@@ -805,7 +810,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   --- simplification
   eq conf-labels-eqset?(< P | NA > C,WIS,NIS) = conf-labels-eqset?(< P | none > C,WIS,NIS) .
 
- op webapp-url-eqset? : Configuration WebProcInfoSet -> Bool [metadata "137"] .
+ op webapp-url-eqset? : Configuration WebProcInfoSet -> Bool [metadata "138"] .
  ---
  eq webapp-url-eqset?(< ui  | A > C,WIS) = webapp-url-eqset?(C,WIS) .
  eq webapp-url-eqset?(< NPP | A > C,WIS) = webapp-url-eqset?(C,WIS) .
