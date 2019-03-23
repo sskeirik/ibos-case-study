@@ -47,9 +47,9 @@ load ../../rltool.maude
 --- fetch
 --- render
 --- proc-in
+--- request-from-webapp
 
 --- Unsovled rules:
---- request-from-webapp
 --- proc-out
 
 (select-rls request-from-webapp .)
@@ -142,13 +142,23 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- (auto .)
 
---- TODO: request-from-webapp
---- (split ({ < NI | A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
---- (split ({ < NI | returnTo(PP1), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(PP1,WIS)) = (IN) and (weblabel-by-pid(PP1,WIS)) = (nolabel) .)
---- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
---- (split ({ < kernel | netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN2 ~l OUT) = (true) and (IN2 ~l OUT) = (false) .)
+--- request-from-webapp
+--- --- netproc only occurs in netlabels once
+--- (split ({ < NI | A > < kernel | netlabels(                 NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN , OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
+--- (split ({ < NI | A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN2,OUT2)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
+--- --- outgoing matches netproc out
 --- (split ({ < NI | out(LL ; U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- --- netproc labels match
+--- (split ({ < kernel | netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN2 ~l OUT) = (true) and (IN2 ~l OUT) = (false) .)
+--- --- only one copy of webproc in weblabels
+--- (split ({ < NI | returnTo(PP1), A > < kernel | weblabels(WIS),              A' > C }) by (weblabel-by-pid(PP1,WIS)) = (IN)  and (weblabel-by-pid(PP1,WIS)) = (nolabel) .)
+--- (split ({ < NI | returnTo(WI),  A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (weblabel-by-pid(WI, WIS)) = (IN2) and (weblabel-by-pid(WI, WIS)) = (nolabel) .)
+--- --- netproc and webproc ids match
+--- (split ({ < NI | returnTo(WI),  A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
+--- --- the webproc is loaded
 --- (split ({ < NI | returnTo(PP1), A > C }) by (proc-loaded?(PP1,C)) = (true) and (proc-loaded?(PP1,C)) = (false) .)
+--- --- the webprocs are not equal
+--- (split ({ < kernel | weblabels(pi(WI,IN),wp pi(WI',IN2),wp WIS), A > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- (auto .)
 
 --- proc-in
