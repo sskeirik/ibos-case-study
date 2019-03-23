@@ -749,7 +749,7 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq conf-attr-dupl?(none)                 = false .
 
   op nwp-reqattrs? : NetWebProcConfig -> Bool [metadata "114"] .
-  eq nwp-reqattrs?(< NP | toKernel(TK:MessageList), fromKernel(FK:MessageList), returnTo(P:ConcPipeId), mem-in(M1:MaybeLabel), mem-out(M2:MaybeLabel), A > C)
+  eq nwp-reqattrs?(< NP | toKernel(TK:MessageList), fromKernel(FK:MessageList), returnTo(P:MaybeConcPipeId), mem-in(M1:MaybeLabel), mem-out(M2:MaybeLabel), A > C)
    = nwp-reqattrs?(C) .
   eq nwp-reqattrs?(< WP | toKernel(TK:MessageList), fromKernel(FK:MessageList), URL(L1:Label), rendered(L2:MaybeLabel), loading(B:Bool), A > C)
    = nwp-reqattrs?(C) .
