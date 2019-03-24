@@ -54,11 +54,11 @@ load ../../rltool.maude
 --- nic1
 --- pa6-a/b
 --- pa7
---- pa9
+--- pa8
+--- pa9 --- TODO: show solveable with lemma
 
 --- Unsovled rules:
 --- msg-to-kernel
---- pa8
 
 (select-rls kernelReceivesOPMessage-pa9 .)
 
@@ -92,6 +92,8 @@ load ../../rltool.maude
    (fresh-np-id?(network(NNP),NWC))                               = (true)  /\
    (fresh-weblabel?(webapp(NWP),WIS))                             = (true)  /\
    (fresh-netlabel?(network(NNP),NIS))                            = (true)  /\
+   --- TODO: uncomment when solving pa9, fully double-check everything goes through later (I'm certain it will)
+   --- (ui-consistent?(UIML,WIS))                                     = (true)  /\
    ---
    (netlabels-match?(NIS))                                        = (true)  /\
    (webapp-url-eqset?(NWC,WIS))                                   = (true)  /\
@@ -220,11 +222,10 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < kernel | handledCurrently(msg(NI,WI,MSG-RETURN-URL,U)), A > C }) by (proc-loaded?(WI,C)) = (true) and (proc-loaded?(WI,C)) = (false) .)
 --- (auto .)
 
---- TODO: pa8
---- (split ({ < kernel | handledCurrently(msg(ui,WI,MSG-SWITCH-TAB,OUT)), weblabels(WIS),              A > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
---- (split ({ < kernel | handledCurrently(msg(ui,WI,MSG-SWITCH-TAB,OUT)), weblabels(pi(WI,IN),wp WIS), A > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+--- pa8
+--- (split ({ < kernel | handledCurrently(msg(ui,WI,MSG-SWITCH-TAB,OUT)), weblabels(WIS), A > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
 --- (auto .)
 
---- kernelReceivesOPMessage-pa9
---- (split ({ < ui | toKernel(T), A > < kernel | handledCurrently(msg(ui,webapp,MSG-NEW-URL,OUT)), weblabels(WIS), A' > C}) by (newurl-nodupl?(OUT,T)) = (true) and (newurl-nodupl?(OUT,T)) = (false) .)
+--- pa9 TODO: show solveable with lemma
+--- (split ({ < ui | toKernel(T), A > < kernel | handledCurrently(msg(ui,webapp,MSG-NEW-URL,OUT)), A' > C}) by (newurl-nodupl?(OUT,T)) = (true) and (newurl-nodupl?(OUT,T)) = (false) .)
 --- (auto .)
