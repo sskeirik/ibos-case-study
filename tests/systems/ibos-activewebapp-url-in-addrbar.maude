@@ -53,11 +53,13 @@ load ../../rltool.maude
 --- mem-in
 --- nic1
 --- pa6-a/b
+--- pa7
 
 --- Unsovled rules:
 --- msg-to-kernel
+--- pa8
 
-(select-rls kernelReceivesOPMessage-pa6-b .)
+(select-rls kernelReceivesOPMessage-pa7 .)
 
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U
@@ -208,3 +210,13 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < NI | A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- ---
 --- (auto .)
+
+--- pa7
+--- (split ({ C }) | (true) = (p(< NI | toKernel(msg(PP1,WI,MSG-RETURN-URL,U) @ T), A > NWC,WIS,NIS,none)) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
+--- (split ({ C }) | (true) = (p(< NI | toKernel(msg(PP1,WI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,none)) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
+--- (split ({ < kernel | handledCurrently(msg(NI,WI,MSG-RETURN-URL,U)), netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- (split ({ < kernel | handledCurrently(msg(NI,WI,MSG-RETURN-URL,U)), netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
+--- (split ({ < kernel | handledCurrently(msg(NI,WI,MSG-RETURN-URL,U)), A > C }) by (proc-loaded?(WI,C)) = (true) and (proc-loaded?(WI,C)) = (false) .)
+--- (auto .)
+
+--- TODO: pa8
