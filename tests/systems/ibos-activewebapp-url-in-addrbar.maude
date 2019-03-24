@@ -54,12 +54,13 @@ load ../../rltool.maude
 --- nic1
 --- pa6-a/b
 --- pa7
+--- pa9
 
 --- Unsovled rules:
 --- msg-to-kernel
 --- pa8
 
-(select-rls kernelReceivesOPMessage-pa7 .)
+(select-rls kernelReceivesOPMessage-pa9 .)
 
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U
@@ -220,3 +221,10 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (auto .)
 
 --- TODO: pa8
+--- (split ({ < kernel | handledCurrently(msg(ui,WI,MSG-SWITCH-TAB,OUT)), weblabels(WIS),              A > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+--- (split ({ < kernel | handledCurrently(msg(ui,WI,MSG-SWITCH-TAB,OUT)), weblabels(pi(WI,IN),wp WIS), A > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+--- (auto .)
+
+--- kernelReceivesOPMessage-pa9
+--- (split ({ < ui | toKernel(T), A > < kernel | handledCurrently(msg(ui,webapp,MSG-NEW-URL,OUT)), weblabels(WIS), A' > C}) by (newurl-nodupl?(OUT,T)) = (true) and (newurl-nodupl?(OUT,T)) = (false) .)
+--- (auto .)
