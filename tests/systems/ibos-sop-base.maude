@@ -528,25 +528,17 @@ fmod IBOS-SOP-FVP is
   var P? : ProcessId .
   var P : ConcProcId .
   var PP PP' : ConcPipeId .
+  var PP? PP'? : MaybePipeId .
+  var AP : AbsPipeId .
   var C : Configuration .
   var At : Attribute .
   var A : AttributeSet .
   var WP : ConcWebProcId .
   var NP NP' : ConcNetProcId .
+  var NNWP : NonConcNetWebProcId .
   var WIS : WebProcInfoSet .
   var NIS : NetProcInfoSet .
   var IN IN' OUT U R : Label .
-
-  --- needs conf-dupl and conf-attr-dupl to work correctly
-  op proc-loaded? : MaybePipeId Configuration -> Bool [metadata "133 true"] .
-  eq proc-loaded?(PP,< PP  | loading(true),  A > C) = true [variant] .
-  eq proc-loaded?(PP,< PP' | loading(false), A > C) = proc-loaded?(PP,< PP' | A > C) .
- ceq proc-loaded?(PP,< PP' | At,             A > C) = proc-loaded?(PP,< PP' | A > C) if loading(true) ~a At            = false .
- ceq proc-loaded?(PP,< PP' |                 A > C) = proc-loaded?(PP,            C) if in-attrset?(loading(true) | A) = false .
- ceq proc-loaded?(PP,< PP' |                 A > C) = proc-loaded?(PP,            C) if PP ~p PP' = false .
-  eq proc-loaded?(none,                          C) = false .
-  eq proc-loaded?(PP,                         none) = false .
-  eq proc-loaded?(A:AbsPipeId,                   C) = false .
 
   op weblabel-by-pid : ProcessId WebProcInfoSet -> MaybeLabel [metadata "121 L:Label"] .
   eq weblabel-by-pid(WP, (pi(WP,IN),wp WIS)) = IN [variant] .
@@ -584,33 +576,51 @@ fmod IBOS-SOP-FVP is
  ceq np-by-inlbl?(IN,pi(NP,IN',OUT),np NIS) = np-by-inlbl?(IN,NIS) if IN ~l IN' = false .
   eq np-by-inlbl?(IN,               mtNPIS) = false .
 
-  op proc-loaded-ind? : MaybePipeId NetProcInfoSet WebProcInfoSet Configuration -> Bool [metadata "135 true"] .
-  eq proc-loaded-ind?(NP,pi(NP ,IN,OUT),np NIS,pi(WP,IN),wp WIS,< WP | loading(true), A > C) = true  [variant] .
+  --- NOTE: conf-dupl and conf-attr-dupl needed for correctness
+  op proc-loaded? : MaybePipeId Configuration -> Bool [metadata "133 true"] .
+  eq proc-loaded?(PP,< PP   | loading(true),  A > C) = true [variant] .
+  --- discared attributes
+  eq proc-loaded?(PP,< PP'  | loading(false), A > C) = proc-loaded?(PP,< PP' | A > C) .
+ ceq proc-loaded?(PP,< PP'  | At,             A > C) = proc-loaded?(PP,< PP' | A > C) if loading(true) ~a At            = false .
+  --- discard processes
+ ceq proc-loaded?(PP,< PP'  |                 A > C) = proc-loaded?(PP,            C) if in-attrset?(loading(true) | A) = false .
+ ceq proc-loaded?(PP,< PP'  |                 A > C) = proc-loaded?(PP,            C) if PP ~p PP' = false .
+  eq proc-loaded?(PP,< NNWP |                 A > C) = proc-loaded?(PP,            C) .
+  --- falsification conditions
+ ceq proc-loaded?(PP,                            C) = false if in-conf?(PP,C) = false .
+  eq proc-loaded?(none,                          C) = false .
+  eq proc-loaded?(PP,                         none) = false .
+  eq proc-loaded?(AP,                            C) = false .
+
+  --- NOTE: the second argument is an optional WebProcId --- if included, the loaded proc must be that one
+  op proc-loaded-ind? : MaybePipeId MaybePipeId NetProcInfoSet WebProcInfoSet Configuration -> Bool [metadata "135 true"] .
+  eq proc-loaded-ind?(NP, none,pi(NP,IN,OUT),np NIS,pi(WP,IN),wp WIS,< WP   | loading(true),  A > C) = true  [variant] .
+  eq proc-loaded-ind?(NP, WP,  pi(NP,IN,OUT),np NIS,pi(WP,IN),wp WIS,< WP   | loading(true),  A > C) = true  [variant] .
   --- discard Attributes
- ceq proc-loaded-ind?(NP,                  NIS,             WIS,< WP | At,            A > C) = proc-loaded-ind?(NP,NIS,WIS,< WP | A > C) if loading(true) ~a At = false .
+ ceq proc-loaded-ind?(PP?,PP'?,                 NIS,             WIS,< WP   | At,             A > C) = proc-loaded-ind?(PP?,PP'?,NIS,WIS,< WP | A > C) if loading(true) ~a At = false .
+  eq proc-loaded-ind?(PP?,PP'?,                 NIS,             WIS,< WP   | loading(false), A > C) = proc-loaded-ind?(PP?,PP'?,NIS,WIS,< WP | A > C) .
   --- discard Processes
- ceq proc-loaded-ind?(NP,                  NIS,             WIS,< WP |                A > C) = proc-loaded-ind?(NP,NIS,WIS,C) if proc-loaded?(WP,< WP | A >) = false .
- ceq proc-loaded-ind?(NP,                  NIS,             WIS,< WP |                A > C) = proc-loaded-ind?(NP,NIS,WIS,C) if weblabel-by-pid(WP,WIS)     = nolabel .
-  eq proc-loaded-ind?(NP,                  NIS,             WIS,< NP |                A > C) = proc-loaded-ind?(NP,NIS,WIS,C) .
-  eq proc-loaded-ind?(NP,                  NIS,             WIS,< ui |                A > C) = proc-loaded-ind?(NP,NIS,WIS,C) .
-  eq proc-loaded-ind?(NP,                  NIS,             WIS,< N:NonPipeId |       A > C) = proc-loaded-ind?(NP,NIS,WIS,C) .
+ ceq proc-loaded-ind?(PP?,PP'?,                 NIS,             WIS,< WP   |                 A > C) = proc-loaded-ind?(PP?,PP'?,NIS,WIS,C) if proc-loaded?(WP,< WP | A >) = false .
+ ceq proc-loaded-ind?(PP?,PP'?,                 NIS,             WIS,< WP   |                 A > C) = proc-loaded-ind?(PP?,PP'?,NIS,WIS,C) if weblabel-by-pid(WP,WIS)     = nolabel .
+  eq proc-loaded-ind?(PP?,PP'?,                 NIS,             WIS,< NP   |                 A > C) = proc-loaded-ind?(PP?,PP'?,NIS,WIS,C) .
+  eq proc-loaded-ind?(PP?,PP'?,                 NIS,             WIS,< NNWP |                 A > C) = proc-loaded-ind?(PP?,PP'?,NIS,WIS,C) .
   --- discard WebProcInfo
- ceq proc-loaded-ind?(NP,                  NIS,pi(WP,IN),wp WIS,                          C) = proc-loaded-ind?(NP,NIS,WIS,C) if np-by-inlbl?(IN,NIS)      = false .
- ceq proc-loaded-ind?(NP,                  NIS,pi(WP,IN),wp WIS,                          C) = proc-loaded-ind?(NP,NIS,WIS,C) if in-conf?(WP,C)            = false .
+ ceq proc-loaded-ind?(PP?,PP'?,                 NIS,pi(WP,IN),wp WIS,                             C) = proc-loaded-ind?(PP?,PP'?,NIS,WIS,C) if np-by-inlbl?(IN,NIS)      = false .
+ ceq proc-loaded-ind?(PP?,PP'?,                 NIS,pi(WP,IN),wp WIS,                             C) = proc-loaded-ind?(PP?,PP'?,NIS,WIS,C) if in-conf?(WP,C)            = false .
   --- discard NetProcInfo
- ceq proc-loaded-ind?(NP,pi(NP',IN,OUT),np NIS,             WIS,                          C) = proc-loaded-ind?(NP,NIS,WIS,C) if NP ~p NP'                 = false .
- ceq proc-loaded-ind?(NP,pi(NP ,IN,OUT),np NIS,             WIS,                          C) = proc-loaded-ind?(NP,NIS,WIS,C) if lbl-in-weblabels?(IN,WIS) = false .
+ ceq proc-loaded-ind?(PP?,PP'?,pi(NP,IN,OUT),np NIS,             WIS,                             C) = proc-loaded-ind?(PP?,PP'?,NIS,WIS,C) if PP? ~p NP                 = false .
+ ceq proc-loaded-ind?(PP?,PP'?,pi(NP,IN,OUT),np NIS,             WIS,                             C) = proc-loaded-ind?(PP?,PP'?,NIS,WIS,C) if lbl-in-weblabels?(IN,WIS) = false .
   --- generic falsification condition
- ceq proc-loaded-ind?(NP,                  NIS,             WIS,                          C) = false if netlabelpair-by-pid(NP,NIS) = nopair .
+ ceq proc-loaded-ind?(PP?,PP'?,                 NIS,             WIS,                             C) = false if netlabelpair-by-pid(PP?,NIS) = nopair .
   --- concrete falsification conditions for emptiness
-  eq proc-loaded-ind?(NP,               mtNPIS,             WIS,                          C) = false .
-  eq proc-loaded-ind?(NP,                  NIS,          mtWPIS,                          C) = false .
-  eq proc-loaded-ind?(NP,                  NIS,             WIS,                       none) = false .
+  eq proc-loaded-ind?(PP?,PP'?,              mtNPIS,             WIS,                             C) = false .
+  eq proc-loaded-ind?(PP?,PP'?,                 NIS,          mtWPIS,                             C) = false .
+  eq proc-loaded-ind?(PP?,PP'?,                 NIS,             WIS,                          none) = false .
   --- concrete falsification conditions by process id
-  eq proc-loaded-ind?(WP,                  NIS,             WIS,                          C) = false .
-  eq proc-loaded-ind?(ui,                  NIS,             WIS,                          C) = false .
-  eq proc-loaded-ind?(A:AbsPipeId,         NIS,             WIS,                          C) = false .
-  eq proc-loaded-ind?(none,                NIS,             WIS,                          C) = false .
+  eq proc-loaded-ind?(WP,PP'?,                  NIS,             WIS,                             C) = false .
+  eq proc-loaded-ind?(ui,PP'?,                  NIS,             WIS,                             C) = false .
+  eq proc-loaded-ind?(AP,PP'?,                  NIS,             WIS,                             C) = false .
+  eq proc-loaded-ind?(none,PP'?,                NIS,             WIS,                             C) = false .
 
   op webapp-url-render : ConcWebProcId Configuration -> MaybeLabelPair [metadata "136 L:LabelPair"] .
   eq webapp-url-render(WP,< WP | URL(U), rendered(R), A > C) = (U,R) [variant] .
@@ -700,14 +710,10 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   eq attr-dupl?((A !a), A') = attr-dupl?(A, A') .
   eq in-attrset?(At | (A !a), A') = in-attrset?(At | A, A') .
  ceq in-attrset?(At | At', A) = in-attrset?(At | A) if At ~a At' = false .
- ceq proc-loaded?(P,C) = false if in-conf?(P,C) = false .
  ceq in-conf?(NP,C) = false if fresh-np-id?(NP,C) = true .
  ceq in-conf?(WP,C) = false if fresh-wp-id?(WP,C) = true .
  ceq in-conf?(WP,C) = false if webapp-url-render(WP,C) = nopair .
  ceq in-conf?(P?,< P'  | A' > C) = in-conf?(P?,C) if P? ~p P' = false .
-  eq proc-loaded?(P,< NNWP | A > C) = proc-loaded?(P,C) .
- ceq proc-loaded?(P,< P' | A > C) = proc-loaded?(P,C) if P ~p P' = false .
-  eq proc-loaded-ind?(NP,NIS,WIS,< NNWP | A > C) = proc-loaded-ind?(NP,NIS,WIS,C) .
  ceq weblabel-by-pid(WP,WIS) = nolabel if fresh-weblabel?(WP,WIS) .
  ceq netlabelpair-by-pid(NP,NIS) = nopair if fresh-netlabel?(NP,NIS) .
 
@@ -947,7 +953,10 @@ fmod IBOS-SOP-PRED is
 
   --- Invariant: any WebProc corresponding to a NetProc must be loaded
  ceq p(< NI | A > NWC,WIS,NIS,M?) = false
-  if proc-loaded-ind?(NI,NIS,WIS,NWC) = false .
+  if proc-loaded-ind?(NI,none,NIS,WIS,NWC) = false .
+
+ ceq p(< NI | returnTo(CPI), A > NWC,WIS,NIS,M?) = false
+  if proc-loaded-ind?(NI,CPI,NIS,WIS,NWC) = false .
 
   --- Invariant: every NetProc/WebProc must have a metadata label
  ceq p(< NI | A > NWC,WIS,NIS,M?) = false
@@ -980,7 +989,7 @@ fmod IBOS-SOP-PRED is
  ceq p(< NI | mem-in(OUT),      A > NWC,WIS,NIS,M?) =
      p(< NI | mem-in(nolabel),  A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT
-  /\ proc-loaded-ind?(NI,NIS,WIS,NWC) .
+  /\ proc-loaded-ind?(NI,none,NIS,WIS,NWC) .
 
   --- Prop 2 Negation ---
  ceq p(< NI | mem-in(OUT),      A > NWC,WIS,NIS,M?) = false
@@ -991,7 +1000,7 @@ fmod IBOS-SOP-PRED is
  ceq p(< NI | mem-out(OUT),     A > NWC,WIS,NIS,M?) =
      p(< NI | mem-out(nolabel), A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT
-  /\ proc-loaded-ind?(NI,NIS,WIS,NWC) .
+  /\ proc-loaded-ind?(NI,none,NIS,WIS,NWC) .
 
   --- Prop 3 Negation ---
  ceq p(< NI | mem-out(OUT),     A > NWC,WIS,NIS,M?) = false
@@ -1075,12 +1084,12 @@ fmod IBOS-SOP-PRED is
  ceq p(< NI | out(LL ; OUT ; LL'),  A > NWC,WIS,NIS,M?) =
      p(< NI | out(LL ;       LL'),  A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT
-  /\ proc-loaded-ind?(NI,NIS,WIS,NWC) .
+  /\ proc-loaded-ind?(NI,none,NIS,WIS,NWC) .
 
  ceq p(< NI | in(LL ; OUT ; LL'), A > NWC,WIS,NIS,M?) =
      p(< NI | in(LL ;       LL'), A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT
-  /\ proc-loaded-ind?(NI,NIS,WIS,NWC) .
+  /\ proc-loaded-ind?(NI,none,NIS,WIS,NWC) .
 
   --- in/out invariant negation
  ceq p(< NI | in (LL ; OUT ; LL'), A > NWC,WIS,NIS,M?) = false
@@ -1123,7 +1132,8 @@ fmod IBOS-SOP-PRED is
   --- simplification rules
  ceq p(< WI | loading(true), A > NWC,WIS,NIS,M?) = true if p(< WI | loading(false), A > NWC,WIS,NIS,M?) .
   eq p(< WI | rendered(L),   A > NWC,WIS,NIS,M?) = p(< WI | rendered(nolabel), A > NWC,WIS,NIS,M?) .
-  eq p(< NI | returnTo(CPI), A > NWC,WIS,NIS,M?) = p(< NI | returnTo(none),    A > NWC,WIS,NIS,M?) .
+ ceq p(< NI | returnTo(CPI), A > NWC,WIS,NIS,M?) = p(< NI | returnTo(none), A > NWC,WIS,NIS,M?)
+  if proc-loaded-ind?(NI,CPI,NIS,WIS,NWC) = true .
 
   --- true case
   eq p(none,mtWPIS,mtNPIS,none) = true .
