@@ -809,14 +809,11 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   --- check web/netprocs are compatible
   eq conf-labels-eqset?(< WP | A > C,(pi(WP,L),wp WIS),                NIS ) = conf-labels-eqset?(C,WIS,NIS) .
   eq conf-labels-eqset?(< NP | A > C,             WIS, (pi(NP,L,L'),np NIS)) = conf-labels-eqset?(C,WIS,NIS) .
-  --- non-recursive failure modes
+  --- true termination
   eq conf-labels-eqset?(none,mtWPIS, mtNPIS) = true  .
+  --- non-recursive failure modes
   eq conf-labels-eqset?(none,NWIS,   NIS   ) = false .
-  eq conf-labels-eqset?(NC  ,mtWPIS, NIS   ) = false .
   eq conf-labels-eqset?(none,WIS,    NNIS  ) = false .
-  eq conf-labels-eqset?(NC  ,WIS,    mtNPIS) = false .
-  eq conf-labels-eqset?(C,   mtWPIS, NNIS  ) = false .
-  eq conf-labels-eqset?(C,   NWIS,   mtNPIS) = false .
   --- recursive failure modes
  ceq conf-labels-eqset?(< WP | A > C,  WIS,                NIS ) = false if pid-in-weblabels?(WP,WIS) = false .
  ceq conf-labels-eqset?(< NP | A > C,  WIS,                NIS ) = false if pid-in-netlabels?(NP,NIS) = false .
