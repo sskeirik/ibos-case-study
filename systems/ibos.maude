@@ -350,6 +350,7 @@ fmod MEMORY is inc SYS . inc LABEL .
 endfm
 
 fmod NIC is inc SYS . inc LABEL-SET . inc LABEL-LIST .
+  --- NOTE: this isn't used
   op nic-in  : LabelList -> Attribute [ctor metadata "66"] .
   op nic-out : LabelSet  -> Attribute [ctor metadata "65"] .
 endfm
