@@ -540,10 +540,10 @@ fmod IBOS-SOP-FVP is
   --- needs conf-dupl and conf-attr-dupl to work correctly
   op proc-loaded? : MaybePipeId Configuration -> Bool [metadata "133 true"] .
   eq proc-loaded?(PP,< PP  | loading(true),  A > C) = true [variant] .
-  eq proc-loaded?(PP,< PP  | loading(false), A > C) = proc-loaded?(PP,< PP | A > C) .
- ceq proc-loaded?(PP,< PP  | At,             A > C) = proc-loaded?(PP,< PP | A > C) if loading(true) ~a At            = false .
- ceq proc-loaded?(PP,< PP  |                 A > C) = proc-loaded?(PP,           C) if in-attrset?(loading(true) | A) = false .
- ceq proc-loaded?(PP,< PP' |                 A > C) = proc-loaded?(PP,           C) if PP ~p PP' = false .
+  eq proc-loaded?(PP,< PP' | loading(false), A > C) = proc-loaded?(PP,< PP' | A > C) .
+ ceq proc-loaded?(PP,< PP' | At,             A > C) = proc-loaded?(PP,< PP' | A > C) if loading(true) ~a At            = false .
+ ceq proc-loaded?(PP,< PP' |                 A > C) = proc-loaded?(PP,            C) if in-attrset?(loading(true) | A) = false .
+ ceq proc-loaded?(PP,< PP' |                 A > C) = proc-loaded?(PP,            C) if PP ~p PP' = false .
   eq proc-loaded?(none,                          C) = false .
   eq proc-loaded?(PP,                         none) = false .
   eq proc-loaded?(A:AbsPipeId,                   C) = false .
