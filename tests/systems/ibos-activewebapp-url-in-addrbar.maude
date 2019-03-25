@@ -124,10 +124,6 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- (auto .)
 
---- (split ({ < W | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(W,WIS)) = (U) and (weblabel-by-pid(W,WIS)) = (nolabel) .)
---- (split ({ < W | A > < W' | A' > C }) by (W ~p W') = (true) and (W ~p W') = (false) .)
---- (auto .)
-
 --- render --- single process
 --- (focus 240 -- 247, 252 -- 259 .)
 --- (split ({ < WI | loading(true), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
