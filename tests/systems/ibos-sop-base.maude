@@ -528,11 +528,15 @@ fmod IBOS-SOP-FVP is
   var P? : ProcessId .
   var P : ConcProcId .
   var PP PP' : ConcPipeId .
+  var AP : AbsPipeId .
+  var WP : ConcWebProcId .
+  var NP NP' : ConcNetProcId .
+  var NN : NullProcId .
+  var SP : NonPipeId .
+
   var C : Configuration .
   var At : Attribute .
   var A : AttributeSet .
-  var WP : ConcWebProcId .
-  var NP NP' : ConcNetProcId .
   var WIS : WebProcInfoSet .
   var NIS : NetProcInfoSet .
   var IN IN' OUT U R : Label .
@@ -548,23 +552,25 @@ fmod IBOS-SOP-FVP is
   eq proc-loaded?(PP,                         none) = false .
   eq proc-loaded?(A:AbsPipeId,                   C) = false .
 
-  op weblabel-by-pid : ProcessId WebProcInfoSet -> MaybeLabel [metadata "121 L:Label"] .
+  op weblabel-by-pid : MaybeProcessId WebProcInfoSet -> MaybeLabel [metadata "121 L:Label"] .
   eq weblabel-by-pid(WP, (pi(WP,IN),wp WIS)) = IN [variant] .
  ceq weblabel-by-pid(P?, (pi(WP,IN),wp WIS)) = weblabel-by-pid(P?,WIS) if P? ~p WP = false . --- FIXME: this rule needed to solve problem in ABC proof
   eq weblabel-by-pid(P?, mtWPIS)             = nolabel .
   eq weblabel-by-pid(NP, WIS)                = nolabel .
   eq weblabel-by-pid(ui, WIS)                = nolabel .
-  eq weblabel-by-pid(A:AbsPipeId, WIS)       = nolabel .
-  eq weblabel-by-pid(N:NonPipeId, WIS)       = nolabel .
+  eq weblabel-by-pid(AP, WIS)                = nolabel .
+  eq weblabel-by-pid(SP, WIS)                = nolabel .
+  eq weblabel-by-pid(NN, WIS)                = nolabel .
 
-  op netlabelpair-by-pid : ProcessId NetProcInfoSet -> MaybeLabelPair [metadata "122 L:LabelPair"] .
+  op netlabelpair-by-pid : MaybeProcessId NetProcInfoSet -> MaybeLabelPair [metadata "122 L:LabelPair"] .
   eq netlabelpair-by-pid(NP, (pi(NP,IN,OUT),np NIS)) = (IN,OUT) [variant] .
  ceq netlabelpair-by-pid(P?, (pi(NP,IN,OUT),np NIS)) = netlabelpair-by-pid(P?,NIS) if P? ~p NP = false .
   eq netlabelpair-by-pid(P?, mtNPIS)                 = nopair .
   eq netlabelpair-by-pid(WP, NIS)                    = nopair .
   eq netlabelpair-by-pid(ui, NIS)                    = nopair .
-  eq netlabelpair-by-pid(A:AbsPipeId, NIS)           = nopair .
-  eq netlabelpair-by-pid(N:NonPipeId, NIS)           = nopair .
+  eq netlabelpair-by-pid(AP, NIS)                    = nopair .
+  eq netlabelpair-by-pid(SP, NIS)                    = nopair .
+  eq netlabelpair-by-pid(NN, NIS)                    = nopair .
 
   op webprocid-by-np : ConcNetProcId NetProcInfoSet WebProcInfoSet -> MaybeConcPipeId [metadata "128 W:WebProcId"] .
   eq webprocid-by-np(NP,pi(NP ,IN,OUT),np NIS,pi(WP,IN),wp WIS) = WP [variant] .
