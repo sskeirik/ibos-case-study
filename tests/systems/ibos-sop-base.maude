@@ -948,6 +948,9 @@ fmod IBOS-SOP-PRED is
  ceq p(< NI | A > NWC,WIS,NIS,M?) = false
   if proc-loaded?(NI,none,NIS,WIS,NWC) = false .
 
+ ceq p(< NI | returnTo(CPI), A > NWC,WIS,NIS,M?) = false
+  if proc-loaded?(NI,CPI,NIS,WIS,NWC) = false .
+
   --- Invariant: every NetProc/WebProc must have a metadata label
  ceq p(< NI | A > NWC,WIS,NIS,M?) = false
   if pid-in-netlabels?(NI,NIS) = false .
@@ -1124,7 +1127,8 @@ fmod IBOS-SOP-PRED is
   --- simplification rules
  ceq p(< WI | loading(true), A > NWC,WIS,NIS,M?) = true if p(< WI | loading(false), A > NWC,WIS,NIS,M?) .
   eq p(< WI | rendered(L),   A > NWC,WIS,NIS,M?) = p(< WI | rendered(nolabel), A > NWC,WIS,NIS,M?) .
-  eq p(< NI | returnTo(CPI), A > NWC,WIS,NIS,M?) = p(< NI | returnTo(none),    A > NWC,WIS,NIS,M?) .
+ ceq p(< NI | returnTo(CPI), A > NWC,WIS,NIS,M?) = p(< NI | returnTo(none),    A > NWC,WIS,NIS,M?)
+  if proc-loaded?(NI,CPI,NIS,WIS,NWC) .
 
   --- true case
   eq p(none,mtWPIS,mtNPIS,none) = true .
