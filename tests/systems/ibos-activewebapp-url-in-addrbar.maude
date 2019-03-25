@@ -61,7 +61,7 @@ load ../../rltool.maude
 --- msg-to-kernel
 --- pa10
 
-(select-rls kernelReceivesOPMessage-pa10 .)
+(select-rls msg-to-kernel .)
 
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U
@@ -186,31 +186,16 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < NI |             A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- (auto .)
 
---- msg-to-kernel TODO: finish this
---- (split ({ < NI | A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
---- --- netproc only occurs in netlabels once
---- (split ({ < NI | A > < kernel | netlabels(                 NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN , OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
---- (split ({ < NI | A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN2,OUT2)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
+--- msg-to-kernel
+--- netproc loaded
+--- (split ({ < NI | returnTo(PP1), A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by (proc-loaded?(NI,PP1,NIS,WIS,C)) = (true) and (proc-loaded?(NI,PP1,NIS,WIS,C)) = (false) .)
 --- --- outgoing matches netproc out
 --- (split ({ < NI | toKernel(T @ msg(NI,PP1,MSG-RETURN-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
 --- --- netproc labels match
 --- (split ({ < kernel | netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN2 ~l OUT) = (true) and (IN2 ~l OUT) = (false) .)
---- ---- only one copy of webproc in weblabels
---- (split ({ < NI | returnTo(PP1), A > < kernel | weblabels(             WIS), A' > C }) by (weblabel-by-pid(PP1,WIS)) = (IN)  and (weblabel-by-pid(PP1,WIS)) = (nolabel) .)
---- (split ({ < NI | returnTo(WI),  A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (weblabel-by-pid(WI, WIS)) = (IN2) and (weblabel-by-pid(WI, WIS)) = (nolabel) .)
 --- --- netproc and webproc ids match
 --- (split ({ < NI | returnTo(WI),  A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
---- --- the webproc is loaded
---- (split ({ < NI | returnTo(PP1), A > C }) by (proc-loaded?(PP1,C)) = (true) and (proc-loaded?(PP1,C)) = (false) .)
---- (auto .)
----
---- Old Strategy --- May be sufficient after code revision
---- (split ({ < NI | A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
---- (split ({ < kernel | netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN2 ~l OUT) = (true) and (IN2 ~l OUT) = (false) .)
---- (split ({ < NI | returnTo(PP1), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(PP1,WIS)) = (IN) and (weblabel-by-pid(PP1,WIS)) = (nolabel) .)
---- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
---- (split ({ < NI | toKernel(T @ msg(NI,PP1,MSG-RETURN-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
---- (split ({ < NI | returnTo(PP1), A > C }) by (proc-loaded?(PP1,C)) = (true) and (proc-loaded?(PP1,C)) = (false) .)
+--- ---
 --- (auto .)
 
 --- mem-out/mem-in
