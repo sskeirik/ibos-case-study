@@ -959,8 +959,9 @@ fmod IBOS-SOP-PRED is
   --- any FETCH message in fromKernel queue of NetProc, agrees with kernel metadata
  ceq p(< NI | fromKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) =
      p(< NI | fromKernel(ML @                                 ML2), A > NWC,WIS,NIS,M?)
-  if (weblabel-by-pid(PI,WIS),OUT) ~lp netlabelpair-by-pid(PI',NIS)
-  /\ proc-loaded?(PI',PI,NIS,WIS,NWC) .
+  if PI' ~p NI
+  /\ (weblabel-by-pid(PI,WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS)
+  /\ proc-loaded?(NI,PI,NIS,WIS,NWC) .
 
  ceq p(< NI | fromKernel(ML @ NFM                            @ ML2), A > NWC, WIS, NIS,M?) =
      p(< NI | fromKernel(ML @                                  ML2), A > NWC, WIS, NIS,M?)
@@ -972,7 +973,7 @@ fmod IBOS-SOP-PRED is
 
   --- Prop 1 Negation ---
  ceq p(< NI | fromKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) = false
-  if (weblabel-by-pid(PI,WIS),OUT) ~lp netlabelpair-by-pid(PI',NIS) and proc-loaded?(PI',PI,NIS,WIS,NWC) = false .
+  if PI' ~p NI and (weblabel-by-pid(PI,WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) and proc-loaded?(NI,PI,NIS,WIS,NWC) = false .
 
   --- Prop 2 ---
   --- mem-in() attr correlates with kernel metadata
@@ -1000,7 +1001,8 @@ fmod IBOS-SOP-PRED is
   --- NOTE: should false case be relaxed to don't care instead of NonRetMsgList
  ceq p(< WI | loading(true), fromKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) =
      p(< WI | loading(true), fromKernel(ML @                                  ML2), A > NWC,WIS,NIS,M?)
-  if (weblabel-by-pid(PI',WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) .
+  if WI ~p PI'
+  /\ (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) .
 
  ceq p(< WI | loading(true),  fromKernel(ML @ NRM                             @ ML2), A > NWC,WIS,NIS,M?) =
      p(< WI | loading(true),  fromKernel(ML @                                   ML2), A > NWC,WIS,NIS,M?)
@@ -1018,7 +1020,7 @@ fmod IBOS-SOP-PRED is
 
   --- Prop 4 -- Negation
  ceq p(< WI | loading(true),  fromKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) = false
-  if (weblabel-by-pid(PI',WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) = false .
+  if WI ~p PI' and (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) = false .
 
   --- Other needed pieces:
   --- WebProc toKernel queue invariant
@@ -1055,7 +1057,7 @@ fmod IBOS-SOP-PRED is
  ceq p(< NI | toKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) =
      p(< NI | toKernel(ML @                                  ML2), A > NWC,WIS,NIS,M?)
   if PI ~p NI
-  /\ (weblabel-by-pid(PI',WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS)
+  /\ (weblabel-by-pid(PI',WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS)
   /\ proc-loaded?(NI,PI',NIS,WIS,NWC) .
 
  ceq p(< NI | toKernel(ML @ NRM                             @ ML2), A > NWC,WIS,NIS,M?) =
