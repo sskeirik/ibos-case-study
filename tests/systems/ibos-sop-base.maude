@@ -588,6 +588,7 @@ fmod IBOS-SOP-FVP is
   --- discard attributes
  ceq proc-loaded?(MP,MP',                 NIS,             WIS,< WP | At, A > C) = proc-loaded?(MP,MP',NIS,WIS,< WP | A > C) if loading(true) ~a At = false .
   --- discard processes
+ ceq proc-loaded?(MP,MP',                 NIS,             WIS,< WP | A > C) = proc-loaded?(MP,MP',NIS,WIS,C) if in-attrset?(loading(true) | A) = false .
  ceq proc-loaded?(MP,MP',                 NIS,             WIS,< WP | A > C) = proc-loaded?(MP,MP',NIS,WIS,C) if weblabel-by-pid(WP,WIS) = nolabel .
   eq proc-loaded?(MP,MP',                 NIS,             WIS,< NP | A > C) = proc-loaded?(MP,MP',NIS,WIS,C) .
   eq proc-loaded?(MP,MP',                 NIS,             WIS,< ui | A > C) = proc-loaded?(MP,MP',NIS,WIS,C) .
@@ -1073,7 +1074,7 @@ fmod IBOS-SOP-PRED is
 
   --- negation
  ceq p(< NI | toKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) = false
-  if PI ~p NI and (weblabel-by-pid(PI',WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) and proc-loaded?(NI,PI',NIS,WIS,NWC) .
+  if PI ~p NI and (weblabel-by-pid(PI',WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) and proc-loaded?(NI,PI',NIS,WIS,NWC) = false .
 
   --- in/out invariants
  ceq p(< NI | out(LL ; OUT ; LL'),  A > NWC,WIS,NIS,M?) =
