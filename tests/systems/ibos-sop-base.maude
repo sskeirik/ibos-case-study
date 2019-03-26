@@ -1008,19 +1008,17 @@ fmod IBOS-SOP-PRED is
   if WI ~p PI'
   /\ (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) .
 
- ceq p(< WI | loading(true),  fromKernel(ML @ NRM                             @ ML2), A > NWC,WIS,NIS,M?) =
-     p(< WI | loading(true),  fromKernel(ML @                                   ML2), A > NWC,WIS,NIS,M?)
+ ceq p(< WI | fromKernel(ML @ NRM @ ML2), A > NWC,WIS,NIS,M?) =
+     p(< WI | fromKernel(ML @       ML2), A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS) .
 
- ceq p(< WI | loading(true),  fromKernel(mt),                                         A > NWC,WIS,NIS,M?) =
-     p(< WI | loading(true),  fromKernel(nolist),                                     A > NWC,WIS,NIS,M?)
+ ceq p(< WI | fromKernel(mt),     A > NWC,WIS,NIS,M?) =
+     p(< WI | fromKernel(nolist), A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS) .
 
- ceq p(< WI | loading(false), fromKernel(ML                                        ), A > NWC,WIS,NIS,M?) =
-     p(< WI | loading(false), fromKernel(nolist                                    ), A > NWC,WIS,NIS,M?)
+ ceq p(< WI | loading(false), fromKernel(ML    ), A > NWC,WIS,NIS,M?) =
+     p(< WI | loading(false), fromKernel(nolist), A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS) .
-  ---eq p(< WI | loading(false), fromKernel(NRL                                       ), A > NWC,(pi(WI,IN),np WIS),                   NIS, M?) =
-  ---   p(< WI | loading(false), fromKernel(mt                                        ), A > NWC,(pi(WI,IN),np WIS),                   NIS, M?) .
 
   --- Prop 4 -- Negation
  ceq p(< WI | loading(true),  fromKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) = false
