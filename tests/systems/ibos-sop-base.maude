@@ -1107,7 +1107,7 @@ fmod IBOS-SOP-PRED is
  ceq p(NWC,WIS,NIS,msg(CPI, NI, FetchMT,    OUT)) = p(NWC,WIS,NIS,none) if proc-loaded?(NI,CPI,NIS,WIS,NWC) /\ (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) .
  ceq p(NWC,WIS,NIS,msg(CPI, NI, NonFetchMT, OUT)) = p(NWC,WIS,NIS,none) if pid-in-netlabels?(NI,NIS) .
  ceq p(NWC,WIS,NIS,msg(CPI, NI, FetchMT,    OUT)) = false               if proc-loaded?(NI,CPI,NIS,WIS,NWC) and (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) = false .
- ceq p(NWC,WIS,NIS,msg(CPI, NI, NonFetchMT, OUT)) = p(NWC,WIS,NIS,none) if pid-in-netlabels?(NI,NIS) = false .
+ ceq p(NWC,WIS,NIS,msg(CPI, NI, NonFetchMT, OUT)) = false               if pid-in-netlabels?(NI,NIS) = false .
   ---
  ceq p(NWC,WIS,NIS,msg(CPI, WI, RetMT,      OUT)) = p(NWC,WIS,NIS,none)  if proc-loaded?(CPI,WI,NIS,WIS,NWC) /\ (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(CPI,NIS) .
  ceq p(NWC,WIS,NIS,msg(CPI, WI, NonRetMT,   OUT)) = p(NWC,WIS,NIS,none)  if pid-in-weblabels?(WI,WIS) .
