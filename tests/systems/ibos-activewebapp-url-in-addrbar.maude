@@ -126,7 +126,7 @@ loop rltl-init .
 .)
 
 set print conceal on .
-print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`[_`] . --- _&&_ _|_
+print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ [_,_,_,_,_,_] . --- _;_ _`[_`] . --- _&&_ _|_
 
 (start-proof .)
 (auto .)
@@ -251,9 +251,6 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (auto .)
 
 --- pa10
---- (split ({ < NWI:ConcNetWebProcId | toKernel(T), A > C }) by (NWI:ConcNetWebProcId) = (WI) and (NWI:ConcNetWebProcId) = (NI) .)
---- --- FIXME: NetProc case
---- (focus 496, 498, 500, 502, 512, 514, 516, 518 .)
 --- --- (split ({ < NWI:ConcNetWebProcId | toKernel(T), A > C }) by (NWI:ConcNetWebProcId) = (WI) and (NWI:ConcNetWebProcId) = (NI) .)
 --- ---
 --- --- WebProc Case
@@ -277,14 +274,18 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- ---
 --- --- NetProc Case
 --- --- Split on Message Type
---- (split ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT:MsgType,   U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (MT:MsgType) = (MSG-RETURN-URL) and (MT:MsgType) = (N:NonRetMsgType) .)
---- (split ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT:MsgType,   U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (MT:MsgType) = (MSG-RETURN-URL) and (MT:MsgType) = (N:NonRetMsgType) .)
+--- (split  ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT:MsgType,   U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (MT:MsgType) = (MSG-RETURN-URL) and (MT:MsgType) = (N:NonRetMsgType) .)
+--- (split  ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT:MsgType,   U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (MT:MsgType) = (MSG-RETURN-URL) and (MT:MsgType) = (N:NonRetMsgType) .)
+--- --- Handle Non-Ret Msg
+--- (split  ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,N:NonRetMsgType,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
+--- (split  ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,N:NonRetMsgType,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
+--- --- Handle Ret Msg
 --- --- Split on Message Payload
---- (split  ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT,           U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
---- (split  ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT,           U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
+--- (split  ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MSG-RETURN-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
+--- (split  ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
 --- --- Ensure loading? flag is set
---- (split ({ C }) | (p(< NI | toKernel(msg(NI,GPPI,MT:MsgType,   U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (proc-loaded?(NI,GPPI,NIS,WIS,NWC)) = (true) and (proc-loaded?(NI,GPPI,NIS,WIS,NWC)) = (false) .)
---- (split ({ C }) | (p(< NI | toKernel(msg(NI,GPPI,MT:MsgType,   U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (proc-loaded?(NI,GPPI,NIS,WIS,NWC)) = (true) and (proc-loaded?(NI,GPPI,NIS,WIS,NWC)) = (false) .)
+--- (split  ({ C }) | (p(< NI | toKernel(msg(NI,GPPI,MSG-RETURN-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (proc-loaded?(NI,GPPI,NIS,WIS,NWC)) = (true) and (proc-loaded?(NI,GPPI,NIS,WIS,NWC)) = (false) .)
+--- (split  ({ C }) | (p(< NI | toKernel(msg(NI,GPPI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (proc-loaded?(NI,GPPI,NIS,WIS,NWC)) = (true) and (proc-loaded?(NI,GPPI,NIS,WIS,NWC)) = (false) .)
 --- --- Payload Split Part #2
 --- (split  ({ C }) | (p(< NI | toKernel(msg(NI,GPPI,MSG-RETURN-URL,U) @ T), A > NWC,WIS,pi(NI,IN,OUT),np NIS,MSG?)) = (true) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
 --- (split  ({ C }) | (p(< NI | toKernel(msg(NI,GPPI,MSG-RETURN-URL,U)    ), A > NWC,WIS,pi(NI,IN,OUT),np NIS,MSG?)) = (true) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
