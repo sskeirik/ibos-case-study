@@ -6,7 +6,26 @@ set show advisories off .
 set print attribute on .
 ---set print with parentheses on .
 
-load ../../rltool.maude
+load ../../rltool-lib.maude
+
+fmod FOFORMSIMPLIFY-IMP-IMPL-EXT is
+  pr FOFORMSIMPLIFY-IMP-IMPL .
+
+  var D : Disj .
+  var T T' : Term .
+  var L L' : TermList .
+
+  eq 'false.Bool ?= '_and_[T,T'] = 'false.Bool ?= T \/ 'false.Bool ?= T' .
+  eq 'false.Bool != '_and_[T,T'] = 'false.Bool != T \/ 'false.Bool != T' .
+  eq 'false.Bool ?= 'true.Bool   = ff .
+  eq 'false.Bool != 'true.Bool   = tt .
+
+  --- Lemmas needed for kernelReceivesOPMessage-pa9/10
+  var LBL MSGL PI PI' WIS : Term .
+  eq 'true.Bool != 'newurl-nodupl?[LBL,MSGL]
+  \/ 'true.Bool != 'ui-consistent?['_@_['msg[PI,'webapp.AbsWebProcId,'MSG-NEW-URL.NonRetFetchMsgType,LBL],MSGL],WIS]
+   = 'true.Bool != 'ui-consistent?[MSGL,WIS] .
+endfm
 
 ---@ \/
 ---@ ({ < ui | toKernel(UIML) >
@@ -34,9 +53,11 @@ load ../../rltool.maude
 ---/\ (webapp-url-render?(W,C))          = ((U,RNDR)) --- This made the RNDR variable free, which causes problems, so now it appears in the state
 ---/\ (conf-labels-eqset?((C < W | none >) !c,WIS,NIS))           = (true)     --- ensure WIS and C are consistent
 
+select RLTOOL .
+loop rltl-init .
 
 (select     IBOS-SOP-NOID .)
-(use tool conrew  for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL .)
+(use tool conrew  for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool conrew  for unsatisfiability on IBOS-SOP-PRED-NOID .)
 (use tool varunif for varunif          on IBOS-SOP-FVP-NOID  .)
 
@@ -61,7 +82,7 @@ load ../../rltool.maude
 --- msg-to-kernel
 --- pa10
 
-(select-rls mem-in .)
+(select-rls kernelReceivesOPMessage-pa9 .)
 
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U
@@ -93,16 +114,14 @@ load ../../rltool.maude
    (fresh-np-id?(network(NNP),NWC))                               = (true)  /\
    (fresh-weblabel?(webapp(NWP),WIS))                             = (true)  /\
    (fresh-netlabel?(network(NNP),NIS))                            = (true)  /\
-   --- TODO: uncomment when solving pa9, fully double-check everything goes through later (I'm certain it will)
-   ---@ (ui-consistent?(UIML,WIS))                                     = (true)  /\
+   --- uncomment when solving pa8/pa9
+   (ui-consistent?(UIML,WIS))                                     = (true)  /\
    ---
    (netlabels-match?(NIS))                                        = (true)  /\
    (webapp-url-eqset?(NWC,WIS))                                   = (true)  /\
    (weblabel-by-pid(WI,WIS) ~l CURR)                              = (true)  /\
    (display-topbar-consistent?(WI,DISP,CURR,NWC))                 = (true)  /\
    (render-consistent?(NWC))                                      = (true)
-   ---@ (DISP blank-or-equal RNDR)                                     = (true)  /\
-   ---@ (U ~l CURR)                                                    = (true)  /\
 .)
 
 set print conceal on .
@@ -219,14 +238,14 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ C }) | (true) = (p(< NI | toKernel(msg(PP1,WI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,none)) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
 --- (split ({ < kernel | handledCurrently(msg(NI,WI,MSG-RETURN-URL,U)), netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
 --- (split ({ < kernel | handledCurrently(msg(NI,WI,MSG-RETURN-URL,U)), netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
---- (split ({ < kernel | handledCurrently(msg(NI,WI,MSG-RETURN-URL,U)), A > C }) by (proc-loaded?(WI,C)) = (true) and (proc-loaded?(WI,C)) = (false) .)
+--- (split ({ < kernel | netlabels(NIS), weblabels(WIS), handledCurrently(msg(NI,WI,MSG-RETURN-URL,U)), A > C }) by (proc-loaded?(NI,WI,NIS,WIS,C)) = (true) and (proc-loaded?(NI,WI,NIS,WIS,C)) = (false) .)
 --- (auto .)
 
 --- pa8
 --- (split ({ < kernel | handledCurrently(msg(ui,WI,MSG-SWITCH-TAB,OUT)), weblabels(WIS), A > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
 --- (auto .)
 
---- pa9 TODO: show solveable with UI lemma
+--- pa9
 --- (split ({ < ui | toKernel(T), A > < kernel | handledCurrently(msg(ui,webapp,MSG-NEW-URL,OUT)), A' > C}) by (newurl-nodupl?(OUT,T)) = (true) and (newurl-nodupl?(OUT,T)) = (false) .)
 --- (auto .)
 
