@@ -305,21 +305,24 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- --- Finish
 --- (auto .)
 
---- --- kernelForwardsOpMessage
---- --- NOTE: nice way of handling requires extension of partially FVP theory
+--- kernelForwardsOPMessage
 --- (cases ({ < NWI:ConcNetWebProcId | fromKernel(F), A  > C }) on NWI:ConcNetWebProcId by (WI) U (NI) .)
 --- --- NetProc Case
 --- --- Split on Message Type
 --- (cases ({ < NI | fromKernel(F @ msg(PP1,NI,MT:MsgType,   U)), A > C }) on MT:MsgType by (MSG-FETCH-URL) U (N:NonFetchMsgType) .)
---- --- Handle Message
+--- --- Handle NonFetch Msg
+--- (split ({ < NI | fromKernel(F @ msg(PP1,NI,N:NonFetchMsgType,U)), A > < kernel | netlabels(NIS), A' > C }) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
+--- --- Handle Fetch Msg
 --- (split ({ < NI | fromKernel(F @ msg(PP1,NI,MSG-FETCH-URL,U)), A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by (proc-loaded?(NI,PP1,NIS,WIS,C)) = (true) and (proc-loaded?(NI,PP1,NIS,WIS,C)) = (false) .)
 --- (split ({ < NI | fromKernel(F @ msg(PP1,NI,MSG-FETCH-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
 --- --- WebProc Case
 --- --- Split on Message Type
 --- (cases ({ < WI | fromKernel(F @ msg(PP1,WI,MT:MsgType,    U)), A > C }) on MT:MsgType by (MSG-RETURN-URL) U (N:NonRetMsgType) .)
---- --- Handle Message
---- --- FIXME: case where proc-loaded? is true gets weeded out... why?
---- (split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by (proc-loaded?(PP1,WI,NIS,WIS,C)) = (true) and (proc-loaded?(PP1,WI,NIS,WIS,C)) = (false) .)
+--- --- Handle NonRet Msg
+--- (split ({ < WI | fromKernel(F @ msg(PP1,WI,N:NonRetMsgType,U)), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+--- --- Handle Ret Msg
+--- (split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > C }) by (in-conf?(PP1,C)) = (true) and (in-conf?(PP1,C)) = (false) .)
+--- (split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by (proc-loaded?(PP1,WI,NIS,WIS,C < WI | A >)) = (true) and (proc-loaded?(PP1,WI,NIS,WIS,C < WI | A >)) = (false) .)
 --- (split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
 --- --- Link metadata pieces
 --- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
