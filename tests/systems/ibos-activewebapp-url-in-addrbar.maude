@@ -70,19 +70,20 @@ loop rltl-init .
 --- proc-in
 --- request-from-webapp
 --- proc-out
+--- msg-to-kernel
 --- mem-out
 --- mem-in
 --- nic1
 --- pa6-a/b
 --- pa7
 --- pa8
---- pa9 --- TODO: show solveable with lemma
+--- pa9
 
 --- Unsovled rules:
---- msg-to-kernel
 --- pa10
+--- forwardsOP
 
-(select-rls kernelReceivesOPMessage-pa9 .)
+(select-rls kernelReceivesOPMessage-pa10 .)
 
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U
@@ -249,60 +250,78 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`
 --- (split ({ < ui | toKernel(T), A > < kernel | handledCurrently(msg(ui,webapp,MSG-NEW-URL,OUT)), A' > C}) by (newurl-nodupl?(OUT,T)) = (true) and (newurl-nodupl?(OUT,T)) = (false) .)
 --- (auto .)
 
---- pa10 TODO: check this for the three different cases
----      TODO: the UI case needs the UI lemmas
---- (cases ({ < NWI:ConcNetWebProcId | toKernel(T), A > C }) on NWI:ConcNetWebProcId by (WI) U (NI) .)
+--- pa10
 --- (split ({ < NWI:ConcNetWebProcId | toKernel(T), A > C }) by (NWI:ConcNetWebProcId) = (WI) and (NWI:ConcNetWebProcId) = (NI) .)
----
---- WebProc Case
---- Split on Message Type
---- (cases+ ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MT:MsgType,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) on MT:MsgType by (MSG-FETCH-URL) U (N:NonFetchMsgType) .)
---- (cases+ ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MT:MsgType,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) on MT:MsgType by (MSG-FETCH-URL) U (N:NonFetchMsgType) .)
---- --- Ensure attributes exist
---- (split  ({ < WI | toKernel(T), A > C }) by (in-attrset?(URL(about-blank) | A)) = (true) and (in-attrset?(URL(about-blank) | A)) = (false) .)
---- (split  ({ < WI | toKernel(T), A > C }) by (in-attrset?(loading(true) | A)) = (true) and (in-attrset?(loading(true) | A)) = (false) .)
---- --- Split on Message Payload
---- (split  ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
---- (split  ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
---- (split  ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (GPPI ~p network) = (true) and (GPPI ~p network) = (false) .)
---- (split  ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (GPPI ~p network) = (true) and (GPPI ~p network) = (false) .)
---- (split  ({ C }) | (p(< WI | URL(OUT), toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
---- (split  ({ C }) | (p(< WI | URL(OUT), toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
---- --- Setup Metadata/Process/Message Consistency
---- (split  ({ C }) | (p(< WI | toKernel(T), A > NWC,WIS,NIS,MSG?)) = (true) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
---- --- Ensure loading? flag is set
---- (split ({ < WI | toKernel(T), loading(L), A > C }) by (L) = (true) and (L) = (false) .)
----
---- NetProc Case
---- Split on Message Type
---- (cases+ ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT:MsgType,   U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) on MT:MsgType by (MSG-RETURN-URL) U (N:NonRetMsgType) .)
---- (cases+ ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT:MsgType,   U)    ), A > NWC,WIS,NIS,MSG?)) = (true) on MT:MsgType by (MSG-RETURN-URL) U (N:NonRetMsgType) .)
+--- --- FIXME: NetProc case
+--- (focus 496, 498, 500, 502, 512, 514, 516, 518 .)
+--- --- (split ({ < NWI:ConcNetWebProcId | toKernel(T), A > C }) by (NWI:ConcNetWebProcId) = (WI) and (NWI:ConcNetWebProcId) = (NI) .)
+--- ---
+--- --- WebProc Case
+--- --- Split on Message Type
+--- --- (cases+ ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MT:MsgType,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) on MT:MsgType by (MSG-FETCH-URL) U (N:NonFetchMsgType) .)
+--- --- (cases+ ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MT:MsgType,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) on MT:MsgType by (MSG-FETCH-URL) U (N:NonFetchMsgType) .)
+--- --- --- Ensure attributes exist
+--- --- (split  ({ < WI | toKernel(T), A > C }) by (in-attrset?(URL(about-blank) | A)) = (true) and (in-attrset?(URL(about-blank) | A)) = (false) .)
+--- --- (split  ({ < WI | toKernel(T), A > C }) by (in-attrset?(loading(true) | A)) = (true) and (in-attrset?(loading(true) | A)) = (false) .)
+--- --- --- Split on Message Payload
+--- --- (split  ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
+--- --- (split  ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
+--- --- (split  ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (GPPI ~p network) = (true) and (GPPI ~p network) = (false) .)
+--- --- (split  ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (GPPI ~p network) = (true) and (GPPI ~p network) = (false) .)
+--- --- (split  ({ C }) | (p(< WI | URL(OUT), toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- --- (split  ({ C }) | (p(< WI | URL(OUT), toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- --- --- Setup Metadata/Process/Message Consistency
+--- --- (split  ({ C }) | (p(< WI | toKernel(T), A > NWC,WIS,NIS,MSG?)) = (true) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+--- --- --- Ensure loading? flag is set
+--- --- (split ({ < WI | toKernel(T), loading(L), A > C }) by (L) = (true) and (L) = (false) .)
+--- ---
+--- --- NetProc Case
+--- --- Split on Message Type
+--- (split ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT:MsgType,   U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (MT:MsgType) = (MSG-RETURN-URL) and (MT:MsgType) = (N:NonRetMsgType) .)
+--- (split ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT:MsgType,   U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (MT:MsgType) = (MSG-RETURN-URL) and (MT:MsgType) = (N:NonRetMsgType) .)
 --- --- Split on Message Payload
 --- (split  ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT,           U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
 --- (split  ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT,           U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
---- --- Setup Metadata/Process/Message Consistency
---- (split  ({ C }) | (p(< NI | toKernel(msg(NI,GPPI,MSG-RETURN-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (weblabel-by-pid(GPPI,WIS)) = (IN) and (weblabel-by-pid(GPPI,WIS)) = (nolabel) .)
---- (split  ({ C }) | (p(< NI | toKernel(msg(NI,GPPI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (weblabel-by-pid(GPPI,WIS)) = (IN) and (weblabel-by-pid(GPPI,WIS)) = (nolabel) .)
---- (split  ({ C }) | (p(< NI |                                              A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(NI,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(NI,NIS)) = (nopair) .)
+--- --- Ensure loading? flag is set
+--- (split ({ C }) | (p(< NI | toKernel(msg(NI,GPPI,MT:MsgType,   U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (proc-loaded?(NI,GPPI,NIS,WIS,NWC)) = (true) and (proc-loaded?(NI,GPPI,NIS,WIS,NWC)) = (false) .)
+--- (split ({ C }) | (p(< NI | toKernel(msg(NI,GPPI,MT:MsgType,   U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (proc-loaded?(NI,GPPI,NIS,WIS,NWC)) = (true) and (proc-loaded?(NI,GPPI,NIS,WIS,NWC)) = (false) .)
 --- --- Payload Split Part #2
 --- (split  ({ C }) | (p(< NI | toKernel(msg(NI,GPPI,MSG-RETURN-URL,U) @ T), A > NWC,WIS,pi(NI,IN,OUT),np NIS,MSG?)) = (true) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
 --- (split  ({ C }) | (p(< NI | toKernel(msg(NI,GPPI,MSG-RETURN-URL,U)    ), A > NWC,WIS,pi(NI,IN,OUT),np NIS,MSG?)) = (true) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
---- --- Ensure loading? flag is set
---- (split  ({ < NI | A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (proc-loaded?(WI,C)) = (true) and (proc-loaded?(WI,C)) = (false) .)
 --- --- Link metadata pieces
---- (split  ({ < NI | A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN  ~l IN2) = (true) and (IN  ~l IN2) = (false) .)
---- (split  ({ < NI | A > < kernel |                              netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN2 ~l OUT) = (true) and (IN2 ~l OUT) = (false) .)
+--- (split  ({ < NI | A > < kernel | netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN2 ~l OUT) = (true) and (IN2 ~l OUT) = (false) .)
+--- --- ---
+--- --- --- UI case
+--- --- (cases+ ({ C }) | (ui-consistent?(msg(PP1,GPPI,MT:MsgType,U) @ T,WIS)) = (true) on MT:MsgType by (MSG-FETCH-URL) U (MSG-RETURN-URL) U (MSG-SWITCH-TAB) U (MSG-NEW-URL) .)
+--- --- (cases+ ({ C }) | (ui-consistent?(msg(PP1,GPPI,MT:MsgType,U)    ,WIS)) = (true) on MT:MsgType by (MSG-FETCH-URL) U (MSG-RETURN-URL) U (MSG-SWITCH-TAB) U (MSG-NEW-URL) .)
+--- --- --- NEW-URL
+--- --- (split  ({ C }) | (ui-consistent?(msg(PP1,GPPI,MSG-NEW-URL,   U) @ T,WIS)) = (true) by (newurl-nodupl?(U,T)) = (true) and (newurl-nodupl?(U,T)) = (false) .)
+--- --- (split  ({ C }) | (ui-consistent?(msg(PP1,GPPI,MSG-NEW-URL,   U) @ T,WIS)) = (true) by (GPPI ~p webapp) = (true) and (GPPI ~p webapp) = (false) .)
+--- --- (split  ({ C }) | (ui-consistent?(msg(PP1,GPPI,MSG-NEW-URL,   U)    ,WIS)) = (true) by (GPPI ~p webapp) = (true) and (GPPI ~p webapp) = (false) .)
+--- --- --- SWITCH-TAB
+--- --- (split  ({ C }) | (ui-consistent?(msg(PP1,GPPI,MSG-SWITCH-TAB,U) @ T,WIS)) = (true) by (weblabel-by-pid(GPPI,WIS)) = (IN) and  (weblabel-by-pid(GPPI,WIS)) = (nolabel) .)
+--- --- (split  ({ C }) | (ui-consistent?(msg(PP1,GPPI,MSG-SWITCH-TAB,U)    ,WIS)) = (true) by (weblabel-by-pid(GPPI,WIS)) = (IN) and  (weblabel-by-pid(GPPI,WIS)) = (nolabel) .)
 --- ---
---- --- UI case
---- (cases+ ({ C }) | (ui-consistent?(msg(PP1,GPPI,MT:MsgType,U) @ T,WIS)) = (true) on MT:MsgType by (MSG-FETCH-URL) U (MSG-RETURN-URL) U (MSG-SWITCH-TAB) U (MSG-NEW-URL) .)
---- (cases+ ({ C }) | (ui-consistent?(msg(PP1,GPPI,MT:MsgType,U)    ,WIS)) = (true) on MT:MsgType by (MSG-FETCH-URL) U (MSG-RETURN-URL) U (MSG-SWITCH-TAB) U (MSG-NEW-URL) .)
---- --- NEW-URL
---- (split  ({ C }) | (ui-consistent?(msg(PP1,GPPI,MSG-NEW-URL,   U) @ T,WIS)) = (true) by (newurl-nodupl?(U,T)) = (true) and (newurl-nodupl?(U,T)) = (false) .)
---- (split  ({ C }) | (ui-consistent?(msg(PP1,GPPI,MSG-NEW-URL,   U) @ T,WIS)) = (true) by (GPPI ~p webapp) = (true) and (GPPI ~p webapp) = (false) .)
---- (split  ({ C }) | (ui-consistent?(msg(PP1,GPPI,MSG-NEW-URL,   U)    ,WIS)) = (true) by (GPPI ~p webapp) = (true) and (GPPI ~p webapp) = (false) .)
---- --- SWITCH-TAB
---- (split  ({ C }) | (ui-consistent?(msg(PP1,GPPI,MSG-SWITCH-TAB,U) @ T,WIS)) = (true) by (weblabel-by-pid(GPPI,WIS)) = (IN) and  (weblabel-by-pid(GPPI,WIS)) = (nolabel) .)
---- (split  ({ C }) | (ui-consistent?(msg(PP1,GPPI,MSG-SWITCH-TAB,U)    ,WIS)) = (true) by (weblabel-by-pid(GPPI,WIS)) = (IN) and  (weblabel-by-pid(GPPI,WIS)) = (nolabel) .)
----
---- Finish
+--- --- Finish
+--- (auto .)
+
+--- --- kernelForwardsOpMessage
+--- --- NOTE: nice way of handling requires extension of partially FVP theory
+--- (cases ({ < NWI:ConcNetWebProcId | fromKernel(F), A  > C }) on NWI:ConcNetWebProcId by (WI) U (NI) .)
+--- --- NetProc Case
+--- --- Split on Message Type
+--- (cases ({ < NI | fromKernel(F @ msg(PP1,NI,MT:MsgType,   U)), A > C }) on MT:MsgType by (MSG-FETCH-URL) U (N:NonFetchMsgType) .)
+--- --- Handle Message
+--- (split ({ < NI | fromKernel(F @ msg(PP1,NI,MSG-FETCH-URL,U)), A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by (proc-loaded?(NI,PP1,NIS,WIS,C)) = (true) and (proc-loaded?(NI,PP1,NIS,WIS,C)) = (false) .)
+--- (split ({ < NI | fromKernel(F @ msg(PP1,NI,MSG-FETCH-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- --- WebProc Case
+--- --- Split on Message Type
+--- (cases ({ < WI | fromKernel(F @ msg(PP1,WI,MT:MsgType,    U)), A > C }) on MT:MsgType by (MSG-RETURN-URL) U (N:NonRetMsgType) .)
+--- --- Handle Message
+--- --- FIXME: case where proc-loaded? is true gets weeded out... why?
+--- (split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(NIS), weblabels(WIS), A' > C }) by (proc-loaded?(PP1,WI,NIS,WIS,C)) = (true) and (proc-loaded?(PP1,WI,NIS,WIS,C)) = (false) .)
+--- (split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+--- --- Link metadata pieces
+--- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
+--- ---
 --- (auto .)
