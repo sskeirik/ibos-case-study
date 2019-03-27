@@ -27,32 +27,6 @@ fmod FOFORMSIMPLIFY-IMP-IMPL-EXT is
    = 'true.Bool != 'ui-consistent?[MSGL,WIS] .
 endfm
 
----@ \/
----@ ({ < ui | toKernel(UIML) >
----@    < display | activeWebapp(none), displayedContent(about-blank) >
----@    < nic | in(mtLL), nic-out(mtLS) >
----@    < webappmgr | nextWPN(NWP) >
----@    < kernel | weblabels(mtWPIS), netlabels(mtNPIS), displayedTopBar(about-blank), handledCurrently(none), nextNPN(0),
----@        msgPolicy(policy(webapp, network,MSG-FETCH-URL ),ps
----@                  policy(ui,     webapp, MSG-NEW-URL   ),ps
----@ 		 policy(ui,     webapp, MSG-SWITCH-TAB),ps
----@ 		 policy(network,webapp, MSG-RETURN-URL)) > }) |
----@    true
-
---- activeWebapp's id and URL appear in weblabels(), URL appears in displayedTopBar()
---- NOTE: this property has expanded to encompass attributes:
----       display: activeWebapp, displayedContent
----       kernel: displayedTopBar, weblabels
----       webappmgr: nextWAN
---- NOTE: since we are not worried about ids of network processes here, the nextNetworkProc attribute probably doesn't matter
---- NOTE: due to the changeTab rule requiring synchronization between the weblabels attribute and the state of the system, we either need to:
----       [i]  use a recursive (non-FVP) predicate to describe the required relationship (strengthen the invariant + proof subcalculus to reason about it)
----       [ii] strengthen the changeTab rule in our specification by strengthening its condition
---- NOTE: These are not used anymore for
----/\ (in-conf?(W,C))                    = (false)    --- Now process W directly appears in the invariant state
----/\ (webapp-url-render?(W,C))          = ((U,RNDR)) --- This made the RNDR variable free, which causes problems, so now it appears in the state
----/\ (conf-labels-eqset?((C < W | none >) !c,WIS,NIS))           = (true)     --- ensure WIS and C are consistent
-
 select RLTOOL .
 loop rltl-init .
 
@@ -78,8 +52,6 @@ loop rltl-init .
 --- pa7
 --- pa8
 --- pa9
-
---- Unsovled rules:
 --- pa10
 --- forwardsOP
 
@@ -94,7 +66,6 @@ loop rltl-init .
 (def-term-set ([C:Configuration]) | true .)
 (inv abc to '`[_`] on
 ({ NWC
-   --- < WI | URL(U), rendered(RNDR), A >
    < ui | toKernel(UIML) >
    < display | activeWebapp(WI), displayedContent(DISP) >
    < nic | in(NICIN), nic-out(NICOUT) >
@@ -115,7 +86,6 @@ loop rltl-init .
    (fresh-np-id?(network(NNP),NWC))                               = (true)  /\
    (fresh-weblabel?(webapp(NWP),WIS))                             = (true)  /\
    (fresh-netlabel?(network(NNP),NIS))                            = (true)  /\
-   --- uncomment when solving pa8/pa9
    (ui-consistent?(UIML,WIS))                                     = (true)  /\
    ---
    (netlabels-match?(NIS))                                        = (true)  /\
