@@ -1,44 +1,5 @@
 load ../../systems/ibos.maude
 
---- NOTES:
---- [1] local simplifications in formula structure are unsound when shared variables
----     are present which exist outside of the fragment that are lost --- this is
----     because the information regarding the variables is lost when the constraint
----     is solved --- some possibilities:
----     a. make variables into constants, do reductions, and then lift reduced items
----        into my theory so they can be used in later reduction steps
----     b. do reductions over formula-functor lifted algebras --- here we can express
----        express constraints about variables directly in our rules
----     c. make two copies of the formula --- one non-reduced version and one reduced
----        version --- then be careful to always allow reductions for each goal locally
----        have access to the unreduced parts that were assumed (or something like that)
----     d. record each reduction step so we keep around the set of all true facts that
----        we can assume --- then give our other reductions access to that set
---- [2] because messages may be dynamically added to the list, we need to ensure
----     that the metadata in the kernel WIS/NIS has the correct shape so that when
----     this webapp receives a message of the form that we care about, we know the
----     metadata will look like what we need to complete the proof
---- [3] since the only way the message list can increase is by the rule
----     kernelForwardsOPMessage, it SHOULD be enough to require:
----     a. kernel's currentlyHandled() attribute to be correct
----     b. kernel's message policy is locked down to the minimum necessary
----        (this way we can't instantiate the message policy with weird connections
----         and send MSG-FETCH/RETURN-URLs down those connections) ---
----        thus, we choose the default initial policy:
----        (webapp,network,MSG-FETCH-URL)
----        (network,webapp,MSG-RETURN-URL)
----        (ui,webapp,MSG-SWITCH-TAB)
----        (ui,webapp,MSG-NEW-URL)
----     However, requiring the webapps to always be reflected properly in the
----     kernel metadata just means that we will never have a terminating state
----     where the kernel tried to send a message and could not because no webapp
----     was there to receive it.
----     Also, probably the narrowing time is similar... maybe.
---- [4] if handledCurrently contains some message addressed to non-existent processes,
----     we don't care---that is a weird state, but it doesn't concern us---what concerns
----     us is that if the message is received by a real webapp, then it will satisfy the
----     conditions above
-
 fmod PROC-ID-FVP-EXT is
   pr PROC-ID .
 
@@ -921,28 +882,6 @@ fmod IBOS-SOP-PRED is
   eq render-consistent?(< WI | toKernel(ML),   A > NWC) = render-consistent?(< WI | A > NWC) .
   eq render-consistent?(< WI | fromKernel(ML), A > NWC) = render-consistent?(< WI | A > NWC) .
 
-  --- Here, we prove two kinds of invariants:
-  --- 1. check that the messages in an object's message queue are
-  ---    consistent with our security policy
-  --- 2. check that any message in the kernel's currentlyHandled()
-  ---    attribute is consistent with our security policy
-  ---
-  --- Where our security policy is specified by the kernel's
-  --- hardwired message policy object as well as:
-  --- a. network process metadata
-  --- b. webapp process metadata
-  ---
-  --- Note to prove properties (1)-(2) actually requires a quadruple
-  --- induction, i.e. we induct over:
-  --- i. every network/webapp process in the soup
-  --- ii. every message in the message queue of such a process
-  --- iii. every network process metadatum in the kernel info set
-  --- iv. every webapp process metadatum in the kernel info set
-  ---
-  --- One feature of this specification is that processes are
-  --- never deleted --- so that the process set/process info sets
-  --- always grow monotonically. This simplifies the proof procedure.
-  ---
   op p : NetWebProcConfig WebProcInfoSet NetProcInfoSet Message? -> Bool? [metadata "200"] .
 
   --- Invariant: any WebProc corresponding to a NetProc must be loaded
@@ -1093,9 +1032,6 @@ fmod IBOS-SOP-PRED is
   if out-netlabel-by-pid(NI,NIS) ~l OUT = false .
 
   --- currentlyHandled() attr invariant
-  --- TODO: complete this case analysis
-  --- TODO: case analysis should be keyed primarily on message TARGET and message TYPE
-  --- TODO: add NonNetProc targetted NonFetchMT/FetchMT
   --- NB: FetchMT cases needed for 6-a or 6-b
   --- NB: NEW-URL case needed for new-url
   eq p(NWC,                            WIS,NIS,msg(ui, webapp,MSG-NEW-URL,   OUT)) = p(NWC,WIS,NIS,none) .
@@ -1115,7 +1051,7 @@ fmod IBOS-SOP-PRED is
   --- process metadata invariant
  ceq p(NWC,(pi(WI,IN),wp WIS),                  NIS, M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ inlbl-in-netlabels?(IN,NIS) = false .
  ceq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ in-conf?(NI,NWC) = false .
-  --- TODO: Justify (needed for 6-a/6-b and new-url)
+  --- Needed for 6-a/6-b and new-url
  ceq p(NWC,              WIS ,(pi(NI,IN,OUT),np NIS),M?) = true              if p(NWC,WIS,NIS,M?) = true .
  ceq p(NWC,(pi(WI,IN),wp WIS),                  NIS, M?) = true              if p(NWC,WIS,NIS,M?) = true .
 
@@ -1131,58 +1067,6 @@ fmod IBOS-SOP-PRED is
 
   --- true case
   eq p(none,mtWPIS,mtNPIS,none) = true .
-
-  ---(
-  --- SOP Prop 1. The kernel must route network requests from web page instances to the proper network process
-  < NI | fromKernel(msg(WI, NI, MSG-FETCH-URL, OUT1) @ ML), Att >
-  < kernel |
-    weblabels(pi(WI,IN1),wp WPIS),
-    netlabels(pi(NI,IN2,OUT2),np NPIS),
-    displayedTopBar(URL),
-    Att2 >
-  such that OUT1 =/= OUT2 or IN1 =/= IN2 .
-
-  --- SOP Prop 3. Ethernet frames from network processes to the NIC must have IP addr/port that matches origin of network process.
-  < NI | mem-out(OUT1), Att >
-  < kernel | netlabels(pi(NI, IN, OUT2),np NPIS), Att2 >
-  such that OUT1 =/= OUT2 .
-
-  --- SOP Prop 2. The kernel must route Ethernet frames from the network interface card (NIC) to the proper network process.
-  < NI | mem-in(OUT2, LL), Att >
-  < kernel | netlabels(pi(NI, IN, OUT2),np NPIS), Att2 >
-  such that OUT1 =/= OUT2 .
-
-  --- SOP Prop 4. HTTP data from network processes to web page instances must adhere to the SOP
-  --- Q: Why does this one assume that IN matches but the other doesn't?
-  < WI | loading(1), fromKernel(msg(NI, WI, MSG-RETURN-URL, OUT2) @ ML), Att >
-  < kernel |
-    weblabels(pi(WI, IN1),wp WPIS),
-    networklabels(pi(NI, IN2, OUT1),np NPIS),
-    Att2 >
-  such that IN1 =/= IN2 or OUT1 =/= OUT2 .
-
-  --- SOP Prop 5. Network processes for different web page instances must remain isolated.
-  --- By defintion. Network processes are different objects with all communication through kernel.
-
-  --- SOP Prop 6. The browser chrome (UI elements) and web page content displays are isolated.
-  --- By defintiion. Display object is separate from kernel with UI chrome.
-
-  --- SOP Prop 7. Only the current tab can access the screen, mouse, and keyboard.
-  --- Implied by Prop 9 and ABC.
-
-  --- Prop 9. The URL of the current tab is displayed to the user whenever screen is not about-blank.
-  < kernel | displayedTopBar(URL1), Att >
-  < display | activeWebapp(WI), Att2 >
-  < WI  | URL(URL2), Att3 >
-  such that URL1 =/= URL2 .
-
-  --- ABC - Address Bar Correctness.
-  < kernel  | displayedTopBar(URL),   Att  >
-  < display | displayedContent(URL'), Att2 >
-  such that URL =/= URL'
-  and URL  =/= about-blank
-  and URL' =/= about-blank .
-  ---)
 endfm
 
 mod IBOS-SOP is
