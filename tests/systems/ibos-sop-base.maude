@@ -79,6 +79,13 @@ endfm
 
 fmod MSG-FVP-EXT is
   pr MSG-LIST .
+
+  var PI PI' : PipeId .
+  var L OUT : Label .
+  var ML ML2 : MessageList .
+  var RetMT : RetMsgType .
+  var FetchMT : FetchMsgType .
+
   sort FetchMsgType RetMsgType NonRetFetchMsgType NonRetMsgType NonFetchMsgType .
   subsort NonRetFetchMsgType < NonRetMsgType NonFetchMsgType < MsgType .
   subsort FetchMsgType < NonRetMsgType .
@@ -127,6 +134,15 @@ fmod MSG-FVP-EXT is
   sort MaybeMessageList .
   subsort MessageList < MaybeMessageList .
   op nolist : -> MaybeMessageList [ctor metadata "93"] .
+
+  --- an auxiliary predicate for ui-consistent
+  op newurl-nodupl? : Label MessageList -> Bool [metadata "198 false"] .
+  eq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-NEW-URL,   L)   @ ML2) = false [variant] .
+ ceq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-NEW-URL,   OUT) @ ML2) = true if L ~l OUT = false /\ newurl-nodupl?(L,ML @ ML2) = true .
+ ceq newurl-nodupl?(L,ML @ msg(PI,PI',RetMT,         OUT) @ ML2) = true if                     newurl-nodupl?(L,ML @ ML2) = true .
+ ceq newurl-nodupl?(L,ML @ msg(PI,PI',FetchMT,       OUT) @ ML2) = true if                     newurl-nodupl?(L,ML @ ML2) = true .
+ ceq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-SWITCH-TAB,OUT) @ ML2) = true if                     newurl-nodupl?(L,ML @ ML2) = true .
+  eq newurl-nodupl?(L,mt)                                        = true .
 endfm
 
 fmod KERNEL-METADATA-FVP-EXT is
@@ -479,7 +495,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq attr-dupl?(none) = false .
 endfm
 
-fmod IBOS-SOP-FVP is
+fmod IBOS-AUX-FVP is
   pr CONFIGURATION-FVP-EXT .
   pr LABEL-FVP-EXT .
   pr MSG-FVP-EXT .
@@ -627,8 +643,8 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq attr-subset?(none  | AS') = true .
 endfm
 
-fmod KERNEL-POLICIES-NONFVP-EXT is
-  pr IBOS-SOP-FVP .
+fmod IBOS-AUX-NONFVP is
+  pr IBOS-AUX-FVP .
   pr KERNEL-POLICIES-NONFVP .
   pr ATTRIBUTE-NONFVP-EXT .
 
@@ -801,8 +817,11 @@ ceq webapp-url-eqset?(                   C,(pi(WP,L ),wp WIS)) = false if in-con
  eq webapp-url-eqset?(< WP | loading(B),       A > C,WIS) = webapp-url-eqset?(< WP | A > C,WIS) .
 endfm
 
+---
+--- This module defines needed predicates for the same-origin (SOP) predicate
+---
 fmod IBOS-SOP-PRED is
-  pr KERNEL-POLICIES-NONFVP-EXT .
+  pr IBOS-AUX-NONFVP .
 
   var B : Bool .
   var NWC : NetWebProcConfig .
@@ -835,16 +854,9 @@ fmod IBOS-SOP-PRED is
   var NRM : NonRetMsg .
   var NFM : NonFetchMsg .
 
-  --- an auxiliary predicate for ui-consistent
-  op newurl-nodupl? : Label MessageList -> Bool [metadata "198 false"] .
-  eq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-NEW-URL,   L)   @ ML2) = false [variant] .
- ceq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-NEW-URL,   OUT) @ ML2) = true if L ~l OUT = false /\ newurl-nodupl?(L,ML @ ML2) = true .
- ceq newurl-nodupl?(L,ML @ msg(PI,PI',RetMT,         OUT) @ ML2) = true if                     newurl-nodupl?(L,ML @ ML2) = true .
- ceq newurl-nodupl?(L,ML @ msg(PI,PI',FetchMT,       OUT) @ ML2) = true if                     newurl-nodupl?(L,ML @ ML2) = true .
- ceq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-SWITCH-TAB,OUT) @ ML2) = true if                     newurl-nodupl?(L,ML @ ML2) = true .
-  eq newurl-nodupl?(L,mt)                                        = true .
-
-  --- this predicate is needed for prevention of races
+  ---
+  --- Checks that the UI message list contains only unique requests to open webpages
+  ---
   op ui-consistent? : MessageList WebProcInfoSet -> Bool [metadata "199"] .
   --- SWITCH-TAB
  ceq ui-consistent?(ML @ msg(PI,PI',MSG-SWITCH-TAB,OUT) @ ML2,WIS) = ui-consistent?(ML @ ML2,WIS)
@@ -863,39 +875,11 @@ fmod IBOS-SOP-PRED is
   --- Simplification of WIS
  ceq ui-consistent?(ML,pi(WI,IN),wp WIS) = true if fresh-weblabel?(WI,WIS) /\ ui-consistent?(ML,WIS) .
 
-  --- this predicate is needed for ABC
-  op netlabels-match? : NetProcInfoSet -> Bool [metadata "197"] .
- ceq netlabels-match?(pi(NI,IN,OUT),np NIS) = netlabels-match?(NIS) if IN ~l OUT .
- ceq netlabels-match?(pi(NI,IN,OUT),np NIS) = false                 if IN ~l OUT = false .
-  eq netlabels-match?(              mtNPIS) = true .
 
-  --- this predicate is needed for ABC
-  op render-consistent? : NetWebProcConfig -> Bool [metadata "196"] .
-  eq render-consistent?(< NI | A >                        NWC) = render-consistent?(NWC) .
- ceq render-consistent?(< WI | URL(OUT), rendered(L), A > NWC) = render-consistent?(NWC) if L blank-or-equal OUT .
- ceq render-consistent?(< WI | URL(OUT), rendered(L), A > NWC) = false                   if L blank-or-equal OUT = false .
-  eq render-consistent?(none) = true .
   ---
-  eq render-consistent?(< WI | loading(B),     A > NWC) = render-consistent?(< WI | A > NWC) .
-  eq render-consistent?(< WI | toKernel(ML),   A > NWC) = render-consistent?(< WI | A > NWC) .
-  eq render-consistent?(< WI | fromKernel(ML), A > NWC) = render-consistent?(< WI | A > NWC) .
-
+  --- This is the definition of SOP; the name `p` is used for brevity
+  ---
   op p : NetWebProcConfig WebProcInfoSet NetProcInfoSet Message? -> Bool? [metadata "200"] .
-
-  --- Invariant: any WebProc corresponding to a NetProc must be loaded
- ceq p(< NI | A > NWC,WIS,NIS,M?) = false
-  if proc-loaded?(NI,none,NIS,WIS,NWC) = false .
-
- ceq p(< NI | returnTo(CPI), A > NWC,WIS,NIS,M?) = false
-  if proc-loaded?(NI,CPI,NIS,WIS,NWC) = false .
-
-  --- Invariant: every NetProc/WebProc must have a metadata label
- ceq p(< NI | A > NWC,WIS,NIS,M?) = false
-  if pid-in-netlabels?(NI,NIS) = false .
-
- ceq p(< WI | A > NWC,WIS,NIS,M?) = false
-  if pid-in-weblabels?(WI,WIS) = false .
-
   --- Prop 1 ---
   --- any FETCH message in fromKernel queue of NetProc, agrees with kernel metadata
  ceq p(< NI | fromKernel(ML @ msg(PI,PI',MSG-FETCH-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) =
@@ -962,10 +946,18 @@ fmod IBOS-SOP-PRED is
   if WI ~p PI' and (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) = false .
 
   --- Other needed pieces:
-  --- WebProc toKernel queue invariant
-  --- fetch msg in queue if and only if loading(true)
-  --- Extends to greater state:
-  --- fetch msg in state if and only if loading(true)
+  ---
+  --- 1. WebProc toKernel queue invariant
+  --- 2. NetProc toKernel queue invariant
+  --- 3. NetProc in/out attribute invariants
+  --- 4. currentlyHandled attribute invariant
+  --- 5. NetProcInfoSet/WebProcInfoSet invariants
+  --- 6. Miscellaneous
+  ---
+
+  --- 1. WebProc toKernel queue invariant
+  ---   a. A fetch msg should be in the queue only if the loading attribute is true
+  ---   b. The fetch msg src/target should be consistent with our policy
  ceq p(< WI | toKernel(ML @ NFM @ ML2), A > NWC,WIS,NIS,M?) =
      p(< WI | toKernel(ML @       ML2), A > NWC,WIS,NIS,M?)
   if pid-in-weblabels?(WI,WIS) .
@@ -989,10 +981,10 @@ fmod IBOS-SOP-PRED is
 
   eq p(< WI | loading(false), toKernel(HFL), A > NWC,WIS,NIS,M?) = false .
 
-  --- NetProc toKernel queue invariant
-  --- If the message type is MSG-RETURN-URL, then:
-  --- [1] message target is from returnTo - which comes from a webapp that matches this one on the IN
-  --- [2] message label is from the in() attribute --- which means it comes from the Webapp URL, encoded in the OUT
+  --- 2. NetProc toKernel queue invariant
+  ---   a. if the message type is MSG-RETURN-URL, then:
+  ---     i.  message target is from returnTo - which comes from a webapp that matches this one on the IN
+  ---     ii. message label is from the in() attribute --- which means it comes from the Webapp URL, encoded in the OUT
  ceq p(< NI | toKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) =
      p(< NI | toKernel(ML @                                  ML2), A > NWC,WIS,NIS,M?)
   if PI ~p NI
@@ -1011,7 +1003,7 @@ fmod IBOS-SOP-PRED is
  ceq p(< NI | toKernel(ML @ msg(PI,PI',MSG-RETURN-URL,OUT) @ ML2), A > NWC,WIS,NIS,M?) = false
   if PI ~p NI and (weblabel-by-pid(PI',WIS),OUT) ~lp netlabelpair-by-pid(PI,NIS) and proc-loaded?(NI,PI',NIS,WIS,NWC) = false .
 
-  --- in/out invariants
+  --- 3. in()/out() attribute invariants
  ceq p(< NI | out(LL ; OUT ; LL'),  A > NWC,WIS,NIS,M?) =
      p(< NI | out(LL ;       LL'),  A > NWC,WIS,NIS,M?)
   if out-netlabel-by-pid(NI,NIS) ~l OUT
@@ -1029,9 +1021,10 @@ fmod IBOS-SOP-PRED is
  ceq p(< NI | out(LL ; OUT ; LL'), A > NWC,WIS,NIS,M?) = false
   if out-netlabel-by-pid(NI,NIS) ~l OUT = false .
 
-  --- currentlyHandled() attr invariant
+  --- 4. currentlyHandled() attribute invariant
   --- NB: FetchMT cases needed for 6-a or 6-b
   --- NB: NEW-URL case needed for new-url
+  --- a. handle messages to NetProcs
   eq p(NWC,                            WIS,NIS,msg(ui, webapp,MSG-NEW-URL,   OUT)) = p(NWC,WIS,NIS,none) .
  ceq p(NWC,                            WIS,NIS,msg(ui, CPI,   MSG-SWITCH-TAB,OUT)) = p(NWC,WIS,NIS,none) if pid-in-weblabels?(CPI,WIS) .
  ceq p(NWC,                            WIS,NIS,msg(ui, CPI,   MSG-SWITCH-TAB,OUT)) = false               if pid-in-weblabels?(CPI,WIS) = false .
@@ -1040,34 +1033,87 @@ fmod IBOS-SOP-PRED is
  ceq p(NWC,WIS,NIS,msg(CPI, NI, NonFetchMT, OUT)) = p(NWC,WIS,NIS,none) if pid-in-netlabels?(NI,NIS) .
  ceq p(NWC,WIS,NIS,msg(CPI, NI, FetchMT,    OUT)) = false               if proc-loaded?(NI,CPI,NIS,WIS,NWC) and (weblabel-by-pid(CPI, WIS),OUT) ~lp netlabelpair-by-pid(NI,NIS) = false .
  ceq p(NWC,WIS,NIS,msg(CPI, NI, NonFetchMT, OUT)) = false               if pid-in-netlabels?(NI,NIS) = false .
-  ---
+  --- b. handle messages to WebProcs
  ceq p(NWC,WIS,NIS,msg(CPI, WI, RetMT,      OUT)) = p(NWC,WIS,NIS,none)  if proc-loaded?(CPI,WI,NIS,WIS,NWC) /\ (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(CPI,NIS) .
  ceq p(NWC,WIS,NIS,msg(CPI, WI, NonRetMT,   OUT)) = p(NWC,WIS,NIS,none)  if pid-in-weblabels?(WI,WIS) .
  ceq p(NWC,WIS,NIS,msg(CPI, WI, RetMT,      OUT)) = false                if proc-loaded?(CPI,WI,NIS,WIS,NWC) and (weblabel-by-pid(WI,WIS),OUT) ~lp netlabelpair-by-pid(CPI, NIS) = false .
  ceq p(NWC,WIS,NIS,msg(CPI, WI, NonRetMT,   OUT)) = false                if pid-in-weblabels?(WI,WIS) = false .
 
-  --- process metadata invariant
+  --- 5. NetProcInfoSet/WebProcInfoSet invariants
  ceq p(NWC,(pi(WI,IN),wp WIS),                  NIS, M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ inlbl-in-netlabels?(IN,NIS) = false .
  ceq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ in-conf?(NI,NWC) = false .
   --- Needed for 6-a/6-b and new-url
  ceq p(NWC,              WIS ,(pi(NI,IN,OUT),np NIS),M?) = true              if p(NWC,WIS,NIS,M?) = true .
  ceq p(NWC,(pi(WI,IN),wp WIS),                  NIS, M?) = true              if p(NWC,WIS,NIS,M?) = true .
 
-  --- process invariant
+  --- 6. Miscellaneous invariants
+  --- a. process consumption invariants
   eq p(< WI | toKernel(nolist), fromKernel(nolist),                                                         A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
   eq p(< NI | toKernel(nolist), fromKernel(nolist), mem-in(nolabel), mem-out(nolabel), in(mtLL), out(mtLL), A > NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,M?) .
-
-  --- simplification rules
+  --- b. attribute canonization
  ceq p(< WI | loading(true), A > NWC,WIS,NIS,M?) = true if p(< WI | loading(false), A > NWC,WIS,NIS,M?) .
   eq p(< WI | rendered(L),   A > NWC,WIS,NIS,M?) = p(< WI | rendered(nolabel), A > NWC,WIS,NIS,M?) .
  ceq p(< NI | returnTo(CPI), A > NWC,WIS,NIS,M?) = p(< NI | returnTo(none),    A > NWC,WIS,NIS,M?)
   if proc-loaded?(NI,CPI,NIS,WIS,NWC) .
-
-  --- true case
+  --- c.i. any WebProc corresponding to a NetProc must be loaded
+ ceq p(< NI | A > NWC,WIS,NIS,M?) = false
+  if proc-loaded?(NI,none,NIS,WIS,NWC) = false .
+  --- c.ii. any WebProc referenced by a returnTo() attribute must be loaded
+ ceq p(< NI | returnTo(CPI), A > NWC,WIS,NIS,M?) = false
+  if proc-loaded?(NI,CPI,NIS,WIS,NWC) = false .
+  --- e. every NetProc must have a metadata label
+ ceq p(< NI | A > NWC,WIS,NIS,M?) = false
+  if pid-in-netlabels?(NI,NIS) = false .
+  --- f. every WebProc must have a metadata label
+ ceq p(< WI | A > NWC,WIS,NIS,M?) = false
+  if pid-in-weblabels?(WI,WIS) = false .
+  --- g. the true case, i.e. everything is consumed
   eq p(none,mtWPIS,mtNPIS,none) = true .
 endfm
 
-mod IBOS-SOP is
+---
+--- This module defines neeeded predicates for the address bar correctness (ABC) predicate
+---
+fmod IBOS-ABC-PRED is
+  pr IBOS-AUX-NONFVP .
+
+  var NIS : NetProcInfoSet .
+  var NWC : NetWebProcConfig .
+  var WI : ConcWebProcId .
+  var NI : ConcNetProcId .
+  var A : AttributeSet .
+  var ML : MessageList .
+  var IN OUT L : Label .
+  var B : Bool .
+
+  ---
+  --- For each NetProcInfo in the NetProcInfoSet, we require that IN and OUT labels match
+  ---
+  op netlabels-match? : NetProcInfoSet -> Bool [metadata "197"] .
+ ceq netlabels-match?(pi(NI,IN,OUT),np NIS) = netlabels-match?(NIS) if IN ~l OUT .
+ ceq netlabels-match?(pi(NI,IN,OUT),np NIS) = false                 if IN ~l OUT = false .
+  eq netlabels-match?(              mtNPIS) = true .
+
+  ---
+  --- For each WebProc, the rendered() attribute should be blank or equal to the URL() attribute
+  ---
+  op render-consistent? : NetWebProcConfig -> Bool [metadata "196"] .
+  eq render-consistent?(< NI | A >                        NWC) = render-consistent?(NWC) .
+ ceq render-consistent?(< WI | URL(OUT), rendered(L), A > NWC) = render-consistent?(NWC) if L blank-or-equal OUT .
+ ceq render-consistent?(< WI | URL(OUT), rendered(L), A > NWC) = false                   if L blank-or-equal OUT = false .
+  eq render-consistent?(none) = true .
+  ---
+  eq render-consistent?(< WI | loading(B),     A > NWC) = render-consistent?(< WI | A > NWC) .
+  eq render-consistent?(< WI | toKernel(ML),   A > NWC) = render-consistent?(< WI | A > NWC) .
+  eq render-consistent?(< WI | fromKernel(ML), A > NWC) = render-consistent?(< WI | A > NWC) .
+endfm
+
+fmod IBOS-PREDS is
   pr IBOS-SOP-PRED .
+  pr IBOS-ABC-PRED .
+endfm
+
+mod IBOS-STOP-WITH-PREDS is
+  pr IBOS-PREDS .
   pr IBOS-STOP .
 endm

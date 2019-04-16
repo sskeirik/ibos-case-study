@@ -3,8 +3,6 @@ load ../../systems/ibos-sop-fvp-noau.maude --- varsat
 load ../../systems/ibos-sop-noau.maude     --- everything
 
 set show advisories off .
-set print attribute on .
----set print with parentheses on .
 
 load ../../rltool-lib.maude
 
@@ -30,10 +28,10 @@ endfm
 select RLTOOL .
 loop rltl-init .
 
-(select     IBOS-SOP-NOID .)
-(use tool conrew  for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
-(use tool conrew  for unsatisfiability on IBOS-SOP-PRED-NOID .)
-(use tool varunif for varunif          on IBOS-SOP-FVP-NOID  .)
+(select IBOS-STOP-WITH-PREDS-NOID .)
+(use tool conrew  for validity         on IBOS-PREDS-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
+(use tool conrew  for unsatisfiability on IBOS-PREDS-NOID .)
+(use tool varunif for varunif          on IBOS-AUX-FVP-NOID .)
 
 --- Sovled rules:
 --- new-url
@@ -63,7 +61,9 @@ loop rltl-init .
 	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (U':Label) U (U2:Label) U (IN:Label) U (IN2:Label) U (OUT:Label) U (OUT2:Label) U
 	      (A:AttributeSet) U (A':AttributeSet) U (A'':AttributeSet) U (MT:MsgType) U (LL:LabelList) U (RNDR:Label) U
 	      (NWI:ConcNetWebProcId) U (WI:ConcWebProcId) U (WI':ConcWebProcId) U (PP1:ConcPipeId) U (GPPI:PipeId) .)
+
 (def-term-set ([C:Configuration]) | true .)
+
 (inv abc to '`[_`] on
 ({ NWC
    < ui | toKernel(UIML) >
@@ -95,10 +95,8 @@ loop rltl-init .
    (render-consistent?(NWC))                                      = (true)
 .)
 
-set print conceal on .
-print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ [_,_,_,_,_,_] . --- _;_ _`[_`] . --- _&&_ _|_
-
 (start-proof .)
+
 (auto .)
 
 --- new-url, change-display, nic1

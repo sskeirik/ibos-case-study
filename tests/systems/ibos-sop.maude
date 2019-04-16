@@ -3,14 +3,9 @@ load ../../systems/ibos-sop-fvp-noau.maude --- varsat
 load ../../systems/ibos-sop-noau.maude     --- everything
 
 set show advisories off .
-set print attribute on .
----set print with parentheses on .
 
 load ../../rltool-lib.maude
 
---- NOTE: these are applied to an IMPLICATION!!!!
----       so in the antecedent, equality/disequality is reversed
----       .... but not in the succedent
 fmod FOFORMSIMPLIFY-IMP-IMPL-EXT is
   pr FOFORMSIMPLIFY-IMP-IMPL .
 
@@ -33,7 +28,7 @@ endfm
 select RLTOOL .
 loop rltl-init .
 
-(select IBOS-SOP-NOID .)
+(select IBOS-STOP-WITH-PREDS-NOID .)
 
 --- Do not unify with invariant state:
 --- 14. kernelReceivesOPMessage-pa1
@@ -62,27 +57,22 @@ loop rltl-init .
 --- 22. tab-change
 --- 23. kernelReceivesOPMessage-pa10
 
---- Todo:
-
---- Usage: select-rls ...
 (select-rls kernelReceivesOPMessage-pa6-a .)
 
-(use tool conrew  for validity         on IBOS-SOP-PRED-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
-(use tool conrew  for unsatisfiability on IBOS-SOP-PRED-NOID .)
-(use tool varunif for varunif          on IBOS-SOP-FVP-NOID  .)
+(use tool conrew  for validity         on IBOS-PREDS-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
+(use tool conrew  for unsatisfiability on IBOS-PREDS-NOID .)
+(use tool varunif for varunif          on IBOS-AUX-FVP-NOID .)
+
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (AWP:WebProcId) U
 	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:ConcNetProcId) U (NI?:NetProcId) U
 	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (IN:Label) U (IN2:Label) U (OUT:Label) U
 	      (A:AttributeSet) U (A':AttributeSet) U (MT:MsgType) U (LL:LabelList) U
 	      (NWI:ConcNetWebProcId) U (WI:ConcWebProcId) U (PP1:ConcPipeId) U (GPPI:PipeId) .)
+
 (def-term-set ([C:Configuration]) | true .)
---- INV is a generalized multiset equality between:
---- [1] set of fromKernel messages at the beginning of a list in a netproc
---- [2] labels in WebappInfoSet and NetworkProcInfoSet
---- TODO: consider version with abstract policy that includes this policy as a subset???
----       check what other kinds of messages are allowed between webapp/network in the original model
-(inv sop4 to '`[_`] on
+
+(inv sop to '`[_`] on
 ({ NWC
    < ui | toKernel(UIML) >
    < display | activeWebapp(AWP), displayedContent(DISP) >
@@ -107,11 +97,9 @@ loop rltl-init .
    (ui-consistent?(UIML,WIS))           = (true)  /\
    (netlabels-match?(NIS))              = (true)
 .)
+
 (start-proof .)
---- set break on .
---- break select step-action .
-set print conceal on .
-print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm _;;_ . --- _;_ _`[_`] . --- _&&_ _|_
+
 (auto .)
 
 --- pa6-a
