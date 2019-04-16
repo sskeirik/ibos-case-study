@@ -34,7 +34,7 @@ fmod CONFIGURATION-FVP-EXT is
 
   op in-conf? : ProcessId Configuration -> Bool [metadata "108 true"] .
   eq in-conf?(P, < P   | A' > C) = true [variant] .
- ceq in-conf?(P?,< P'  | A' > C) = false if P? ~p P' = false /\ in-conf?(P?,C) = false .
+ ceq in-conf?(P?,< P'  | A' > C) = in-conf?(P?,C) if P? ~p P' = false .
   eq in-conf?(P?,none)           = false .
 endfm
 
@@ -450,7 +450,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq in-attrset?(displayedTopBar (X:Label)            | (displayedTopBar (Y:Label),            AS)) = true [variant] .
   eq in-attrset?(displayedContent(X:Label)            | (displayedContent(Y:Label),            AS)) = true [variant] .
   eq in-attrset?(activeWebapp    (X:WebProcId)        | (activeWebapp    (Y:WebProcId),        AS)) = true [variant] .
- ceq in-attrset?(A | A', AS) = false if  A ~a A' = false /\ in-attrset?(A | AS) = false .
+ ceq in-attrset?(A | A', AS) = in-attrset?(A | AS) if A ~a A' = false .
   eq in-attrset?(A | none)   = false .
 
   op attr-dupl? : AttributeSet -> Bool [metadata "105 true"] .
@@ -664,11 +664,9 @@ fmod KERNEL-POLICIES-NONFVP-EXT is
   --- lemmas for FVP symbols
   eq attr-dupl?((A !a), A') = attr-dupl?(A, A') .
   eq in-attrset?(At | (A !a), A') = in-attrset?(At | A, A') .
- ceq in-attrset?(At | At', A) = in-attrset?(At | A) if At ~a At' = false .
  ceq in-conf?(NP,C) = false if fresh-np-id?(NP,C) = true .
  ceq in-conf?(WP,C) = false if fresh-wp-id?(WP,C) = true .
  ceq in-conf?(WP,C) = false if webapp-url-render(WP,C) = nopair .
- ceq in-conf?(P?,< P'  | A' > C) = in-conf?(P?,C) if P? ~p P' = false .
  ceq weblabel-by-pid(WP,WIS) = nolabel if fresh-weblabel?(WP,WIS) .
  ceq netlabelpair-by-pid(NP,NIS) = nopair if fresh-netlabel?(NP,NIS) .
 
