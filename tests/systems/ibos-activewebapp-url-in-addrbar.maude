@@ -1,6 +1,6 @@
-load ../../systems/ibos-sop-pred-nou.maude --- contextual rewriting
-load ../../systems/ibos-sop-fvp-noau.maude --- varsat
-load ../../systems/ibos-sop-noau.maude     --- everything
+load ../../systems/ibos-aux-fvp-noau.maude --- varsat
+load ../../systems/ibos-preds-nou.maude    --- contextual rewriting
+load ../../systems/ibos-noau.maude         --- everything
 
 set show advisories off .
 

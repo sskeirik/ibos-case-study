@@ -1,6 +1,6 @@
-load ../../systems/ibos-sop-pred-nou.maude --- contextual rewriting
-load ../../systems/ibos-sop-fvp-noau.maude --- varsat
-load ../../systems/ibos-sop-noau.maude     --- everything
+load ../../systems/ibos-aux-fvp-noau.maude --- varsat
+load ../../systems/ibos-preds-nou.maude    --- contextual rewriting
+load ../../systems/ibos-noau.maude         --- everything
 
 set show advisories off .
 
@@ -132,7 +132,6 @@ loop rltl-init .
 --- (auto .)
 
 --- fetch
---- --- TODO: check that ceq flipping true to false is sound
 --- (split ({ < WI | A > < kernel | weblabels(WIS), A' > C }) by (pid-in-weblabels?(WI,WIS)) = (false) and (pid-in-weblabels?(WI,WIS)) = (true) .)
 --- (auto .)
 
