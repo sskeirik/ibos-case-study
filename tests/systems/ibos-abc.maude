@@ -1,6 +1,6 @@
-load ../../systems/ibos-aux-fvp-noau.maude --- varsat
-load ../../systems/ibos-preds-nou.maude    --- contextual rewriting
-load ../../systems/ibos-noau.maude         --- everything
+load ../../systems/ibos-preds-fvp-noau.maude --- varsat
+load ../../systems/ibos-preds-nou.maude      --- contextual rewriting
+load ../../systems/ibos-noau.maude           --- everything
 
 set show advisories off .
 
@@ -31,7 +31,7 @@ loop rltl-init .
 (select IBOS-STOP-WITH-PREDS-NOID .)
 (use tool conrew  for validity         on IBOS-PREDS-NOID with FOFORMSIMPLIFY-IMP-IMPL-EXT .)
 (use tool conrew  for unsatisfiability on IBOS-PREDS-NOID .)
-(use tool varunif for varunif          on IBOS-AUX-FVP-NOID .)
+(use tool varunif for varunif          on IBOS-PREDS-FVP-NOID .)
 
 --- Sovled rules:
 --- new-url

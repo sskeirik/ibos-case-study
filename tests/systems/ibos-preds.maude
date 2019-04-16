@@ -1,5 +1,9 @@
 load ../../systems/ibos.maude
 
+---
+--- PARTIALLY FVP
+---
+
 fmod PROC-ID-FVP-EXT is
   pr PROC-ID .
 
@@ -592,6 +596,20 @@ fmod IBOS-AUX-FVP is
   eq proc-loaded?(MP,AP,                  NIS,             WIS, C) = false .
   --- false if both ids are none
   eq proc-loaded?(NN,NN,                  NIS,             WIS, C) = false .
+endfm
+
+fmod IBOS-SOP-PRED-FVP is
+  pr IBOS-AUX-FVP .
+endfm
+
+fmod IBOS-ABC-PRED-FVP is
+  pr IBOS-AUX-FVP .
+
+  var WP  : ConcWebProcId .
+  var P   : ConcProcId .
+  var U R : Label .
+  var A   : AttributeSet .
+  var C   : Configuration .
 
   op webapp-url-render : ConcWebProcId Configuration -> MaybeLabelPair [metadata "136 L:LabelPair"] .
   eq webapp-url-render(WP,< WP | URL(U), rendered(R), A > C) = (U,R) [variant] .
@@ -607,6 +625,15 @@ fmod IBOS-AUX-FVP is
  ceq display-topbar-consistent?(WP,R,U,          < WP |                      A > C) = display-topbar-consistent?(WP,R,U,C) if R ~l about-blank = false /\ in-attrset?(rendered(about-blank) | A) = false .
   eq display-topbar-consistent?(WP,R,U,                                       none) = false .
 endfm
+
+fmod IBOS-PREDS-FVP is
+  pr IBOS-SOP-PRED-FVP .
+  pr IBOS-ABC-PRED-FVP .
+endfm
+
+---
+--- NON-FVP
+---
 
 fmod ATTRIBUTE-NONFVP-EXT is
   pr ATTRIBUTE-FVP-EXT .
@@ -644,7 +671,7 @@ fmod ATTRIBUTE-NONFVP-EXT is
 endfm
 
 fmod IBOS-AUX-NONFVP is
-  pr IBOS-AUX-FVP .
+  pr IBOS-PREDS-FVP .
   pr KERNEL-POLICIES-NONFVP .
   pr ATTRIBUTE-NONFVP-EXT .
 
