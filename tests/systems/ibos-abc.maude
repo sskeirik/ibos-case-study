@@ -33,25 +33,32 @@ loop rltl-init .
 (use tool conrew  for unsatisfiability on IBOS-PREDS-NOID .)
 (use tool varunif for varunif          on IBOS-PREDS-FVP-NOID .)
 
---- Sovled rules:
---- new-url
---- tab-change
---- change-display
---- fetch
---- render
---- proc-in
---- request-from-webapp
---- proc-out
---- msg-to-kernel
---- mem-out
---- mem-in
---- nic1
---- pa6-a/b
---- pa7
---- pa8
---- pa9
---- pa10
---- forwardsOP
+--- Do not unify with invariant state:
+--- 14. kernelReceivesOPMessage-pa1
+--- 15. kernelReceivesOPMessage-pa2
+--- 16. kernelReceivesOPMessage-pa3
+--- 17. kernelReceivesOPMessage-pa4
+--- 18. kernelReceivesOPMessage-pa5
+
+--- Solved:
+--- 1. fetch
+--- 2. kernelReceivesOPMessage-pa7
+--- 3. kernelReceivesOPMessage-pa6-a
+--- 4. kernelReceivesOPMessage-pa6-b
+--- 5. new-url
+--- 6. kernelForwardsOPMessage
+--- 7. render
+--- 8. request-from-webapp
+--- 9. proc-in
+--- 10. proc-out
+--- 11. msg-to-kernel
+--- 12. mem-out
+--- 13. mem-in
+--- 19. kernelReceivesOPMessage-pa8
+--- 20. kernelReceivesOPMessage-pa9
+--- 21. change-display
+--- 22. tab-change
+--- 23. kernelReceivesOPMessage-pa10
 
 (select-rls kernelReceivesOPMessage-pa10 .)
 
