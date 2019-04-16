@@ -1,8 +1,0 @@
-load ../prelude-aux.maude
-load ../meta-aux.maude
-load ../renaming.maude
-load ../unsortify.maude
-load ../foform.maude
-load ../mgci.maude
-load load-cc.maude
-load ../congclosure.maude
