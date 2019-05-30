@@ -1308,6 +1308,9 @@ endfm
 --- the variant-unification based simplification; it essentially a copy
 --- of similar functionality in FOFORM-FILTER with slight modifications
 fmod VAR-UNIF-PARTIAL-FVP is
+  pr CTOR-VARIANT .
+  pr FOFORMSUBSTITUTION-PAIRSET .
+  pr FOFORMSET-OPERATIONS .
   pr FOFORM-FILTER .
   pr TERMPAIRSET .
   pr STRING-LIST .
@@ -1315,14 +1318,18 @@ fmod VAR-UNIF-PARTIAL-FVP is
   pr UNIFIERS .
 
   var U : Module .
+  var PC : PosConj .
+  var NC? : NegConj? .
   var EA : EqAtom . var A : Atom .
-  var C1 C2 C3 : Conj? .
-  var D1 D2 D3 : Disj? .
+  var C2 C3 : Conj? .
+  var D2 D3 : Disj? .
+  var F? : FOForm? .
   var P1 P2 L R : Term .
   var TPS : TermPairSet .
   var O : OpDecl .
   var OS : OpDeclSet .
   var S S1 S2 S3 : String .
+  var SS : SubstitutionSet .
 
   --- OUT: like filter-conj/disj but excludes certain atoms
   ---      that do not conform to the policy specified by
@@ -1330,21 +1337,21 @@ fmod VAR-UNIF-PARTIAL-FVP is
   ---  NB: currently, we only support a policy that specifies
   ---      throws out any equalities which are partially FVP
   ---      and not solveable
-  op filterConjByPolicy : Module Conj? ~> FOFormPair .
-  eq filterConjByPolicy(U,C1) = filterConjByPolicy(U,getFilterPolicy(U),C1,mtForm,mtForm) .
+  op filterConjByPolicy : Module FOForm? ~> FOFormPair .
+  eq filterConjByPolicy(U,F?) = filterConjByPolicy(U,getFilterPolicy(U),F?,mtForm,mtForm) .
 
-  op filterConjByPolicy : Module TermPairSet Conj? Conj? Conj? ~> FOFormPair .
-  eq filterConjByPolicy(U,TPS,EA /\ C1,C2,C3) = if wellFormed(U,EA) and filterPolicy(U,TPS,EA) then filterConjByPolicy(U,TPS,C1,C2 /\ EA,C3) else filterConjByPolicy(U,TPS,C1,C2,C3 /\ EA) fi .
-  eq filterConjByPolicy(U,TPS,A  /\ C1,C2,C3) = filterConjByPolicy(U,TPS,C1,C2,C3 /\ A) .
-  eq filterConjByPolicy(U,TPS,mtForm,  C2,C3) = (C2,C3) .
+  op filterConjByPolicy : Module TermPairSet FOForm? Conj? Conj? ~> FOFormPair .
+  eq filterConjByPolicy(U,TPS,EA /\ F?,C2,C3) = if wellFormed(U,EA) and filterPolicy(U,TPS,EA) then filterConjByPolicy(U,TPS,F?,C2 /\ EA,C3) else filterConjByPolicy(U,TPS,F?,C2,C3 /\ EA) fi .
+  eq filterConjByPolicy(U,TPS,A  /\ F?,C2,C3) = filterConjByPolicy(U,TPS,F?,C2,C3 /\ A) .
+  eq filterConjByPolicy(U,TPS,F?,      C2,C3) = (C2,F? /\ C3) [owise] .
 
-  op filterDisjByPolicy : Module Disj? ~> FOFormPair .
-  eq filterDisjByPolicy(U,D1) = filterDisjByPolicy(U,getFilterPolicy(U),D1,mtForm,mtForm) .
+  op filterDisjByPolicy : Module FOForm? ~> FOFormPair .
+  eq filterDisjByPolicy(U,F?) = filterDisjByPolicy(U,getFilterPolicy(U),F?,mtForm,mtForm) .
 
-  op filterDisjByPolicy : Module TermPairSet Disj? Disj? Disj? ~> FOFormPair .
-  eq filterDisjByPolicy(U,TPS,EA \/ D1,D2,D3) = if wellFormed(U,EA) and filterPolicy(U,TPS,EA) then filterDisjByPolicy(U,TPS,D1,D2 \/ EA,D3) else filterDisjByPolicy(U,TPS,D1,D2,D3 \/ EA) fi .
-  eq filterDisjByPolicy(U,TPS,A  \/ D1,D2,D3) = filterDisjByPolicy(U,TPS,D1,D2,D3 \/ A) .
-  eq filterDisjByPolicy(U,TPS,mtForm,  D2,D3) = (D2,D3) .
+  op filterDisjByPolicy : Module TermPairSet FOForm? Disj? Disj? ~> FOFormPair .
+  eq filterDisjByPolicy(U,TPS,EA \/ F?,D2,D3) = if wellFormed(U,EA) and filterPolicy(U,TPS,EA) then filterDisjByPolicy(U,TPS,F?,D2 \/ EA,D3) else filterDisjByPolicy(U,TPS,F?,D2,D3 \/ EA) fi .
+  eq filterDisjByPolicy(U,TPS,A  \/ F?,D2,D3) = filterDisjByPolicy(U,TPS,F?,D2,D3 \/ A) .
+  eq filterDisjByPolicy(U,TPS,F?,      D2,D3) = (D2,F? /\ D3) [owise] .
 
   op filterPolicy : Module TermPairSet EqAtom -> Bool .
   eq filterPolicy(U,TPS,L ?= R) = filterPolicy(U,TPS,L,R) .
@@ -1370,6 +1377,17 @@ fmod VAR-UNIF-PARTIAL-FVP is
  ceq parseFilterMetadata(U,S) = stringToTerm(U,S2) if S1 S2         := split(S," ") .
  ceq parseFilterMetadata(U,S) = stringToTerm(U,S2) if S1    "ID" S2 := split(S," ") /\ false .
  ceq parseFilterMetadata(U,S) = stringToTerm(U,S2) if S1 S2 "ID" S3 := split(S," ") /\ stringToTerm(U,S2) :: Term .
+
+  op #varunif-simp : Module FOForm? ~> FOFormSubstPairSet .
+  op #varunif-simp : Module FOFormPair ~> FOFormSubstPairSet .
+  op #varunif-simp : SubstitutionSet NegConj? FOForm? ~> FOFormSubstPairSet .
+  eq #varunif-simp(U,F?) = #varunif-simp(U,filterConjByPolicy(U,F?)) .
+  eq #varunif-simp(U,(PC /\ NC?,F?)) = #varunif-simp(ctor-unifiers(U,toUnifProb(PC)),NC?,F?) .
+  eq #varunif-simp(U,(NC?,F?)) = (NC? /\ F?,none) .
+  eq #varunif-simp(SS,NC?,F?) = (NC? /\ F?) Pair<< SS .
+
+  op varunif-simp : Module FOForm? ~> FOForm? .
+  eq varunif-simp(U,F?) = disj-join(getForm(#varunif-simp(U,F?))) .
 endfm
 
 fmod FOFORM-PRINTER is pr FOFORM . pr GENERIC-PRINTER .
