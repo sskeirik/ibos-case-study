@@ -1,0 +1,168 @@
+view Term     from TRIV to META-MODULE is sort Elt to Term     . endv
+view TermList from TRIV to META-MODULE is sort Elt to TermList . endv
+
+fmod VERIFY-PARTIALFVP-AUX is
+  pr CONG-CLOSURE-SAFETY .
+  pr PREDICATE-FUNCTOR .
+
+  var U : Module .
+  var Trm : Term .
+  var S : Sort .
+  var N : Nat .
+  var OS : OpDeclSet .
+  var Q : Qid .
+  var TL : TypeList .
+  var T : Type .
+  var A : AttrSet .
+  var SortP OpP : Qid .
+
+  op pfvp-pred-functor : Module Sort Term -> ModQidListPair .
+  eq pfvp-pred-functor(U,S,Trm) = pfvp-pred-functor(pred-functor(U,'pos? |=> (S,Trm,empty)),ccMaxId(U)) .
+
+  op pfvp-pred-functor : ModQidListPair Nat -> ModQidListPair .
+  eq pfvp-pred-functor((U,SortP OpP),N) = (pfvp-pred-functor(U,N,opByResType(join(SortP 'Bool),getOps(U))),SortP OpP) .
+
+  op pfvp-pred-functor : Module Nat OpDeclSet -> Module .
+  eq pfvp-pred-functor(U,N,OS) = setOps(U,(getOps(U) - OS) addPFVPMetadata(s(N),OS)) .
+
+  op addPFVPMetadata : Nat OpDeclSet -> OpDeclSet .
+  eq addPFVPMetadata(N, op Q : TL -> T [A]. OS) =
+    (op Q : TL -> T [metadata(string(N,10)) A].)
+    addPFVPMetadata(s(N),OS) .
+  eq addPFVPMetadata(N, none) = none .
+endfm
+
+fmod VERIFY-PARTIALFVP is
+  pr VAR-UNIF-PARTIAL-FVP .
+  pr ABSTRACT-RULES .
+  pr FOFORMSIMPLIFY .
+  pr PREDICATE-FUNCTOR .
+  pr CONTEXT-REW .
+  pr STMT-EXTRA .
+  pr VERIFY-PARTIALFVP-AUX .
+  pr MAP{Term,QidTermListTuple} .
+  pr MAP{Qid,QidTermListTuple} * (op _|->_ to _|=>_, op undefined to undefQTM) .
+
+  var U : Module .
+  var TM : Map{Term,QidTermListTuple} .
+  var E E1 E2 : Equation .
+  var ES : EquationSet .
+  var EC : EqCondition .
+  var PEC : PosEqConj? .
+  var PEQ SEQ NEQ : EquationSet .
+  var T T' PT NT : Term .
+  var TS : TermSet .
+  var Srt : Sort .
+  var S : Substitution .
+  var SS : SubstitutionSet .
+  var Q SortP OpP : Qid .
+  var QTM : Map{Qid,QidTermListTuple} .
+  var PEDS : PFVPEquationDataSet .
+
+
+  sort PFVPObligation PFVPObligationSet .
+  subsort PFVPObligation < PFVPObligationSet .
+  op nocp : Equation Equation PosEqConj -> PFVPObligation [ctor] .
+  op cp   : Term Term PosEqConj? -> PFVPObligation [ctor] .
+  op _;_ : PFVPObligationSet PFVPObligationSet -> PFVPObligationSet [ctor assoc comm id: .PFVPObligationSet] .
+  op .PFVPObligationSet : -> PFVPObligationSet [ctor] .
+
+  sort PFVPEquationData PFVPEquationDataSet .
+  subsort PFVPEquationData < PFVPEquationDataSet .
+  op ((_,_,_,_,_,_)) : Sort Term EquationSet EquationSet Term EquationSet -> PFVPEquationData [format(d d d n d n d n d n d n d d) ctor] .
+  op _;_ : PFVPEquationDataSet PFVPEquationDataSet -> PFVPEquationDataSet [ctor assoc comm id: .PFVPEquationDataSet] .
+  op .PFVPEquationDataSet : -> PFVPEquationDataSet [ctor] .
+
+  --- For each partial FVP equation
+  ---   1. Select a cover set split into positive and negative atoms
+  ---   2. Filter out the partial FVP equations into their separate subcases
+  ---   3. For each equation that rewrites to a positive atom, check that its lhs
+  ---      does not unify with each equation that rewrites to a negative atom
+  ---   4. For other equations, check:
+  ---      - if the rhs can rewrite to positive atom, the lhs can rewrite to the positive atom (assuming condition)
+  ---      - if the rhs can rewrite to negative atom, the lhs cannot rewrite to the positive atom
+  --- Return the set of proof obligations that could not be proved or were proved false
+  op check-fvp : Module Map{Qid,QidTermListTuple} -> PFVPObligationSet .
+  eq check-fvp(U,QTM) = check-fvp(U,dbgPrintPartition(false,partitionEqs(U,QTM))) .
+
+  op check-fvp : Module PFVPEquationDataSet -> PFVPObligationSet .
+  eq check-fvp(U,(Srt,PT,PEQ,SEQ,NT,NEQ) ; PEDS) =
+    --- posNegNoCPs(U,PEQ,NEQ) ;
+    positivityInvariant(U,Srt,PT,PEQ,SEQ) ;
+    check-fvp(U,PEDS) .
+  eq check-fvp(U,.PFVPEquationDataSet) = .PFVPObligationSet .
+
+  --- Compute whether the positive and negative equations have critical pairs
+  op posNegNoCPs : Module EquationSet EquationSet -> PFVPObligationSet .
+  eq posNegNoCPs(U,E E1 PEQ,      NEQ) = posNegNoCPs(U,E,NEQ) ; posNegNoCPs(U,E1 PEQ,NEQ) .
+  eq posNegNoCPs(U,none,          NEQ) = .PFVPObligationSet .
+  eq posNegNoCPs(U,E,       E1 E2 NEQ) = posNegNoCPs(U,E,E1) ; posNegNoCPs(U,E,E2 NEQ) .
+
+  eq posNegNoCPs(U,E1,E2) =
+    if unifiers(U,lhs(E1) =? lhs(E2)) == empty then .PFVPObligationSet else
+    posNegNoCPs(U,E1,E2,unifiers(U,lhs(E1) =? lhs(E2)),
+      simplify(trueId(eqCond2PosConj(cond(E1),mtForm)) /\ trueId(eqCond2PosConj(cond(E2),mtForm)))) fi .
+
+  op posNegNoCPs : Module Equation Equation SubstitutionSet PosEqConj? -> PFVPObligationSet .
+  eq posNegNoCPs(U,E1,E2,SS,tt)  = nocp(E1,E2,tt) .
+  eq posNegNoCPs(U,E1,E2,SS,PEC) = if cr-unsat(U,disj-join(PEC << SS)) then .PFVPObligationSet else nocp(E1,E2,PEC) fi [owise] .
+
+  --- Compute whether positivity is preserved by simplification equations
+  op positivityInvariant : Module Sort Term EquationSet EquationSet -> PFVPObligationSet .
+  eq positivityInvariant(U,Srt,PT,PEQ,SEQ) = positivityInvariant(pfvp-pred-functor(U,Srt,PT),PT,PEQ,SEQ) .
+
+  op positivityInvariant : ModQidListPair Term EquationSet EquationSet -> PFVPObligationSet .
+  eq positivityInvariant((U,SortP OpP),PT,PEQ,E SEQ) =
+    positivityInvariant1((U,SortP OpP),lhs(E),dbgPrintPFVPUnifs(false,rhs(E),lhs(PEQ),allUnifiers(U,rhs(E),lhs(PEQ))),cond(E)) ;
+    positivityInvariant((U,SortP OpP),PT,PEQ,SEQ) .
+  eq positivityInvariant((U,SortP OpP),PT,PEQ,none) = .PFVPObligationSet .
+
+  op positivityInvariant1 : ModQidListPair Term SubstitutionSet EqCondition -> PFVPObligationSet .
+  eq positivityInvariant1((U,SortP OpP),T,S | SS,EC) =
+    positivityInvariant2(eqCond2PosConj(EC,mtForm),
+      simplify(context-rew(U,flip(eqCond2PosConj(EC,mtForm)),join(OpP 'pos?)[T << S] ?= join('true. SortP 'Bool)))) ;
+    positivityInvariant1((U,SortP OpP),T,SS,EC) .
+  eq positivityInvariant1((U,SortP OpP),T,empty,EC) = .PFVPObligationSet .
+
+  op positivityInvariant2 : PosEqConj? PosDisj? -> PFVPObligationSet .
+  eq positivityInvariant2(PEC,tt)      = .PFVPObligationSet .
+  eq positivityInvariant2(PEC,T ?= T') = cp(T,T',PEC) .
+
+  --- Use this equation to get the triples of equations; in each triple
+  ---   1. the positive FVP equations
+  ---   2. the simplification equations
+  ---   3. the negative equations
+  op partitionEqs : Module Map{Qid,QidTermListTuple} -> PFVPEquationDataSet .
+  eq partitionEqs(U,QTM) = partitionEqs(U,buildTermMap(U,QTM),getEqs(U)) .
+
+  op partitionEqs : Module Map{Term,QidTermListTuple} EquationSet -> PFVPEquationDataSet .
+  eq partitionEqs(U,(T |-> (Srt,PT,NT),TM),ES) = partitionEqs(U,T,Srt,PT,NT,ES) ; partitionEqs(U,TM,ES) .
+  eq partitionEqs(U,empty,ES) = .PFVPEquationDataSet .
+
+  op partitionEqs : Module Term Sort Term Term EquationSet -> PFVPEquationData .
+  eq partitionEqs(U,T,Srt,PT,NT,ES) = partitionEqs(U,PT,NT,matchingLhsEqs(U,T,ES),(Srt,PT,none,none,NT,none)) .
+
+  op partitionEqs : Module Term Term EquationSet PFVPEquationData -> PFVPEquationData .
+  eq partitionEqs(U,PT,NT,E ES,(Srt,PT,PEQ,SEQ,NT,NEQ)) =
+    partitionEqs(U,PT,NT,ES,
+       if      matches?(U,PT,rhs(E)) then (Srt,PT, PEQ E,SEQ,   NT, NEQ  )
+       else if matches?(U,NT,rhs(E)) then (Srt,PT, PEQ,  SEQ,   NT, NEQ E)
+       else                               (Srt,PT, PEQ,  SEQ E, NT, NEQ  ) fi fi) .
+  eq partitionEqs(U,PT,NT,none,(Srt,PT,PEQ,SEQ,NT,NEQ)) = (Srt,PT,PEQ,SEQ,NT,NEQ) .
+
+  op matchingLhsEqs : Module Term EquationSet -> EquationSet .
+  eq matchingLhsEqs(U,T,E ES) = if matches?(U,T,lhs(E)) then E else none fi matchingLhsEqs(U,T,ES) .
+  eq matchingLhsEqs(U,T,none) = none .
+
+  op buildTermMap : Module Map{Qid,QidTermListTuple} ~> Map{Term,QidTermListTuple} .
+  eq buildTermMap(U,(Q |=> (Srt,PT,NT),QTM)) = uniqueOpTerm(Q,Srt,getOps(U)) |-> (Srt,PT,NT), buildTermMap(U,QTM) .
+  eq buildTermMap(U,empty) = empty .
+
+  op dbgPrintPartition : Bool PFVPEquationDataSet -> PFVPEquationDataSet .
+  eq dbgPrintPartition(true, PEDS) = PEDS [print "Equation Partition: \n" PEDS] .
+  eq dbgPrintPartition(false,PEDS) = PEDS .
+
+  op dbgPrintPFVPUnifs : Bool Term TermSet SubstitutionSet -> SubstitutionSet .
+  eq dbgPrintPFVPUnifs(true,T,TS,SS)  = SS [print "Simp RHS: " T " and Pos LHS: " TS " Unifiers are:\n" SS] .
+  eq dbgPrintPFVPUnifs(false,T,TS,SS) = SS .
+endfm

@@ -8,6 +8,7 @@ load impsimp.maude
 load cc/load-cc.maude
 load congclosure.maude
 load contextrew.maude
+load partialfvp.maude
 
 fmod RLTOOL-BACKEND-IMPL is
   pr RLTOOL-BACKEND .
