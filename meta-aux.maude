@@ -1366,6 +1366,7 @@ fmod OPDECLSET-EXTRA is
   pr OPDECL-EXTRA .
   pr META-MODULE .
   pr UNIT-FM .
+  pr TERM-EXTRA .
 
   op _inODS_     : OpDecl OpDeclSet -> Bool .
   op _-_         : OpDeclSet OpDeclSet -> OpDeclSet .
@@ -1379,6 +1380,8 @@ fmod OPDECLSET-EXTRA is
   op $constants  : OpDeclSet OpDeclSet -> OpDeclSet .
   op ctors       : OpDeclSet -> OpDeclSet .
   op stripAttrs  : OpDeclSet -> OpDeclSet .
+  op opByName    : Qid OpDeclSet -> OpDeclSet .
+  op uniqueOpTerm : Qid OpDeclSet ~> Term .
   ---
   op qid         : OpDeclSet -> QidSet .
   op argTypes    : OpDeclSet -> TypeListSet .
@@ -1455,6 +1458,17 @@ fmod OPDECLSET-EXTRA is
   eq stripAttrs(op Q : TYL -> TY [AS]. OS) =
    op Q : TYL -> TY [none]. stripAttrs(OS) .
   eq stripAttrs(none) = none .
+
+  --- INP: Qid OpDeclSet
+  --- PRE: None
+  --- OUT: Get ops with given name
+  eq opByName(Q,OD OS) = if Q == qid(OD) then OD else none fi opByName(Q,OS) .
+  eq opByName(Q,none) = none .
+
+  --- INP: Qid OpDeclSet
+  --- PRE: Qid is a unique op name
+  --- OUT: Term built according to operator
+ ceq uniqueOpTerm(Q,OS) = buildTerm(opByName(Q,OS),0) if opByName(Q,OS) :: OpDecl .
 
   --- INP: OpDeclSet
   --- PRE: None
