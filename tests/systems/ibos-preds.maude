@@ -229,7 +229,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq netlabels       (X:NetProcInfoSet)   ~a netlabels       (Y:NetProcInfoSet)   = true [variant] .
   eq displayedTopBar (X:Label)            ~a displayedTopBar (Y:Label)            = true [variant] .
   eq displayedContent(X:Label)            ~a displayedContent(Y:Label)            = true [variant] .
-  eq activeWebapp    (X:WebProcId)        ~a activeWebapp    (Y:WebProcId)        = true [variant] .
+  eq activeWebapp    (X:MaybeConcWebProcId)        ~a activeWebapp    (Y:MaybeConcWebProcId)        = true [variant] .
 
   eq fromKernel      (X:MaybeMessageList) ~a toKernel        (Y:MaybeMessageList) = false [variant] .
   eq fromKernel      (X:MaybeMessageList) ~a nextWPN         (Y:Nat)              = false [variant] .
@@ -250,7 +250,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq fromKernel      (X:MaybeMessageList) ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq fromKernel      (X:MaybeMessageList) ~a displayedTopBar (Y:Label)            = false [variant] .
   eq fromKernel      (X:MaybeMessageList) ~a displayedContent(Y:Label)            = false [variant] .
-  eq fromKernel      (X:MaybeMessageList) ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq fromKernel      (X:MaybeMessageList) ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq toKernel        (X:MaybeMessageList) ~a nextWPN         (Y:Nat)              = false [variant] .
   eq toKernel        (X:MaybeMessageList) ~a rendered        (Y:MaybeLabel)       = false [variant] .
@@ -270,7 +270,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq toKernel        (X:MaybeMessageList) ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq toKernel        (X:MaybeMessageList) ~a displayedTopBar (Y:Label)            = false [variant] .
   eq toKernel        (X:MaybeMessageList) ~a displayedContent(Y:Label)            = false [variant] .
-  eq toKernel        (X:MaybeMessageList) ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq toKernel        (X:MaybeMessageList) ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq nextWPN         (X:Nat)              ~a rendered        (Y:MaybeLabel)       = false [variant] .
   eq nextWPN         (X:Nat)              ~a URL             (Y:Label)            = false [variant] .
@@ -289,7 +289,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq nextWPN         (X:Nat)              ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq nextWPN         (X:Nat)              ~a displayedTopBar (Y:Label)            = false [variant] .
   eq nextWPN         (X:Nat)              ~a displayedContent(Y:Label)            = false [variant] .
-  eq nextWPN         (X:Nat)              ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq nextWPN         (X:Nat)              ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq rendered        (X:MaybeLabel)       ~a URL             (Y:Label)            = false [variant] .
   eq rendered        (X:MaybeLabel)       ~a loading         (Y:Bool)             = false [variant] .
@@ -307,7 +307,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq rendered        (X:MaybeLabel)       ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq rendered        (X:MaybeLabel)       ~a displayedTopBar (Y:Label)            = false [variant] .
   eq rendered        (X:MaybeLabel)       ~a displayedContent(Y:Label)            = false [variant] .
-  eq rendered        (X:MaybeLabel)       ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq rendered        (X:MaybeLabel)       ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq URL             (X:Label)            ~a loading         (Y:Bool)             = false [variant] .
   eq URL             (X:Label)            ~a returnTo        (Y:MaybeConcPipeId)  = false [variant] .
@@ -324,7 +324,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq URL             (X:Label)            ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq URL             (X:Label)            ~a displayedTopBar (Y:Label)            = false [variant] .
   eq URL             (X:Label)            ~a displayedContent(Y:Label)            = false [variant] .
-  eq URL             (X:Label)            ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq URL             (X:Label)            ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq loading         (X:Bool)             ~a returnTo        (Y:MaybeConcPipeId)  = false [variant] .
   eq loading         (X:Bool)             ~a in              (Y:LabelList)        = false [variant] .
@@ -340,7 +340,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq loading         (X:Bool)             ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq loading         (X:Bool)             ~a displayedTopBar (Y:Label)            = false [variant] .
   eq loading         (X:Bool)             ~a displayedContent(Y:Label)            = false [variant] .
-  eq loading         (X:Bool)             ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq loading         (X:Bool)             ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq returnTo        (X:MaybeConcPipeId)  ~a in              (Y:LabelList)        = false [variant] .
   eq returnTo        (X:MaybeConcPipeId)  ~a out             (Y:LabelList)        = false [variant] .
@@ -355,7 +355,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq returnTo        (X:MaybeConcPipeId)  ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq returnTo        (X:MaybeConcPipeId)  ~a displayedTopBar (Y:Label)            = false [variant] .
   eq returnTo        (X:MaybeConcPipeId)  ~a displayedContent(Y:Label)            = false [variant] .
-  eq returnTo        (X:MaybeConcPipeId)  ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq returnTo        (X:MaybeConcPipeId)  ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq in              (X:LabelList)        ~a out             (Y:LabelList)        = false [variant] .
   eq in              (X:LabelList)        ~a mem-in          (Y:MaybeLabel)       = false [variant] .
@@ -369,7 +369,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq in              (X:LabelList)        ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq in              (X:LabelList)        ~a displayedTopBar (Y:Label)            = false [variant] .
   eq in              (X:LabelList)        ~a displayedContent(Y:Label)            = false [variant] .
-  eq in              (X:LabelList)        ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq in              (X:LabelList)        ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq out             (X:LabelList)        ~a mem-in          (Y:MaybeLabel)       = false [variant] .
   eq out             (X:LabelList)        ~a mem-out         (Y:MaybeLabel)       = false [variant] .
@@ -382,7 +382,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq out             (X:LabelList)        ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq out             (X:LabelList)        ~a displayedTopBar (Y:Label)            = false [variant] .
   eq out             (X:LabelList)        ~a displayedContent(Y:Label)            = false [variant] .
-  eq out             (X:LabelList)        ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq out             (X:LabelList)        ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq mem-in          (X:MaybeLabel)       ~a mem-out         (Y:MaybeLabel)       = false [variant] .
   eq mem-in          (X:MaybeLabel)       ~a nic-in          (Y:LabelList)        = false [variant] .
@@ -394,7 +394,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq mem-in          (X:MaybeLabel)       ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq mem-in          (X:MaybeLabel)       ~a displayedTopBar (Y:Label)            = false [variant] .
   eq mem-in          (X:MaybeLabel)       ~a displayedContent(Y:Label)            = false [variant] .
-  eq mem-in          (X:MaybeLabel)       ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq mem-in          (X:MaybeLabel)       ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq mem-out         (X:MaybeLabel)       ~a nic-in          (Y:LabelList)        = false [variant] .
   eq mem-out         (X:MaybeLabel)       ~a nic-out         (Y:LabelSet)         = false [variant] .
@@ -405,7 +405,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq mem-out         (X:MaybeLabel)       ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq mem-out         (X:MaybeLabel)       ~a displayedTopBar (Y:Label)            = false [variant] .
   eq mem-out         (X:MaybeLabel)       ~a displayedContent(Y:Label)            = false [variant] .
-  eq mem-out         (X:MaybeLabel)       ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq mem-out         (X:MaybeLabel)       ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq nic-in          (X:LabelList)        ~a nic-out         (Y:LabelSet)         = false [variant] .
   eq nic-in          (X:LabelList)        ~a msgPolicy       (Y:PolicySet)        = false [variant] .
@@ -415,7 +415,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq nic-in          (X:LabelList)        ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq nic-in          (X:LabelList)        ~a displayedTopBar (Y:Label)            = false [variant] .
   eq nic-in          (X:LabelList)        ~a displayedContent(Y:Label)            = false [variant] .
-  eq nic-in          (X:LabelList)        ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq nic-in          (X:LabelList)        ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq nic-out         (X:LabelSet)         ~a msgPolicy       (Y:PolicySet)        = false [variant] .
   eq nic-out         (X:LabelSet)         ~a nextNPN         (Y:Nat)              = false [variant] .
@@ -424,7 +424,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq nic-out         (X:LabelSet)         ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq nic-out         (X:LabelSet)         ~a displayedTopBar (Y:Label)            = false [variant] .
   eq nic-out         (X:LabelSet)         ~a displayedContent(Y:Label)            = false [variant] .
-  eq nic-out         (X:LabelSet)         ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq nic-out         (X:LabelSet)         ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq msgPolicy       (X:PolicySet)        ~a nextNPN         (Y:Nat)              = false [variant] .
   eq msgPolicy       (X:PolicySet)        ~a handledCurrently(Y:Message?)         = false [variant] .
@@ -432,34 +432,34 @@ fmod ATTRIBUTE-FVP-EXT is
   eq msgPolicy       (X:PolicySet)        ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq msgPolicy       (X:PolicySet)        ~a displayedTopBar (Y:Label)            = false [variant] .
   eq msgPolicy       (X:PolicySet)        ~a displayedContent(Y:Label)            = false [variant] .
-  eq msgPolicy       (X:PolicySet)        ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq msgPolicy       (X:PolicySet)        ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq nextNPN         (X:Nat)              ~a handledCurrently(Y:Message?)         = false [variant] .
   eq nextNPN         (X:Nat)              ~a weblabels       (Y:WebProcInfoSet)   = false [variant] .
   eq nextNPN         (X:Nat)              ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq nextNPN         (X:Nat)              ~a displayedTopBar (Y:Label)            = false [variant] .
   eq nextNPN         (X:Nat)              ~a displayedContent(Y:Label)            = false [variant] .
-  eq nextNPN         (X:Nat)              ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq nextNPN         (X:Nat)              ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq handledCurrently(X:Message?)         ~a weblabels       (Y:WebProcInfoSet)   = false [variant] .
   eq handledCurrently(X:Message?)         ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq handledCurrently(X:Message?)         ~a displayedTopBar (Y:Label)            = false [variant] .
   eq handledCurrently(X:Message?)         ~a displayedContent(Y:Label)            = false [variant] .
-  eq handledCurrently(X:Message?)         ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq handledCurrently(X:Message?)         ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq weblabels       (X:WebProcInfoSet)   ~a netlabels       (Y:NetProcInfoSet)   = false [variant] .
   eq weblabels       (X:WebProcInfoSet)   ~a displayedTopBar (Y:Label)            = false [variant] .
   eq weblabels       (X:WebProcInfoSet)   ~a displayedContent(Y:Label)            = false [variant] .
-  eq weblabels       (X:WebProcInfoSet)   ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq weblabels       (X:WebProcInfoSet)   ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq netlabels       (X:NetProcInfoSet)   ~a displayedTopBar (Y:Label)            = false [variant] .
   eq netlabels       (X:NetProcInfoSet)   ~a displayedContent(Y:Label)            = false [variant] .
-  eq netlabels       (X:NetProcInfoSet)   ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq netlabels       (X:NetProcInfoSet)   ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   eq displayedTopBar (X:Label)            ~a displayedContent(Y:Label)            = false [variant] .
-  eq displayedTopBar (X:Label)            ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq displayedTopBar (X:Label)            ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
-  eq displayedContent(X:Label)            ~a activeWebapp    (Y:WebProcId)        = false [variant] .
+  eq displayedContent(X:Label)            ~a activeWebapp    (Y:MaybeConcWebProcId)        = false [variant] .
 
   --- 19. Add partially FVP in-attrset?(_|_) predicate for checking if an attribute of a given type exists in an attribute set
   op in-attrset?(_|_) : Attribute AttributeSet -> Bool [metadata "102 true"] .
@@ -483,7 +483,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq in-attrset?(netlabels       (X:NetProcInfoSet)   | (netlabels       (Y:NetProcInfoSet),   AS)) = true [variant] .
   eq in-attrset?(displayedTopBar (X:Label)            | (displayedTopBar (Y:Label),            AS)) = true [variant] .
   eq in-attrset?(displayedContent(X:Label)            | (displayedContent(Y:Label),            AS)) = true [variant] .
-  eq in-attrset?(activeWebapp    (X:WebProcId)        | (activeWebapp    (Y:WebProcId),        AS)) = true [variant] .
+  eq in-attrset?(activeWebapp    (X:MaybeConcWebProcId)        | (activeWebapp    (Y:MaybeConcWebProcId),        AS)) = true [variant] .
  ceq in-attrset?(A | A', AS) = in-attrset?(A | AS) if A ~a A' = false .
   eq in-attrset?(A | none)   = false .
 
@@ -509,7 +509,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq attr-dupl?(netlabels       (X:NetProcInfoSet),   netlabels       (Y:NetProcInfoSet),   AS) = true [variant] .
   eq attr-dupl?(displayedTopBar (X:Label),            displayedTopBar (Y:Label),            AS) = true [variant] .
   eq attr-dupl?(displayedContent(X:Label),            displayedContent(Y:Label),            AS) = true [variant] .
-  eq attr-dupl?(activeWebapp    (X:WebProcId),        activeWebapp    (Y:WebProcId),        AS) = true [variant] .
+  eq attr-dupl?(activeWebapp    (X:MaybeConcWebProcId),        activeWebapp    (Y:MaybeConcWebProcId),        AS) = true [variant] .
  ceq attr-dupl?(A,AS) = attr-dupl?(AS) if in-attrset?(A | AS) = false .
   eq attr-dupl?(none) = false .
 endfm
@@ -744,7 +744,7 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq (netlabels       (X:NetProcInfoSet),   AS) !a = netlabels(mtNPIS),             (AS !a) .
   eq (displayedTopBar (X:Label),            AS) !a = displayedTopBar(about-blank),  (AS !a) .
   eq (displayedContent(X:Label),            AS) !a = displayedContent(about-blank), (AS !a) .
-  eq (activeWebapp    (X:WebProcId),        AS) !a = activeWebapp(webapp(0)),       (AS !a) .
+  eq (activeWebapp    (X:MaybeConcWebProcId), AS) !a = activeWebapp(webapp(0)),       (AS !a) .
   eq none !a = none .
   eq (AS !a) !a = AS !a .
 
