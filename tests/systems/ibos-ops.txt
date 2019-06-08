@@ -1,0 +1,59 @@
+LL,Uncond:
+op _and_                      : Bool Bool                                                           -> Bool                 [assoc comm] .
+op _or_                       : Bool Bool                                                           -> Bool                 [assoc comm] .
+op not_                       : Bool                                                                -> Bool                 .
+op inlbl                      : MaybeLabelPair                                                      -> MaybeLabel           .
+op outlbl                     : MaybeLabelPair                                                      -> MaybeLabel           .
+op _!a                        : AttributeSet                                                        -> AttributeSet         .
+op _!c                        : Configuration                                                       -> Configuration        .
+op _!c                        : NetWebProcConfig                                                    -> NetWebProcConfig     .
+op out-netlabel-by-pid        : ProcessId NetProcInfoSet                                            -> MaybeLabel           .
+op _~a_                       : Attribute Attribute                                                 -> Bool                 [comm] .
+
+Non-LL,Uncond:
+op _blank-or-equal_           : Label Label                                                         -> Bool                 .
+op _~p_                       : MaybeProcessId MaybeProcessId                                       -> Bool                 [comm] .
+op _~l_                       : MaybeLabel MaybeLabel                                               -> Bool                 [comm] .
+op _~m_                       : MsgType MsgType                                                     -> Bool                 [comm] .
+op _~lp_                      : MaybeMaybeLabel+Pair MaybeMaybeLabel+Pair                           -> Bool                 [comm] .
+
+LL,Collapsible-Cond
+op in-attrset?(_|_)           : Attribute AttributeSet                                              -> Bool                 .
+op netlabels-match?           : NetProcInfoSet                                                      -> Bool                 .
+op render-consistent?         : NetWebProcConfig                                                    -> Bool                 .
+
+Non-LL,Collapsible-Cond
+op np-by-lbl?                 : Label NetProcInfoSet                                                -> Bool                 .
+op newurl-nodupl?             : Label MessageList                                                   -> Bool                 .
+op lbl-in-weblabels?          : Label WebProcInfoSet                                                -> Bool                 .
+op np-by-inlbl?               : Label NetProcInfoSet                                                -> Bool                 .
+op inlbl-in-netlabels?        : Label NetProcInfoSet                                                -> Bool                 .
+
+LL,Cond
+op attr-dupl?                 : AttributeSet                                                        -> Bool                 .
+op attr-subset?(_|_)          : AttributeSet AttributeSet                                           -> Bool                 .
+op nwp-reqattrs?              : NetWebProcConfig                                                    -> Bool                 .
+op conf-attr-dupl?            : Configuration                                                       -> Bool                 .
+op pid-in-netlabels?          : ProcessId NetProcInfoSet                                            -> Bool                 .
+op pid-in-weblabels?          : ProcessId WebProcInfoSet                                            -> Bool                 .
+op ui-consistent?             : MessageList WebProcInfoSet                                          -> Bool                 .
+
+Non-LL,Cond
+op webapp-url-render          : ConcWebProcId Configuration                                         -> MaybeLabelPair       .
+op display-topbar-consistent? : ConcWebProcId Label Label Configuration                             -> Bool                 .
+op weblabel-by-pid            : MaybeProcessId WebProcInfoSet                                       -> MaybeLabel           .
+op netlabelpair-by-pid        : MaybeProcessId NetProcInfoSet                                       -> MaybeLabelPair       .
+op in-conf?                   : ProcessId Configuration                                             -> Bool                 .
+op conf-dupl?                 : Configuration                                                       -> Bool                 .
+op weblabels-dupl?            : WebProcInfoSet                                                      -> Bool                 .
+op netlabels-dupl?            : NetProcInfoSet                                                      -> Bool                 .
+op proc-loaded?               : MaybePipeId MaybePipeId NetProcInfoSet WebProcInfoSet Configuration -> Bool                 . #
+op conf-labels-eqset?         : Configuration WebProcInfoSet NetProcInfoSet                         -> Bool                 . #
+op webapp-url-eqset?          : Configuration WebProcInfoSet                                        -> Bool                 . #
+
+Non-LL,Recursive Cond
+op fresh-np-id?               : ConcNetProcId Configuration                                         -> Bool                 .
+op fresh-wp-id?               : ConcWebProcId Configuration                                         -> Bool                 .
+op fresh-weblabel?            : ConcWebProcId WebProcInfoSet                                        -> Bool                 .
+op fresh-netlabel?            : ConcNetProcId NetProcInfoSet                                        -> Bool                 .
+op p                          : NetWebProcConfig WebProcInfoSet NetProcInfoSet Message?             -> Bool?                . *
