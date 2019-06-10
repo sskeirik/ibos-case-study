@@ -723,30 +723,34 @@ fmod ATTRIBUTE-NONFVP-EXT is
   var A A' : Attribute . var AS AS' : AttributeSet .
 
   --- 26. Canonicalizes attribute values so attribute types can be compared by standard equality
-  op _!a : AttributeSet -> AttributeSet [metadata "99"] .
-  eq (fromKernel      (X:MaybeMessageList), AS) !a = fromKernel(mt),                (AS !a) .
-  eq (toKernel        (X:MaybeMessageList), AS) !a = toKernel(mt),                  (AS !a) .
-  eq (nextWPN         (X:Nat),              AS) !a = nextWPN(0),                    (AS !a) .
-  eq (rendered        (X:MaybeLabel),       AS) !a = rendered(about-blank),         (AS !a) .
-  eq (URL             (X:Label),            AS) !a = URL(about-blank),              (AS !a) .
-  eq (loading         (X:Bool),             AS) !a = loading(true),                 (AS !a) .
-  eq (returnTo        (X:MaybeConcPipeId),  AS) !a = returnTo(ui),                  (AS !a) .
-  eq (in              (X:LabelList),        AS) !a = in(mtLL),                      (AS !a) .
-  eq (out             (X:LabelList),        AS) !a = out(mtLL),                     (AS !a) .
-  eq (mem-in          (X:MaybeLabel),       AS) !a = mem-in(nolabel),               (AS !a) .
-  eq (mem-out         (X:MaybeLabel),       AS) !a = mem-out(nolabel),              (AS !a) .
-  eq (nic-in          (X:LabelList),        AS) !a = nic-in(mtLL),                  (AS !a) .
-  eq (nic-out         (X:LabelSet),         AS) !a = nic-out(mtLS),                 (AS !a) .
-  eq (msgPolicy       (X:PolicySet),        AS) !a = msgPolicy(mtPS),               (AS !a) .
-  eq (nextNPN         (X:Nat),              AS) !a = nextNPN(0),                    (AS !a) .
-  eq (handledCurrently(X:Message?),         AS) !a = handledCurrently(none),        (AS !a) .
-  eq (weblabels       (X:WebProcInfoSet),   AS) !a = weblabels(mtWPIS),             (AS !a) .
-  eq (netlabels       (X:NetProcInfoSet),   AS) !a = netlabels(mtNPIS),             (AS !a) .
-  eq (displayedTopBar (X:Label),            AS) !a = displayedTopBar(about-blank),  (AS !a) .
-  eq (displayedContent(X:Label),            AS) !a = displayedContent(about-blank), (AS !a) .
-  eq (activeWebapp    (X:MaybeConcWebProcId), AS) !a = activeWebapp(webapp(0)),       (AS !a) .
-  eq none !a = none .
+  ---     NOTE: dual function symbol formulation is easier to prove sufficiently complete
+  op _!a  : AttributeSet -> AttributeSet [metadata "99"] .
+  op _!!a : Attribute -> Attribute [metadata "98"] .
+  eq (A,AS)  !a = (A !!a),(AS !a) .
+  eq none    !a = none .
   eq (AS !a) !a = AS !a .
+
+  eq (fromKernel      (X:MaybeMessageList)  ) !!a = fromKernel(mt)                .
+  eq (toKernel        (X:MaybeMessageList)  ) !!a = toKernel(mt)                  .
+  eq (nextWPN         (X:Nat)               ) !!a = nextWPN(0)                    .
+  eq (rendered        (X:MaybeLabel)        ) !!a = rendered(about-blank)         .
+  eq (URL             (X:Label)             ) !!a = URL(about-blank)              .
+  eq (loading         (X:Bool)              ) !!a = loading(true)                 .
+  eq (returnTo        (X:MaybeConcPipeId)   ) !!a = returnTo(ui)                  .
+  eq (in              (X:LabelList)         ) !!a = in(mtLL)                      .
+  eq (out             (X:LabelList)         ) !!a = out(mtLL)                     .
+  eq (mem-in          (X:MaybeLabel)        ) !!a = mem-in(nolabel)               .
+  eq (mem-out         (X:MaybeLabel)        ) !!a = mem-out(nolabel)              .
+  eq (nic-in          (X:LabelList)         ) !!a = nic-in(mtLL)                  .
+  eq (nic-out         (X:LabelSet)          ) !!a = nic-out(mtLS)                 .
+  eq (msgPolicy       (X:PolicySet)         ) !!a = msgPolicy(mtPS)               .
+  eq (nextNPN         (X:Nat)               ) !!a = nextNPN(0)                    .
+  eq (handledCurrently(X:Message?)          ) !!a = handledCurrently(none)        .
+  eq (weblabels       (X:WebProcInfoSet)    ) !!a = weblabels(mtWPIS)             .
+  eq (netlabels       (X:NetProcInfoSet)    ) !!a = netlabels(mtNPIS)             .
+  eq (displayedTopBar (X:Label)             ) !!a = displayedTopBar(about-blank)  .
+  eq (displayedContent(X:Label)             ) !!a = displayedContent(about-blank) .
+  eq (activeWebapp    (X:MaybeConcWebProcId)) !!a = activeWebapp(webapp(0))       .
 
   --- 27. Checks that each kind of attribute in an attribute set appears in a different set
   op attr-subset?(_|_) : AttributeSet AttributeSet -> Bool [metadata "117"] .
