@@ -1,4 +1,4 @@
-LL,Uncond:
+LL,Uncond (SOLVED!)
 op _and_                      : Bool Bool                                                           -> Bool                 [assoc comm] .
 op _or_                       : Bool Bool                                                           -> Bool                 [assoc comm] .
 op not_                       : Bool                                                                -> Bool                 .
@@ -7,7 +7,6 @@ op outlbl                     : MaybeLabelPair                                  
 op _!a                        : AttributeSet                                                        -> AttributeSet         .
 op _!c                        : Configuration                                                       -> Configuration        .
 op _!c                        : NetWebProcConfig                                                    -> NetWebProcConfig     .
-op out-netlabel-by-pid        : ProcessId NetProcInfoSet                                            -> MaybeLabel           .
 op _~a_                       : Attribute Attribute                                                 -> Bool                 [comm] .
 
 Non-LL,Uncond:
@@ -43,6 +42,7 @@ op webapp-url-render          : ConcWebProcId Configuration                     
 op display-topbar-consistent? : ConcWebProcId Label Label Configuration                             -> Bool                 .
 op weblabel-by-pid            : MaybeProcessId WebProcInfoSet                                       -> MaybeLabel           .
 op netlabelpair-by-pid        : MaybeProcessId NetProcInfoSet                                       -> MaybeLabelPair       .
+op out-netlabel-by-pid        : ProcessId NetProcInfoSet                                            -> MaybeLabel           .
 op in-conf?                   : ProcessId Configuration                                             -> Bool                 .
 op conf-dupl?                 : Configuration                                                       -> Bool                 .
 op weblabels-dupl?            : WebProcInfoSet                                                      -> Bool                 .
