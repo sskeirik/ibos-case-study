@@ -259,7 +259,7 @@ fmod SORT-GEN-REWTH is
      sg-op-rls(FM,getOps(FM))
     endm .
 
-  eq sg-sort-op(SM,S) = join(S '. completeName(SM,getKind(SM,S))) .
+  eq sg-sort-op(FM,S) = join(S '. completeName(FM,getKind(FM,S))) .
 
   eq sg-sort-ops(FM,S ; SS) =
     op S : nil -> completeName(FM,getKind(FM,S)) [none] .
@@ -300,3 +300,113 @@ fmod SORT-GEN-EXTRA is
   eq sorts-gen(FM,S ; SS) = (S,sort-gen(FM,S)) , sorts-gen(FM,SS) .
   eq sorts-gen(FM,none) = mtSTM .
 endfm
+
+--- fmod TERM-GEN-REWTH is
+---   pr SORT-GEN-REWTH .
+---   pr UNIQUE-PREFIX .
+---   pr OPDECLSET-EXTRA .
+---
+---   op term-gen       : FModule Sort Nat -> TermSet .
+---   op term-gen       : SModule Term Sort Nat TermSet ResultTriple? -> TermSet .
+---   op term-gen1      : SModule Term Sort Nat -> ResultTriple? .
+---   op tgrewth        : FModule Bool -> SModule [memo] .
+---   op tg-sort-term   : SModule Sort Nat -> Term .
+---   op tg-sort-ops    : FModule SortSet -> OpDeclSet .
+---   op tg-subsort-rls : FModule SubsortDeclSet -> RuleSet .
+---   op tg-op-rls      : FModule OpDeclSet -> RuleSet .
+---   op tg-op-rls1     : FModule TypeList -> TermList .
+---   op tg-cleanup     : String TermSet -> TermSet .
+---
+---   var FM : FModule .
+---   var SM : SModule .
+---   var S S' : Sort .
+---   var SS : SortSet .
+---   var SSDS : SubsortDeclSet .
+---   var I N : Nat .
+---   var TS : TermSet .
+---   var RT? : ResultTriple? .
+---   var Q : Qid .
+---   var NTL : NeTypeList .
+---   var TL : TypeList .
+---   var AS : AttrSet .
+---   var ODS : OpDeclSet .
+---   var T : Term .
+---   var B : Bool .
+---   var Str : String .
+---
+---   eq term-gen(FM,S,N) =
+---     term-gen(tgrewth(FM,true),opPrefixtg-sort-term(FM,S,N),S,0,emptyTermSet,term-gen1(tgrewth(FM,true),tg-sort-term(FM,S,N),S,0)) .
+---   eq term-gen(SM,T,S,N,TS,RT?) =
+---     if RT? =/= failure then
+---       term-gen(SM,T,S,s(N),TS | getTerm(RT?),term-gen1(SM,T,S,s(N)))
+---     else
+---       tg-cleanup(FM,TS)
+---     fi .
+---   eq term-gen1(SM,T,S,N) =
+---       metaSearch(
+---         SM,
+---         T,
+---         join('X: S),
+---         nil,
+---         '!, unbounded,
+---         N
+---       ) .
+---
+---   eq tgrewth(FM,B) =
+---     mod join((getName(FM) '-TGTH)) is
+---      nil
+---      sorts getSorts(FM) ; freshNzNatSort(FM) ; freshNatSort(FM) ; tgFreshSorts(sortPrefix(FM),getSorts(FM)) .
+---      getSubsorts(FM) subsort freshNzNatSort(FM) < freshNatSort(FM) .
+---     (getOps(FM)
+---      tg-sort-ops(FM,getSorts(FM))
+---      freshNatOps(FM))
+---      none
+---      none
+---     (tg-subsort-rls(FM,getSubsorts(FM))
+---      tg-op-rls(FM,if B then ctors(getOps(FM)) else getOps(FM) fi))
+---     endm .
+---
+---   op tgFreshSorts : String SortSet -> SortSet .
+---   eq tgFreshSorts(Str,S ; SS) = qid(Str + string(S)) ; tgFreshSorts(SS) .
+---   eq tgFreshSorts(Str,none)   = none .
+---
+---   op tgS : FModule Sort -> Qid .
+---   eq tgS(FM,S) = qid(opPrefix(FM) + string(S)) .
+---
+---   eq tg-sort-term (FM,S,N) = tgS(FM,S)[toFreshNat(FM,N)] .
+---
+---   eq tg-sort-ops(FM,S ; SS) = op tgS(FM,S) : freshNatSort(FM) -> S [none] .
+---                               op
+---                               tg-sort-ops(FM,SS) .
+---   eq tg-sort-ops(FM,none)   = none .
+---
+---   eq tg-subsort-rls(FM,subsort S' < S . SSDS) = rl tgS(FM,S)[freshNzNatVar(FM)] => tgS(FM,S')[freshNzNatVar(FM)] [none] .
+---                                                 tg-subsort-rls(FM,SSDS) .
+---   eq tg-subsort-rls(FM,none)                  = none .
+---
+---   eq tg-op-rls(FM,op Q : NTL -> S [AS] . ODS) = rl tgS(FM,S)['s[freshNatVar(FM)]] => Q[tg-op-rls1(FM,NTL)] [none] .
+---                                                 tg-op-rls(FM,ODS) .
+---   eq tg-op-rls(FM,op Q : nil -> S [AS] . ODS) = rl tgS(FM,S)[freshNzNatVar(FM)]   => join(Q '. S)          [none] .
+---                                                 tg-op-rls(FM,ODS) .
+---   eq tg-op-rls(FM,none)                       = none .
+---
+---   eq tg-op-rls1(FM,S TL) = tgS(FM,S)[freshNatVar(FM)], tg-op-rls1(FM,TL) .
+---   eq tg-op-rls1(FM,nil)  = empty .
+---
+---   op freshNatSort   : FModule -> Sort .
+---   op freshNzNatSort : FModule -> Sort .
+---   op freshNatVar    : FModule -> Variable .
+---   op freshNatZeroId : FModule -> Qid .
+---   op freshNatOps    : FModule -> OpDeclSet .
+---   op toFreshNat     : FModule Nat -> Term .
+---
+---   eq freshNzNatSort(FM)  = qid(sortPrefix(FM) + uniqPrefixChar + "NzNat") .
+---   eq freshNatSort(FM)    = qid(sortPrefix(FM) + uniqPrefixChar + "Nat") .
+---   eq freshNzNatVar(FM)   = qid("X:" + string(freshNzNatSort(FM))) .
+---   eq freshNatVar(FM)     = qid("X:" + string(freshNatSort(FM))) .
+---   eq freshNatZeroId(FM)  = qid(opPrefix(FM) + "0") .
+---   eq freshNatOps(FM)     = (op 's                 : freshNatSort(FM) -> freshNzNatSort(FM) [none].
+---                             op freshNatZeroId(FM) : nil              -> freshNatSort(FM)   [none].) .
+---   eq toFreshNat(FM,s(N)) = 's[toFreshNat(FM,N)] .
+---   eq toFreshNat(FM,0)    = qid(string(freshNatZeroId(FM)) + "." + string(freshNatSort(FM))) .
+--- endfm
