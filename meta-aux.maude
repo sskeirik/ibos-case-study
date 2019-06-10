@@ -1815,8 +1815,11 @@ fmod UNIQUE-PREFIX is
   op uniquePrefix   : QidSet             -> String .
   op uniquePrefix   : String Set{String} -> String .
   op qidSetToStrSet : QidSet             -> Set{String} .
+  op uniqPrefixChar :                    -> Char .
 
   var P S : String . var SS : Set{String} . var D : Qid . var Q : QidSet .
+
+  eq uniqPrefixChar = "@" .
 
   eq sortPrefix(M:Module)   = uniquePrefix(getSorts(M:Module)) .
   eq sortPrefix(S:SortSet)  = uniquePrefix(S:SortSet) .
@@ -1824,7 +1827,7 @@ fmod UNIQUE-PREFIX is
   eq opPrefix(O:OpDeclSet)  = uniquePrefix(qid(O:OpDeclSet)) .
   eq lblPrefix(M:Module)    = uniquePrefix(stmt-labels(M:Module)) .
   eq uniquePrefix(Q)        = uniquePrefix("@",qidSetToStrSet(Q)) .
-  eq uniquePrefix(P,(S,SS)) = if P == substr(S,0,length(P)) then uniquePrefix(P + "@",(S,SS))
+  eq uniquePrefix(P,(S,SS)) = if P == substr(S,0,length(P)) then uniquePrefix(P + uniqPrefixChar,(S,SS))
                                                          else uniquePrefix(P,SS) fi .
   eq uniquePrefix(P,empty)  = P .
   eq qidSetToStrSet(D ; Q)  = string(D) , qidSetToStrSet(Q) .
