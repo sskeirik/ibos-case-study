@@ -823,6 +823,7 @@ fmod IBOS-AUX-NONFVP is
 
   --- 31. Return true iff an attribute type is duplicated in some object in the Configuration
   op conf-attr-dupl? : Configuration -> Bool [metadata "119"] .
+  --- CONSIDER simplification of first equation
  ceq conf-attr-dupl?(< P | At, At', A > C) = conf-attr-dupl?(< P | A > C) if At ~a At' = false /\ attr-dupl?(At, A) = false /\ attr-dupl?(At', A) = false .
   eq conf-attr-dupl?(< P | At         > C) = conf-attr-dupl?(          C) .
   eq conf-attr-dupl?(< P | none       > C) = conf-attr-dupl?(          C) .
@@ -839,6 +840,7 @@ fmod IBOS-AUX-NONFVP is
  ceq nwp-reqattrs?(< WP | A > C) = false if attr-subset?(toKernel(mt),fromKernel(mt),URL(about-blank),rendered(about-blank),loading(true) | A) = false .
   eq nwp-reqattrs?(none) = true .
 
+  --- TODO: is there a reason for this formulation?
   --- 37. Check if a given ProcessId appears in a Net/WebProcInfo in a Net/WebProcInfoSet
   op pid-in-netlabels? : ProcessId NetProcInfoSet -> Bool [metadata "121"] .
  ceq pid-in-netlabels?(P?,NIS) = true  if (netlabelpair-by-pid(P?,NIS) ~lp nopair) = false .
@@ -848,12 +850,6 @@ fmod IBOS-AUX-NONFVP is
  ceq pid-in-weblabels?(P?,WIS) = true  if (weblabel-by-pid(P?,WIS) ~l nolabel) = false .
  ceq pid-in-weblabels?(P?,WIS) = false if (weblabel-by-pid(P?,WIS) ~l nolabel) = true  .
 
-
-  --- 35. Check if a given Label occurs as first component in some NetProcInfo in a NetProcInfoSet
-  op inlbl-in-netlabels? : Label NetProcInfoSet -> Bool [metadata "123"] .
-  eq inlbl-in-netlabels?(IN,(pi(NP,IN,OUT),np NIS)) = true .
- ceq inlbl-in-netlabels?(L, (pi(NP,IN,OUT),np NIS)) = inlbl-in-netlabels?(L,NIS) if L ~l IN = false .
-  eq inlbl-in-netlabels?(L,mtNPIS)                  = false .
 
   op out-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel [metadata "125"] .
   eq out-netlabel-by-pid(P?,NIS) = outlbl(netlabelpair-by-pid(P?,NIS)) .
@@ -1133,7 +1129,7 @@ fmod IBOS-SOP-PRED is
  ceq p(NWC,WIS,NIS,msg(CPI, WI, NonRetMT,   OUT)) = false                if pid-in-weblabels?(WI,WIS) = false .
 
   --- 5. NetProcInfoSet/WebProcInfoSet invariants
- ceq p(NWC,(pi(WI,IN),wp WIS),                  NIS, M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ inlbl-in-netlabels?(IN,NIS) = false .
+ ceq p(NWC,(pi(WI,IN),wp WIS),                  NIS, M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ np-by-inlbl?(IN,NIS) = false .
  ceq p(NWC,(pi(WI,IN),wp WIS),(pi(NI,IN,OUT),np NIS),M?) = p(NWC,WIS,NIS,M?) if in-conf?(WI,NWC) = false /\ in-conf?(NI,NWC) = false .
   --- Needed for 6-a/6-b and new-url
  ceq p(NWC,              WIS ,(pi(NI,IN,OUT),np NIS),M?) = true              if p(NWC,WIS,NIS,M?) = true .
@@ -1181,6 +1177,7 @@ fmod IBOS-ABC-PRED is
   var B : Bool .
 
   --- ABC-3. For each WebProc, the rendered() attribute should be blank or equal to the URL() attribute
+  --- COMPLETENESS requires attr-subset condition to negate URL/rendered pair being present
   op render-consistent? : NetWebProcConfig -> Bool [metadata "197"] .
   eq render-consistent?(< NI | A >                        NWC) = render-consistent?(NWC) .
  ceq render-consistent?(< WI | URL(OUT), rendered(L), A > NWC) = render-consistent?(NWC) if L blank-or-equal OUT = true .
