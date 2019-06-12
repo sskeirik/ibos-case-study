@@ -1365,6 +1365,7 @@ endfm
 fmod OPDECLSET-EXTRA is
   pr OPDECL-EXTRA .
   pr META-MODULE .
+  pr UNIT-FM .
 
   op _inODS_     : OpDecl OpDeclSet -> Bool .
   op _-_         : OpDeclSet OpDeclSet -> OpDeclSet .
@@ -1394,6 +1395,7 @@ fmod OPDECLSET-EXTRA is
   var TYL : TypeList .
   var TY : Type .
   var QS : QidSet .
+  var U : Module .
 
   --- INP: OpDecl OpDeclSet
   --- PRE: None
@@ -1479,10 +1481,25 @@ fmod OPDECLSET-EXTRA is
   --- OUT: True iff there is an assoc op that isn't comm
   op assocNotComm? : OpDeclSet -> Bool .
   op noComm? : AttrSet -> Bool .
+  op assoc? : AttrSet -> Bool .
   ceq assocNotComm?(op Q : TYL -> TY [assoc AS]. OS) = true if noComm?(AS) .
   eq assocNotComm?(OS) = false [owise] .
   eq noComm?(comm AS) = false .
   eq noComm?(AS) = true [owise] .
+  eq assoc?(assoc AS) = true .
+  eq assoc?(AS) = false [owise] .
+
+  op removeComm : OpDeclSet -> OpDeclSet .
+  eq removeComm(op Q : TYL -> TY [comm AS]. OS) =
+    if assoc?(AS) then
+      op Q : TYL -> TY [comm AS].
+    else
+      op Q : TYL -> TY [AS].
+    fi removeComm(OS) .
+  eq removeComm(none) = none .
+
+  op removeComm : Module -> Module .
+  eq removeComm(U) = setOps(U,removeComm(getOps(U))) .
 endfm
 
 fmod OPDECL-TYPING is
