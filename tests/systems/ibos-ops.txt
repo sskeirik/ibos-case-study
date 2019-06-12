@@ -1,4 +1,4 @@
-LL,Uncond (SOLVED!)
+LL,Uncond: (SCC checker)
 op _and_                      : Bool Bool                                                           -> Bool                 [assoc comm] .
 op _or_                       : Bool Bool                                                           -> Bool                 [assoc comm] .
 op not_                       : Bool                                                                -> Bool                 .
@@ -9,45 +9,70 @@ op _!c                        : Configuration                                   
 op _!c                        : NetWebProcConfig                                                    -> NetWebProcConfig     .
 op _~a_                       : Attribute Attribute                                                 -> Bool                 [comm] .
 
-Non-LL,Uncond:
+Non-LL,Uncond: (coverset commutative N x N)
 op _blank-or-equal_           : Label Label                                                         -> Bool                 .
 op _~p_                       : MaybeProcessId MaybeProcessId                                       -> Bool                 [comm] .
 op _~l_                       : MaybeLabel MaybeLabel                                               -> Bool                 [comm] .
 op _~m_                       : MsgType MsgType                                                     -> Bool                 [comm] .
 op _~lp_                      : MaybeMaybeLabel+Pair MaybeMaybeLabel+Pair                           -> Bool                 [comm] .
 
-LL,Collapsible-Cond
-op in-attrset?(_|_)           : Attribute AttributeSet                                              -> Bool                 .
-op netlabels-match?           : NetProcInfoSet                                                      -> Bool                 .
-op render-consistent?         : NetWebProcConfig                                                    -> Bool                 .
+LL,Collapsible-Cond: (FV-unification and reduction to sufficiently complete operators/rearragement)
+op in-attrset?(_|_)           : Attribute AttributeSet                                              -> Bool                 . (by FV-unification)
+op netlabels-match?           : NetProcInfoSet                                                      -> Bool                 . (by reduction to suff comp. ops)
+--- NOTE: not sufficiently complete unless we assume WebProcs have appropriate attributes
+op render-consistent?         : NetWebProcConfig                                                    -> Bool                 . (by reduction to suff comp. ops)
 
-Non-LL,Collapsible-Cond
+Non-LL,Collapsible-Cond (coverset commutative N x N)
 op np-by-lbl?                 : Label NetProcInfoSet                                                -> Bool                 .
-op newurl-nodupl?             : Label MessageList                                                   -> Bool                 .
 op lbl-in-weblabels?          : Label WebProcInfoSet                                                -> Bool                 .
+op newurl-nodupl?             : Label MessageList                                                   -> Bool                 .
 op np-by-inlbl?               : Label NetProcInfoSet                                                -> Bool                 .
-op inlbl-in-netlabels?        : Label NetProcInfoSet                                                -> Bool                 .
+--- IDENTICAL TO np-by-inlbl?
+--- op inlbl-in-netlabels?    : Label NetProcInfoSet                                                -> Bool                 .
 
 LL,Cond
-op attr-dupl?                 : AttributeSet                                                        -> Bool                 .
-op attr-subset?(_|_)          : AttributeSet AttributeSet                                           -> Bool                 .
-op nwp-reqattrs?              : NetWebProcConfig                                                    -> Bool                 .
-op conf-attr-dupl?            : Configuration                                                       -> Bool                 .
-op pid-in-netlabels?          : ProcessId NetProcInfoSet                                            -> Bool                 .
-op pid-in-weblabels?          : ProcessId WebProcInfoSet                                            -> Bool                 .
-op ui-consistent?             : MessageList WebProcInfoSet                                          -> Bool                 .
+  Group 1 coverset (N S | N in S = true) = (N N S) and (N S | N in S = false)
+  op attr-dupl?               : AttributeSet                                                        -> Bool                 .
 
-Non-LL,Cond
-op webapp-url-render          : ConcWebProcId Configuration                                         -> MaybeLabelPair       .
-op display-topbar-consistent? : ConcWebProcId Label Label Configuration                             -> Bool                 .
-op weblabel-by-pid            : MaybeProcessId WebProcInfoSet                                       -> MaybeLabel           .
-op netlabelpair-by-pid        : MaybeProcessId NetProcInfoSet                                       -> MaybeLabelPair       .
-op out-netlabel-by-pid        : ProcessId NetProcInfoSet                                            -> MaybeLabel           .
-op in-conf?                   : ProcessId Configuration                                             -> Bool                 .
+  Group 2 coverset (none x AS') --- (A , AS x AS') | (A in AS') --- (A , AS x AS') | (A in AS' = false)
+  op attr-subset?(_|_)        : AttributeSet AttributeSet                                           -> Bool                 .
+
+  Group 3 simplification + coverset (none, < P | A A AS >, < P | A AS > | A in AS = false)
+  op conf-attr-dupl?          : Configuration                                                       -> Bool                 .
+
+  Group 4 reduction to other SC symbols
+  op pid-in-netlabels?        : ProcessId NetProcInfoSet                                            -> Bool                 .
+  op pid-in-weblabels?        : ProcessId WebProcInfoSet                                            -> Bool                 .
+
+  Group 5 coverset < WP | reqatts >, < NP | reqatts >, < WP | AS > | reqatts subset AS = false, < NP | AS > | reqatts subset AS = false
+  op nwp-reqattrs?            : NetWebProcConfig                                                    -> Bool                 .
+
+  Group 6 coverset (exploit conditions being sufficiently complete)
+  - L @ RetMT          @ L' x WIS
+  - L @ FetchMT        @ L' x WIS
+  - L @ msg(P,SWITCH)  @ L' x WIS
+  - L @ msg(P,NEW-URL) @ L' x WIS
+  op ui-consistent?           : MessageList WebProcInfoSet                                          -> Bool                 .
+
+Non-LL,Cond:
+  Group 1 (coverst commutative N x N)
+  op weblabel-by-pid          : MaybeProcessId WebProcInfoSet                                       -> MaybeLabel           .
+  op netlabelpair-by-pid      : MaybeProcessId NetProcInfoSet                                       -> MaybeLabelPair       .
+  op out-netlabel-by-pid      : ProcessId NetProcInfoSet                                            -> MaybeLabel           .
+
+  Group 2 (Assuming nwp-reqattrs/conf-attr-dupl, so OK)
+  op webapp-url-render        : ConcWebProcId Configuration                                         -> MaybeLabelPair       .
+
+  Group 3 (commutative N x N coverset)
+  op in-conf?                 : ProcessId Configuration                                             -> Bool                 .
+
 op conf-dupl?                 : Configuration                                                       -> Bool                 .
 op weblabels-dupl?            : WebProcInfoSet                                                      -> Bool                 .
 op netlabels-dupl?            : NetProcInfoSet                                                      -> Bool                 .
+
+op display-topbar-consistent? : ConcWebProcId Label Label Configuration                             -> Bool                 .
 op proc-loaded?               : MaybePipeId MaybePipeId NetProcInfoSet WebProcInfoSet Configuration -> Bool                 . #
+
 op conf-labels-eqset?         : Configuration WebProcInfoSet NetProcInfoSet                         -> Bool                 . #
 op webapp-url-eqset?          : Configuration WebProcInfoSet                                        -> Bool                 . #
 
@@ -56,4 +81,13 @@ op fresh-np-id?               : ConcNetProcId Configuration                     
 op fresh-wp-id?               : ConcWebProcId Configuration                                         -> Bool                 .
 op fresh-weblabel?            : ConcWebProcId WebProcInfoSet                                        -> Bool                 .
 op fresh-netlabel?            : ConcNetProcId NetProcInfoSet                                        -> Bool                 .
+
 op p                          : NetWebProcConfig WebProcInfoSet NetProcInfoSet Message?             -> Bool?                . *
+
+Ideas:
+######
+- break up big predicates into easier ones to process - try to use set iteration + element predicate style
+- codify assumptions (once and for all) about
+  - configuration being in metadata
+  - netproc being subset of webproc
+- try to eliminate recursion in p()
