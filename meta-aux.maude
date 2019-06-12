@@ -997,11 +997,12 @@ fmod SUBSTITUTION-AUX is
   op domain      : Substitution              -> VariableSet .
   op range       : Substitution              -> VariableSet .
   op filterNotIn : Substitution VariableSet  -> Substitution .
+  op filterIn    : Substitution VariableSet  -> Substitution .
   op bound       : Variable Substitution     -> Bool .
   op remove      : Substitution Substitution -> Substitution .
 
-  var V : Variable . var T : Term . var S S' : Substitution . var VS : VariableSet . var A : Assignment .
-  var U : Module .
+  var V V' : Variable . var T : Term . var S S' : Substitution . var VS : VariableSet . var A : Assignment .
+  var U : Module . var VSub : VarSubstitution . var B : Bool .
 
   --- INP: QidSet
   --- PRE: None
@@ -1027,6 +1028,9 @@ fmod SUBSTITUTION-AUX is
   ---      filtered out if V occurs in VS
   eq filterNotIn(V <- T ; S,VS) = if V in VS then none else V <- T fi ; filterNotIn(S,VS) .
   eq filterNotIn(none,VS)       = none .
+  ---
+  eq filterIn(V <- T ; S,VS) = if V in VS then V <- T else none fi ; filterIn(S,VS) .
+  eq filterIn(none,VS)       = none .
 
   --- INP: Variable Substitution
   --- PRE: None
@@ -1045,6 +1049,21 @@ fmod SUBSTITUTION-AUX is
   op captureNewVars : VariableSet Substitution  -> VariableSet .
   eq captureNewVars(V ; VS,S) = vars(V << S) ; captureNewVars(VS,S) .
   eq captureNewVars(none,S) = none .
+
+  --- OUT: If Bool is true, substitution S with domain ENTIRELY replaced by a VarSubstitution which is a subset of S'
+  ---      If Bool is false, subtitution S with domain PARTIALLY replaced by a VarSubstitution which is a subset of S'
+  op renameDom : Bool Substitution Substitution ~> Substitution .
+  eq renameDom(B,S,S') = renameDom'(B,S,none,filterIn(S',domain(S))) .
+
+  op renameDom' : Bool Substitution Substitution VarSubstitution ~> Substitution .
+  eq renameDom'(B,    V <- T ; S,S',V <- V' ; VSub) = renameDom'(B,S,S' ; V' <- T,VSub) .
+  eq renameDom'(true, none      ,S',          VSub) = S' .
+  eq renameDom'(false,S         ,S',          VSub) = S ; S' [owise] .
+
+  --- OUT: invert a substitution mapping variables to variables
+  op invert : VarSubstitution -> VarSubstitution .
+  eq invert(V <- V' ; VSub) = V' <- V ; invert(VSub) .
+  eq invert(none) = none .
 endfm
 
 fmod TYPE-EXTRA is
@@ -2469,11 +2488,12 @@ fmod SUBSTITUTIONSET-AUX is
   pr SUBSTITUTION-AUX .
   pr SUBSTITUTIONSET .
   pr TERMSET-FM .
+  pr MAYBE-QID .
 
   var S S' S2 : Substitution . var SS : SubstitutionSet .
   var T T' : Term . var TS : TermSet .
   var V V' : Variable . var QS : VariableSet . var VS : VarSubstitution .
-  var SSK : [SubstitutionSet] . var U : Module .
+  var SSK : [SubstitutionSet] . var U : Module . var Vars : VariableSet .
 
   --- OUT: QidSet composed of domain() of each substitution
   op domain : SubstitutionSet -> VariableSet .
@@ -2518,10 +2538,14 @@ fmod SUBSTITUTIONSET-AUX is
   eq wellFormedSet(U,S | SS) = wellFormed(U,S) and-then wellFormedSet(U,SS) .
   eq wellFormedSet(U,(empty).SubstitutionSet) = true .
 
-  --- OUT: invert a substitution mapping variables to variables
-  op invert : VarSubstitution -> VarSubstitution .
-  eq invert(V <- V' ; VS) = 'V <- V ; invert(VS) .
-  eq invert(none) = none .
+  --- OUT: returns domain iff all Substitutions share the same domain
+  op sharedDomain : SubstitutionSet ~> VariableSet .
+  eq sharedDomain(S | SS) = sharedDomain(domain(S),SS) .
+
+  op sharedDomain : VariableSet SubstitutionSet ~> VariableSet .
+  eq sharedDomain(Vars,S | SS) =
+    if Vars == domain(S) then sharedDomain(Vars,SS) else errQid('Substitution 'domains 'not 'identical) fi .
+  eq sharedDomain(Vars,empty) = Vars .
 endfm
 
 --- operations like metaUnify, metaDisjointUnify, etc... generate fresh variable
