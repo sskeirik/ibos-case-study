@@ -623,3 +623,43 @@ fmod CONSTRAINED-TERMSET-CONSTS-TO-VARS is pr CONSTRAINED-TERM-CONSTS-TO-VARS . 
   var CT CT' : CTerm . var CTS : CTermSet . var S : Substitution .
   eq constsToVars(S,CT | CT' | CTS) = constsToVars(S,CT) | constsToVars(S,CT' | CTS) .
 endfm
+
+fmod CONSTRAINED-TERM-TRANSFORM is
+  pr CONSTRAINED-TERMSET-OPERATIONS .
+  pr CONSTRAINED-TERMSET-PROJECTIONS .
+  pr CONSTRAINED-TERMSET-MATCH .
+  pr CONSTRAINED-TERM-SUBSTITUTIONSET .
+  pr FOFORMSIMPLIFY .
+  pr RENAME-METAVARS .
+  pr FRESHIFY-ALL .
+
+  var T : Term .
+  var F F' : FOForm? .
+  var CT CT' : CTerm .
+  var CTS : CTermSet .
+  var U : Module .
+  var VS : VariableSet .
+  var SS : SubstitutionSet .
+  var VSub : VarSubstitution .
+
+  op simplify : CTermSet -> CTermSet .
+ ceq simplify((T | F) | (T | F') | CTS) = simplify((T | tt) | CTS) if simplify(F \/ F') == tt .
+  eq simplify(                     CTS) = CTS                                         [owise] .
+
+  --- PRE: All variables should be standard variables
+  --- OUT: Apply transformation
+  op transform : Module CTerm SubstitutionSet CTermSet ~> CTermSet .
+  op transform : Module CTerm VariableSet SubstitutionSet CTermSet -> CTermSet .
+  op transform : Module Substitution SubstitutionSet CTerm -> CTerm .
+ ceq transform(U,CT,SS,CTS)          = transform(U,CT,domain(SS),SS,CTS) if domain(SS) subset vars(CT) .
+  eq transform(U,CT,VS,SS,CT' | CTS) =
+    if matches#(U,CT,CT') :: NeSubstitutionSet then
+      transform(U,filterIn(anySub(matches#(U,CT,CT')),VS),SS,CT')
+    else
+      CT
+    fi | transform(U,CT,VS,SS,CTS) .
+  eq transform(U,CT,VS,SS,noterm) = noterm .
+  eq transform(U,VSub,SS,CT) = CT << (invert(VSub) << #freshifyAll(highestSVar(U,upTerm(CT)),SS)) .
+
+  ---op transform : CTerm FOForm?Set CTermSet -> CTermSet .
+endfm
