@@ -36,7 +36,7 @@ endfm
 fmod BOOL-NO-BUILTIN is
   pr TRUTH-VALUE-COPY .
   op _and_ : Bool Bool -> Bool [assoc comm prec 50 metadata "13"] .
-  op _or_  : Bool Bool -> Bool [assoc comm metadata "14"] .
+  op _or_  : Bool Bool -> Bool [assoc comm prec 51 metadata "14"] .
   op not_  : Bool -> Bool [metadata "15"].
   vars B : Bool .
   eq B and true  = B     [variant] .
