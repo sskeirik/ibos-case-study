@@ -1007,11 +1007,11 @@ fmod IBOS-SOP-PRED is
 
   --- Group 1 - not loaded WebProc
  ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > C,pi(WI,L),wp WIS,NIS,M?) = p(C,WIS,NIS,none)
-  if (not B) and np-by-inlbl?(L,NIS) = false
+  if np-by-inlbl?(L,NIS) = false
   /\ fetchMsg1?(WI,B,L,WTK,NIS) and noRetMsg?(WFK) = true .
 
  ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > C,pi(WI,L),wp WIS,NIS,M?) = p(C,WIS,NIS,M?)
-  if (not B) and np-by-inlbl?(L,NIS) = false
+  if np-by-inlbl?(L,NIS) = false
   /\ fetchMsg1?(WI,B,L,WTK,NIS) and noRetMsg?(WFK) = false .
 
  ceq p(C,WIS,NIS,M?) = p(C,WIS,NIS,none) if dropCurrHandled?(M?) = true .
