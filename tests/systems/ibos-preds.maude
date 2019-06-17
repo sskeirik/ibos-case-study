@@ -550,13 +550,6 @@ fmod IBOS-AUX-FVP is
   var NIS : NetProcInfoSet .
   var IN IN' OUT OUT' U R L L' : Label .
 
-  --- ABC-1. check that the rendered() and URL() attributes of each WebProc agree --- called R() in the paper
-  op webapp-url-render : ConcWebProcId Configuration -> MaybeLabelPair [metadata "104 L:LabelPair"] .
-  eq webapp-url-render(WP,< WP | URL(U), rendered(R), A > C) = (U,R) [variant] .
- ceq webapp-url-render(WP,< P  |                      A > C) = webapp-url-render(WP,C) if WP ~p P = false .
- ceq webapp-url-render(WP,< WP |                      A > C) = webapp-url-render(WP,C) if in-attrset?(URL(about-blank) | A) and in-attrset?(rendered(about-blank) | A) = false .
-  eq webapp-url-render(WP,                             none) = nopair .
-
   --- ABC-2. check that the display and address bar are consistent with the rendered() and URL() attributes of the active WebProc
   ---        [this is the intersection of properties P_9 and P_10 in the IBOS paper]
   op display-topbar-consistent? : ConcWebProcId Label Label Configuration -> Bool [metadata "105 true"] .
@@ -642,7 +635,16 @@ fmod IBOS-AUX-FVP is
   eq in-conf?(P?,none)           = false .
  ceq in-conf?(NP,C)              = false if fresh-np-id?(NP,C) = true .
  ceq in-conf?(WP,C)              = false if fresh-wp-id?(WP,C) = true .
- ceq in-conf?(WP,C)              = false if webapp-url-render(WP,C) = nopair .
+ --- LEADS TO PROBLEMS WITH CONFLUENCE
+ --- ceq in-conf?(WP,C)              = false if webapp-url-render(WP,C) = nopair .
+
+  --- ABC-1. check that the rendered() and URL() attributes of each WebProc agree --- called R() in the paper
+  op webapp-url-render : ConcWebProcId Configuration -> MaybeLabelPair [metadata "116 L:LabelPair"] .
+  eq webapp-url-render(WP,< WP | URL(U), rendered(R), A > C) = (U,R) [variant] .
+ ceq webapp-url-render(WP,< P  |                      A > C) = webapp-url-render(WP,C) if WP ~p P = false .
+ ceq webapp-url-render(WP,< WP |                      A > C) = webapp-url-render(WP,C) if in-attrset?(URL(about-blank) | A) and in-attrset?(rendered(about-blank) | A) = false .
+  eq webapp-url-render(WP,                             none) = nopair .
+ ceq webapp-url-render(WP,                                C) = nopair if in-conf?(WP,C) = false .
 
   --- 4. Add partially FVP predicate for checking for duplicate object IDs in the configuration
   op conf-dupl? : Configuration -> Bool [metadata "115 true"] .
