@@ -929,19 +929,19 @@ fmod IBOS-SOP-PRED is
   eq currHandled1?(WI,NI,L,msg(PI,PI',MSG-NEW-URL,   L')) = true .
   eq currHandled1?(WI,NI,L,none                         ) = true .
 
-  op currHandled2? : Message? WebProcInfoSet NetWebProcConfig -> Bool [metadata "203"] .
+  op currHandled2? : Message? WebProcInfoSet -> Bool [metadata "203"] .
   --- SWITCH-TAB
- ceq currHandled2?(msg(PI,WI,MSG-SWITCH-TAB,L),WIS,NWC) = true  if PI ~p ui and in-conf?(WI,NWC) = true  .
- ceq currHandled2?(msg(PI,WI,MSG-SWITCH-TAB,L),WIS,NWC) = false if PI ~p ui and in-conf?(WI,NWC) = false .
-  eq currHandled2?(msg(PI,NI,MSG-SWITCH-TAB,L),WIS,NWC) = false .
-  eq currHandled2?(msg(PI,ui,MSG-SWITCH-TAB,L),WIS,NWC) = false .
+ ceq currHandled2?(msg(PI,WI,MSG-SWITCH-TAB,L),WIS) = true  if PI ~p ui and pid-in-weblabels?(WI,WIS) = true  .
+ ceq currHandled2?(msg(PI,WI,MSG-SWITCH-TAB,L),WIS) = false if PI ~p ui and pid-in-weblabels?(WI,WIS) = false .
+  eq currHandled2?(msg(PI,NI,MSG-SWITCH-TAB,L),WIS) = false .
+  eq currHandled2?(msg(PI,ui,MSG-SWITCH-TAB,L),WIS) = false .
   --- NEW-URL
- ceq currHandled2?(msg(PI,PI',MSG-NEW-URL,L), WIS,NWC) = true  if PI ~p ui and PI' ~p webapp and not lbl-in-weblabels?(L,WIS) = true  .
- ceq currHandled2?(msg(PI,PI',MSG-NEW-URL,L), WIS,NWC) = true  if PI ~p ui and PI' ~p webapp and not lbl-in-weblabels?(L,WIS) = false .
+ ceq currHandled2?(msg(PI,PI',MSG-NEW-URL,L), WIS) = true if PI ~p ui and PI' ~p webapp and not lbl-in-weblabels?(L,WIS) = true  .
+ ceq currHandled2?(msg(PI,PI',MSG-NEW-URL,L), WIS) = true if PI ~p ui and PI' ~p webapp and not lbl-in-weblabels?(L,WIS) = false .
   --- don't care true cases
-  eq currHandled2?(FM:FetchMsg,WIS,NWC) = true .
-  eq currHandled2?(RM:RetMsg,WIS,NWC)   = true .
-  eq currHandled2?(none,WIS,NWC)        = true .
+  eq currHandled2?(FM:FetchMsg,WIS) = true .
+  eq currHandled2?(RM:RetMsg,WIS)   = true .
+  eq currHandled2?(none,WIS)        = true .
 
   --- NOTE: not np-by-inlbl?() condition forces only fetch-url to be processed
   op fetchMsg1? : ConcWebProcId Bool Label MessageList NetProcInfoSet -> Bool [metadata "204"] .
