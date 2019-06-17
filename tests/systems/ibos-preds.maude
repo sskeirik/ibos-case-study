@@ -541,6 +541,7 @@ fmod IBOS-AUX-FVP is
   var NP NP' : ConcNetProcId .
   var NN : NullProcId .
   var SP : NonPipeId .
+  var UI : UIId .
 
   var C : Configuration .
   var At : Attribute .
@@ -628,26 +629,45 @@ fmod IBOS-AUX-FVP is
  ceq np-by-inlbl?(IN,pi(NP,IN',OUT),np NIS) = np-by-inlbl?(IN,NIS) if IN ~l IN' = false .
   eq np-by-inlbl?(IN,               mtNPIS) = false .
 
-  --- 3. Add partially FVP predicate for checking if an object with the named ID is in the configuration
-  op in-conf? : ProcessId Configuration -> Bool [metadata "114 true"] .
-  eq in-conf?(P, < P   | A' > C) = true [variant] .
- ceq in-conf?(P?,< P'  | A' > C) = in-conf?(P?,C) if P? ~p P' = false .
-  eq in-conf?(P?,none)           = false .
- ceq in-conf?(NP,C)              = false if fresh-np-id?(NP,C) = true .
- ceq in-conf?(WP,C)              = false if fresh-wp-id?(WP,C) = true .
- --- LEADS TO PROBLEMS WITH CONFLUENCE
- --- ceq in-conf?(WP,C)              = false if webapp-url-render(WP,C) = nopair .
+  op webproc-req-attrs : AttributeSet -> Bool [metadata "114 true"] .
+  eq webproc-req-attrs(toKernel(T:MessageList), fromKernel(F:MessageList), URL(U:Label), rendered(R:MaybeLabel), loading(B:Bool), A) = true [variant] .
+ ceq webproc-req-attrs(A) = false if in-attrset?(toKernel(mt)      | A) = false .
+ ceq webproc-req-attrs(A) = false if in-attrset?(fromKernel(mt)    | A) = false .
+ ceq webproc-req-attrs(A) = false if in-attrset?(URL(about-blank)  | A) = false .
+ ceq webproc-req-attrs(A) = false if in-attrset?(rendered(nolabel) | A) = false .
+ ceq webproc-req-attrs(A) = false if in-attrset?(loading(true)     | A) = false .
 
-  --- ABC-1. check that the rendered() and URL() attributes of each WebProc agree --- called R() in the paper
-  op webapp-url-render : ConcWebProcId Configuration -> MaybeLabelPair [metadata "116 L:LabelPair"] .
-  eq webapp-url-render(WP,< WP | URL(U), rendered(R), A > C) = (U,R) [variant] .
- ceq webapp-url-render(WP,< P  |                      A > C) = webapp-url-render(WP,C) if WP ~p P = false .
- ceq webapp-url-render(WP,< WP |                      A > C) = webapp-url-render(WP,C) if in-attrset?(URL(about-blank) | A) and in-attrset?(rendered(about-blank) | A) = false .
-  eq webapp-url-render(WP,                             none) = nopair .
- ceq webapp-url-render(WP,                                C) = nopair if in-conf?(WP,C) = false .
+  op netproc-req-attrs : AttributeSet -> Bool [metadata "115 true"] .
+  eq netproc-req-attrs(toKernel(TK:MessageList), fromKernel(FK:MessageList), returnTo(P:MaybeConcPipeId),
+                       mem-in(M1:MaybeLabel), mem-out(M2:MaybeLabel), in(L1:LabelList), out(L2:LabelList), A) = true [variant] .
+ ceq netproc-req-attrs(A) = false if in-attrset?(toKernel(mt)     | A) = false .
+ ceq netproc-req-attrs(A) = false if in-attrset?(fromKernel(mt)   | A) = false .
+ ceq netproc-req-attrs(A) = false if in-attrset?(returnTo(none)   | A) = false .
+ ceq netproc-req-attrs(A) = false if in-attrset?(mem-in(nolabel)  | A) = false .
+ ceq netproc-req-attrs(A) = false if in-attrset?(mem-out(nolabel) | A) = false .
+ ceq netproc-req-attrs(A) = false if in-attrset?(in(mtLL)         | A) = false .
+ ceq netproc-req-attrs(A) = false if in-attrset?(out(mtLL)        | A) = false .
+
+  --- 3. Add partially FVP predicate for checking if an object with the named ID is in the configuration
+  op in-conf? : ProcessId Configuration -> Bool [metadata "116 true"] .
+  eq in-conf?(WP, < WP | toKernel(T:MessageList), fromKernel(F:MessageList), URL(U:Label), rendered(R:MaybeLabel), loading(B:Bool), A > C) = true [variant] .
+  eq in-conf?(NP, < NP | toKernel(TK:MessageList), fromKernel(FK:MessageList), returnTo(P:MaybeConcPipeId),
+                         mem-in(M1:MaybeLabel), mem-out(M2:MaybeLabel), in(L1:LabelList), out(L2:LabelList), A > C) = true [variant] .
+  eq in-conf?(UI, < UI | A > C) = true [variant] .
+  eq in-conf?(SP, < SP | A > C) = true [variant] .
+  --- recursive cases
+ ceq in-conf?(WP, < WP | A > C) = in-conf?(WP,C) if webproc-req-attrs(A) = false .
+ ceq in-conf?(NP, < NP | A > C) = in-conf?(NP,C) if netproc-req-attrs(A) = false .
+ ceq in-conf?(P,  < P' | A > C) = in-conf?(P,C) if P ~p P' = false .
+  --- base cases
+  eq in-conf?(AP, C)            = false .
+  eq in-conf?(P?, none)         = false .
+  --- lemmas
+ ceq in-conf?(NP, C)            = false if fresh-np-id?(NP,C) = true .
+ ceq in-conf?(WP, C)            = false if fresh-wp-id?(WP,C) = true .
 
   --- 4. Add partially FVP predicate for checking for duplicate object IDs in the configuration
-  op conf-dupl? : Configuration -> Bool [metadata "115 true"] .
+  op conf-dupl? : Configuration -> Bool [metadata "117 true"] .
   eq conf-dupl?(< P | A  > < P | A' > C) = true .
   eq conf-dupl?(none) = false .
  ceq conf-dupl?(< P | none > C) = conf-dupl?(C) if in-conf?(P,C) = false .
@@ -724,12 +744,6 @@ fmod ATTRIBUTE-NONFVP-EXT is
   eq (displayedTopBar (X:Label)             ) !!a = displayedTopBar(about-blank)  .
   eq (displayedContent(X:Label)             ) !!a = displayedContent(about-blank) .
   eq (activeWebapp    (X:MaybeConcWebProcId)) !!a = activeWebapp(webapp(0))       .
-
-  --- 27. Checks that each kind of attribute in an attribute set appears in a different set
-  op attr-subset?(_|_) : AttributeSet AttributeSet -> Bool [metadata "117"] .
- ceq attr-subset?(A, AS | AS') = attr-subset?(AS | AS') if in-attrset?(A | AS') = true .
- ceq attr-subset?(A, AS | AS') = false                  if in-attrset?(A | AS') = false .
-  eq attr-subset?(none  | AS') = true .
 endfm
 
 ---
@@ -806,13 +820,10 @@ fmod IBOS-AUX-NONFVP is
 
   --- 32. Return true iff all Net/WebProcs in a Configuration have their required attributes (part of WF() predicate in paper)
   op nwp-reqattrs? : NetWebProcConfig -> Bool [metadata "120"] .
-  eq nwp-reqattrs?(< NP | toKernel(TK:MessageList), fromKernel(FK:MessageList), returnTo(P:MaybeConcPipeId),
-                          mem-in(M1:MaybeLabel), mem-out(M2:MaybeLabel), in(L1:LabelList), out(L2:LabelList), A > C)
-   = nwp-reqattrs?(C) .
-  eq nwp-reqattrs?(< WP | toKernel(TK:MessageList), fromKernel(FK:MessageList), URL(L1:Label), rendered(L2:MaybeLabel), loading(B:Bool), A > C)
-   = nwp-reqattrs?(C) .
- ceq nwp-reqattrs?(< NP | A > C) = false if attr-subset?(toKernel(mt),fromKernel(mt),returnTo(ui),mem-in(nolabel),mem-out(nolabel),in(mtLL),out(mtLL) | A) = false .
- ceq nwp-reqattrs?(< WP | A > C) = false if attr-subset?(toKernel(mt),fromKernel(mt),URL(about-blank),rendered(about-blank),loading(true) | A) = false .
+ ceq nwp-reqattrs?(< NP | A > C) = nwp-reqattrs?(C) if netproc-req-attrs(A) = true  .
+ ceq nwp-reqattrs?(< WP | A > C) = nwp-reqattrs?(C) if webproc-req-attrs(A) = true  .
+ ceq nwp-reqattrs?(< NP | A > C) = false            if netproc-req-attrs(A) = false .
+ ceq nwp-reqattrs?(< WP | A > C) = false            if webproc-req-attrs(A) = false .
   eq nwp-reqattrs?(none) = true .
 
   --- TODO: is there a reason for this formulation?
