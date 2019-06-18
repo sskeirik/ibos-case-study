@@ -121,11 +121,11 @@ fmod PROC-ID is
   op nic       :     -> NonPipeId [ctor metadata "32"] .
   op webappmgr :     -> NonPipeId [ctor metadata "33"] .
 
-  op webapp    :     -> AbsWebProcId  [ctor metadata "26"] .
-  op webapp    : Nat -> ConcWebProcId [ctor metadata "27"] .
-  op network   :     -> AbsNetProcId  [ctor metadata "28"] .
-  op network   : Nat -> ConcNetProcId [ctor metadata "29"] .
-  op ui        :     -> UIId          [ctor metadata "30"] .
+  op ui        :     -> UIId          [ctor metadata "26"] .
+  op webapp    :     -> AbsWebProcId  [ctor metadata "27"] .
+  op webapp    : Nat -> ConcWebProcId [ctor metadata "28"] .
+  op network   :     -> AbsNetProcId  [ctor metadata "29"] .
+  op network   : Nat -> ConcNetProcId [ctor metadata "30"] .
 
   var  MP  : MaybeProcessId .
   var  !P  : NullProcId .
