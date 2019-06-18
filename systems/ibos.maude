@@ -203,10 +203,12 @@ fmod LABEL is pr NAT-NO-BUILTIN .
 endfm
 
 fmod LABEL-LIST is pr LABEL .
-  sort LabelList .
-  subsort Label < LabelList .
+  sort LabelList NeLabelList .
+  subsort Label < NeLabelList < LabelList .
   op mtLL : -> LabelList [ctor metadata "3"] .
-  op _;_ : LabelList LabelList -> LabelList   [ctor assoc id: mtLL metadata "45"] .
+  op _;_ : LabelList   LabelList   -> LabelList   [ctor assoc id: mtLL metadata "45"] .
+  op _;_ : NeLabelList LabelList   -> NeLabelList [ctor ditto metadata "45"] .
+  op _;_ : LabelList   NeLabelList -> NeLabelList [ctor ditto metadata "45"] .
 endfm
 
 fmod LABEL-SET is pr LABEL .
