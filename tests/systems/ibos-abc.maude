@@ -61,9 +61,9 @@ loop rltl-init .
 --- 22. tab-change
 --- 23. kernelReceivesOPMessage-pa10
 
-(select-rls new-url .)
+(select-rls fetch .)
 
-(declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U
+(declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U (MSG:Message) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U
 	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:ConcNetProcId) U (NI?:NetProcId) U
 	      (F:MessageList) U (T:MessageList) U (D:Label) U (L:Bool) U (U:Label) U (U':Label) U (U2:Label) U (IN:Label) U (IN2:Label) U (OUT:Label) U (OUT2:Label) U
@@ -84,8 +84,8 @@ loop rltl-init .
 		 policy(ui,     webapp, MSG-SWITCH-TAB),ps
 		 policy(network,webapp, MSG-RETURN-URL)) > }) |
    (p(NWC,WIS,NIS,MSG?))                                          = (true)  /\
-   (nwp-reqattrs?(NWC !c))                                        = (true)  /\
-   (conf-attr-dupl?(NWC !c))                                      = (false) /\
+   (nwp-reqattrs?(NWC))                                           = (true)  /\
+   (conf-attr-dupl?(NWC))                                         = (false) /\
    (weblabels-dupl?(WIS))                                         = (false) /\
    (netlabels-dupl?(NIS))                                         = (false) /\
    (conf-dupl?(NWC))                                              = (false) /\
@@ -94,7 +94,7 @@ loop rltl-init .
    (fresh-weblabel?(webapp(NWP),WIS))                             = (true)  /\
    (fresh-netlabel?(network(NNP),NIS))                            = (true)  /\
    (ui-consistent?(UIML,WIS))                                     = (true)  /\
-   (currHandled2?(MSG?,WIS,NWC))                                  = (true)  /\
+   (currHandled2?(MSG?,WIS))                                      = (true)  /\
    ---
    (weblabel-by-pid(WI,WIS) ~l CURR)                              = (true)  /\
    (display-topbar-consistent?(WI,DISP,CURR,NWC))                 = (true)  /\
@@ -105,7 +105,7 @@ loop rltl-init .
 
 (auto .)
 
---- change-display, nic1l
+--- change-display, nic1
 --- (auto .)
 
 --- new-url
@@ -116,13 +116,18 @@ loop rltl-init .
 --- (auto .)
 
 --- tab-change
---- (split ({ < WI | A > < kernel | weblabels(pi(WI,U),wp pi(WI',U'),wp WIS), A' > C }) by (webapp-url-render(WI',C)) = ((U,RNDR)) and (webapp-url-render(WI',C)) = (nopair) .)
+--- (split ({ < display | activeWebapp(WI), A' > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
+--- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- (split ({ < WI | URL(U), A > < display | activeWebapp(WI), A' > < kernel | displayedTopBar(U'), A'' > C }) by (U ~l U') = (true) and (U ~l U') = (false) .)
 --- (auto .)
 
 --- fetch
+--- (split ({ < WI | loading(B), A > C }) by (webproc-req-attrs(loading(B), A)) = (true) and (webproc-req-attrs(loading(B), A)) = (false) .)
 --- (split ({ < WI | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (U) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
 --- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
+--- (split ({ < WI | loading(B), URL(U), A > < kernel | netlabels(NIS), A' > C }) by (np-by-inlbl?(U,NIS)) = (true) and (np-by-inlbl?(U,NIS)) = (false) .)
+--- (split ({ < WI | loading(B), URL(U), toKernel(T), fromKernel(F), A > < kernel | netlabels(NIS), A' > C }) by
+---   (fetchMsg1?(WI,B,U,T,NIS) and noRetMsg?(F)) = (true) and (fetchMsg1?(WI,B,U,T,NIS) and noRetMsg?(F)) = (false) .)
 --- (auto .)
 
 --- render --- single process
