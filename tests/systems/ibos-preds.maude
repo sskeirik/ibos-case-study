@@ -635,17 +635,29 @@ fmod IBOS-AUX-FVP is
  ceq webproc-req-attrs(A) = false if in-attrset?(URL(about-blank)      | A) = false .
  ceq webproc-req-attrs(A) = false if in-attrset?(rendered(about-blank) | A) = false .
  ceq webproc-req-attrs(A) = false if in-attrset?(loading(true)         | A) = false .
+  eq webproc-req-attrs(toKernel(T:NeMessageList),   A) = webproc-req-attrs(toKernel(mt),          A) .
+  eq webproc-req-attrs(fromKernel(F:NeMessageList), A) = webproc-req-attrs(fromKernel(mt),        A) .
+  eq webproc-req-attrs(URL(U:NonBlankLabel),        A) = webproc-req-attrs(URL(about-blank),      A) .
+  eq webproc-req-attrs(rendered(R:NonBlankLabel),   A) = webproc-req-attrs(rendered(about-blank), A) .
+  eq webproc-req-attrs(loading(true),               A) = webproc-req-attrs(loading(false),        A) .
 
   op netproc-req-attrs : AttributeSet -> Bool [metadata "115 true"] .
   eq netproc-req-attrs(toKernel(T:MessageList), fromKernel(F:MessageList), returnTo(P:ConcPipeId),
                        mem-in(M1:MaybeLabel), mem-out(M2:MaybeLabel), in(L1:LabelList), out(L2:LabelList), A) = true [variant] .
  ceq netproc-req-attrs(A) = false if in-attrset?(toKernel(mt)     | A) = false .
  ceq netproc-req-attrs(A) = false if in-attrset?(fromKernel(mt)   | A) = false .
- ceq netproc-req-attrs(A) = false if in-attrset?(returnTo(none)   | A) = false .
+ ceq netproc-req-attrs(A) = false if in-attrset?(returnTo(ui)     | A) = false .
  ceq netproc-req-attrs(A) = false if in-attrset?(mem-in(nolabel)  | A) = false .
  ceq netproc-req-attrs(A) = false if in-attrset?(mem-out(nolabel) | A) = false .
  ceq netproc-req-attrs(A) = false if in-attrset?(in(mtLL)         | A) = false .
  ceq netproc-req-attrs(A) = false if in-attrset?(out(mtLL)        | A) = false .
+  eq netproc-req-attrs(toKernel(T:NeMessageList),   A) = netproc-req-attrs(toKernel(mt),        A) .
+  eq netproc-req-attrs(fromKernel(F:NeMessageList), A) = netproc-req-attrs(fromKernel(mt),      A) .
+  eq netproc-req-attrs(returnTo(W:WebProcId),       A) = netproc-req-attrs(returnTo(ui),        A) .
+  eq netproc-req-attrs(mem-in(L:Label),             A) = netproc-req-attrs(mem-in(nolabel),     A) .
+  eq netproc-req-attrs(mem-out(L:Label),            A) = netproc-req-attrs(mem-out(nolabel),    A) .
+  eq netproc-req-attrs(in(L:NeLabelList),           A) = netproc-req-attrs(in(mtLL),            A) .
+  eq netproc-req-attrs(out(L:NeLabelList),          A) = netproc-req-attrs(out(mtLL),           A) .
 
   --- 3. Add partially FVP predicate for checking if an object with the named ID is in the configuration
   op in-conf? : ProcessId Configuration -> Bool [metadata "116 true"] .
@@ -712,37 +724,6 @@ endfm
 ---
 fmod ATTRIBUTE-NONFVP-EXT is
   pr ATTRIBUTE-FVP-EXT .
-  var A A' : Attribute . var AS AS' : AttributeSet .
-
-  --- 26. Canonicalizes attribute values so attribute types can be compared by standard equality
-  ---     NOTE: dual function symbol formulation is easier to prove sufficiently complete
-  op _!a  : AttributeSet -> AttributeSet [metadata "99"] .
-  op _!!a : Attribute -> Attribute [metadata "98"] .
-  eq (A,AS)  !a = (A !!a),(AS !a) .
-  eq none    !a = none .
-  eq (AS !a) !a = AS !a .
-
-  eq (fromKernel      (X:MessageList)       ) !!a = fromKernel(mt)                .
-  eq (toKernel        (X:MessageList)       ) !!a = toKernel(mt)                  .
-  eq (nextWPN         (X:Nat)               ) !!a = nextWPN(0)                    .
-  eq (rendered        (X:MaybeLabel)        ) !!a = rendered(about-blank)         .
-  eq (URL             (X:Label)             ) !!a = URL(about-blank)              .
-  eq (loading         (X:Bool)              ) !!a = loading(true)                 .
-  eq (returnTo        (X:ConcPipeId)        ) !!a = returnTo(ui)                  .
-  eq (in              (X:LabelList)         ) !!a = in(mtLL)                      .
-  eq (out             (X:LabelList)         ) !!a = out(mtLL)                     .
-  eq (mem-in          (X:MaybeLabel)        ) !!a = mem-in(nolabel)               .
-  eq (mem-out         (X:MaybeLabel)        ) !!a = mem-out(nolabel)              .
-  eq (nic-in          (X:LabelList)         ) !!a = nic-in(mtLL)                  .
-  eq (nic-out         (X:LabelSet)          ) !!a = nic-out(mtLS)                 .
-  eq (msgPolicy       (X:PolicySet)         ) !!a = msgPolicy(mtPS)               .
-  eq (nextNPN         (X:Nat)               ) !!a = nextNPN(0)                    .
-  eq (handledCurrently(X:Message?)          ) !!a = handledCurrently(none)        .
-  eq (weblabels       (X:WebProcInfoSet)    ) !!a = weblabels(mtWPIS)             .
-  eq (netlabels       (X:NetProcInfoSet)    ) !!a = netlabels(mtNPIS)             .
-  eq (displayedTopBar (X:Label)             ) !!a = displayedTopBar(about-blank)  .
-  eq (displayedContent(X:Label)             ) !!a = displayedContent(about-blank) .
-  eq (activeWebapp    (X:MaybeConcWebProcId)) !!a = activeWebapp(webapp(0))       .
 endfm
 
 ---
@@ -771,6 +752,7 @@ fmod IBOS-AUX-NONFVP is
 
   var C C' : Configuration .
   var NC : NeConfiguration .
+  var NWC : NetWebProcConfig .
 
   var At At' : Attribute .
   var A A'   : AttributeSet .
@@ -785,6 +767,7 @@ fmod IBOS-AUX-NONFVP is
   var WP WP' : ConcWebProcId .
   var NWP    : NonWebPipeId .
   var NNWP   : NonConcNetWebProcId .
+  var CNWP   : ConcNetWebProcId .
 
   var NIS  : NetProcInfoSet .
   var WIS  : WebProcInfoSet .
@@ -798,32 +781,41 @@ fmod IBOS-AUX-NONFVP is
   var L L' L1 L2 IN OUT : Label .
   var LL LL' : LabelList .
 
-  --- 28. Lemmas for some FVP symbols
-  eq attr-dupl?((A !a), A') = attr-dupl?(A, A') .
-  eq in-attrset?(At | (A !a), A') = in-attrset?(At | A, A') .
-
-  --- 29. Canonicalize all attribute values in all objects in Configuration
-  op _!c : Configuration -> Configuration       [metadata "118"] .
-  op _!c : NetWebProcConfig -> NetWebProcConfig [metadata "118"] .
-  eq (< P | A > C) !c = < P | A !a > (C !c) .
-  eq none          !c = none .
-
   --- 31. Return true iff an attribute type is duplicated in some object in the Configuration
   op conf-attr-dupl? : Configuration -> Bool [metadata "119"] .
-  --- CONSIDER simplification of first equation
- ceq conf-attr-dupl?(< P | At, At', A > C) = conf-attr-dupl?(< P | A > C) if At ~a At' = false /\ attr-dupl?(At, A) = false /\ attr-dupl?(At', A) = false .
-  eq conf-attr-dupl?(< P | At         > C) = conf-attr-dupl?(          C) .
-  eq conf-attr-dupl?(< P | none       > C) = conf-attr-dupl?(          C) .
- ceq conf-attr-dupl?(< P |          A > C) = true                         if attr-dupl?(A) = true .
-  eq conf-attr-dupl?(none)                 = false .
+ ceq conf-attr-dupl?(< P | At, A > C) = conf-attr-dupl?(< P | A > C) if in-attrset?(At | A) = false .
+  eq conf-attr-dupl?(< P | At    > C) = conf-attr-dupl?(          C) .
+  eq conf-attr-dupl?(< P | none  > C) = conf-attr-dupl?(          C) .
+ ceq conf-attr-dupl?(< P |     A > C) = true                         if attr-dupl?(A) = true .
+  eq conf-attr-dupl?(none)            = false .
+  eq conf-attr-dupl?(< CNWP | fromKernel      (X:NeMessageList), A > C) = conf-attr-dupl?(< CNWP | fromKernel(mt)        , A > C) .
+  eq conf-attr-dupl?(< CNWP | toKernel        (X:NeMessageList), A > C) = conf-attr-dupl?(< CNWP | toKernel(mt)          , A > C) .
+  eq conf-attr-dupl?(< CNWP | rendered        (X:NonBlankLabel), A > C) = conf-attr-dupl?(< CNWP | rendered(about-blank) , A > C) .
+  eq conf-attr-dupl?(< CNWP | URL             (X:NonBlankLabel), A > C) = conf-attr-dupl?(< CNWP | URL(about-blank)      , A > C) .
+  eq conf-attr-dupl?(< CNWP | loading         (true)           , A > C) = conf-attr-dupl?(< CNWP | loading(false)        , A > C) .
+  eq conf-attr-dupl?(< CNWP | returnTo        (X:WebProcId)    , A > C) = conf-attr-dupl?(< CNWP | returnTo(ui)          , A > C) .
+  eq conf-attr-dupl?(< CNWP | in              (X:NeLabelList)  , A > C) = conf-attr-dupl?(< CNWP | in(mtLL)              , A > C) .
+  eq conf-attr-dupl?(< CNWP | out             (X:NeLabelList)  , A > C) = conf-attr-dupl?(< CNWP | out(mtLL)             , A > C) .
+  eq conf-attr-dupl?(< CNWP | mem-in          (X:Label)        , A > C) = conf-attr-dupl?(< CNWP | mem-in(nolabel)       , A > C) .
+  eq conf-attr-dupl?(< CNWP | mem-out         (X:Label)        , A > C) = conf-attr-dupl?(< CNWP | mem-out(nolabel)      , A > C) .
 
   --- 32. Return true iff all Net/WebProcs in a Configuration have their required attributes (part of WF() predicate in paper)
   op nwp-reqattrs? : NetWebProcConfig -> Bool [metadata "120"] .
- ceq nwp-reqattrs?(< NP | A > C) = nwp-reqattrs?(C) if netproc-req-attrs(A) = true  .
- ceq nwp-reqattrs?(< WP | A > C) = nwp-reqattrs?(C) if webproc-req-attrs(A) = true  .
- ceq nwp-reqattrs?(< NP | A > C) = false            if netproc-req-attrs(A) = false .
- ceq nwp-reqattrs?(< WP | A > C) = false            if webproc-req-attrs(A) = false .
+ ceq nwp-reqattrs?(< NP | A > NWC) = nwp-reqattrs?(NWC) if netproc-req-attrs(A) = true  .
+ ceq nwp-reqattrs?(< WP | A > NWC) = nwp-reqattrs?(NWC) if webproc-req-attrs(A) = true  .
+ ceq nwp-reqattrs?(< NP | A > NWC) = false              if netproc-req-attrs(A) = false .
+ ceq nwp-reqattrs?(< WP | A > NWC) = false              if webproc-req-attrs(A) = false .
   eq nwp-reqattrs?(none) = true .
+  eq nwp-reqattrs?(< CNWP | fromKernel      (X:NeMessageList), A > NWC) = nwp-reqattrs?(< CNWP | fromKernel(mt)        , A > NWC) .
+  eq nwp-reqattrs?(< CNWP | toKernel        (X:NeMessageList), A > NWC) = nwp-reqattrs?(< CNWP | toKernel(mt)          , A > NWC) .
+  eq nwp-reqattrs?(< CNWP | rendered        (X:NonBlankLabel), A > NWC) = nwp-reqattrs?(< CNWP | rendered(about-blank) , A > NWC) .
+  eq nwp-reqattrs?(< CNWP | URL             (X:NonBlankLabel), A > NWC) = nwp-reqattrs?(< CNWP | URL(about-blank)      , A > NWC) .
+  eq nwp-reqattrs?(< CNWP | loading         (true)           , A > NWC) = nwp-reqattrs?(< CNWP | loading(false)        , A > NWC) .
+  eq nwp-reqattrs?(< CNWP | returnTo        (X:WebProcId)    , A > NWC) = nwp-reqattrs?(< CNWP | returnTo(ui)          , A > NWC) .
+  eq nwp-reqattrs?(< CNWP | in              (X:NeLabelList)  , A > NWC) = nwp-reqattrs?(< CNWP | in(mtLL)              , A > NWC) .
+  eq nwp-reqattrs?(< CNWP | out             (X:NeLabelList)  , A > NWC) = nwp-reqattrs?(< CNWP | out(mtLL)             , A > NWC) .
+  eq nwp-reqattrs?(< CNWP | mem-in          (X:Label)        , A > NWC) = nwp-reqattrs?(< CNWP | mem-in(nolabel)       , A > NWC) .
+  eq nwp-reqattrs?(< CNWP | mem-out         (X:Label)        , A > NWC) = nwp-reqattrs?(< CNWP | mem-out(nolabel)      , A > NWC) .
 
   --- TODO: is there a reason for this formulation?
   --- 37. Check if a given ProcessId appears in a Net/WebProcInfo in a Net/WebProcInfoSet
