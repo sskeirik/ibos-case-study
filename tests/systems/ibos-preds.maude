@@ -63,6 +63,11 @@ fmod LABEL-FVP-EXT is
   var MMLP : MaybeMaybeLabel+Pair .
   var MLP : MaybeLabelPair .
 
+  sort BlankLabel NonBlankLabel .
+  subsort BlankLabel NonBlankLabel < Label .
+  op about-blank : -> BlankLabel        [ctor ditto metadata "40"] .
+  op url         : Nat -> NonBlankLabel [ctor ditto metadata "41"] .
+
   --- 5. Add LabelPair and MaybeLabelPair datatypes
   sort LabelPair MaybeLabelPair MaybeLabel+Pair MaybeMaybeLabel+Pair .
   subsort LabelPair < MaybeLabelPair  < MaybeMaybeLabel+Pair .
