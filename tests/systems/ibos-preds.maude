@@ -987,6 +987,11 @@ fmod IBOS-SOP-PRED is
  ceq p(NWC,             WIS,pi(NI,IN,OUT),np NIS,M?) = false if lbl-in-weblabels?(IN,WIS) = false .
  ceq p(NWC,             WIS,pi(NI,IN,OUT),np NIS,M?) = false if IN ~l OUT                 = false .
 
+  eq p(none,NWIS,  NIS,   M?) = false .
+  eq p(none,WIS,   NNIS,  M?) = false .
+  eq p(NWC, mtWPIS,NNIS,  M?) = false .
+  eq p(NNWC,mtWPIS,mtNPIS,M?) = false .
+
   --- TODO: consider rewriting consumeCurrHandled to return the message or not
   ---       simplifies sufficiently completeness issue also
   --- Whenever metadata is consistent, consume whole processing units
