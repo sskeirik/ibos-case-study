@@ -1833,6 +1833,26 @@ fmod STMT-EXTRA is
   eq rhs(ceq U =  V if EC [A].) = V .
 endfm
 
+fmod INTERREDUCE is
+  pr STMT-EXTRA .
+
+  var U : Module .
+  var Eq : Equation .
+  var Eqs RedEqs : EquationSet .
+
+  op interreduce : Module EquationSet -> EquationSet .
+  op interreduce : Module EquationSet EquationSet -> EquationSet .
+  eq interreduce(U,Eqs) = interreduce(U,Eqs,none) .
+  eq interreduce(U,Eq Eqs,RedEqs) =
+    interreduce(U,Eqs,RedEqs
+      deleteTrivial(eq metaReduce2(addEqs(Eqs RedEqs,U),lhs(Eq)) =
+         metaReduce2(addEqs(Eqs RedEqs,U),rhs(Eq)) [none].)) .
+  eq interreduce(U,none,RedEqs) = RedEqs .
+
+  op deleteTrivial : Equation -> EquationSet .
+  eq deleteTrivial(Eq) = if lhs(Eq) == rhs(Eq) then none else Eq fi .
+endfm
+
 --- this module has functionality to generate unique prefixes with
 --- respect to the sorts/operators in a module; this is useful when
 --- an algorithm needs to generate fresh sorts/operators; if the

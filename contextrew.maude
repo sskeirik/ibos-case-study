@@ -85,6 +85,7 @@ endfm
 --- NOTE: no clause simplification is performed here
 fmod CONTEXT-REW is
   pr MAYBE-BOOL            . --- nobool
+  pr INTERREDUCE           . --- interreduce()
   pr FOFORM-OPERATIONS     . --- size()
   pr FOFORMSIMPLIFY        . --- simplify()
   pr FOFORMREDUCE          . --- reduce()
@@ -121,7 +122,9 @@ fmod CONTEXT-REW is
           then reduce(setEqs(UCC,ES),PD << S)
           else if truefalseContradict(addEqs(ES,UCC),false,ES - getTaggedIdEqs(ES))
 	    then mtForm
-	    else reduce(addEqs(ES,UCC),PD << S)
+	    --- TODO: check if equations need to be reoriented after interreduction
+	    --- TODO: double-check not reducing id equations is OK
+	    else reduce(addEqs(interreduce(UCC,ES - getTaggedIdEqs(ES),getTaggedIdEqs(ES)),UCC),PD << S)
           fi
         fi)) .
 
