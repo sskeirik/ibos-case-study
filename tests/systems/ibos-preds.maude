@@ -1010,11 +1010,11 @@ fmod IBOS-SOP-PRED is
        and allEqLabel?(L,OL ; IL) and L ~l MO and L ~l MI and retMsg?(WI,NI,L,NTK @ WFK) = false .
 
   --- Group 1 - not loaded WebProc
- ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > C,pi(WI,L),wp WIS,NIS,M?) = p(C,WIS,NIS,none)
+ ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > C,pi(WI,L),wp WIS,NIS,M?) = p(C,WIS,NIS,M?)
   if np-by-inlbl?(L,NIS) = false
   /\ fetchMsg1?(WI,B,L,WTK,NIS) and noRetMsg?(WFK) = true .
 
- ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > C,pi(WI,L),wp WIS,NIS,M?) = p(C,WIS,NIS,M?)
+ ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > C,pi(WI,L),wp WIS,NIS,M?) = false
   if np-by-inlbl?(L,NIS) = false
   /\ fetchMsg1?(WI,B,L,WTK,NIS) and noRetMsg?(WFK) = false .
 
