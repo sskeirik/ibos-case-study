@@ -873,10 +873,13 @@ fmod IBOS-SOP-PRED is
 
   var B : Bool .
   var NWC : NetWebProcConfig .
+  var NNWC : NetWebProcNeConfig .
   var C : Configuration .
   var A A' : AttributeSet .
   var WIS : WebProcInfoSet .
+  var NWIS : NeWebProcInfoSet .
   var NIS : NetProcInfoSet .
+  var NNIS : NeNetProcInfoSet .
   var ML ML2 : MessageList .
   var NI : ConcNetProcId .
   var MNI : MaybeConcNetProcId .
@@ -969,56 +972,56 @@ fmod IBOS-SOP-PRED is
   --- Check the same-origin policy (SOP), written `p` for brevity
   op p : NetWebProcConfig WebProcInfoSet NetProcInfoSet Message? -> Bool? [metadata "250"] .
   --- Throw out all cases where configuration process groups/metadata inconsistent
- ceq p(< WI |                     A > C,WIS,NIS,M?) = false if weblabel-by-pid(WI,WIS)       = nolabel .
- ceq p(< WI | URL(L),             A > C,WIS,NIS,M?) = false if in-wis?(pi(WI,L),WIS)         = false   .
- ceq p(< WI | loading(B), URL(L), A > C,WIS,NIS,M?) = false if np-by-inlbl?(L,NIS) and not B = true    .
- ceq p(< NI |                     A > C,WIS,NIS,M?) = false if netlabelpair-by-pid(NI,NIS)   = nopair  .
- ceq p(< NI | returnTo(WI),       A > C,WIS,NIS,M?) = false if weblabel-by-pid(WI,WIS)       = nolabel .
- ceq p(< NI | returnTo(WI),       A > C,WIS,NIS,M?) = false if in-conf?(WI,C)                = false   .
+ ceq p(< WI |                     A > NWC,WIS,NIS,M?) = false if weblabel-by-pid(WI,WIS)       = nolabel .
+ ceq p(< WI | URL(L),             A > NWC,WIS,NIS,M?) = false if in-wis?(pi(WI,L),WIS)         = false   .
+ ceq p(< WI | loading(B), URL(L), A > NWC,WIS,NIS,M?) = false if np-by-inlbl?(L,NIS) and not B = true    .
+ ceq p(< NI |                     A > NWC,WIS,NIS,M?) = false if netlabelpair-by-pid(NI,NIS)   = nopair  .
+ ceq p(< NI | returnTo(WI),       A > NWC,WIS,NIS,M?) = false if weblabel-by-pid(WI,WIS)       = nolabel .
+ ceq p(< NI | returnTo(WI),       A > NWC,WIS,NIS,M?) = false if in-conf?(WI,NWC)              = false   .
 
- ceq p(< WI | URL(L),             A > C,pi(WI ,L'),wp WIS,NIS,M?) = false if L  ~l L'  = false .
- ceq p(< WI | URL(L),             A > C,pi(WI',L ),wp WIS,NIS,M?) = false if WI ~p WI' = false .
+ ceq p(< WI | URL(L),             A > NWC,pi(WI ,L'),wp WIS,NIS,M?) = false if L  ~l L'  = false .
+ ceq p(< WI | URL(L),             A > NWC,pi(WI',L ),wp WIS,NIS,M?) = false if WI ~p WI' = false .
 
- ceq p(C,pi(WI,IN),wp WIS,                 NIS,M?) = false if in-conf?(WI,C)            = false .
- ceq p(C,             WIS,pi(NI,IN,OUT),np NIS,M?) = false if in-conf?(NI,C)            = false .
- ceq p(C,             WIS,pi(NI,IN,OUT),np NIS,M?) = false if lbl-in-weblabels?(IN,WIS) = false .
- ceq p(C,             WIS,pi(NI,IN,OUT),np NIS,M?) = false if IN ~l OUT                 = false .
+ ceq p(NWC,pi(WI,IN),wp WIS,                 NIS,M?) = false if in-conf?(WI,NWC)          = false .
+ ceq p(NWC,             WIS,pi(NI,IN,OUT),np NIS,M?) = false if in-conf?(NI,NWC)          = false .
+ ceq p(NWC,             WIS,pi(NI,IN,OUT),np NIS,M?) = false if lbl-in-weblabels?(IN,WIS) = false .
+ ceq p(NWC,             WIS,pi(NI,IN,OUT),np NIS,M?) = false if IN ~l OUT                 = false .
 
   --- TODO: consider rewriting consumeCurrHandled to return the message or not
   ---       simplifies sufficiently completeness issue also
   --- Whenever metadata is consistent, consume whole processing units
   --- Group 2 - loaded WebProc and NetProc
  ceq p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
-       < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > C,
+       < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
               pi(WI,L),wp WIS,pi(NI,L,L),np NIS,M?)
-   = p(C,WIS,NIS,none)
+   = p(NWC,WIS,NIS,none)
   if B and consumeCurrHandled?(WI,NI,M?) and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,NIS) and fetchMsg2?(WI,NI,L,WFK)
        and allEqLabel?(L,OL ; IL) and L ~l MO and L ~l MI and retMsg?(WI,NI,L,NTK @ WFK) = true .
 
  ceq p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
-       < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > C,
+       < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
               pi(WI,L),wp WIS,pi(NI,L,L),np NIS,M?)
-   = p(C,WIS,NIS,M?)
+   = p(NWC,WIS,NIS,M?)
   if B and (not consumeCurrHandled?(WI,NI,M?)) and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,NIS) and fetchMsg2?(WI,NI,L,WFK)
        and allEqLabel?(L,OL ; IL) and L ~l MO and L ~l MI and retMsg?(WI,NI,L,NTK @ WFK) = true .
 
  ceq p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
-       < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > C,
+       < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
               pi(WI,L),wp WIS,pi(NI,L,L),np NIS,M?)
    = false
   if B and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,NIS) and fetchMsg2?(WI,NI,L,WFK)
        and allEqLabel?(L,OL ; IL) and L ~l MO and L ~l MI and retMsg?(WI,NI,L,NTK @ WFK) = false .
 
   --- Group 1 - not loaded WebProc
- ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > C,pi(WI,L),wp WIS,NIS,M?) = p(C,WIS,NIS,M?)
+ ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > NWC,pi(WI,L),wp WIS,NIS,M?) = p(NWC,WIS,NIS,M?)
   if np-by-inlbl?(L,NIS) = false
   /\ fetchMsg1?(WI,B,L,WTK,NIS) and noRetMsg?(WFK) = true .
 
- ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > C,pi(WI,L),wp WIS,NIS,M?) = false
+ ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > NWC,pi(WI,L),wp WIS,NIS,M?) = false
   if np-by-inlbl?(L,NIS) = false
   /\ fetchMsg1?(WI,B,L,WTK,NIS) and noRetMsg?(WFK) = false .
 
- ceq p(C,WIS,NIS,M?) = p(C,WIS,NIS,none) if dropCurrHandled?(M?) = true .
+ ceq p(NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,none) if dropCurrHandled?(M?) = true .
 
   eq p(none,mtWPIS,mtNPIS,M?) = true .
 endfm
