@@ -543,11 +543,15 @@ fmod IBOS-AUX-FVP is
   var UI : UIId .
 
   var C : Configuration .
+  var NWC : NetWebProcConfig .
+  var NNWC : NetWebProcNeConfig .
   var At : Attribute .
   var A A' : AttributeSet .
   var NA : NeAttributeSet .
   var WIS : WebProcInfoSet .
+  var NWIS : NeWebProcInfoSet .
   var NIS : NetProcInfoSet .
+  var NNIS : NeNetProcInfoSet .
   var IN IN' OUT OUT' U R L L' : Label .
 
   --- ABC-2. check that the display and address bar are consistent with the rendered() and URL() attributes of the active WebProc
@@ -693,6 +697,17 @@ fmod IBOS-AUX-FVP is
   eq in-nis?(pi(NP,IN,OUT),pi(NP ,IN ,OUT ),np NIS) = true [variant] .
  ceq in-nis?(pi(NP,IN,OUT),pi(NP',IN',OUT'),np NIS) = in-nis?(pi(NP,IN,OUT),NIS) if NP ~p NP' and IN ~l IN'  and OUT ~l OUT' = false .
   eq in-nis?(pi(NP,IN,OUT),mtNPIS) = false .
+
+  op goodCtxt? : NetWebProcConfig WebProcInfoSet NetProcInfoSet -> Bool [metadata "132"] .
+  eq goodCtxt?(NNWC,NWIS,  NNIS  ) = true [variant] .
+  eq goodCtxt?(NNWC,NWIS,  mtNPIS) = true [variant] .
+  eq goodCtxt?(none,mtWPIS,mtNPIS) = true [variant] .
+  ---
+  eq goodCtxt?(none,NWIS,  mtNPIS) = false [variant] .
+  eq goodCtxt?(none,mtWPIS,NNIS  ) = false [variant] .
+  eq goodCtxt?(none,NWIS,  NNIS  ) = false [variant] .
+  eq goodCtxt?(NNWC,mtWPIS,NNIS  ) = false [variant] .
+  eq goodCtxt?(NNWC,mtWPIS,mtNPIS) = false [variant] .
 endfm
 
 ---
