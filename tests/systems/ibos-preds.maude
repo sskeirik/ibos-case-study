@@ -952,8 +952,8 @@ fmod IBOS-SOP-PRED is
 
   --- NOTE: not np-by-inlbl?() condition forces only fetch-url to be processed
   op fetchMsg1? : ConcWebProcId Bool Label MessageList NetProcInfoSet -> Bool [metadata "204"] .
- ceq fetchMsg1?(WI,B,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = fetchMsg1?(WI,B,L,ML @ ML2,NIS) if B and WI ~p PI and network ~p PI' and L ~l L' and not np-by-inlbl?(L,NIS) = true  .
- ceq fetchMsg1?(WI,B,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = false                           if B and WI ~p PI and network ~p PI' and L ~l L' and not np-by-inlbl?(L,NIS) = false .
+ ceq fetchMsg1?(WI,B,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = fetchMsg1?(WI,false,L,ML @ ML2,NIS) if B and WI ~p PI and network ~p PI' and L ~l L' and not np-by-inlbl?(L,NIS) = true  .
+ ceq fetchMsg1?(WI,B,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = false                               if B and WI ~p PI and network ~p PI' and L ~l L' and not np-by-inlbl?(L,NIS) = false .
   eq fetchMsg1?(WI,B,L,ML @ NFM:NonFetchMsg @ ML2,NIS)              = fetchMsg1?(WI,B,L,ML @ ML2,NIS) .
   eq fetchMsg1?(WI,B,L,mt,NIS)                                      = true .
 
