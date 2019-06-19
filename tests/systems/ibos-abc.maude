@@ -126,8 +126,10 @@ loop rltl-init .
 --- (split ({ < WI | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (U) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
 --- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- (split ({ < WI | loading(B), URL(U), A > < kernel | netlabels(NIS), A' > C }) by (np-by-inlbl?(U,NIS)) = (true) and (np-by-inlbl?(U,NIS)) = (false) .)
---- (split ({ < WI | loading(B), URL(U), toKernel(T), fromKernel(F), A > < kernel | netlabels(NIS), A' > C }) by
----   (fetchMsg1?(WI,B,U,T,NIS) and noRetMsg?(F)) = (true) and (fetchMsg1?(WI,B,U,T,NIS) and noRetMsg?(F)) = (false) .)
+--- (split ({ < WI | loading(B), toKernel(T @ MSG), A > C }) by (T) = (N:NeMessageList) and (T) = (mt) .)
+--- (split ({ < WI | URL(U), toKernel(T @ MSG), fromKernel(F), A > < kernel | netlabels(NIS), A' > C }) by
+---    (fetchMsg1?(WI,false,U,T,NIS) and noRetMsg?(F)) = (true) and (fetchMsg1?(WI,false,U,T,NIS) and noRetMsg?(F)) = (false) .)
+--- (split ({ C }) | (p(NWC,WIS,NIS,MSG?)) = (true) by (goodCtxt?(NWC,WIS,NIS)) = (true) and (goodCtxt?(NWC,WIS,NIS)) = (false) .)
 --- (auto .)
 
 --- render --- single process
