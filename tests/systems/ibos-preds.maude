@@ -934,12 +934,14 @@ fmod IBOS-SOP-PRED is
   eq dropCurrHandled?(F:FetchMsg) = false .
   eq dropCurrHandled?(R:RetMsg) = false .
 
-  op consumeCurrHandled? : ConcWebProcId ConcNetProcId Message? -> Bool [metadata "207"] .
-  eq consumeCurrHandled?(WI,NI,msg(PI,PI',MSG-FETCH-URL, L)) = WI ~p PI or NI ~p PI or WI ~p PI' or NI ~p PI' .
-  eq consumeCurrHandled?(WI,NI,msg(PI,PI',MSG-RETURN-URL,L)) = WI ~p PI or NI ~p PI or WI ~p PI' or NI ~p PI' .
-  eq consumeCurrHandled?(WI,NI,msg(PI,PI',MSG-SWITCH-TAB,L)) = false .
-  eq consumeCurrHandled?(WI,NI,msg(PI,PI',MSG-NEW-URL,   L)) = false .
-  eq consumeCurrHandled?(WI,NI,none)                         = false .
+  op consumeCurrHandled? : ConcWebProcId ConcNetProcId Message? -> Message? [metadata "207"] .
+ ceq consumeCurrHandled?(WI,NI,msg(PI,PI',MSG-FETCH-URL, L)) = none if WI ~p PI or NI ~p PI or WI ~p PI' or NI ~p PI' = true .
+ ceq consumeCurrHandled?(WI,NI,msg(PI,PI',MSG-RETURN-URL,L)) = none if WI ~p PI or NI ~p PI or WI ~p PI' or NI ~p PI' = true .
+ ceq consumeCurrHandled?(WI,NI,msg(PI,PI',MSG-FETCH-URL, L)) = msg(PI,PI',MSG-FETCH-URL, L) if WI ~p PI or NI ~p PI or WI ~p PI' or NI ~p PI' = false .
+ ceq consumeCurrHandled?(WI,NI,msg(PI,PI',MSG-RETURN-URL,L)) = msg(PI,PI',MSG-RETURN-URL,L) if WI ~p PI or NI ~p PI or WI ~p PI' or NI ~p PI' = false .
+  eq consumeCurrHandled?(WI,NI,msg(PI,PI',MSG-SWITCH-TAB,L)) = msg(PI,PI',MSG-SWITCH-TAB,L) .
+  eq consumeCurrHandled?(WI,NI,msg(PI,PI',MSG-NEW-URL,   L)) = msg(PI,PI',MSG-NEW-URL,   L) .
+  eq consumeCurrHandled?(WI,NI,none)                         = none .
 
   --- NOTE: when this is processed, the NetProc has already been created
   op currHandled1? : ConcWebProcId ConcNetProcId Label Message? -> Bool [metadata "202"] .
@@ -1007,22 +1009,13 @@ fmod IBOS-SOP-PRED is
   eq p(NWC, mtWPIS,NNIS,  M?) = false .
   eq p(NNWC,mtWPIS,mtNPIS,M?) = false .
 
-  --- TODO: consider rewriting consumeCurrHandled to return the message or not
-  ---       simplifies sufficiently completeness issue also
   --- Whenever metadata is consistent, consume whole processing units
   --- Group 2 - loaded WebProc and NetProc
  ceq p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
        < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
               pi(WI,L),wp WIS,pi(NI,L,L),np NIS,M?)
-   = p(NWC,WIS,NIS,none)
-  if B and consumeCurrHandled?(WI,NI,M?) and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,NIS) and fetchMsg2?(WI,NI,L,WFK)
-       and allEqLabel?(L,OL ; IL) and L ~l MO and L ~l MI and retMsg?(WI,NI,L,NTK @ WFK) = true .
-
- ceq p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
-       < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
-              pi(WI,L),wp WIS,pi(NI,L,L),np NIS,M?)
-   = p(NWC,WIS,NIS,M?)
-  if B and (not consumeCurrHandled?(WI,NI,M?)) and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,NIS) and fetchMsg2?(WI,NI,L,WFK)
+   = p(NWC,WIS,NIS,consumeCurrHandled?(WI,NI,M?))
+  if B and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,NIS) and fetchMsg2?(WI,NI,L,WFK)
        and allEqLabel?(L,OL ; IL) and L ~l MO and L ~l MI and retMsg?(WI,NI,L,NTK @ WFK) = true .
 
  ceq p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
