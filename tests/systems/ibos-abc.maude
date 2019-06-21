@@ -61,7 +61,7 @@ loop rltl-init .
 --- 22. tab-change
 --- 23. kernelReceivesOPMessage-pa10
 
-(select-rls fetch .)
+(select-rls render .)
 
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U (MSG:Message) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U
@@ -133,18 +133,18 @@ loop rltl-init .
 --- (auto .)
 
 --- render --- single process
---- (focus 240 -- 247, 252 -- 259 .)
---- (split ({ < WI | loading(true), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
---- (split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U) @ F), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
---- (split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
---- (split ({ < WI | loading(true), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
---- (split ({ < WI | loading(true), rendered(U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
---- (split ({ < kernel | netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN2 ~l OUT) = (true) and (IN2 ~l OUT) = (false) .)
---- (split ({ C }) | (render-consistent?(< WI | URL(U), rendered(U'), A > NWC)) = (true) by (U' blank-or-equal U) = (true) and (U' blank-or-equal U) = (false) .)
---- (auto .)
+(focus 264 -- 271, 280 -- 287 .)
+(split ({ < WI | loading(true), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+(split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U) @ F), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
+(split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
+(split ({ < WI | loading(true), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN2,OUT),np NIS), A' > C }) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
+(split ({ < WI | loading(true), rendered(U), A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
+(split ({ < kernel | netlabels(pi(NI,IN2,OUT),np NIS), A > C }) by (IN2 ~l OUT) = (true) and (IN2 ~l OUT) = (false) .)
+(split ({ C }) | (render-consistent?(< WI | URL(U), rendered(U'), A > NWC)) = (true) by (U' blank-or-equal U) = (true) and (U' blank-or-equal U) = (false) .)
+---(auto .)
 
 --- render --- multi process
---- (focus 248 -- 251, 260 -- 263 .)
+--- (focus 272 -- 229, 288 -- 295 .)
 --- (split ({ < WI | loading(true),         A > < kernel | weblabels(             WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
 --- (split ({ < WI | loading(true), URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- (split ({ C }) | (p(< WI | fromKernel(msg(PP1,WI,MSG-RETURN-URL,U) @ F), A > NWC,WIS,NIS,MSG?)) = (true) by (netlabelpair-by-pid(PP1,NIS)) = ((IN,OUT)) and (netlabelpair-by-pid(PP1,NIS)) = (nopair) .)
