@@ -1,0 +1,20 @@
+Sufficient Completeness Process:
+
+1) Handle Commatitivity
+- extract all commutative ops
+- commute all of their equations (this is sufficient when commutative operators occur only at the top)
+
+2) Build linearized, unconditionalized theory
+- remove all conditions from the theory
+- abstract away all non-linearities
+- de-dupe equations equivalent upto renaming
+- build map of linearized equations to non-linear substitutions
+
+3) Check that linearized, unconditional theory is sufficiently complete
+
+4) Build a dependency graph for the full theory; collapse cycles into super-nodes
+
+6) Set processed set to empty. Iterate over collapsed dependency graph by selecting super-nodes whose dependencies are all processed.
+   For each super-node, process nodes in order.
+   For each node, check that:
+   1) non-linearities fall into known good cases

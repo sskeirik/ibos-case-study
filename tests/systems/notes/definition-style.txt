@@ -1,0 +1,53 @@
+Sufficient Completeness Requirements
+####################################
+
+| Function                                       | Required Sufficiently Complete Functions |
+| element of set under projection/equivalence    | projection, equivalence relation         |
+| subset under projection/equivalence            | element of set                           |
+| duplicate element under projection/equivalence | element of set                           |
+
+
+Function Declarations
+#####################
+
+op _~_  : SubElement SubElement -> Bool .
+op _in_ : SubElement Set -> Bool .
+op dupl : Set -> Bool .
+op dupl : Element Set -> Bool .
+
+
+Element Of Definition
+#####################
+
+eq E in c(...E'...) S = E ~ E' or-else E in S .
+eq E in none          = false .
+
+eq E in c(...E'...) S = true   if E ~ E' = true  .
+eq E in c(...E'...) S = E in S if E ~ E' = false .
+eq E in none          = false                    .
+
+Duplicate Definition
+####################
+
+eq dupl(c(...E...) c(...E'...) S) = E ~ E' or-else (dupl(c(...E...) S) or dupl(c(...E'...) S)) .
+eq dupl(c(...)) = false .
+eq dupl(none)   = false .
+
+eq dupl(c(...E...) S) = E in S or-else dupl(S) .
+eq dupl(c(...)) = false .
+eq dupl(none)   = false .
+
+Notes
+#####
+
+- Eager vs. lazy reduction of equations
+  - conditional  is lazy  - reduces only when provable
+  - uncondtional is eager - reduces whenever possible into disjunctions
+
+- For IBOS SOP predicate, two styles:
+  - reduce each argument individually
+    - advantages: makes proof script shorter (potentially) because may need less conditions to go down
+    - disadvantages: totally unworkable for suff. comp/confluence analysis
+  - reduce arguments in groups
+    - advantages: no interdependencies between process groups, so analysis can be done locally for each group
+    - disadvantages: if narrowing on a rule only partially instantiates a group, will have to instantiate rest fully

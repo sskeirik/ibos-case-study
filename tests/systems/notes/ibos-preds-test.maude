@@ -1,0 +1,179 @@
+load ibos-preds.maude
+load ../../rltool-lib.maude
+
+ fmod PROC-ID-COPY is
+   pr NAT-NO-BUILTIN .
+
+   sort MaybeProcessId  .
+   sort MaybePipeId     .
+   sort MaybeConcPipeId .
+   sort MaybeConcNetProcId .
+   sort MaybeConcWebProcId .
+   sort NullProcId      .
+
+   sort ProcessId       .  **** Set of all process ids
+   sort AbsProcId       .
+   sort ConcProcId      .
+
+   sort PipeId          .  **** processes which can act like pipes
+   sort NonPipeId       .  **** Set of non-pipe processes
+
+   sort NetProcId       .  **** abstract/concrete network procs/webapps
+   sort WebProcId       .
+
+   sort AbsPipeId       .
+   sort AbsNetProcId    .
+   sort AbsWebProcId    .
+
+   sort ConcPipeId      .
+   sort ConcNetProcId   .
+   sort ConcWebProcId   .
+   sort UIId            .
+
+   sort NonNetPipeId    .  **** processes which are pipes and not networks
+   sort NonWebPipeId    .  **** processes which are pipes and not webapps
+
+   subsorts NullProcId < MaybeConcNetProcId MaybeConcWebProcId < MaybeConcPipeId < MaybePipeId < MaybeProcessId .
+   subsorts  ProcessId    <     MaybeProcessId .
+   subsorts     PipeId    <        MaybePipeId .
+   subsorts ConcPipeId    <    MaybeConcPipeId .
+   subsorts ConcNetProcId < MaybeConcNetProcId .
+   subsorts ConcWebProcId < MaybeConcWebProcId .
+
+   subsorts AbsProcId ConcProcId < ProcessId .
+   subsorts PipeId    NonPipeId  < ProcessId .
+
+   subsorts ConcPipeId NonPipeId < ConcProcId .
+   subsorts AbsPipeId            < AbsProcId  .
+
+   subsorts AbsPipeId ConcPipeId NetProcId WebProcId < PipeId .
+   subsorts UIId ConcNetProcId ConcWebProcId < ConcPipeId .
+   subsorts AbsNetProcId AbsWebProcId        < AbsPipeId  .
+   subsorts ConcNetProcId AbsNetProcId       < NetProcId .
+   subsorts ConcWebProcId AbsWebProcId       < WebProcId .
+   subsorts UIId AbsWebProcId WebProcId      < NonNetPipeId < PipeId .
+   subsorts UIId AbsNetProcId NetProcId      < NonWebPipeId < PipeId .
+
+   op none      :     -> NullProcId [ctor metadata "24"] .
+
+   op kernel    :     -> NonPipeId [ctor metadata "25"] .
+   op display   :     -> NonPipeId [ctor metadata "31"] .
+   op nic       :     -> NonPipeId [ctor metadata "32"] .
+   op webappmgr :     -> NonPipeId [ctor metadata "33"] .
+
+   op webapp    :     -> AbsWebProcId  [ctor metadata "26"] .
+   op webapp    : Nat -> ConcWebProcId [ctor metadata "27"] .
+   op network   :     -> AbsNetProcId  [ctor metadata "28"] .
+   op network   : Nat -> ConcNetProcId [ctor metadata "29"] .
+   op ui        :     -> UIId          [ctor metadata "30"] .
+
+   op _~p_ : MaybeProcessId MaybeProcessId -> Bool .
+---@
+---@   eq _~p_(!P:NullProcId,P:ProcessId)     = true .
+---@   eq _~p_(APP:AbsPipeId,CPP:ConcPipeId)  = true .
+---@   eq _~p_(CPP:ConcPipeId,APP:AbsPipeId)  = true .
+---@   eq _~p_(NP:NetProcId,UI:UIId)          = true .
+---@   eq _~p_(NP:NetProcId,WP:WebProcId)     = true .
+---@   eq _~p_(NPP:NonPipeId,PP:PipeId)       = true .
+---@   eq _~p_(P:ProcessId,!P:NullProcId)     = true .
+---@   eq _~p_(PP:PipeId,NPP:NonPipeId)       = true .
+---@   eq _~p_(UI:UIId,NP:NetProcId)          = true .
+---@   eq _~p_(UI:UIId,WP:WebProcId)          = true .
+---@   eq _~p_(WP:WebProcId,NP:NetProcId)     = true .
+---@   eq _~p_(WP:WebProcId,UI:UIId)          = true .
+---@
+---@   eq _~p_(display,display)               = true .
+---@   eq _~p_(kernel,kernel)                 = true .
+---@   eq _~p_(network,network)               = true .
+---@   eq _~p_(none,none)                     = true .
+---@   eq _~p_(nic,nic)                       = true .
+---@   eq _~p_(ui,ui)                         = true .
+---@   eq _~p_(webappmgr,webappmgr)           = true .
+---@   eq _~p_(webapp,webapp)                 = true .
+---@
+---@   eq _~p_(display,kernel)                = true .
+---@   eq _~p_(display,nic)                   = true .
+---@   eq _~p_(display,webappmgr)             = true .
+---@   eq _~p_(kernel,display)                = true .
+---@   eq _~p_(kernel,nic)                    = true .
+---@   eq _~p_(kernel,webappmgr)              = true .
+---@   eq _~p_(nic,display)                   = true .
+---@   eq _~p_(nic,kernel)                    = true .
+---@   eq _~p_(nic,webappmgr)                 = true .
+---@   eq _~p_(webappmgr,display)             = true .
+---@   eq _~p_(webappmgr,kernel)              = true .
+---@   eq _~p_(webappmgr,nic)                 = true .
+---@
+---@   eq _~p_(network(N:Nat),network(M:Nat)) = true .
+---@   eq _~p_(webapp(N:Nat),webapp(M:Nat))   = true .
+ endfm
+
+fmod PROC-ID-SYS is
+  pr CONSTRAINED-TERM-TRANSFORM .
+  pr UNIT-FM .
+
+  var T T' : Term .
+  var TS : TermSet .
+  var M : Module .
+
+  op nw-coverset : -> CTermSet .
+  eq nw-coverset =
+   ( ('_~p_['network['N:Nat]      , 'network['M:Nat]     ] | 'N:Nat ?= 'M:Nat)
+   | ('_~p_['webapp ['N:Nat]      , 'webapp ['M:Nat]     ] | 'N:Nat ?= 'M:Nat)
+   | ('_~p_['network['N:Nat]      , 'network['M:Nat]     ] | 'N:Nat != 'M:Nat)
+   | ('_~p_['webapp ['N:Nat]      , 'webapp ['M:Nat]     ] | 'N:Nat != 'M:Nat) ) .
+
+  op nw-trans-coverset : -> CTermSet .
+  eq nw-trans-coverset =
+   ( ('_~p_['network['_+_['N:Nat,'Z:NzNat]] , 'network['N:Nat]               ] | tt)
+   | ('_~p_['network['N:Nat]                , 'network['_+_['N:Nat,'Z:NzNat]]] | tt)
+   | ('_~p_['webapp ['_+_['N:Nat,'Z:NzNat]] , 'webapp ['N:Nat]               ] | tt)
+   | ('_~p_['webapp ['N:Nat]                , 'webapp ['_+_['N:Nat,'Z:NzNat]]] | tt) ) .
+
+  op rest-coverset : -> CTermSet .
+  eq rest-coverset =
+   ( ('_~p_['kernel.NonPipeId     , 'kernel.NonPipeId    ] | tt)
+   | ('_~p_['display.NonPipeId    , 'display.NonPipeId   ] | tt)
+   | ('_~p_['nic.NonPipeId        , 'nic.NonPipeId       ] | tt)
+   | ('_~p_['webappmgr.NonPipeId  , 'webappmgr.NonPipeId ] | tt)
+   | ('_~p_['webapp.AbsWebProcId  , 'webapp.AbsWebProcId ] | tt)
+   | ('_~p_['network.AbsNetProcId , 'network.AbsNetProcId] | tt)
+   | ('_~p_['ui.UIId              , 'ui.UIId             ] | tt)
+   | ('_~p_['none.NullProcId      , 'none.NullProcId     ] | tt)
+
+   | ('_~p_['!P:NullProcId        , 'P:ProcessId         ] | tt)
+   | ('_~p_['NPP:NonPipeId        , 'PP:PipeId           ] | tt)
+   | ('_~p_['kernel.NonPipeId     , 'display.NonPipeId   ] | tt)
+   | ('_~p_['kernel.NonPipeId     , 'nic.NonPipeId       ] | tt)
+   | ('_~p_['kernel.NonPipeId     , 'webappmgr.NonPipeId ] | tt)
+   | ('_~p_['display.NonPipeId    , 'nic.NonPipeId       ] | tt)
+   | ('_~p_['display.NonPipeId    , 'webappmgr.NonPipeId ] | tt)
+   | ('_~p_['nic.NonPipeId        , 'webappmgr.NonPipeId ] | tt)
+   | ('_~p_['APP:AbsPipeId        , 'CPP:ConcPipeId      ] | tt)
+   | ('_~p_['WP:WebProcId         , 'NP:NetProcId        ] | tt)
+   | ('_~p_['NP:NetProcId         , 'UI:UIId             ] | tt)
+   | ('_~p_['WP:WebProcId         , 'UI:UIId             ] | tt)
+
+   | ('_~p_['P:ProcessId          , '!P:NullProcId       ] | tt)
+   | ('_~p_['PP:PipeId            , 'NPP:NonPipeId       ] | tt)
+   | ('_~p_['display.NonPipeId    , 'kernel.NonPipeId    ] | tt)
+   | ('_~p_['nic.NonPipeId        , 'kernel.NonPipeId    ] | tt)
+   | ('_~p_['webappmgr.NonPipeId  , 'kernel.NonPipeId    ] | tt)
+   | ('_~p_['nic.NonPipeId        , 'display.NonPipeId   ] | tt)
+   | ('_~p_['webappmgr.NonPipeId  , 'display.NonPipeId   ] | tt)
+   | ('_~p_['webappmgr.NonPipeId  , 'nic.NonPipeId       ] | tt)
+   | ('_~p_['CPP:ConcPipeId       , 'APP:AbsPipeId       ] | tt)
+   | ('_~p_['NP:NetProcId         , 'WP:WebProcId        ] | tt)
+   | ('_~p_['UI:UIId              , 'NP:NetProcId        ] | tt)
+   | ('_~p_['UI:UIId              , 'WP:WebProcId        ] | tt) ) .
+
+   op toEqs : TermSet Term -> EquationSet .
+   eq toEqs(T | TS,      T') = (eq T = T' [none].) toEqs(TS,T') .
+   eq toEqs(emptyTermSet,T') = none .
+
+   op red : Module TermSet -> TermSet .
+   eq red(M,T | TS) = metaReduce2(M,T) | red(M,TS) .
+   eq red(M,emptyTermSet) = emptyTermSet .
+endfm
+
+red red(upModule('PROC-ID,true),term(rest-coverset | nw-trans-coverset)) .
