@@ -886,6 +886,11 @@ fmod IBOS-AUX-NONFVP is
   eq allEqLabel?(L,LL ; L  ; LL') = allEqLabel?(L,LL ; LL') .
  ceq allEqLabel?(L,LL ; L' ; LL') = false if L ~l L' = false .
   eq allEqLabel?(L,mtLL)          = true .
+
+  --- TODO: properly encode conditions for using a label somewhere
+  --- TODO: add simplification rules used in other equations
+  op label-used1? : Label NetWebProcConfig -> Bool [metadata "190"] .
+  op label-used2? : Label Message? -> Bool [metadata "191"] .
 endfm
 
 ---
