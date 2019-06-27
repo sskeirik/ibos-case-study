@@ -394,6 +394,7 @@ mod RLTL-ACTION-IMPL is
   var L L' : QidList .
   var A A' : RLTLAction .
   var M M' : RLTLMode .
+  var N N' : Nat .
   var NS : Set{Nat} .
   var NNS : NeSet{Nat} .
   var AK : [RLTLAction] .
@@ -410,7 +411,7 @@ mod RLTL-ACTION-IMPL is
   eq process-action(set-mode(M'), (mode : M, AS)) = mode : M', AS .
   eq process-action(continue, (proof : [PM], mode : M, output : L, AS)) =
      if active-mode?(M)
-       then do-ui(run-cycle(proof : {PM}, mode : M, output : L, AS))
+       then do-ui(size(readyGoals(get-prf(PM))),run-cycle(proof : {PM}, mode : M, output : L, AS))
        else proof : [PM], mode : M, output : (L 'Error: 'continue 'can 'only 'be 'used 'while 'taking 'proof 'steps), AS
      fi .
   eq process-action(PM & AK,AS) =
@@ -440,9 +441,9 @@ mod RLTL-ACTION-IMPL is
 
   --- perform UI output actions
   -----------------------------------------
-  op do-ui : AttributeSet ~> AttributeSet .
-  eq do-ui(mode : M, proof : [PM], output : L, AS) =
-    mode : M, proof : [flipPaused(clear(PM))], output : (L get-out(PM) handle-output(M,PM)), AS .
+  op do-ui : Nat AttributeSet ~> AttributeSet .
+  eq do-ui(N,mode : M, proof : [PM], output : L, AS) =
+    mode : M, proof : [flipPaused(clear(PM))], output : (L get-out(PM) handle-output(M,PM) '\n showSize(N,size(goalsByStatus(paused,get-prf(PM))))), AS .
 
   op handle-output : RLTLMode ProofMetadata -> QidList .
   eq handle-output(M,PM) =
@@ -457,6 +458,9 @@ mod RLTL-ACTION-IMPL is
     else
      'Internal 'Error: 'unknown 'mode
     fi fi fi .
+
+  op showSize : Nat Nat -> QidList .
+  eq showSize(N,N') = 'Action 'consumed printPar(N) 'goals 'and 'generated printPar(N') 'goals .
 
   --- control flow predicates
   ---------------------------------------------------------------------
