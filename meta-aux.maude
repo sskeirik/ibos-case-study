@@ -1500,6 +1500,13 @@ fmod OPDECLSET-EXTRA is
 
   op removeComm : Module -> Module .
   eq removeComm(U) = setOps(U,removeComm(getOps(U))) .
+
+  --- PRE: None
+  --- OUT: Return true if any attr occurs
+  op anyAttrOccurs? : AttrSet OpDeclSet -> Bool .
+  eq anyAttrOccurs?(AS,OD OS) =
+    AS % attrSet(OD) =/= AS or-else anyAttrOccurs?(AS,OS) .
+  eq anyAttrOccurs?(AS,none) = false .
 endfm
 
 fmod OPDECL-TYPING is
