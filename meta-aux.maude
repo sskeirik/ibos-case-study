@@ -3095,6 +3095,60 @@ fmod EQ-VARIANT is
   eq getss(ssnp(SS,I))          = SS .
 endfm
 
+fmod NARROWING is
+  pr META-LEVEL .
+
+  var M : Module .
+  var S T : Term .
+  var Rel : Qid .
+  var Bnd : Bound .
+  var VarFlag : Qid .
+  var Num : Nat .
+  var NSR : NarrowingSearchResult .
+  var ResultSet : NarrowingSearchResultSet .
+
+  var ResTerm : Term .
+  var ResType : Type .
+  var TermSub : Substitution .
+  var TermVarFlag : Qid .
+  var RuleSub : Substitution .
+  var RuleVarFlag : Qid .
+
+  sort NarrowingSearchResultSet .
+  subsort NarrowingSearchResult? < NarrowingSearchResultSet .
+  op _|_ : NarrowingSearchResultSet NarrowingSearchResultSet -> NarrowingSearchResultSet [ctor assoc comm id: .NarrowingSearchResultSet] .
+  op .NarrowingSearchResultSet : -> NarrowingSearchResultSet [ctor] .
+
+  op metaNarrowSearch : Module Term Term Qid Bound Qid -> NarrowingSearchResultSet .
+  eq metaNarrowSearch(M,S,T,Rel,Bnd,VarFlag) =
+     metaNarrowSearch(M,S,T,Rel,Bnd,VarFlag,0) .
+
+  op metaNarrowSearch : Module Term Term Qid Bound Qid Nat -> NarrowingSearchResultSet .
+  eq metaNarrowSearch(M,S,T,Rel,Bnd,VarFlag,Num) =
+    metaNarrowSearch1(M,S,T,Rel,Bnd,VarFlag,Num,.NarrowingSearchResultSet,
+      metaNarrowingSearch(M,S,T,Rel,Bnd,VarFlag,Num)) .
+
+  op metaNarrowSearch1 : Module Term Term Qid Bound Qid Nat NarrowingSearchResultSet NarrowingSearchResult? -> NarrowingSearchResultSet .
+  eq metaNarrowSearch1(M,S,T,Rel,Bnd,VarFlag,Num,ResultSet,failure)           = ResultSet .
+  eq metaNarrowSearch1(M,S,T,Rel,Bnd,VarFlag,Num,ResultSet,failureIncomplete) = ResultSet | failureIncomplete .
+  eq metaNarrowSearch1(M,S,T,Rel,Bnd,VarFlag,Num,ResultSet,NSR)               =
+     metaNarrowSearch1(M,S,T,Rel,Bnd,VarFlag,s(Num),ResultSet | NSR,
+       metaNarrowingSearch(M,S,T,Rel,Bnd,VarFlag,s(Num))) .
+
+  --- For compatibility with older code
+  sort ResultTripleSet .
+  subsort ResultTriple < ResultTripleSet .
+  op empty : -> ResultTripleSet [ctor] .
+  op _|_ : ResultTripleSet ResultTripleSet -> ResultTripleSet
+    [ctor assoc comm id: empty prec 65 format (d d n d)] .
+  eq X:ResultTriple | X:ResultTriple = X:ResultTriple .
+
+  op toResultTripleSet : NarrowingSearchResultSet -> ResultTripleSet .
+  eq toResultTripleSet({ ResTerm, ResType, TermSub, TermVarFlag, RuleSub, RuleVarFlag } | ResultSet) =
+    { ResTerm, ResType, TermSub } | toResultTripleSet(ResultSet) .
+  eq toResultTripleSet(.NarrowingSearchResultSet) = empty .
+endfm
+
 fmod DECL-SUBSUMPTION is
   pr UNIT-FM .
   pr STMT-EXTRA .
