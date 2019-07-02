@@ -3205,6 +3205,250 @@ fmod DECL-SUBSUMPTION is
   eq $rmVariants(MbS) = MbS [owise] .
 endfm
 
+fmod REMOVE-IDS is
+  pr UNIT-FM .
+  pr OP-FAMILY .
+  pr EQ-VARIANT .
+  pr ATTR-EXTRA .
+  pr DECL-SUBSUMPTION .
+
+  var C : Constant .
+  var M M' IdM : Module .
+  var I J N : Nat .
+  var T T' T'' L R : Term .
+  var F : Qid .
+  var TL : TermList .
+  var AtS : AttrSet .
+  var VtS : VariantTripleSet .
+  var Tp Tp' Tp'' : Type .
+  var TpL : TypeList .
+  var Rl : Rule .
+  var RlS : RuleSet .
+  var Eq : Equation .
+  var EqS : EquationSet .
+  var ODS : OpDeclSet .
+  var Cond : Condition .
+  var S : Sort .
+  var Subst Subst' : Substitution .
+  var SubstS SubstS' : SubstitutionSet .
+  var Str : String .
+  var Which : IdsToRemove .
+  var Subsumption? : Bool .
+
+  sort IdsToRemove .
+  ops all non-handled : -> IdsToRemove .
+
+  op removeIds  : Module IdsToRemove ~> Module .
+  op removeIds  : Module Bool IdsToRemove ~> Module .
+  op $removeIds : Module Bool IdsToRemove ~> Module .
+  op $removeIds : Module IdsToRemove ~> Module .
+
+  op getVariants : Module Module RuleSet -> RuleSet .
+  op getVariants : Module Module EquationSet -> EquationSet .
+  op getRlVariants : Module VariantTripleSet Term Condition AttrSet RuleSet -> RuleSet .
+  op getEqVariants : Module VariantTripleSet Term Condition AttrSet EquationSet -> EquationSet .
+
+  eq removeIds(M, Which) = removeIds(M, true, Which) .
+ ceq removeIds(M, Subsumption?, Which) = $removeIds(M, Subsumption?, Which)
+  if not (anyAttrOccurs?(owise idem,getOps(M)) or-else anyLhsIsVar?(getRls(M)) or-else anyLhsIsVar?(getEqs(M))) .
+
+  eq $removeIds(M, true,  Which) = moreGeneralRls(moreGeneralEqs($removeIds(M, Which))) .
+  eq $removeIds(M, false, Which) = $removeIds(M, Which) .
+  eq $removeIds(M, Which) = setRls(
+                              addEqs(getVariants(makeIdsTuplingModule(M, Which), addTupling(M, M), getEqs(M)),
+                                makeIdsModule(M, Which)),
+                              getVariants(makeIdsTuplingModule(M, Which), addTupling(M, M), getRls(M))) .
+
+  eq getVariants(M, M', Rl RlS)
+    = getRlVariants(M', variants(M, makeTuple(lhs(Rl), cond(Rl))), rhs(Rl), cond(Rl), attrSet(Rl), none)
+      getVariants(M, M', RlS) .
+  eq getVariants(M, M', (none).RuleSet) = none .
+
+  eq getVariants(M, M', Eq EqS)
+    = getEqVariants(M', variants(M, makeTuple(lhs(Eq), cond(Eq))), rhs(Eq), cond(Eq), attrSet(Eq), none)
+      getVariants(M, M', EqS) .
+  eq getVariants(M, M', (none).EquationSet) = none .
+
+  eq getRlVariants(M, ({'@<@_@>@[T], Subst, N, P:Parent,B:Bool} | VtS), T', nil, AtS, RlS)
+    = getRlVariants(M, VtS, T', nil, AtS, RlS
+        (rl getTerm(metaNormalize(M, T)) => getTerm(metaNormalize(M, _<<_(T', Subst))) [AtS] .)
+      ) .
+  eq getRlVariants(M, ({F[T, TL], Subst,N,P:Parent,B:Bool} | VtS), T', Cond, AtS, RlS)
+    = getRlVariants(M, VtS, T', Cond, AtS, RlS
+        (crl getTerm(metaNormalize(M, T)) => getTerm(metaNormalize(M, _<<_(T', Subst))) if makeCond(TL, Cond, Subst) [AtS] .)
+      ) .
+  eq getRlVariants(M, empty, T', Cond, AtS, RlS) = RlS .
+
+  eq getEqVariants(M, ({'@<@_@>@[T], Subst, N,P:Parent,B:Bool} | VtS), T', nil, AtS, EqS)
+    = getEqVariants(M, VtS, T', nil, AtS, EqS
+        (eq getTerm(metaNormalize(M, T)) = getTerm(metaNormalize(M, _<<_(T', Subst))) [AtS] .)
+      ) .
+  eq getEqVariants(M, ({F[T, TL], Subst, N,P:Parent,B:Bool} | VtS), T', Cond, AtS, EqS)
+    = getEqVariants(M, VtS, T', Cond, AtS, EqS
+        (ceq getTerm(metaNormalize(M, T)) = getTerm(metaNormalize(M, _<<_(T', Subst))) if makeCond(TL, Cond, Subst) [AtS] .)
+      ) .
+  eq getEqVariants(M, empty, T', Cond, AtS, EqS) = EqS .
+
+  ------------------------------------------------------------------------------
+
+  op makeIdsTuplingModule : Module IdsToRemove -> Module .
+  eq makeIdsTuplingModule(M, Which) = addTupling(M, makeIdsModule(M, Which)) .
+
+  op makeIdsModule : Module IdsToRemove -> Module .
+  eq makeIdsModule(M, Which)
+    = setEqs(
+        setOps(
+          setRls(M, none),
+          removeIds(M,getOps(M),Which)),
+        idEqs(M, 0, flattenOpFamily(getOpFamilies(M,false,getOps(M))), Which)) .
+
+  op addTupling : Module Module -> Module .
+  eq addTupling(M, M')
+    = addOps(
+        tuplingOps(M, getEqs(M), getRls(M)),
+        addSorts('Tuple, M')) .
+
+  op tuplingOps : Module EquationSet RuleSet -> OpDeclSet .
+  op tuplingOps : Module EquationSet -> OpDeclSet .
+  op tuplingOps : Module RuleSet -> OpDeclSet .
+  eq tuplingOps(M, EqS, RlS) = tuplingOps(M, EqS) tuplingOps(M, RlS) .
+  eq tuplingOps(M, eq L = R [AtS] . EqS)
+    = (op qid("@<@_@>@") : getKind(M, leastSort(M, L)) -> '`[Tuple`] [none] .)
+      tuplingOps(M, EqS) .
+  eq tuplingOps(M, ceq L = R if Cond [AtS] . EqS)
+    = (op qid("@<@_" + tupleId(Cond) + "@>@") : getKind(M, leastSort(M, L)) arityCond(M, Cond) -> '`[Tuple`] [none] .)
+      tuplingOps(M, EqS) .
+  eq tuplingOps(M, (none).EquationSet) = none .
+  eq tuplingOps(M, rl L => R [AtS] . RlS)
+    = (op qid("@<@_@>@") : getKind(M, leastSort(M, L)) -> '`[Tuple`] [none] .)
+      tuplingOps(M, RlS) .
+  eq tuplingOps(M, crl L => R if Cond [AtS] . RlS)
+    = (op qid("@<@_" + tupleId(Cond) + "@>@") : getKind(M, leastSort(M, L)) arityCond(M, Cond) -> '`[Tuple`] [none] .)
+      tuplingOps(M, RlS) .
+  eq tuplingOps(M, (none).RuleSet) = none .
+
+  op arityCond : Module Condition -> TypeList .
+  eq arityCond(M, T => T' /\ Cond) = getKind(M, leastSort(M, T')) arityCond(M, Cond) .
+  eq arityCond(M, T := T' /\ Cond) = getKind(M, leastSort(M, T)) arityCond(M, Cond) .
+  eq arityCond(M, T = T' /\ Cond) = arityCond(M, Cond) .
+  eq arityCond(M, T : S /\ Cond) = arityCond(M, Cond) .
+  eq arityCond(M, nil) = nil .
+
+  op tupleId : Condition -> String .
+  eq tupleId(T => T' /\ Cond) = ",_" + tupleId(Cond) .
+  eq tupleId(T := T' /\ Cond) = ",_" + tupleId(Cond) .
+  eq tupleId(T = T' /\ Cond) = tupleId(Cond) .
+  eq tupleId(T : S /\ Cond) = tupleId(Cond) .
+  eq tupleId(Cond) = "" .
+
+  ------------------------------------------------------------------------------
+
+  op makeTuple : Term Condition -> Term .
+  eq makeTuple(T, Cond)
+    = if Cond == nil
+      then qid("@<@_@>@")[T]
+      else qid("@<@_" + tupleId(Cond) + "@>@")[T, tupleTermList(Cond)]
+      fi .
+
+  op tupleTermList : Condition -> TermList .
+  eq tupleTermList(T' => T'' /\ Cond) = (T'', tupleTermList(Cond)) .
+  eq tupleTermList(T' = T'' /\ Cond) = tupleTermList(Cond) .
+  eq tupleTermList(T' : S /\ Cond) = tupleTermList(Cond) .
+  eq tupleTermList(T' := T'' /\ Cond) = (T', tupleTermList(Cond)) .
+  eq tupleTermList(nil) = empty .
+
+  op makeCond : TermList Condition Substitution -> Condition .
+  eq makeCond((T, TL), T' => T'' /\ Cond, Subst)
+    = (T' << Subst) => T /\ makeCond(TL, Cond, Subst) .
+  eq makeCond((T, TL), T' := T'' /\ Cond, Subst)
+    = T := (T'' << Subst) /\ makeCond(TL, Cond, Subst) .
+  eq makeCond(TL, T' = T'' /\ Cond, Subst)
+    = (T' << Subst) = (T'' << Subst) /\ makeCond(TL, Cond, Subst) .
+  eq makeCond(TL, T' : S /\ Cond, Subst)
+    = (T' << Subst) : S /\ makeCond(TL, Cond, Subst) .
+  eq makeCond(empty, nil, Subst) = nil .
+
+  ------------------------------------------------------------------------------
+
+  op idEqs : Module Nat OpDeclSet IdsToRemove -> EquationSet .
+  eq idEqs(M, N, op F : Tp Tp' -> Tp'' [left-id(T) AtS] . ODS, Which)
+    = (eq F[T, qid(idEqVarName("X",N) + string(getKind(M, Tp)))] = qid(idEqVarName("X",N) + string(getKind(M, Tp))) [variant metadata("id")] .)
+      if in(assoc,AtS) and not in(comm,AtS)
+      then (eq F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), F[T, qid(idEqVarName("Y",N) + string(getKind(M, Tp)))]]
+              = F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), qid(idEqVarName("Y",N) + string(getKind(M, Tp)))]
+              [variant metadata("id")] .)
+      else none
+      fi
+      idEqs(M, s(N), ODS, Which) .
+  eq idEqs(M, N, op F : Tp Tp' -> Tp'' [right-id(T) AtS] . ODS, Which)
+    = (eq F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), T] = qid(idEqVarName("X",N) + string(getKind(M, Tp))) [variant metadata("id")] .)
+      if in(assoc,AtS) and not in(comm,AtS)
+      then (eq F[F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), T], qid(idEqVarName("Y",N) + string(getKind(M, Tp)))]
+              = F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), qid(idEqVarName("Y",N) + string(getKind(M, Tp)))]
+              [variant metadata("id")] .)
+      else none
+      fi
+      idEqs(M, s(N), ODS, Which) .
+  eq idEqs(M, N, op F : Tp Tp' -> Tp'' [id(T) AtS] . ODS, all)
+    = if in(comm,AtS)
+      then (eq F[T, qid(idEqVarName("X",N) + string(getKind(M, Tp)))] = qid(idEqVarName("X",N) + string(getKind(M, Tp))) [variant metadata("id")] .)
+      else (eq F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), T] = qid(idEqVarName("X",N) + string(getKind(M, Tp))) [variant metadata("id")] .)
+           (eq F[T, qid(idEqVarName("X",N) + string(getKind(M, Tp)))] = qid(idEqVarName("X",N) + string(getKind(M, Tp))) [variant metadata("id")] .)
+      fi
+      if in(assoc,AtS) and not in(comm,AtS)
+      then (eq F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), F[T, qid(idEqVarName("Y",N) + string(getKind(M, Tp)))]]
+              = F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), qid(idEqVarName("Y",N) + string(getKind(M, Tp)))]
+              [variant metadata("id")] .)
+           (eq F[F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), T], qid(idEqVarName("Y",N) + string(getKind(M, Tp)))]
+              = F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), qid(idEqVarName("Y",N) + string(getKind(M, Tp)))]
+              [variant metadata("id")] .)
+      else none
+      fi
+      idEqs(M, s(N), ODS, all) .
+  eq idEqs(M, N, op F : Tp Tp' -> Tp'' [id(T) AtS] . ODS, non-handled)
+    = if in(assoc,AtS) and in(comm,AtS)
+      then none
+      else if in(comm,AtS)
+           then (eq F[T, qid(idEqVarName("X",N) + string(getKind(M, Tp)))] = qid(idEqVarName("X",N) + string(getKind(M, Tp))) [variant metadata("id")] .)
+           else (eq F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), T] = qid(idEqVarName("X",N) + string(getKind(M, Tp))) [variant metadata("id")] .)
+                (eq F[T, qid(idEqVarName("X",N) + string(getKind(M, Tp)))] = qid(idEqVarName("X",N) + string(getKind(M, Tp))) [variant metadata("id") ] .)
+           fi
+           if in(assoc,AtS) and not in(comm,AtS)
+           then (eq F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), F[T, qid(idEqVarName("Y",N) + string(getKind(M, Tp)))]]
+                   = F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), qid(idEqVarName("Y",N) + string(getKind(M, Tp)))]
+                   [variant metadata("id")] .)
+                (eq F[F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), T], qid(idEqVarName("Y",N) + string(getKind(M, Tp)))]
+                   = F[qid(idEqVarName("X",N) + string(getKind(M, Tp))), qid(idEqVarName("Y",N) + string(getKind(M, Tp)))]
+                   [variant metadata("id")] .)
+           else none
+           fi
+      fi
+      idEqs(M, s(N), ODS, non-handled) .
+  eq idEqs(M, N, ODS, Which) = none [owise] .
+
+  op idEqVarName : String Nat -> String .
+  eq idEqVarName(Str,N) = Str + string(N,10) + ":" .
+
+  ------------------------------------------------------------------------------
+
+  op removeIds : Module OpDeclSet IdsToRemove -> OpDeclSet .
+  eq removeIds(M,op F : TpL -> Tp [id(T) AtS] . ODS, all)
+    = removeIds(M,op F : TpL -> Tp [addIdMetadata(M,T,AtS)] . ODS, all) .
+ ceq removeIds(M,op F : TpL -> Tp [id(T) AtS] . ODS, non-handled)
+    = removeIds(M,op F : TpL -> Tp [addIdMetadata(M,T,AtS)] . ODS, non-handled)
+    if not in(assoc comm,AtS) .
+  eq removeIds(M,op F : TpL -> Tp [left-id(T) AtS] . ODS, Which)
+    = removeIds(M,op F : TpL -> Tp [addIdMetadata(M,T,AtS)] . ODS, Which) .
+  eq removeIds(M,op F : TpL -> Tp [right-id(T) AtS] . ODS, Which)
+    = removeIds(M,op F : TpL -> Tp [addIdMetadata(M,T,AtS)] . ODS, Which) .
+  eq removeIds(M,ODS, Which) = ODS [owise] .
+
+  --- NB: this returns an error if the id element is not a constant
+  op addIdMetadata : Module Term AttrSet ~> AttrSet .
+  eq addIdMetadata(M,C,metadata(Str) AtS) = metadata(Str + " ID " + string(getName(C)) + "." + string(leastSort(M,C))) AtS .
+  eq addIdMetadata(M,C,AtS) = metadata(string(C)) AtS [owise] .
+endfm
+
 fmod SHOW-VARIANTS is
   pr META-LEVEL .
   pr VARIANT * (op addOps to MHaddOps, op addEqs to MHaddEqs, op addSorts to MHaddSorts) .
