@@ -1699,6 +1699,10 @@ fmod OP-FAMILY is
     adhoc-overloaded(((Q,TYL) |-> OS) OFM,B,QS ; Q)
   if TYL =/= TYL' and-then (B or-else size(TYL) == size(TYL')) .
   eq adhoc-overloaded(OFM,B,QS) = QS [owise] .
+
+  op flattenOpFamily : OpFamilyMap -> OpDeclSet .
+  eq flattenOpFamily(((Q,TYL') |-> OD OS) OFM) = OD flattenOpFamily(OFM) .
+  eq flattenOpFamily(nil) = none .
 endfm
 
 fmod OP-FAMILY-AUX is
