@@ -3095,6 +3095,116 @@ fmod EQ-VARIANT is
   eq getss(ssnp(SS,I))          = SS .
 endfm
 
+fmod DECL-SUBSUMPTION is
+  pr UNIT-FM .
+  pr STMT-EXTRA .
+
+  var M M' : Module .
+  var Eq Eq' : Equation .
+  var EqS EqS' : EquationSet .
+  var Rl Rl' : Rule .
+  var RlS RlS' : RuleSet .
+  var T T' T1 T1' : Term .
+  var Cond : Condition .
+  var Cond1 : EqCondition .
+  var S : Sort .
+  var SS : SortSet .
+  var AtS : AttrSet .
+  var MbS : MembAxSet .
+
+
+  *** moreGeneralEqs/Rls ******************************
+  ---- An equation/rule is more general than other if there is a substitution
+  ---- such that the more general equation with such a substitution applied is
+  ---- equal to the less general one.
+
+  --- OUT: keep only most general equations/rules in the module
+  op moreGeneralEqs : Module -> Module .
+  op moreGeneralRls : Module -> Module .
+  eq moreGeneralEqs(M) = setEqs(M,moreGeneralEqs(M,getEqs(M))) .
+  eq moreGeneralRls(M) = setRls(M,moreGeneralRls(M,getRls(M))) .
+
+  --- OUT: return the most general equations/rules from the equation/ruleset
+  op moreGeneralEqs : Module EquationSet -> EquationSet .
+  op moreGeneralRls : Module RuleSet -> RuleSet .
+  eq moreGeneralEqs(M,EqS) = $moreGeneralEqs(M,$mgdMod(M),EqS,EqS) .
+  eq moreGeneralRls(M,RlS) = $moreGeneralRls(M,$mgdMod(M),RlS,RlS) .
+
+  op $moreGeneralEqs : Module Module EquationSet EquationSet -> EquationSet .
+  op $moreGeneralRls : Module Module RuleSet RuleSet -> RuleSet .
+  eq $moreGeneralEqs(M,M',Eq EqS,EqS') = $moreGeneralEqs(M,M',EqS,Eq $remLessGenEqs(M',$mgdTerm(Eq),EqS',none)) .
+  eq $moreGeneralEqs(M,M',none,EqS') = EqS' .
+  eq $moreGeneralRls(M,M',Rl RlS,RlS') = $moreGeneralRls(M,M',RlS,Rl $remLessGenRls(M',$mgdTerm(Rl),RlS',none)) .
+  eq $moreGeneralRls(M,M',none,RlS') = RlS' .
+
+  --- OUT: return the set of equations/rules that are not matched by the term
+  op $remLessGenEqs : Module Term EquationSet EquationSet -> EquationSet .
+  op $remLessGenRls : Module Term RuleSet RuleSet -> RuleSet .
+  eq $remLessGenEqs(M',T,Eq EqS,EqS') =
+    if metaMatch(M',T,$mgdTerm(Eq),nil,0) :: Substitution
+      then $remLessGenEqs(M',T,EqS,EqS')
+      else $remLessGenEqs(M',T,EqS,Eq EqS')
+    fi .
+  eq $remLessGenEqs(M',T,none,EqS') = EqS' .
+  eq $remLessGenRls(M',T,Rl RlS,RlS') =
+    if metaMatch(M',T,$mgdTerm(Rl),nil,0) :: Substitution
+      then $remLessGenRls(M',T,RlS,RlS')
+      else $remLessGenRls(M',T,RlS,Rl RlS')
+    fi .
+  eq $remLessGenRls(M',T,none,RlS') = RlS' .
+
+  --- OUT: an enrichment of the module with a sort called @@@
+  --- that contains isomorphic representations of equations and rules
+  op $mgdMod : Module -> Module [memo] .
+  eq $mgdMod(M) =
+    addOps((op '@nil@ : nil -> '@@@ [none] .
+            op '@/\@  : '@@@ '@@@ -> '@@@ [assoc comm id('@nil@.@@@)] .
+            op '@:@   : '@@@ '@@@ -> '@@@ [assoc] .
+            op '@--@  : 'Universal 'Universal -> '@@@ [poly(1 2)] .
+            $mgdAddSortConsts(getSorts(M))),addSorts('@@@, M)) .
+
+  --- OUT: a set of fresh operators declarations corresponding to each sort
+  op $mgdAddSortConsts : SortSet -> OpDeclSet .
+  eq $mgdAddSortConsts(S ; SS) =
+    (op qid("@@@" + string(S) + "@@@") : nil -> '@@@ [none].)
+    $mgdAddSortConsts(SS) .
+  eq $mgdAddSortConsts(none) = none .
+
+  --- OUT: a term in sort @@@ that represents an equation or rule declaration
+  op $mgdTerm : Equation -> Term [memo] .
+  op $mgdTerm : Rule -> Term [memo] .
+  eq $mgdTerm(Eq) = $mgdTerm(cond(Eq),'@--@[lhs(Eq),rhs(Eq)]) .
+  eq $mgdTerm(Rl) = $mgdTerm(cond(Rl),'@--@[lhs(Rl),rhs(Rl)]) .
+
+  op $mgdTerm : Condition Term -> Term .
+  eq $mgdTerm(T1 = T1'  /\ Cond1, T) = $mgdTerm(Cond1, '@:@['@--@[T1, T1'], T]) .
+  eq $mgdTerm(T1 := T1' /\ Cond1, T) = $mgdTerm(Cond1, '@:@['@--@[T1, T1'], T]) .
+  eq $mgdTerm(T1 => T1' /\ Cond1, T) = $mgdTerm(Cond1, '@:@['@--@[T1, T1'], T]) .
+  eq $mgdTerm(T1 : S    /\ Cond1, T) = $mgdTerm(Cond1, '@:@['@--@[T1, $mgdSortConst(S)], T]) .
+  eq $mgdTerm(nil,                T) = T .
+
+  op $mgdSortConst : Sort -> Term .
+  eq $mgdSortConst(S) = qid("@@@" + string(S) + "@@@.@@@") .
+
+  op rmVariantAttrs : Module -> Module .
+  op $rmVariants : EquationSet -> EquationSet .
+  op $rmVariants : RuleSet -> RuleSet .
+  op $rmVariants : MembAxSet -> MembAxSet .
+  eq rmVariantAttrs(M) = setRls(setEqs(setMbs(M, $rmVariants(getMbs(M))), $rmVariants(getEqs(M))), $rmVariants(getRls(M))) .
+
+  eq $rmVariants(eq T = T' [variant AtS] . EqS) = (eq T = T' [variant AtS] .) $rmVariants(EqS) .
+  eq $rmVariants(ceq T = T' if Cond [variant AtS] . EqS) = (ceq T = T' if Cond [variant AtS] .) $rmVariants(EqS) .
+  eq $rmVariants(EqS) = EqS [owise] .
+
+  eq $rmVariants(rl T => T' [variant AtS] . RlS) = (rl T => T' [variant AtS] .) $rmVariants(RlS) .
+  eq $rmVariants(crl T => T' if Cond [variant AtS] . RlS) = (crl T => T' if Cond [variant AtS] .) $rmVariants(RlS) .
+  eq $rmVariants(RlS) = RlS [owise] .
+
+  eq $rmVariants(mb T : S [variant AtS] . MbS) = (mb T : S [variant AtS] .) $rmVariants(MbS) .
+  eq $rmVariants(cmb T : S if Cond [variant AtS] . MbS) = (cmb T : S if Cond [variant AtS] .) $rmVariants(MbS) .
+  eq $rmVariants(MbS) = MbS [owise] .
+endfm
+
 fmod SHOW-VARIANTS is
   pr META-LEVEL .
   pr VARIANT * (op addOps to MHaddOps, op addEqs to MHaddEqs, op addSorts to MHaddSorts) .
