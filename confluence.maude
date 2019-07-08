@@ -18,6 +18,7 @@ fmod CONFLUENCE-AUX is
   var QI L F G : Qid .
   var QIL : QidList .
   var ODS : OpDeclSet .
+  var Eq : Equation .
   var EqS : EquationSet .
   var Cd : Condition .
   var S : Sort .
@@ -60,6 +61,16 @@ fmod CONFLUENCE-AUX is
   eq substitute(M, F[TL], Subst) = F[substitute(M, TL, Subst)] .
   eq substitute(M, (T, TL), Subst)
     = (substitute(M, T, Subst), substitute(M, TL, Subst)) .
+
+  op dropEqs : Nat EquationSet -> EquationSet .
+  eq dropEqs(s(N),Eq EqS) = dropEqs(N,EqS) .
+  eq dropEqs(s(N),none) = none .
+  eq dropEqs(0,EqS) = EqS .
+
+  op pickEq : Nat EquationSet -> EquationSet .
+  eq pickEq(s(N),Eq EqS) = pickEq(N,EqS) .
+  eq pickEq(s(N),none) = none .
+  eq pickEq(0,Eq EqS) = Eq .
 endfm
 
 fmod CC-CRITICAL-PAIR is
@@ -530,13 +541,14 @@ fmod CONFLUENCE-CHECK is
   op getIndex : Tuple{CritPairSet, Nat} -> Nat .
   eq getCPs  ((CPS,N)) = CPS .
   eq getIndex((CPS,N)) = N   .
+  op addCPs : CritPairSet Tuple{CritPairSet,Nat} -> Tuple{CritPairSet,Nat} .
+  eq addCPs(CPS,(CPS',N)) = (CPS CPS',N) .
 
   sort Tuple{Module, QidSet}   . op ((_,_)) : Module   QidSet -> Tuple{Module,   QidSet} [ctor] .
   op getModule : Tuple{Module, QidSet} -> Module .
   op getCts    : Tuple{Module, QidSet} -> QidSet .
   eq getModule((M,VS)) = M  .
   eq getCts   ((M,VS)) = VS .
-
 
   vars M M' : Module .
   vars T T' T'' T''' T'''' T1 T1' T2 T2' T1'' T2'' LHS RHS : Term .
@@ -630,19 +642,36 @@ fmod CONFLUENCE-CHECK is
 ----    ---- we could look the trivial one and discard it, but we don't do this in that case.
   ceq crcCritPairs(M, Eq EqS, Eq' EqS', N)
     = (CPS CPS' CPS'', N''')
-    if (CPS, N') := prepNarrowingSols(M, getLabel(Eq), getLabel(Eq'),
-                      getCts(makeNarrowingModule(M, Eq, Eq')),
-                      toResultTripleSet(metaNarrowSearch(
-                        getModule(makeNarrowingModule(M, Eq, Eq')),
-                        ---- makeNarrowingModule removes frozen attributes from M, removes eqs
-                        ---- and rls from M, and leaves a prepared version of Eq as single rule
-                        '#_#_#_#[lhs(Eq'), rhs(Eq'), makeNarrowingCond(cond(Eq'))],
-                        qid("#V:" + string(getKind(M, leastSort(M, lhs(Eq'))))),
-                        '+, unbounded, 'none)), N)
+    if (CPS, N') := crcCritPairs1(M,Eq,Eq',N)
     /\ (CPS', N'') := crcCritPairs(M, Eq, EqS', N')
     /\ (CPS'', N''') := crcCritPairs(M, EqS, Eq' EqS', N'') .
   eq crcCritPairs(M, none, EqS, N) = (none, N) .
   eq crcCritPairs(M, EqS, none, N) = (none, N) .
+
+  op sym-crcCritPairs@ : Module Nat -> Tuple{CritPairSet,Nat} .
+  eq sym-crcCritPairs@(M,N) = sym-crcCritPairs1(M,pickEq(N,getEqs(M)),dropEqs(N,getEqs(M)),(none,0)) .
+
+  op sym-crcCritPairs : Module EquationSet EquationSet Tuple{CritPairSet, Nat} -> Tuple{CritPairSet, Nat} .
+  eq sym-crcCritPairs(M, Eq EqS, Eq EqS', (CPS,N)) =
+       sym-crcCritPairs(M,EqS,EqS',sym-crcCritPairs1(M,Eq,Eq EqS',(CPS,N))) .
+  eq sym-crcCritPairs(M, none, none, (CPS,N)) = (CPS,N) .
+
+  op sym-crcCritPairs1 : Module Equation EquationSet Tuple{CritPairSet, Nat} -> Tuple{CritPairSet, Nat} .
+  eq sym-crcCritPairs1(M,Eq,Eq' EqS', (CPS,N)) =
+    sym-crcCritPairs1(M,Eq,EqS',addCPs(CPS,crcCritPairs1(M,Eq,Eq',N))) .
+  eq sym-crcCritPairs1(M,Eq,none,(CPS,N)) = (CPS,N) .
+
+  op crcCritPairs1 : Module Equation Equation Nat -> Tuple{CritPairSet, Nat} .
+  eq crcCritPairs1(M,Eq,Eq',N) =
+     prepNarrowingSols(M, getLabel(Eq), getLabel(Eq'),
+                       getCts(makeNarrowingModule(M, Eq, Eq')),
+                       toResultTripleSet(metaNarrowSearch(
+                         getModule(makeNarrowingModule(M, Eq, Eq')),
+                         ---- makeNarrowingModule removes frozen attributes from M, removes eqs
+                         ---- and rls from M, and leaves a prepared version of Eq as single rule
+                         '#_#_#_#[lhs(Eq'), rhs(Eq'), makeNarrowingCond(cond(Eq'))],
+                         qid("#V:" + string(getKind(M, leastSort(M, lhs(Eq'))))),
+                         '+, unbounded, 'none)), N) .
 
   op makeNarrowingModule : Module Equation Equation -> Tuple{Module, QidSet} .
   ---- Returns the modified module and the set of variables in the rhs and condition of the
