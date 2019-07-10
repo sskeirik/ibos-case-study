@@ -130,6 +130,15 @@ fmod TERM-EXTRA is
   eq buildTerm'(N,nil ) = empty .
 endfm
 
+fmod TERMLISTPAIR is
+  pr META-LEVEL .
+
+  sort TermListPair .
+  op ((_,_)) : TermList TermList -> TermListPair [ctor] .
+endfm
+
+view TermListPair from TRIV to TERMLISTPAIR is sort Elt to TermListPair . endv
+
 --- copy of code in FULL-MAUDE (fortunately, interpreter does not complain)
 fmod TERMSET-FM is
   pr META-LEVEL .
