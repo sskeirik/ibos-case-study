@@ -1106,6 +1106,7 @@ fmod FOFORMSET-OPERATIONS is
   var A A' : Atom . var AS : AtomSet .
   var PEA : PosEqAtom . var PEAS : PosEqAtomSet .
   var S : Substitution . var V : Variable .
+  var ES : EquationSet .
 
   --- OUT: true iff each element in the set is wellformed
   op wellFormed   : Module FOForm?Set -> Bool .
@@ -1137,11 +1138,15 @@ fmod FOFORMSET-OPERATIONS is
 
   op toPosEqAtoms : Substitution -> PosEqAtomSet .
   eq toPosEqAtoms(V <- T ; S) = V ?= T | toPosEqAtoms(S) .
-  eq toPosEqAtoms(none) = mtFormSet .
+  eq toPosEqAtoms((none).Substitution) = mtFormSet .
 
   op toPosEqAtoms : NegDisj? -> PosEqAtomSet .
   eq toPosEqAtoms(T != T' \/ ND) = T ?= T' | toPosEqAtoms(ND) .
   eq toPosEqAtoms(mtForm) = mtFormSet .
+
+  op toPosEqAtoms : EquationSet ~> PosEqAtomSet .
+  eq toPosEqAtoms(eq T = T' [none]. ES) = T ?= T' | toPosEqAtoms(ES) .
+  eq toPosEqAtoms((none).EquationSet) = mtFormSet .
 
   --- OUT: convert a positive equality atom set into equations
   ---  NB: this isn't very safe for reduction, since equalities
