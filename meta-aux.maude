@@ -1078,14 +1078,26 @@ fmod TYPE-EXTRA is
   op getMaximalSorts   : Module KindSet -> SortSet .
 
   --- BASIC TYPE TUPLE OPERATIONS
+  --- Folds over set with _and_
   op $typeLeq          : Module TypeList TypeList -> Bool .
   op $typeLeqS         : Module TypeList TypeListSet -> Bool .
   op typeLeqS          : Module TypeListSet TypeListSet -> Bool .
+  --- Folds over set with _or_
+  op $anyTypeLeqS      : Module TypeList TypeListSet -> Bool .
+  op anyTypeLeqS       : Module TypeListSet TypeListSet -> Bool .
+  --- Folds over the set with _and_
   op $typeRel          : Module TypeList TypeList -> Bool .
   op $typeRelS         : Module TypeList TypeListSet -> Bool .
   op typeRelS          : Module TypeListSet TypeListSet -> Bool .
+  --- Other operators
   op greaterSorts      : Module Sort -> SortSet .
   op $greaterSorts     : Module Sort SortSet -> SortSet .
+  op minimalSorts2     : Module SortSet -> SortSet .
+  op minimalSorts2     : Module SortSet SortSet SortSet -> SortSet .
+  op ubSorts           : Module SortSet -> SortSet .
+  op $ubSorts          : Module SortSet SortSet -> SortSet .
+  op lubSort           : Module SortSet ~> Sort .
+  op $lubSort          : SortSet ~> Sort .
 
   --- BASIC TYPE TUPLE SET OPERATIONS
   op _in_              : TypeList TypeListSet -> Bool .
@@ -1112,7 +1124,7 @@ fmod TYPE-EXTRA is
   var K K' : Kind .
   var KS : KindSet .
   var TYL TYL' TYL'' : TypeList .
-  var SS SS' : SortSet .
+  var SS SS' SS2 : SortSet .
   var M : Module .
   var Q Q' : Qid .
   var ODS : OpDeclSet .
@@ -1151,6 +1163,14 @@ fmod TYPE-EXTRA is
     $typeLeqS(M,TYL,TYLS') and-then typeLeqS(M,TYLS,TYLS') .
   eq typeLeqS(M,none,TYLS') = true .
 
+  --- NB: Same as above but folding with _or_ instead of _and_
+  eq $anyTypeLeqS(M,TYL,TYL' ; TYLS) =
+    $typeLeq(M,TYL,TYL') or-else $anyTypeLeqS(M,TYL,TYLS) .
+  eq $anyTypeLeqS(M,TYL,none) = false .
+  eq anyTypeLeqS(M,TYL ; TYLS,TYLS') =
+    $anyTypeLeqS(M,TYL,TYLS') or-else anyTypeLeqS(M,TYLS,TYLS') .
+  eq anyTypeLeqS(M,none,TYLS') = false .
+
   --- INP:  Module TypeListSet1 TypeListSet2
   --- PRE:  Types in TypeLists are defined in Module
   --- OUT:  true if corresponding types in each typelist have the same kind
@@ -1176,6 +1196,34 @@ fmod TYPE-EXTRA is
       $greaterSorts(M,S,SS)
     fi .
   eq $greaterSorts(M,S,none) = none .
+
+  --- PRE: Sorts are well-defined in Module
+  --- OUT: The subset of minimal sorts in the set
+  eq minimalSorts2(M,SS) = minimalSorts2(M,SS,none,none) .
+
+  --- NB: we induct over SS, SS' are non-minimal, SS2 are minimal
+  eq minimalSorts2(M,S ; SS,SS',SS2) =
+    if anyTypeLeqS(M,SS ; SS',S)
+      then minimalSorts2(M,SS,S ; SS',    SS2)
+      else minimalSorts2(M,SS,    SS',S ; SS2)
+    fi .
+  eq minimalSorts2(M,none,SS',SS2) = SS2 .
+
+  --- PRE: Sorts are well-defined in Module
+  --- OUT: The set of sorts that are upper bounds of the sort set
+  op ubSorts : Module SortSet -> SortSet .
+  eq ubSorts(M,SS) = $ubSorts(M,getSorts(M),SS) .
+
+  op $ubSorts : Module SortSet SortSet -> SortSet .
+  eq $ubSorts(M,S' ; SS',SS) =
+    if typeLeqS(M,SS,S') then S' else none fi ;
+    $ubSorts(M,SS',SS) .
+  eq $ubSorts(M,none,SS) = none .
+
+  --- PRE: Sorts are well-defined in Module
+  --- OUT: The unique least upper bound sort, if it exists
+  eq lubSort(M,SS) = $lubSort(minimalSorts2(M,ubSorts(M,SS))) .
+  eq $lubSort(S) = S .
 
   --- INP: TypeList TypeListSet
   --- PRE: None
