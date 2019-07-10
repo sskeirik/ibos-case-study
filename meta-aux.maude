@@ -3259,6 +3259,7 @@ fmod UNIFIERS is
   pr SUBSTITUTIONSET        .
   pr TERMSET-FM             .
   pr SUBSTITUTION-STREAM    .
+  pr RENAME-TERM            .
   ---
   op  unifiers   : Module UnificationProblem                      -> SubstitutionSet .
   op #unifiers   : Module UnificationProblem Nat UnificationPair? -> Stream{Substitution} .
@@ -3271,10 +3272,17 @@ fmod UNIFIERS is
 
   var M    : Module .
   var UP   : UnificationProblem .
-  var I J  : Nat .
-  var S S' : Substitution .
+  var Str : String .
+  var I J X : Nat .
+  var S S' S2 : Substitution .
   var SS   : SubstitutionSet .
+  var C : Constant .
+  var V : Variable .
+  var Q : Qid .
   var T T' : Term .
+  var TL : TermList .
+  var NTL : NeTermList .
+  var TS : TermSet .
   var NTS  : NeTermSet .
   var SharedVars : VariableSet .
 
@@ -3327,6 +3335,18 @@ fmod UNIFIERS is
 
   op matches? : Module Term Term -> Bool .
   eq matches?(M,T,T') = metaMatch(M,T,T',nil,0) :: Substitution .
+
+  op allUnifiers : Module Term TermSet -> SubstitutionSet .
+  eq allUnifiers(M,T,T' | TS) = disjUnifiersL(M,T,T') | allUnifiers(M,T,TS) .
+  eq allUnifiers(M,T,emptyTermSet) = empty .
+
+  op  disjUnifiersL : Module Term Term -> SubstitutionSet .
+  op $disjUnifiersL : Module RenamedTerm RenamedTerm -> SubstitutionSet .
+  op $disjUnifiersL : Module Substitution Nat UnificationProblem UnificationTriple -> SubstitutionSet .
+  eq  disjUnifiersL(M,T,T')                  = $disjUnifiersL(M,#renameVars(nullNameData,T),#renameVars(nullNameData,T')) .
+  eq $disjUnifiersL(M,[[I,S],T],[[J,S'],T']) = $disjUnifiersL(M,S,0,T =? T',metaDisjointUnify(M,T =? T',0,0)) .
+  eq $disjUnifiersL(M,S2,I,UP,{S,S',J})      = S2 << S | $disjUnifiersL(M,S2,s(I),UP,metaDisjointUnify(M,UP,0,s(I))) .
+  eq $disjUnifiersL(M,S2,I,UP,noUnifier)     = empty .
 endfm
 
 fmod EQ-VARIANT is
