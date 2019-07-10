@@ -2489,6 +2489,73 @@ fmod EQUALITY-FUNCTOR is
   eq pruneBool(M) = setOps(M,pruneBool(getOps(M))) .
 endfm
 
+fmod FRESH-BOOL-FUNCTOR is
+  pr UNIQUE-PREFIX .
+  pr UNIT-FM .
+
+  var M : Module .
+  var SortP : String .
+
+  sort ModQidListPair .
+  op ((_,_)) : Module QidList -> ModQidListPair [ctor] .
+
+  op fresh-bool : Module -> ModQidListPair .
+  eq fresh-bool(M) = fresh-bool(M,sortPrefix(M)) .
+
+  op fresh-bool : Module String -> ModQidListPair .
+  eq fresh-bool(M,SortP) = (addOps((op 'true  : nil -> qid(SortP + "Bool") [ctor].
+                                    op 'false : nil -> qid(SortP + "Bool") [ctor].),
+                            M), qid(SortP + "Bool")) .
+endfm
+
+fmod QID-TERMLIST-TUPLE is
+  pr META-MODULE .
+  sort QidTermListTuple .
+  op ((_,_,_)) : Qid TermList TermList -> QidTermListTuple [ctor] .
+endfm
+
+view QidTermListTuple from TRIV to QID-TERMLIST-TUPLE is sort Elt to QidTermListTuple . endv
+
+fmod PREDICATE-FUNCTOR is
+  pr QID-JOIN .
+  pr UNIQUE-PREFIX .
+  pr UNIT-FM .
+  pr MAP{Qid,QidTermListTuple} .
+  pr FRESH-BOOL-FUNCTOR .
+
+  var M : Module .
+  var BoolS PredS : Sort .
+  var Q SortP OpP : Qid .
+  var LT RT : Term .
+  var PTL NTL TL : TermList .
+  var QTM : Map{Qid,QidTermListTuple} .
+
+  op pred-functor : Module Map{Qid,QidTermListTuple} -> ModQidListPair .
+  eq pred-functor(M,QTM) = pred-functor(fresh-bool(M,sortPrefix(M)),qid(sortPrefix(M)),qid(opPrefix(M)),QTM) .
+
+  op pred-functor : ModQidListPair Qid Qid Map{Qid,QidTermListTuple} -> ModQidListPair .
+  eq pred-functor((M,BoolS),SortP,OpP,QTM) = pred-functor(BoolS,SortP,OpP,QTM,M) .
+
+  op pred-functor : Sort Qid Qid Map{Qid,QidTermListTuple} Module -> ModQidListPair .
+ ceq pred-functor(BoolS,SortP,OpP,(Q |-> (PredS,PTL,NTL), QTM),M) =
+    pred-functor(BoolS,SortP,OpP,QTM,
+      addSorts(BoolS,
+        addEqs(buildPredEqs(join(OpP Q),BoolS,PTL,NTL),
+          addOps(op join(OpP Q) : PredS -> BoolS [ctor]., M))))
+  if (PTL,NTL) : NeTermList .
+
+  eq pred-functor(BoolS,SortP,OpP,empty,M) = (M,SortP OpP) .
+
+  op buildPredEqs : Qid Sort TermList TermList -> EquationSet .
+  eq buildPredEqs(Q,BoolS,PTL,NTL) =
+    buildPredEqs(Q,PTL,join('true. BoolS))
+    buildPredEqs(Q,NTL,join('false. BoolS)) .
+
+  op buildPredEqs : Qid TermList Term -> EquationSet .
+  eq buildPredEqs(Q,(LT,TL),RT) = (eq Q[LT] = RT [none]. buildPredEqs(Q,TL,RT)) .
+  eq buildPredEqs(Q,empty,RT)   = none .
+endfm
+
 fmod TOP-MODULE is
   pr STRING-EXTRA .
   pr QIDTUPLESET  .
