@@ -1438,7 +1438,9 @@ fmod OPDECLSET-EXTRA is
   op ctors       : OpDeclSet -> OpDeclSet .
   op stripAttrs  : OpDeclSet -> OpDeclSet .
   op opByName    : Qid OpDeclSet -> OpDeclSet .
+  op opByName    : Qid Sort OpDeclSet -> OpDeclSet .
   op uniqueOpTerm : Qid OpDeclSet ~> Term .
+  op uniqueOpTerm : Qid Sort OpDeclSet ~> Term .
   ---
   op qid         : OpDeclSet -> QidSet .
   op argTypes    : OpDeclSet -> TypeListSet .
@@ -1455,6 +1457,7 @@ fmod OPDECLSET-EXTRA is
   var TYL : TypeList .
   var TY : Type .
   var QS : QidSet .
+  var S : Sort .
   var U : Module .
 
   --- INP: OpDecl OpDeclSet
@@ -1522,10 +1525,16 @@ fmod OPDECLSET-EXTRA is
   eq opByName(Q,OD OS) = if Q == qid(OD) then OD else none fi opByName(Q,OS) .
   eq opByName(Q,none) = none .
 
+  --- PRE: None
+  --- OUT: Get ops with given name and sort name
+  eq opByName(Q,S,OD OS) = if Q resultType(OD) == qid(OD) resultType(OD) then OD else none fi opByName(Q,S,OS) .
+  eq opByName(Q,S,none) = none .
+
   --- INP: Qid OpDeclSet
   --- PRE: Qid is a unique op name
   --- OUT: Term built according to operator
  ceq uniqueOpTerm(Q,OS) = buildTerm(opByName(Q,OS),0) if opByName(Q,OS) :: OpDecl .
+ ceq uniqueOpTerm(Q,S,OS) = buildTerm(opByName(Q,S,OS),0) if opByName(Q,S,OS) :: OpDecl .
 
   --- INP: OpDeclSet
   --- PRE: None
