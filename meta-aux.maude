@@ -2529,7 +2529,7 @@ fmod PREDICATE-FUNCTOR is
   pr QID-JOIN .
   pr UNIQUE-PREFIX .
   pr UNIT-FM .
-  pr MAP{Qid,QidTermListTuple} .
+  pr MAP{Qid,QidTermListTuple} * (op _|->_ to _|=>_, op undefined to undefQTM) .
   pr FRESH-BOOL-FUNCTOR .
 
   var M : Module .
@@ -2546,7 +2546,7 @@ fmod PREDICATE-FUNCTOR is
   eq pred-functor((M,BoolS),SortP,OpP,QTM) = pred-functor(BoolS,SortP,OpP,QTM,M) .
 
   op pred-functor : Sort Qid Qid Map{Qid,QidTermListTuple} Module -> ModQidListPair .
- ceq pred-functor(BoolS,SortP,OpP,(Q |-> (PredS,PTL,NTL), QTM),M) =
+ ceq pred-functor(BoolS,SortP,OpP,(Q |=> (PredS,PTL,NTL), QTM),M) =
     pred-functor(BoolS,SortP,OpP,QTM,
       addSorts(BoolS,
         addEqs(buildPredEqs(join(OpP Q),BoolS,PTL,NTL),
