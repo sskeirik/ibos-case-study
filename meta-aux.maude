@@ -1000,8 +1000,9 @@ endfm
 
 fmod SUBSTITUTION-AUX is
   pr SUBSTITUTION-REFINEMENT .
-  pr SUBSTITUTION-HANDLING .
+  pr SUBSTITUTION-HANDLING   .
   pr TERM-EXTRA              . --- defines vars()
+  pr MAYBE-QID               . --- defines noqid
   op idsub       : VariableSet               -> VarSubstitution .
   op domain      : Substitution              -> VariableSet .
   op range       : Substitution              -> VariableSet .
@@ -1010,7 +1011,7 @@ fmod SUBSTITUTION-AUX is
   op bound       : Variable Substitution     -> Bool .
   op remove      : Substitution Substitution -> Substitution .
 
-  var V V' : Variable . var T : Term . var S S' : Substitution . var VS : VariableSet . var A : Assignment .
+  var V V' V2 : Variable . var T : Term . var S S' : Substitution . var VS : VariableSet . var A : Assignment .
   var U : Module . var VSub : VarSubstitution . var B : Bool .
 
   --- INP: QidSet
@@ -1073,6 +1074,10 @@ fmod SUBSTITUTION-AUX is
   op invert : VarSubstitution -> VarSubstitution .
   eq invert(V <- V' ; VSub) = V' <- V ; invert(VSub) .
   eq invert(none) = none .
+
+  op getRenaming : Variable VarSubstitution -> MaybeQid .
+  eq getRenaming(V,V' <- V2 ; VSub) = if V == V' then V2 else getRenaming(V,VSub) fi .
+  eq getRenaming(V,none)            = noqid .
 endfm
 
 fmod TYPE-EXTRA is
