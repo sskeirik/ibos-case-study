@@ -453,10 +453,11 @@ endfm
 fmod FOFORMSIMPLIFY is
   pr FOFORM .
   pr REFLECT .
-  op simplify : FOForm ~> FOForm .
+  op simplify : FOForm? ~> FOForm? .
   op simplify-imp : FOForm ~> FOForm .
   var F : FOForm .
   eq simplify(F) = downTerm(redReflect('FOFORMSIMPLIFY-IMPL,upTerm(F)),error("FOForm Simplify Failed")) .
+  eq simplify(mtForm) = mtForm .
   eq simplify-imp(F) = downTerm(redReflect('FOFORMSIMPLIFY-IMP-IMPL,upTerm(F)),error("FOForm Simplify Failed")) .
 endfm
 
@@ -598,6 +599,14 @@ fmod FOFORM-OPERATIONS is
   op flip : TruthAtom -> TruthAtom .
   eq flip(tt) = ff .
   eq flip(ff) = tt .
+
+  op flip : FOForm? -> FOForm? .
+  eq flip(mtForm) = mtForm .
+  eq flip(F1 /\ F2) = flip(F1) \/ flip(F2) .
+  eq flip(F1 \/ F2) = flip(F1) /\ flip(F1) .
+  eq flip(~ F1)     = flip(flip(F1)) .
+  eq flip(A[QS] F1) = E[QS] flip(F1) .
+  eq flip(E[QS] F1) = A[QS] flip(F1) .
 endfm
 
 fmod FOFORM-QUANTIFIERS is
