@@ -242,7 +242,8 @@ fmod CONG-CLOSURE-LIB is
   var AS : AttrSet .
   var CSK : [CCState] .
 
-  op congClosure : Module Bool PosEqConj -> CCResult .
+  op congClosure : Module Bool PosEqConj? -> CCResult .
+  eq congClosure(U,B,mtForm) = (U,none,none) .
   eq congClosure(U,B,PC) =
     if ccModData(U) :: QidSet and-then wellFormed(U,PC)
       then congClosure1(U,B,ccModData(U),PC)

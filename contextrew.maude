@@ -110,8 +110,8 @@ fmod CONTEXT-REW is
   ---      [5] all id constants have lowest value in the AC-RPO ordering
   --- OUT: PosDisj? rewritten with equations from congruence closure of equations in NegDisj modulo B
   ---  NB: returns mtForm in case the antecedent is unsatisfiable
-  op context-rew : Module NegDisj PosDisj ~> PosDisj .
-  eq context-rew(U,ND,PD) = context-rew1(congClosure(U,false,toNNF(~ ND)),PD) .
+  op context-rew : Module NegDisj? PosDisj ~> PosDisj .
+  eq context-rew(U,ND,PD) = context-rew1(congClosure(U,false,flip(ND)),PD) .
 
   op context-rew1 : CCResult PosDisj ~> PosDisj .
   eq context-rew1(errCCResult(QL:QidList),PD) = error($join(QL:QidList," ")) .
