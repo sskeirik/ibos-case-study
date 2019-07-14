@@ -573,15 +573,14 @@ fmod SUBSTITUTION-HANDLING is
 
   --- Apply Substitution to Term --------------------------------------------
   op _<<_ : Term Substitution -> Term .
-  eq TL << none = TL .
-  eq C << Subst = C .
-  eq V << ((V <- T) ; Subst) = T .
-  eq V << Subst = V [owise] .
-  eq F[TL] << Subst = F[TL << Subst] .
+  eq TL    << none                = TL .
+  eq C     << Subst               = C .
+  eq V     << ((V' <- T) ; Subst) = if V == V' then T else V << Subst fi .
+  eq F[TL] << Subst               = F[TL << Subst] .
 
   op _<<_ : TermList Substitution -> TermList .
   eq (T, NeTL) << Subst = (T << Subst, NeTL << Subst) .
-  eq empty << Subst = empty .
+  eq empty     << Subst = empty .
 
   op _<<_ : Context Substitution -> Context .
   eq Ct << none = Ct .
