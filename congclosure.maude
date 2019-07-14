@@ -29,13 +29,15 @@ fmod CONG-CLOSURE-SAFETY is
   pr STRING-LIST .  --- provides split function for strings
   pr MAYBE-QID .
   pr QID-JOIN .
+  pr SET{Nat} .
 
-  var O O' : OpDecl   . var OS       : OpDeclSet   . var Q QI QN : Qid . var QIS QNS : QidSet .
+  var O O' : OpDecl   . var OS       : OpDeclSet   . var Q QI : Qid . var QIS : QidSet .
   var TYL  : TypeList . var OFM OFM' : OpFamilyMap . var U : Module  . var MD NUM ID FVP REST : String .
+  var N M : Nat . var NS : Set{Nat} .
 
   sort CCMetadata .
-  op cc : Qid -> CCMetadata [ctor] .
-  op cc : Qid Qid -> CCMetadata [ctor] .
+  op cc : Nat -> CCMetadata [ctor] .
+  op cc : Nat Qid -> CCMetadata [ctor] .
 
   --- OUT: set of id elements from this module
   --- PRE: [1] Module should have a total ordering of its operators by the metadata attribute
@@ -51,28 +53,28 @@ fmod CONG-CLOSURE-SAFETY is
   op ccOpFamDataInit : Module OpFamily OpFamily ~> QidSet .
   eq ccOpFamDataInit(U,((Q,nil) |-> OS) OFM,OFM') = ccOpFamDataInit(U,OFM,getOpFamilies(U,true,OS) OFM') .
   eq ccOpFamDataInit(U,                 OFM,OFM') = if adhoc-overloaded(OFM,false,none) == none
-                                                      then ccOpFamData(U,OFM OFM',none,none)
+                                                      then ccOpFamData(U,OFM OFM',empty,none)
 						      else errQid('Adhoc-overloaded 'syms: tolist(adhoc-overloaded(OFM,false,none)))
 						    fi [owise] .
 
-  op ccOpFamData : Module OpFamily QidSet QidSet ~> QidSet .
-  eq ccOpFamData(U,((Q,TYL) |-> OS) OFM,QNS,QIS) = ccOpFamData*(U,OFM,Q,ccDeclSetData(U,OS),QNS,QIS) .
-  eq ccOpFamData(U,nil,QNS,QIS)                  = QIS .
+  op ccOpFamData : Module OpFamily Set{Nat} QidSet ~> QidSet .
+  eq ccOpFamData(U,((Q,TYL) |-> OS) OFM,NS,QIS) = ccOpFamData*(U,OFM,Q,ccDeclSetData(U,OS),NS,QIS) .
+  eq ccOpFamData(U,nil,NS,QIS)                  = QIS .
 
-  --- NB: QNS records all observed numbers in the operator ordering for totality checking
+  --- NB: NS records all observed numbers in the operator ordering for totality checking
   ---     QIS  records all observed unit elements based on values embedded in metadata
-  op ccOpFamData* : Module OpFamily Qid CCMetadata QidSet QidSet ~> QidSet .
-  eq ccOpFamData*(U,OFM,Q,cc(QN),   QNS,QIS) =
-    if QN in QNS
-      then errQid('Operator 'id QN 'occurred 'in 'multiple 'operator 'families)
-      else ccOpFamData(U,OFM,QNS ; QN,QIS)
+  op ccOpFamData* : Module OpFamily Qid CCMetadata Set{Nat} QidSet ~> QidSet .
+  eq ccOpFamData*(U,OFM,Q,cc(N),   NS,QIS) =
+    if N in NS
+      then errQid('Operator 'id qid(string(N,10)) 'occurred 'in 'multiple 'operator 'families)
+      else ccOpFamData(U,OFM,(NS,N),QIS)
     fi .
-  eq ccOpFamData*(U,OFM,Q,cc(QN,QI),QNS,QIS) =
-    if QN in QNS
-      then errQid('Operator 'id QN 'occurred 'in 'multiple 'operator 'families)
-      else ccOpFamData(U,OFM,QNS ; QN,QIS ; QI)
+  eq ccOpFamData*(U,OFM,Q,cc(N,QI),NS,QIS) =
+    if N in NS
+      then errQid('Operator 'id qid(string(N,10)) 'occurred 'in 'multiple 'operator 'families)
+      else ccOpFamData(U,OFM,(NS,N),QIS ; QI)
     fi .
-  eq ccOpFamData*(U,OFM,Q,CC:[CCMetadata],QNS,QIS) = errQid('Operator 'family Q 'metadata 'could 'not 'be 'parsed) .
+  eq ccOpFamData*(U,OFM,Q,CC:[CCMetadata],NS,QIS) = errQid('Operator 'family Q 'metadata 'could 'not 'be 'parsed) .
 
   --- OUT: either cc(NUM) or cc(NUM,ID) where NUM is the position of this operator family
   ---      the total order and ID is the unit associated with this operator, if it exists
@@ -83,10 +85,21 @@ fmod CONG-CLOSURE-SAFETY is
   eq ccDeclSetData(U,O)       = ccParseDeclData(U,metadata(O)) .
 
   op ccParseDeclData : Module String ~> CCMetadata .
- ceq ccParseDeclData(U,MD) = cc(qid(MD))          if rat(MD,10) :: Nat .
- ceq ccParseDeclData(U,MD) = cc(qid(NUM))         if NUM FVP         := split(MD," ") /\ rat(NUM,10) :: Nat .
- ceq ccParseDeclData(U,MD) = cc(qid(NUM),qid(ID)) if NUM     "ID" ID := split(MD," ") /\ rat(NUM,10) :: Nat /\ wellFormed(U,qid(ID)) .
- ceq ccParseDeclData(U,MD) = cc(qid(NUM),qid(ID)) if NUM FVP "ID" ID := split(MD," ") /\ rat(NUM,10) :: Nat /\ wellFormed(U,qid(ID)) .
+ ceq ccParseDeclData(U,MD) = cc(rat(MD, 10))          if rat(MD,10) :: Nat .
+ ceq ccParseDeclData(U,MD) = cc(rat(NUM,10))         if NUM FVP         := split(MD," ") /\ rat(NUM,10) :: Nat .
+ ceq ccParseDeclData(U,MD) = cc(rat(NUM,10),qid(ID)) if NUM     "ID" ID := split(MD," ") /\ rat(NUM,10) :: Nat /\ wellFormed(U,qid(ID)) .
+ ceq ccParseDeclData(U,MD) = cc(rat(NUM,10),qid(ID)) if NUM FVP "ID" ID := split(MD," ") /\ rat(NUM,10) :: Nat /\ wellFormed(U,qid(ID)) .
+
+  op ccMaxId : Module ~> Nat .
+  eq ccMaxId(U) = ccMaxId(U,0,getOps(U)) .
+
+  op ccMaxId : Module Nat OpDeclSet ~> Nat .
+  eq ccMaxId(U,N,O OS) = ccMaxId(U,N,OS,ccParseDeclData(U,metadata(O))) .
+  eq ccMaxId(U,N,none) = N .
+
+  op ccMaxId : Module Nat OpDeclSet CCMetadata ~> Nat .
+  eq ccMaxId(U,N,OS,cc(M))    = ccMaxId(U,max(N,M),OS) .
+  eq ccMaxId(U,N,OS,cc(M,QI)) = ccMaxId(U,max(N,M),OS) .
 endfm
 
 --- As it turns out, we can use this struct for two related but different tasks
