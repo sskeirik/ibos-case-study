@@ -1444,6 +1444,7 @@ fmod OPDECLSET-EXTRA is
   op stripAttrs  : OpDeclSet -> OpDeclSet .
   op opByName    : Qid OpDeclSet -> OpDeclSet .
   op opByName    : Qid Sort OpDeclSet -> OpDeclSet .
+  op opByResType : Type OpDeclSet -> OpDeclSet .
   op uniqueOpTerm : Qid OpDeclSet ~> Term .
   op uniqueOpTerm : Qid Sort OpDeclSet ~> Term .
   ---
@@ -1534,6 +1535,11 @@ fmod OPDECLSET-EXTRA is
   --- OUT: Get ops with given name and sort name
   eq opByName(Q,S,OD OS) = if Q resultType(OD) == qid(OD) resultType(OD) then OD else none fi opByName(Q,S,OS) .
   eq opByName(Q,S,none) = none .
+
+  --- PRE: None
+  --- OUT: Get ops with given res type
+  eq opByResType(TY,OD OS) = if resultType(OD) == TY then OD else none fi opByResType(TY,OS) .
+  eq opByResType(TY,none) = none .
 
   --- INP: Qid OpDeclSet
   --- PRE: Qid is a unique op name
