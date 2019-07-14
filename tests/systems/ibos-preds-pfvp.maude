@@ -1,0 +1,52 @@
+load ibos-preds.maude
+load ../../rltool-lib.maude
+
+mod TEST is
+  pr RLTOOL .
+  pr VERIFY-PARTIALFVP .
+
+  var Q : Qid  .
+  var B : Bool .
+
+  op ibos : -> Module .
+  eq ibos = upModule('IBOS-PREDS,true) .
+
+  op bool-entry : Qid Bool -> Entry{Qid,QidTermListTuple} .
+  eq bool-entry(Q,B) = Q |=> ('Bool,upTerm(B),upTerm(not B)) .
+endm
+
+set print conceal on .
+print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm .
+
+red check-fvp(ibos, --- removeIds(ibos,all),
+  (
+    bool-entry('newurl-nodupl?,false),
+    bool-entry('noRetMsg?,false),
+
+    bool-entry('in-attrset?`(_|_`),true),
+    bool-entry('attr-dupl?,true),
+
+    bool-entry('display-topbar-consistent?,true),
+    bool-entry('fresh-np-id?,false),
+    bool-entry('fresh-wp-id?,false),
+    bool-entry('fresh-weblabel?,false),
+    bool-entry('fresh-netlabel?,false),
+
+    'weblabel-by-pid     |=> ('MaybeLabel,    'L:Label,    'nolabel.MaybelLabel),
+    'netlabelpair-by-pid |=> ('MaybeLabelPair,'L:LabelPair,'nopair.MaybeLabelPair),
+
+    bool-entry('lbl-in-weblabels?,true),
+    bool-entry('np-by-inlbl?,true),
+    bool-entry('webproc-req-attrs,true),
+    bool-entry('netproc-req-attrs,true),
+    bool-entry('in-conf?,true),
+    bool-entry('conf-dupl?,true),
+    bool-entry('in-wis?,true),
+    bool-entry('in-nis?,true)
+
+    --- NB: Actually, partially FVP, but hard to use that way because they depend on non-FVP
+    ---     equations in the simplification case (which doesn't affect partial-FVPness at all)
+    --- bool-entry('weblabels-dupl?,true),
+    --- bool-entry('netlabels-dupl?,true),
+  )
+) .
