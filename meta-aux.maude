@@ -3,18 +3,48 @@
 --- desc: This file extends the meta-level
 ---       with many additional operations
 
+fmod QIDSET-REFINEMENT is
+  pr META-MODULE .
+  ---
+  sort VariableSet   ConstantSet   TermQidSet    .
+  sort NeVariableSet NeConstantSet NeTermQidSet  .
+  ---
+  subsort Variable < NeVariableSet < VariableSet .
+  subsort Constant < NeConstantSet < ConstantSet .
+  subsort TermQid  < NeTermQidSet  < TermQidSet  .
+  ---
+  subsort EmptyTypeSet < ConstantSet VariableSet     .
+  subsort VariableSet   ConstantSet   < TermQidSet   .
+  subsort NeVariableSet NeConstantSet < NeTermQidSet .
+  ---
+  subsort TermQidSet   < QidSet   .
+  subsort NeTermQidSet < NeQidSet .
+  ---
+  op _;_ : TermQidSet TermQidSet     -> TermQidSet    [ctor ditto] .
+  op _;_ : NeTermQidSet TermQidSet   -> NeTermQidSet  [ctor ditto] .
+  op _;_ : ConstantSet ConstantSet   -> ConstantSet   [ctor ditto] .
+  op _;_ : NeConstantSet ConstantSet -> NeConstantSet [ctor ditto] .
+  op _;_ : VariableSet VariableSet   -> VariableSet   [ctor ditto] .
+  op _;_ : NeVariableSet VariableSet -> NeVariableSet [ctor ditto] .
+
+  op pickAny : QidSet -> [Qid] .
+  op pickAny : NeQidSet -> Qid .
+  eq pickAny(Q:Qid ; QS:QidSet) = Q:Qid .
+endfm
+
 --- ### New
 fmod TERM-EXTRA is
   pr META-LEVEL .
   pr CONVERSION .
+  pr QIDSET-REFINEMENT .
 
   var TQ : TermQid . var Q : Qid . var QS QS' QS'' : QidSet . var V : Variable .
   var T T' : Term . var NTL : NeTermList . var C : Constant . var TS : TypeSet .
   var M : Module . var TL : TermList . var X Y : Type . var YL : TypeList .
-  var N : Nat .
+  var N : Nat . var VS : VariableSet . var Str : String .
 
   --- OUT: The set of variables in a term
-  op vars : TermList -> QidSet .
+  op vars : TermList -> VariableSet .
   eq vars(V) = V .
   eq vars(C) = none .
   eq vars(Q[NTL]) = vars(NTL) .
@@ -60,8 +90,8 @@ fmod TERM-EXTRA is
 
   --- PRE: Each Qid in QidSet is a Variable
   --- OUT: A TermList where each Variable occurs in an undefined order
-  op varsToTermList : QidSet -> [TermList] .
-  eq varsToTermList(V ; QS) = V,varsToTermList(QS) .
+  op varsToTermList : VariableSet -> [TermList] .
+  eq varsToTermList(V ; VS) = V,varsToTermList(VS) .
   eq varsToTermList(none)   = empty .
 
   --- PRE: None
@@ -918,35 +948,6 @@ fmod GTERMLIST-REFINEMENT is
   subsort NeTermList NeCTermList < NeGTermList .
   op _,_ : NeGTermList GTermList -> NeGTermList [ctor ditto] .
   op _,_ : GTermList NeGTermList -> NeGTermList [ctor ditto] .
-endfm
-
-fmod QIDSET-REFINEMENT is
-  pr META-MODULE .
-  ---
-  sort VariableSet   ConstantSet   TermQidSet    .
-  sort NeVariableSet NeConstantSet NeTermQidSet  .
-  ---
-  subsort Variable < NeVariableSet < VariableSet .
-  subsort Constant < NeConstantSet < ConstantSet .
-  subsort TermQid  < NeTermQidSet  < TermQidSet  .
-  ---
-  subsort EmptyTypeSet < ConstantSet VariableSet     .
-  subsort VariableSet   ConstantSet   < TermQidSet   .
-  subsort NeVariableSet NeConstantSet < NeTermQidSet .
-  ---
-  subsort TermQidSet   < QidSet   .
-  subsort NeTermQidSet < NeQidSet .
-  ---
-  op _;_ : TermQidSet TermQidSet     -> TermQidSet    [ctor ditto] .
-  op _;_ : NeTermQidSet TermQidSet   -> NeTermQidSet  [ctor ditto] .
-  op _;_ : ConstantSet ConstantSet   -> ConstantSet   [ctor ditto] .
-  op _;_ : NeConstantSet ConstantSet -> NeConstantSet [ctor ditto] .
-  op _;_ : VariableSet VariableSet   -> VariableSet   [ctor ditto] .
-  op _;_ : NeVariableSet VariableSet -> NeVariableSet [ctor ditto] .
-
-  op pickAny : QidSet -> [Qid] .
-  op pickAny : NeQidSet -> Qid .
-  eq pickAny(Q:Qid ; QS:QidSet) = Q:Qid .
 endfm
 
 fmod SUBSTITUTION-REFINEMENT is
