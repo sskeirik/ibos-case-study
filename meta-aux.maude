@@ -2400,7 +2400,7 @@ fmod HIJACK-BUILTINS is
   op hijackBool? : Module OpDeclSet ~> QidList .
   eq hijackBool?(M,op TQ : nil -> TS [special(id-hook('SystemTrue,  nil)) AS].
                    op FQ : nil -> FS [special(id-hook('SystemFalse, nil)) AS].
-		   OS) = if TS =/= FS then lubSort(M,TS ; FS) else TS fi TQ FQ .
+                   OS) = if TS =/= FS then lubSort(M,TS ; FS) else TS fi TQ FQ .
 endfm
 
 fmod HETEROGENEOUS-LIST-FUNCTOR is
