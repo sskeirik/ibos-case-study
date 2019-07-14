@@ -133,7 +133,7 @@ fmod VERIFY-PARTIALFVP is
   ---   2. the simplification equations
   ---   3. the negative equations
   op partitionEqs : Module Map{Qid,QidTermListTuple} -> PFVPEquationDataSet .
-  eq partitionEqs(U,QTM) = partitionEqs(U,buildTermMap(U,QTM),getEqs(U)) .
+  eq partitionEqs(U,QTM) = partitionEqs(U,validTermMap(buildTermMap(U,QTM)),getEqs(U)) .
 
   op partitionEqs : Module Map{Term,QidTermListTuple} EquationSet -> PFVPEquationDataSet .
   eq partitionEqs(U,(T |-> (Srt,PT,NT),TM),ES) = partitionEqs(U,T,Srt,PT,NT,ES) ; partitionEqs(U,TM,ES) .
@@ -165,4 +165,7 @@ fmod VERIFY-PARTIALFVP is
   op dbgPrintPFVPUnifs : Bool Term TermSet SubstitutionSet -> SubstitutionSet .
   eq dbgPrintPFVPUnifs(true,T,TS,SS)  = SS [print "Simp RHS: " T " and Pos LHS: " TS " Unifiers are:\n" SS] .
   eq dbgPrintPFVPUnifs(false,T,TS,SS) = SS .
+
+  op validTermMap : Map{Term,QidTermListTuple} ~> Map{Term,QidTermListTuple} .
+  eq validTermMap(TQTM:Map{Term,QidTermListTuple}) = TQTM:Map{Term,QidTermListTuple} .
 endfm
