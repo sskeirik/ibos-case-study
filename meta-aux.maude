@@ -3186,6 +3186,9 @@ fmod RENAME-TERM is
   op nullNameData : -> NameData .
   eq nullNameData = [0,none] .
 
+  op clear : NameData -> NameData .
+  eq clear([N,S]) = [N,none] .
+
   op renameVars  : GTermList          -> GTermList .
   op renameVars  : NameData GTermList -> GTermList .
   op #renameVars : NameData GTermList -> RenamedGTermList .
@@ -3227,11 +3230,12 @@ fmod RENAME-TERM is
         substr(string(V), rfind(string(V), ":", length(string(V))) + 1, length(string(V)))) .
 endfm
 
-fmod RENAME-TERMSET is
+fmod RENAME-TERM-AUX is
   pr RENAME-TERM .
   pr TERMSET-FM .
 
   var D : NameData . var T T' : Term . var S S' : TermSet .
+  var G : GTerm . var L L' : GTermList . var N : Nat .
 
   sort RenamedTermSet .
   subsort RenamedTerm < RenamedTermSet .
@@ -3256,6 +3260,21 @@ fmod RENAME-TERMSET is
   eq rvRenameTS(D,T | S,S')        = rvRenameTS(rvRenameTerm(D,T),S,S') .
   eq rvRenameTS(D,emptyTermSet,S') = [D,S'] .
   eq rvRenameTS([D,T],S,S')        = rvRenameTS(D,S,S' | T) .
+
+  op renameDisjVars : GTermList -> GTermList .
+  op renameDisjVars : Nat GTermList -> GTermList .
+  op #renameDisjVars : Nat GTermList -> RenamedGTermList .
+  --------------------------------------------------------
+  eq  renameDisjVars(L)   = rvGetTerm(#renameDisjVars(0,L)) .
+  eq  renameDisjVars(N,L) = rvGetTerm(#renameDisjVars(N,L)) .
+  eq #renameDisjVars(N,L) = rvRenameListD([N,none],L,empty) .
+
+  op rvRenameListD : NameData GTermList GTermList -> RenamedGTermList .
+  op rvRenameListD : RenamedGTerm GTermList GTermList -> RenamedGTermList .
+  -------------------------------------------------------------------------
+  eq rvRenameListD(D,(G,L),L') = rvRenameListD(rvRenameTerm(clear(D),G),L,L') .
+  eq rvRenameListD(D,empty,L') = [clear(D),L'] .
+  eq rvRenameListD([D,G],L,L') = rvRenameListD(D,L,(L',G)) .
 endfm
 
 fmod UNIFIERS is
