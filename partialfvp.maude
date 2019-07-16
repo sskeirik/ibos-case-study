@@ -83,14 +83,14 @@ fmod VERIFY-PARTIALFVP is
   ---      - if the rhs can rewrite to negative atom, the lhs cannot rewrite to the positive atom
   --- Return the set of proof obligations that could not be proved or were proved false
   op check-fvp : Module Map{Qid,QidTermListTuple} -> PFVPObligationSet .
-  eq check-fvp(U,QTM) = check-fvp(U,dbgPrintPartition(false,partitionEqs(U,QTM))) .
+  eq check-fvp(U,QTM) = check-fvp2(U,dbgPrintPartition(false,partitionEqs(U,QTM))) .
 
-  op check-fvp : Module PFVPEquationDataSet -> PFVPObligationSet .
-  eq check-fvp(U,(Srt,PT,PEQ,SEQ,NT,NEQ) ; PEDS) =
+  op check-fvp2 : Module PFVPEquationDataSet -> PFVPObligationSet .
+  eq check-fvp2(U,(Srt,PT,PEQ,SEQ,NT,NEQ) ; PEDS) =
     --- posNegNoCPs(U,PEQ,NEQ) ;
     positivityInvariant(U,Srt,PT,PEQ,SEQ) ;
-    check-fvp(U,PEDS) .
-  eq check-fvp(U,.PFVPEquationDataSet) = .PFVPObligationSet .
+    check-fvp2(U,PEDS) .
+  eq check-fvp2(U,.PFVPEquationDataSet) = .PFVPObligationSet .
 
   --- Compute whether the positive and negative equations have critical pairs
   op posNegNoCPs : Module EquationSet EquationSet -> PFVPObligationSet .
