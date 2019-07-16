@@ -3240,6 +3240,10 @@ fmod RENAME-TERMSET is
   op renameVars  : TermSet -> TermSet .
   op renameVars  : NameData TermSet -> TermSet .
   op #renameVars : NameData TermSet -> RenamedTermSet .
+  --- NB: typings needed for preregularity
+  op renameVars  : Term -> Term .
+  op renameVars  : NameData Term -> Term .
+  op #renameVars : NameData Term -> RenamedTerm .
   -----------------------------------------------------
   eq  renameVars(S)              = rvGetTerm(#renameVars([0,none],S)) .
   eq  renameVars(D,S)            = rvGetTerm(#renameVars(D,S)) .
