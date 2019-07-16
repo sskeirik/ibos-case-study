@@ -109,24 +109,24 @@ fmod VERIFY-PARTIALFVP is
 
   --- Compute whether positivity is preserved by simplification equations
   op positivityInvariant : Module Sort Term EquationSet EquationSet -> PFVPObligationSet .
-  eq positivityInvariant(U,Srt,PT,PEQ,SEQ) = positivityInvariant(pfvp-pred-functor(U,Srt,PT),PT,PEQ,SEQ) .
+  eq positivityInvariant(U,Srt,PT,PEQ,SEQ) = positivityInvariant1(pfvp-pred-functor(U,Srt,PT),PT,PEQ,SEQ) .
 
-  op positivityInvariant : ModQidListPair Term EquationSet EquationSet -> PFVPObligationSet .
-  eq positivityInvariant((U,SortP OpP),PT,PEQ,E SEQ) =
-    positivityInvariant1((U,SortP OpP),lhs(E),dbgPrintPFVPUnifs(false,rhs(E),lhs(PEQ),allUnifiers(U,true,rhs(E),lhs(PEQ))),cond(E)) ;
-    positivityInvariant((U,SortP OpP),PT,PEQ,SEQ) .
-  eq positivityInvariant((U,SortP OpP),PT,PEQ,none) = .PFVPObligationSet .
+  op positivityInvariant1 : ModQidListPair Term EquationSet EquationSet -> PFVPObligationSet .
+  eq positivityInvariant1((U,SortP OpP),PT,PEQ,E SEQ) =
+    positivityInvariant2((U,SortP OpP),lhs(E),dbgPrintPFVPUnifs(false,rhs(E),lhs(PEQ),allUnifiers(U,true,rhs(E),lhs(PEQ))),cond(E)) ;
+    positivityInvariant1((U,SortP OpP),PT,PEQ,SEQ) .
+  eq positivityInvariant1((U,SortP OpP),PT,PEQ,none) = .PFVPObligationSet .
 
-  op positivityInvariant1 : ModQidListPair Term SubstitutionSet EqCondition -> PFVPObligationSet .
-  eq positivityInvariant1((U,SortP OpP),T,S | SS,EC) =
-    positivityInvariant2(eqCond2PosConj(EC,mtForm),
+  op positivityInvariant2 : ModQidListPair Term SubstitutionSet EqCondition -> PFVPObligationSet .
+  eq positivityInvariant2((U,SortP OpP),T,S | SS,EC) =
+    positivityInvariant3(eqCond2PosConj(EC,mtForm),
       simplify(context-rew(U,flip(eqCond2PosConj(EC,mtForm)),join(OpP 'pos?)[T << S] ?= join('true. SortP 'Bool)))) ;
-    positivityInvariant1((U,SortP OpP),T,SS,EC) .
-  eq positivityInvariant1((U,SortP OpP),T,empty,EC) = .PFVPObligationSet .
+    positivityInvariant2((U,SortP OpP),T,SS,EC) .
+  eq positivityInvariant2((U,SortP OpP),T,empty,EC) = .PFVPObligationSet .
 
-  op positivityInvariant2 : PosEqConj? PosDisj? -> PFVPObligationSet .
-  eq positivityInvariant2(PEC,tt)      = .PFVPObligationSet .
-  eq positivityInvariant2(PEC,T ?= T') = cp(T,T',PEC) .
+  op positivityInvariant3 : PosEqConj? PosDisj? -> PFVPObligationSet .
+  eq positivityInvariant3(PEC,tt)      = .PFVPObligationSet .
+  eq positivityInvariant3(PEC,T ?= T') = cp(T,T',PEC) .
 
   --- Use this equation to get the triples of equations; in each triple
   ---   1. the positive FVP equations
