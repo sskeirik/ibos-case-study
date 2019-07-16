@@ -18,7 +18,7 @@ endm
 set print conceal on .
 print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm .
 
-red check-fvp(ibos, --- removeIds(ibos,all),
+red check-fvp(removeIds(ibos,all),
   (
     bool-entry('newurl-nodupl?,false),
     bool-entry('noRetMsg?,false),
