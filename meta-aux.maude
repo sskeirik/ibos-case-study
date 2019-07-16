@@ -1974,6 +1974,10 @@ fmod STMT-EXTRA is
   eq anyLhsIsVar?((none).RuleSet) = false .
   eq anyLhsIsVar?(E ES) = lhsIsVar?(E) or-else anyLhsIsVar?(ES) .
   eq anyLhsIsVar?((none).EquationSet) = false .
+
+  op eqsByMetadata : String EquationSet -> EquationSet .
+  eq eqsByMetadata(S,E ES) = if metadata(E) == S then E else none fi eqsByMetadata(S,ES) .
+  eq eqsByMetadata(S,none) = none .
 endfm
 
 fmod INTERREDUCE is
