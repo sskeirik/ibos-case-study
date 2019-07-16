@@ -113,7 +113,7 @@ fmod VERIFY-PARTIALFVP is
 
   op positivityInvariant : ModQidListPair Term EquationSet EquationSet -> PFVPObligationSet .
   eq positivityInvariant((U,SortP OpP),PT,PEQ,E SEQ) =
-    positivityInvariant1((U,SortP OpP),lhs(E),dbgPrintPFVPUnifs(false,rhs(E),lhs(PEQ),allUnifiers(U,rhs(E),lhs(PEQ))),cond(E)) ;
+    positivityInvariant1((U,SortP OpP),lhs(E),dbgPrintPFVPUnifs(false,rhs(E),lhs(PEQ),allUnifiers(U,true,rhs(E),lhs(PEQ))),cond(E)) ;
     positivityInvariant((U,SortP OpP),PT,PEQ,SEQ) .
   eq positivityInvariant((U,SortP OpP),PT,PEQ,none) = .PFVPObligationSet .
 
