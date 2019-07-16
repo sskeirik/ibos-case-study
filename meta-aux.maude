@@ -3195,7 +3195,7 @@ fmod RENAME-TERM is
   eq #renameVars([N,S],L) = rvRenameList([N,S],L,empty) .
 
   op rvRenameList : NameData GTermList GTermList    -> RenamedGTermList .
-  op rvRenameList : RenamedTerm GTermList GTermList -> RenamedGTermList .
+  op rvRenameList : RenamedGTerm GTermList GTermList -> RenamedGTermList .
   -----------------------------------------------------------------------
   eq rvRenameList([N,S],(T,L),L') = rvRenameList(rvRenameTerm([N,S],T),L,L') .
   eq rvRenameList([N,S],empty,L') = [[N,S],L'] .
