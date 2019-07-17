@@ -120,7 +120,7 @@ fmod VERIFY-PARTIALFVP is
   op positivityInvariant2 : ModQidListPair Term SubstitutionSet EqCondition -> PFVPObligationSet .
   eq positivityInvariant2((U,SortP OpP),T,S | SS,EC) =
     positivityInvariant3(eqCond2PosConj(EC,mtForm),
-      simplify(context-rew(U,flip(eqCond2PosConj(EC,mtForm)),join(OpP 'pos?)[T << S] ?= join('true. SortP 'Bool)))) ;
+      simplify(context-rew(U,flip(eqCond2PosConj(EC,mtForm)) << S,join(OpP 'pos?)[T << S] ?= join('true. SortP 'Bool)))) ;
     positivityInvariant2((U,SortP OpP),T,SS,EC) .
   eq positivityInvariant2((U,SortP OpP),T,empty,EC) = .PFVPObligationSet .
 
