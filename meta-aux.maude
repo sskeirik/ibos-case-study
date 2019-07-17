@@ -3362,7 +3362,7 @@ fmod UNIFIERS is
   eq sharedMatch((M,S),T,T') = constsToVars(S,matches(M,T << S,T' << S)) .
 
   op matches? : Module Term Term -> Bool .
-  eq matches?(M,T,T') = sameKind(M,leastSort(M,T),leastSort(M,T')) and-then metaMatch(M,T,T',nil,0) :: Substitution .
+  eq matches?(M,T,T') = wellFormed(M,T) and-then wellFormed(M,T') and-then sameKind(M,leastSort(M,T),leastSort(M,T')) and-then metaMatch(M,T,T',nil,0) :: Substitution .
 
   op allUnifiers : Module Bool Term TermSet -> SubstitutionSet .
   eq allUnifiers(M,B,T,T' | TS) = if sameKind(M,leastSort(M,T),leastSort(M,T')) then disjUnifiersL(M,B,T,T') else empty fi | allUnifiers(M,B,T,TS) .
