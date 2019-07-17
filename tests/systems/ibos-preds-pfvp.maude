@@ -1,9 +1,16 @@
 load ibos-preds.maude
 load ../../rltool-lib.maude
 
-mod TEST is
+mod DEPS is
   pr RLTOOL .
   pr VERIFY-PARTIALFVP .
+  pr REMOVE-IDS .
+endm
+
+mod TEST is
+  pr DEPS * (op __ : EquationSet EquationSet -> EquationSet to _ee_,
+             op __ : SubsortDeclSet SubsortDeclSet -> SubsortDeclSet to _dd_) .
+
 
   var Q : Qid  .
   var B : Bool .
@@ -16,7 +23,13 @@ mod TEST is
 endm
 
 set print conceal on .
+print conceal _ee_ _dd_ .
 print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm .
+
+--- set break on .
+--- break select $disjUnifiersL .
+
+--- set print attribute on .
 
 red check-fvp(removeIds(ibos,all),
   (
@@ -32,7 +45,7 @@ red check-fvp(removeIds(ibos,all),
     bool-entry('fresh-weblabel?,false),
     bool-entry('fresh-netlabel?,false),
 
-    'weblabel-by-pid     |=> ('MaybeLabel,    'L:Label,    'nolabel.MaybelLabel),
+    'weblabel-by-pid     |=> ('MaybeLabel,    'L:Label,    'nolabel.MaybeLabel),
     'netlabelpair-by-pid |=> ('MaybeLabelPair,'L:LabelPair,'nopair.MaybeLabelPair),
 
     bool-entry('lbl-in-weblabels?,true),
@@ -50,3 +63,4 @@ red check-fvp(removeIds(ibos,all),
     --- bool-entry('netlabels-dupl?,true),
   )
 ) .
+quit
