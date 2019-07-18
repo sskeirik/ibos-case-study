@@ -892,24 +892,29 @@ fmod IBOS-AUX-NONFVP is
  ceq allEqLabel?(L,LL ; L' ; LL') = false if L ~l L' = false .
   eq allEqLabel?(L,mtLL)          = true .
 
+  op def-eq : MaybeLabel Label -> Bool [metadata "142"] .
+  eq def-eq(nolabel,L) = true .
+  eq def-eq(L,L')      = L ~l L' .
+
+  op lbl-all-list? : Label LabelList -> Bool [metadata "143"] .
+ ceq lbl-all-list?(L,LL ; L' ; LL') = false if L ~l L' = false .
+  eq lbl-all-list?(L,LL ; L  ; LL') = lbl-all-list?(L,LL ; LL') .
+  eq lbl-all-list?(L,mtLL)          = true .
+
+  op lbl-all-msgl? : Label MessageList -> Bool [metadata "144"] .
+ ceq lbl-all-msgl?(L,MSGL @ msg(PP,PP',MT,L') @ MSGL2) = false  if L ~l L' = false .
+  eq lbl-all-msgl?(L,MSGL @ msg(PP,PP',MT,L ) @ MSGL2) = lbl-all-msgl?(L,MSGL @ MSGL2) .
+  eq lbl-all-msgl?(L,mt)                               = true .
+
   op lbl-in-list? : Label LabelList -> Bool [metadata "145"] .
   eq lbl-in-list?(L,LL ; L  ; LL') = true .
  ceq lbl-in-list?(L,LL ; L' ; LL') = lbl-in-list?(L,LL ; LL') if L ~l L' = false .
   eq lbl-in-list?(L,mtLL)          = false .
 
-  op lbl-in-set? : Label LabelSet -> Bool [metadata "146"] .
-  eq lbl-in-set?(L,L  ; LS) = true .
- ceq lbl-in-set?(L,L' ; LS) = lbl-in-set?(L,LS) if L ~l L' = false .
-  eq lbl-in-set?(L,mtLS)    = false .
-
   op lbl-in-msgl? : Label MessageList -> Bool [metadata "147"] .
   eq lbl-in-msgl?(L,MSGL @ msg(PP,PP',MT,L ) @ MSGL2) = true .
  ceq lbl-in-msgl?(L,MSGL @ msg(PP,PP',MT,L') @ MSGL2) = lbl-in-msgl?(L,MSGL @ MSGL2) if L ~l L' = false .
   eq lbl-in-msgl?(L,mt)                               = false .
-
-  op lbl-in-msg? : Label Message? -> Bool [metadata "148"] .
-  eq lbl-in-msg?(L,none)              = false   .
-  eq lbl-in-msg?(L,msg(PP,PP',MT,L')) = L ~l L' .
 
   op lbl-in-non-origin? : Label NetWebProcConfig -> Bool [metadata "149"] .
   eq lbl-in-non-origin?(L,< WP | fromKernel(MSGL), A > NWC) =
@@ -918,6 +923,28 @@ fmod IBOS-AUX-NONFVP is
        lbl-in-msgl?(L,MSGL @ MSGL2) or L ~l MI or L ~l MO or lbl-in-list?(L,LL ; LL') or lbl-in-non-origin?(L,NWC) .
   eq lbl-in-non-origin?(L,none) = false .
  ceq lbl-in-non-origin?(L,NWC)  = true if nwp-reqattrs?(NWC) = false .
+
+  --- check that labels appearing everywhere are consistent with their metadata
+  op lbl-consistent? : NetWebProcConfig WebProcInfoSet NetProcInfoSet -> Bool [metadata "150"] .
+  eq lbl-consistent?(< WP | fromKernel(MSGL), toKernel(MSGL2), A > NWC,pi(WP,L),wp WIS,NIS) =
+       lbl-all-msgl?(L,MSGL @ MSGL2) and lbl-consistent?(NWC,pi(WP,L),wp WIS,NIS) .
+  eq lbl-consistent?(< NP | fromKernel(MSGL), toKernel(MSGL2), mem-in(MI), mem-out(MO), in(LL), out(LL'), A > NWC,WIS,pi(NP,L,L'),np NIS) =
+       lbl-all-msgl?(L,MSGL @ MSGL2) and def-eq(MI,L) and def-eq(MO,L) and lbl-all-list?(L,LL ; LL') and lbl-consistent?(NWC,WIS,pi(NP,L,L'),np NIS) .
+  --- base cases
+  eq lbl-consistent?(none,WIS,NIS)           = true .
+ ceq lbl-consistent?(< WP | A > NWC,WIS,NIS) = false if weblabel-by-pid(WP,WIS)     = nolabel .
+ ceq lbl-consistent?(< NP | A > NWC,WIS,NIS) = false if netlabelpair-by-pid(NP,NIS) = nopair  .
+ ceq lbl-consistent?(NWC,WIS,NIS)            = false if nwp-reqattrs?(NWC)          = false .
+
+  --- EXTRA
+  op lbl-in-msg? : Label Message? -> Bool [metadata "148"] .
+  eq lbl-in-msg?(L,none)              = false   .
+  eq lbl-in-msg?(L,msg(PP,PP',MT,L')) = L ~l L' .
+
+  op lbl-in-set? : Label LabelSet -> Bool [metadata "146"] .
+  eq lbl-in-set?(L,L  ; LS) = true .
+ ceq lbl-in-set?(L,L' ; LS) = lbl-in-set?(L,LS) if L ~l L' = false .
+  eq lbl-in-set?(L,mtLS)    = false .
 endfm
 
 ---
