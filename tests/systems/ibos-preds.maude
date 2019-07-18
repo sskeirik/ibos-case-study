@@ -799,11 +799,16 @@ fmod IBOS-AUX-NONFVP is
   var NNIS : NeNetProcInfoSet .
 
   var B : Bool .
+  var MT : MsgType .
   var RetMT : RetMsgType .
   var FetchMT : FetchMsgType .
+  var MSG : Message .
+  var MSG? : Message? .
   var MSGL MSGL2 : MessageList .
   var L L' L1 L2 IN OUT : Label .
   var LL LL' : LabelList .
+  var LS : LabelSet .
+  var MI MO : MaybeLabel .
 
   --- 31. Return true iff an attribute type is duplicated in some object in the Configuration
   op conf-attr-dupl? : Configuration -> Bool [metadata "119"] .
@@ -887,10 +892,32 @@ fmod IBOS-AUX-NONFVP is
  ceq allEqLabel?(L,LL ; L' ; LL') = false if L ~l L' = false .
   eq allEqLabel?(L,mtLL)          = true .
 
-  --- TODO: properly encode conditions for using a label somewhere
-  --- TODO: add simplification rules used in other equations
-  op label-used1? : Label NetWebProcConfig -> Bool [metadata "190"] .
-  op label-used2? : Label Message? -> Bool [metadata "191"] .
+  op lbl-in-list? : Label LabelList -> Bool [metadata "145"] .
+  eq lbl-in-list?(L,LL ; L  ; LL') = true .
+ ceq lbl-in-list?(L,LL ; L' ; LL') = lbl-in-list?(L,LL ; LL') if L ~l L' = false .
+  eq lbl-in-list?(L,mtLL)          = false .
+
+  op lbl-in-set? : Label LabelSet -> Bool [metadata "146"] .
+  eq lbl-in-set?(L,L  ; LS) = true .
+ ceq lbl-in-set?(L,L' ; LS) = lbl-in-set?(L,LS) if L ~l L' = false .
+  eq lbl-in-set?(L,mtLS)    = false .
+
+  op lbl-in-msgl? : Label MessageList -> Bool [metadata "147"] .
+  eq lbl-in-msgl?(L,MSGL @ msg(PP,PP',MT,L ) @ MSGL2) = true .
+ ceq lbl-in-msgl?(L,MSGL @ msg(PP,PP',MT,L') @ MSGL2) = lbl-in-msgl?(L,MSGL @ MSGL2) if L ~l L' = false .
+  eq lbl-in-msgl?(L,mt)                               = false .
+
+  op lbl-in-msg? : Label Message? -> Bool [metadata "148"] .
+  eq lbl-in-msg?(L,none)              = false   .
+  eq lbl-in-msg?(L,msg(PP,PP',MT,L')) = L ~l L' .
+
+  op lbl-in-non-origin? : Label NetWebProcConfig -> Bool [metadata "149"] .
+  eq lbl-in-non-origin?(L,< WP | fromKernel(MSGL), A > NWC) =
+       lbl-in-msgl?(L,MSGL) or lbl-in-non-origin?(L,NWC) .
+  eq lbl-in-non-origin?(L,< NP | fromKernel(MSGL), toKernel(MSGL2), mem-in(MI), mem-out(MO), in(LL), out(LL'), A > NWC) =
+       lbl-in-msgl?(L,MSGL @ MSGL2) or L ~l MI or L ~l MO or lbl-in-list?(L,LL ; LL') or lbl-in-non-origin?(L,NWC) .
+  eq lbl-in-non-origin?(L,none) = false .
+ ceq lbl-in-non-origin?(L,NWC)  = true if nwp-reqattrs?(NWC) = false .
 endfm
 
 ---
@@ -1006,6 +1033,7 @@ fmod IBOS-SOP-PRED is
   --- Throw out all cases where configuration process groups/metadata inconsistent
  ceq p(< WI |                     A > NWC,WIS,NIS,M?) = false if weblabel-by-pid(WI,WIS)       = nolabel .
  ceq p(< WI | URL(L),             A > NWC,WIS,NIS,M?) = false if in-wis?(pi(WI,L),WIS)         = false   .
+ ceq p(< WI | URL(L),             A > NWC,WIS,NIS,M?) = false if (not np-by-inlbl?(L,NIS)) and (lbl-in-non-origin?(L,< WI | URL(L), A > NWC) or lbl-in-msg?(L,M?)) = true .
  ceq p(< WI | loading(B), URL(L), A > NWC,WIS,NIS,M?) = false if np-by-inlbl?(L,NIS) and not B = true    .
  ceq p(< NI |                     A > NWC,WIS,NIS,M?) = false if netlabelpair-by-pid(NI,NIS)   = nopair  .
  ceq p(< NI | returnTo(WI),       A > NWC,WIS,NIS,M?) = false if weblabel-by-pid(WI,WIS)       = nolabel .
