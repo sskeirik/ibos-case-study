@@ -2815,6 +2815,7 @@ fmod SUBSTITUTIONSET-AUX is
   eq sharedDomain(Vars,empty) = Vars .
 endfm
 
+--- TODO: compare this code with minimizeBindingsTerm in FULL-MAUDE
 --- operations like metaUnify, metaDisjointUnify, etc... generate fresh variable
 --- names for all terms invovled---however, sometimes, it is desirable to preserve
 --- the variable names originally chosen by the user---this module implemnts a
