@@ -102,6 +102,7 @@ loop rltl-init .
    (weblabel-by-pid(WI,WIS) ~l CURR)                              = (true)  /\
    (display-topbar-consistent?(WI,DISP,CURR,NWC))                 = (true)  /\
    (render-consistent?(NWC))                                      = (true)
+   --- TODO: add constraint for np-by-inlbl?(L,NIS) = false but inside label inside NIC
 .)
 
 (start-proof .)
