@@ -3381,8 +3381,7 @@ fmod UNIFIERS is
 endfm
 
 fmod EQ-VARIANT is
-  --- renaming needed to avoid a billion conflicts later...
-  pr VARIANT * (op addOps to MHaddOps, op addEqs to MHaddEqs, op addSorts to MHaddSorts) .
+  pr VARIANT .
   pr SUBSTITUTIONSET .
 
   --- sort to collect variant unifier results
@@ -3625,10 +3624,13 @@ fmod REMOVE-IDS is
   op $removeIds : Module Bool IdsToRemove ~> Module .
   op $removeIds : Module IdsToRemove ~> Module .
 
-  op getVariants : Module Module RuleSet -> RuleSet .
-  op getVariants : Module Module EquationSet -> EquationSet .
-  op getRlVariants : Module VariantTripleSet Term Condition AttrSet RuleSet -> RuleSet .
-  op getEqVariants : Module VariantTripleSet Term Condition AttrSet EquationSet -> EquationSet .
+  --- TODO: Reorganize these so they return an intermediate data structure which maps
+  ---       an equation/rule to the set of its variants
+  ---       Such a data structure will enable analysis of the generated theories
+  op getVariants : Module Module Module RuleSet -> RuleSet .
+  op getVariants : Module Module Module EquationSet -> EquationSet .
+  op getRlVariants : Module Module VariantTripleSet Term Condition AttrSet RuleSet -> RuleSet .
+  op getEqVariants : Module Module VariantTripleSet Term Condition AttrSet EquationSet -> EquationSet .
 
   eq removeIds(M, Which) = removeIds(M, true, Which) .
  ceq removeIds(M, Subsumption?, Which) = $removeIds(M, Subsumption?, Which)
@@ -3637,41 +3639,43 @@ fmod REMOVE-IDS is
   eq $removeIds(M, true,  Which) = moreGeneralRls(moreGeneralEqs($removeIds(M, Which))) .
   eq $removeIds(M, false, Which) = $removeIds(M, Which) .
   eq $removeIds(M, Which) = setRls(
-                              addEqs(getVariants(makeIdsTuplingModule(M, Which), addTupling(M, M), getEqs(M)),
+                              addEqs(getVariants(makeIdsModule(M,Which),makeIdsTuplingModule(M, Which), addTupling(M, M), getEqs(M)),
                                 makeIdsModule(M, Which)),
-                              getVariants(makeIdsTuplingModule(M, Which), addTupling(M, M), getRls(M))) .
+                              getVariants(makeIdsModule(M,Which),makeIdsTuplingModule(M, Which), addTupling(M, M), getRls(M))) .
 
-  eq getVariants(M, M', Rl RlS)
-    = getRlVariants(M', variants(M, makeTuple(lhs(Rl), cond(Rl))), rhs(Rl), cond(Rl), attrSet(Rl), none)
-      getVariants(M, M', RlS) .
-  eq getVariants(M, M', (none).RuleSet) = none .
+  eq getVariants(IdM, M, M', Rl RlS)
+    = getRlVariants(IdM, M', variants(M, makeTuple(lhs(Rl), cond(Rl))), rhs(Rl), cond(Rl), attrSet(Rl), none)
+      getVariants(IdM, M, M', RlS) .
+  eq getVariants(IdM, M, M', (none).RuleSet) = none .
 
-  eq getVariants(M, M', Eq EqS)
-    = getEqVariants(M', variants(M, makeTuple(lhs(Eq), cond(Eq))), rhs(Eq), cond(Eq), attrSet(Eq), none)
-      getVariants(M, M', EqS) .
-  eq getVariants(M, M', (none).EquationSet) = none .
+  eq getVariants(IdM, M, M', Eq EqS)
+    = getEqVariants(IdM, M', variants(M, makeTuple(lhs(Eq), cond(Eq))), rhs(Eq), cond(Eq), attrSet(Eq), none)
+      getVariants(IdM, M, M', EqS) .
+  eq getVariants(IdM, M, M', (none).EquationSet) = none .
 
-  eq getRlVariants(M, ({'@<@_@>@[T], Subst, N, P:Parent,B:Bool} | VtS), T', nil, AtS, RlS)
-    = getRlVariants(M, VtS, T', nil, AtS, RlS
+  eq getRlVariants(IdM, M, ({'@<@_@>@[T], Subst, N, P:Parent,B:Bool} | VtS), T', nil, AtS, RlS)
+    = getRlVariants(IdM, M, VtS, T', nil, AtS, RlS
         (rl getTerm(metaNormalize(M, T)) => getTerm(metaNormalize(M, _<<_(T', Subst))) [AtS] .)
       ) .
-  eq getRlVariants(M, ({F[T, TL], Subst,N,P:Parent,B:Bool} | VtS), T', Cond, AtS, RlS)
-    = getRlVariants(M, VtS, T', Cond, AtS, RlS
+  eq getRlVariants(IdM, M, ({F[T, TL], Subst,N,P:Parent,B:Bool} | VtS), T', Cond, AtS, RlS)
+    = getRlVariants(IdM, M, VtS, T', Cond, AtS, RlS
         (crl getTerm(metaNormalize(M, T)) => getTerm(metaNormalize(M, _<<_(T', Subst))) if makeCond(TL, Cond, Subst) [AtS] .)
       ) .
-  eq getRlVariants(M, empty, T', Cond, AtS, RlS) = RlS .
+  eq getRlVariants(IdM, M, empty, T', Cond, AtS, RlS) = moreGeneralRls(IdM,RlS) .
 
-  eq getEqVariants(M, ({'@<@_@>@[T], Subst, N,P:Parent,B:Bool} | VtS), T', nil, AtS, EqS)
-    = getEqVariants(M, VtS, T', nil, AtS, EqS
+  eq getEqVariants(IdM, M, ({'@<@_@>@[T], Subst, N,P:Parent,B:Bool} | VtS), T', nil, AtS, EqS)
+    = getEqVariants(IdM, M, VtS, T', nil, AtS, EqS
         (eq getTerm(metaNormalize(M, T)) = getTerm(metaNormalize(M, _<<_(T', Subst))) [AtS] .)
       ) .
-  eq getEqVariants(M, ({F[T, TL], Subst, N,P:Parent,B:Bool} | VtS), T', Cond, AtS, EqS)
-    = getEqVariants(M, VtS, T', Cond, AtS, EqS
+  eq getEqVariants(IdM, M, ({F[T, TL], Subst, N,P:Parent,B:Bool} | VtS), T', Cond, AtS, EqS)
+    = getEqVariants(IdM, M, VtS, T', Cond, AtS, EqS
         (ceq getTerm(metaNormalize(M, T)) = getTerm(metaNormalize(M, _<<_(T', Subst))) if makeCond(TL, Cond, Subst) [AtS] .)
       ) .
-  eq getEqVariants(M, empty, T', Cond, AtS, EqS) = EqS .
+  eq getEqVariants(IdM, M, empty, T', Cond, AtS, EqS) = moreGeneralEqs(IdM,EqS) .
 
   ------------------------------------------------------------------------------
+  --- TODO: Figure out how/if the tupling module can be simplified
+  ---       and made robust to weirdly named operators
 
   op makeIdsTuplingModule : Module IdsToRemove -> Module .
   eq makeIdsTuplingModule(M, Which) = addTupling(M, makeIdsModule(M, Which)) .
