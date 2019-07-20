@@ -1767,111 +1767,6 @@ fmod OPDECL-TYPING is
   eq overloaded?(OS)                                                  = false [owise] .
 endfm
 
-fmod OP-FAMILY is
-  pr TYPE-EXTRA .
-  pr OPDECL-TYPING .
-
-  sort OpFamily OpFamilyMap .
-  subsort OpFamily < OpFamilyMap .
-  op (_,_)|->_ : Qid TypeList OpDeclSet -> OpFamily [ctor] .
-  op __ : OpFamilyMap OpFamilyMap -> OpFamilyMap [ctor assoc comm id: nil] .
-  op nil : -> OpFamilyMap [ctor] .
-
-  op getOpFamilies : Module Bool -> OpFamilyMap .
-  op getOpFamilies : Module Bool OpDeclSet -> OpFamilyMap [memo] .
-  op $opF : Module Bool OpDeclSet OpFamilyMap -> OpFamilyMap .
-
-  var M : Module .
-  var Q : Qid .
-  var QS : QidSet .
-  var TYL TYL' : TypeList .
-  var TY : Type .
-  var AS : AttrSet .
-  var OS OS' : OpDeclSet .
-  var OFM : OpFamilyMap .
-  var OD : OpDecl .
-  var B : Bool .
-
-  --- INP: Module
-  --- PRE: None
-  --- OUT: OpFamilyMap which maps each Qid to all
-  ---      the OpDecl's which have this Qid as their name
-  eq getOpFamilies(M,B) = getOpFamilies(M,B,getOps(M)) .
-  eq getOpFamilies(M,B,OS) = $opF(M,B,OS,nil) .
- ceq $opF(M,B,op Q : TYL -> TY [AS]. OS,OFM (Q,TYL') |-> OS') = $opF(M,B,OS,OFM (Q,TYL') |-> OS' op Q : TYL -> TY [AS].)
-  if TYL' == toKind(M,TYL if B then TY else nil fi) .
-  eq $opF(M,B,OD OS, OFM) = $opF(M,B,OS,OFM (qid(OD),toKind(M,argTypes(OD) if B then resultType(OD) else nil fi)) |-> OD) [owise] .
-  eq $opF(M,B,none,OFM) = OFM .
-
-  --- INP: OpFamilyMap
-  --- PRE: OpFamilyMap is well-formed and sensible
-  --- OUT: if Bool is true,  true iff operators are adhoc-overloaded
-  ---      if Bool is false, true iff operators with same # of args are adhoc-overloaded
-  op adhoc-overloaded? : OpFamilyMap Bool -> Bool .
-  eq adhoc-overloaded?(OFM,B) = adhoc-overloaded(OFM,B,none) =/= none .
-
-  op adhoc-overloaded : OpFamilyMap Bool QidSet -> QidSet .
- ceq adhoc-overloaded(((Q,TYL) |-> OS) ((Q,TYL') |-> OS') OFM,B,QS) =
-    adhoc-overloaded(((Q,TYL) |-> OS) OFM,B,QS ; Q)
-  if TYL =/= TYL' and-then (B or-else size(TYL) == size(TYL')) .
-  eq adhoc-overloaded(OFM,B,QS) = QS [owise] .
-
-  op flattenOpFamily : OpFamilyMap -> OpDeclSet .
-  eq flattenOpFamily(((Q,TYL') |-> OD OS) OFM) = OD flattenOpFamily(OFM) .
-  eq flattenOpFamily(nil) = none .
-endfm
-
-fmod OP-FAMILY-AUX is
-  pr OP-FAMILY .
-
-  op ctorsPreregularBelow : Module -> Bool .
-  op ctorsPreregularBelow : Module OpFamilyMap -> Bool .
-  op $ctorsPreregularBelow : Module TypeListSet OpDeclSet OpDeclSet -> Bool .
-  op $ctorsPreregularBelow1 : Module TypeList OpDeclSet OpDeclSet -> Bool .
-  op typesBelowMaximalOps : Module OpDeclSet -> TypeListSet .
-
-  var M : Module .
-  var Q : Qid .
-  var TYL TYL' KL : TypeList .
-  var TY TY' : Type .
-  var AS AS' : AttrSet .
-  var OS OS' OS'' : OpDeclSet .
-  var OFM : OpFamilyMap .
-  var OD : OpDecl .
-  var TYLS : TypeListSet .
-
-  eq typesBelowMaximalOps(M,OD OS) = typesBelow(M,argTypes(OD)) ; typesBelowMaximalOps(M,OS) .
-  eq typesBelowMaximalOps(M,none) =  none .
-
-  --- INP: OpFamilyMap
-  --- PRE: Valid OpFamilyMap
-  --- OUT: true iff ctors always have minimal typings
-  eq ctorsPreregularBelow(M) = ctorsPreregularBelow(M,getOpFamilies(M,false)) .
-  eq ctorsPreregularBelow(M,OFM (Q,KL) |-> OS) =
-   $ctorsPreregularBelow(M,typesBelowMaximalOps(M,OS),ctors(OS),OS - ctors(OS)) and-then
-   ctorsPreregularBelow(M,OFM) .
-  eq ctorsPreregularBelow(M,nil) = true .
-
-  eq $ctorsPreregularBelow(M,TYL ; TYLS,OS,OS') =
-     $ctorsPreregularBelow1(M,TYL,OS,OS') and-then
-     $ctorsPreregularBelow(M,TYLS,OS,OS') .
-  eq $ctorsPreregularBelow(M,none,OS,OS') = true .
-
-  --- NOTE: if the opsAbove intersect?s with the ctors, then the minimum
-  ---       must be a ctor; if there is no minimum, we violated preregularity
-  ceq $ctorsPreregularBelow1(M,TYL,OS,OS') = intersect?(OS,OS'') implies OD inODS OS
-  if OS'' := opsAbove(M,TYL,OS OS') /\
-     OD   := getMinimal(M,OS'') .
-  eq $ctorsPreregularBelow1(M,TYL,OS,OS') = false [owise] .
-
-  --- INP: OpFamilyMap
-  --- PRE: Valid OpFamilyMap
-  --- OUT: true iff no ops have the same input sorts and different output sorts
-  op sameArgsDiffRes : OpFamilyMap -> Bool .
- ceq sameArgsDiffRes(OFM (Q,KL) |-> OS op Q : TYL -> TY [AS]. op Q : TYL -> TY' [AS'].) = true if TY == TY' .
-  eq sameArgsDiffRes(OFM) = false [owise] .
-endfm
-
 fmod STMT-EXTRA is
   pr META-LEVEL .
   pr TERM-EXTRA .
@@ -3510,6 +3405,175 @@ fmod NARROWING is
   eq toResultTripleSet({ ResTerm, ResType, TermSub, TermVarFlag, RuleSub, RuleVarFlag } | ResultSet) =
     { ResTerm, ResType, TermSub } | toResultTripleSet(ResultSet) .
   eq toResultTripleSet(.NarrowingSearchResultSet) = empty .
+endfm
+
+fmod OP-FAMILY is
+  pr TYPE-EXTRA .
+  pr OPDECL-TYPING .
+
+  sort OpFamily OpFamilyMap .
+  subsort OpFamily < OpFamilyMap .
+  op (_,_)|->_ : Qid TypeList OpDeclSet -> OpFamily [ctor] .
+  op __ : OpFamilyMap OpFamilyMap -> OpFamilyMap [ctor assoc comm id: nil] .
+  op nil : -> OpFamilyMap [ctor] .
+
+  op getOpFamilies : Module Bool -> OpFamilyMap .
+  op getOpFamilies : Module Bool OpDeclSet -> OpFamilyMap [memo] .
+  op $opF : Module Bool OpDeclSet OpFamilyMap -> OpFamilyMap .
+
+  var M : Module .
+  var Q : Qid .
+  var QS : QidSet .
+  var TYL TYL' : TypeList .
+  var TY : Type .
+  var AS : AttrSet .
+  var OS OS' : OpDeclSet .
+  var OFM : OpFamilyMap .
+  var OD : OpDecl .
+  var B : Bool .
+
+  --- INP: Module
+  --- PRE: None
+  --- OUT: OpFamilyMap which maps each Qid to all
+  ---      the OpDecl's which have this Qid as their name
+  eq getOpFamilies(M,B) = getOpFamilies(M,B,getOps(M)) .
+  eq getOpFamilies(M,B,OS) = $opF(M,B,OS,nil) .
+ ceq $opF(M,B,op Q : TYL -> TY [AS]. OS,OFM (Q,TYL') |-> OS') = $opF(M,B,OS,OFM (Q,TYL') |-> OS' op Q : TYL -> TY [AS].)
+  if TYL' == toKind(M,TYL if B then TY else nil fi) .
+  eq $opF(M,B,OD OS, OFM) = $opF(M,B,OS,OFM (qid(OD),toKind(M,argTypes(OD) if B then resultType(OD) else nil fi)) |-> OD) [owise] .
+  eq $opF(M,B,none,OFM) = OFM .
+
+  --- INP: OpFamilyMap
+  --- PRE: OpFamilyMap is well-formed and sensible
+  --- OUT: if Bool is true,  true iff operators are adhoc-overloaded
+  ---      if Bool is false, true iff operators with same # of args are adhoc-overloaded
+  op adhoc-overloaded? : OpFamilyMap Bool -> Bool .
+  eq adhoc-overloaded?(OFM,B) = adhoc-overloaded(OFM,B,none) =/= none .
+
+  op adhoc-overloaded : OpFamilyMap Bool QidSet -> QidSet .
+ ceq adhoc-overloaded(((Q,TYL) |-> OS) ((Q,TYL') |-> OS') OFM,B,QS) =
+    adhoc-overloaded(((Q,TYL) |-> OS) OFM,B,QS ; Q)
+  if TYL =/= TYL' and-then (B or-else size(TYL) == size(TYL')) .
+  eq adhoc-overloaded(OFM,B,QS) = QS [owise] .
+
+  op flattenOpFamily : OpFamilyMap -> OpDeclSet .
+  eq flattenOpFamily(((Q,TYL') |-> OD OS) OFM) = OD flattenOpFamily(OFM) .
+  eq flattenOpFamily(nil) = none .
+endfm
+
+fmod OP-FAMILY-AUX is
+  pr OP-FAMILY .
+
+  op ctorsPreregularBelow : Module -> Bool .
+  op ctorsPreregularBelow : Module OpFamilyMap -> Bool .
+  op $ctorsPreregularBelow : Module TypeListSet OpDeclSet OpDeclSet -> Bool .
+  op $ctorsPreregularBelow1 : Module TypeList OpDeclSet OpDeclSet -> Bool .
+  op typesBelowMaximalOps : Module OpDeclSet -> TypeListSet .
+
+  var M : Module .
+  var Q : Qid .
+  var TYL TYL' KL : TypeList .
+  var TY TY' : Type .
+  var AS AS' : AttrSet .
+  var OS OS' OS'' : OpDeclSet .
+  var OFM : OpFamilyMap .
+  var OD : OpDecl .
+  var TYLS : TypeListSet .
+
+  eq typesBelowMaximalOps(M,OD OS) = typesBelow(M,argTypes(OD)) ; typesBelowMaximalOps(M,OS) .
+  eq typesBelowMaximalOps(M,none) =  none .
+
+  --- INP: OpFamilyMap
+  --- PRE: Valid OpFamilyMap
+  --- OUT: true iff ctors always have minimal typings
+  eq ctorsPreregularBelow(M) = ctorsPreregularBelow(M,getOpFamilies(M,false)) .
+  eq ctorsPreregularBelow(M,OFM (Q,KL) |-> OS) =
+   $ctorsPreregularBelow(M,typesBelowMaximalOps(M,OS),ctors(OS),OS - ctors(OS)) and-then
+   ctorsPreregularBelow(M,OFM) .
+  eq ctorsPreregularBelow(M,nil) = true .
+
+  eq $ctorsPreregularBelow(M,TYL ; TYLS,OS,OS') =
+     $ctorsPreregularBelow1(M,TYL,OS,OS') and-then
+     $ctorsPreregularBelow(M,TYLS,OS,OS') .
+  eq $ctorsPreregularBelow(M,none,OS,OS') = true .
+
+  --- NOTE: if the opsAbove intersect?s with the ctors, then the minimum
+  ---       must be a ctor; if there is no minimum, we violated preregularity
+  ceq $ctorsPreregularBelow1(M,TYL,OS,OS') = intersect?(OS,OS'') implies OD inODS OS
+  if OS'' := opsAbove(M,TYL,OS OS') /\
+     OD   := getMinimal(M,OS'') .
+  eq $ctorsPreregularBelow1(M,TYL,OS,OS') = false [owise] .
+
+  --- INP: OpFamilyMap
+  --- PRE: Valid OpFamilyMap
+  --- OUT: true iff no ops have the same input sorts and different output sorts
+  op sameArgsDiffRes : OpFamilyMap -> Bool .
+ ceq sameArgsDiffRes(OFM (Q,KL) |-> OS op Q : TYL -> TY [AS]. op Q : TYL -> TY' [AS'].) = true if TY == TY' .
+  eq sameArgsDiffRes(OFM) = false [owise] .
+endfm
+
+fmod EQ-FAMILY is
+  pr OP-FAMILY .
+  pr UNIFIERS .
+
+  var M : Module .
+  var B : Bool .
+  var Q : Qid .
+  var QL : QidList .
+  var NTYL : NeTypeList .
+  var TYL : TypeList .
+  var TY : Type .
+  var T : Term .
+  var OS OS' : OpDeclSet .
+  var OFM CFM : OpFamilyMap .
+  var E : Equation .
+  var ES : EquationSet .
+  var EFM : EqFamilyMap .
+
+  sort EqFamily EqFamilyMap .
+  subsort EqFamily < EqFamilyMap .
+  op (_,_)|->_ : Qid TypeList EquationSet -> EqFamily [ctor] .
+  op __ : EqFamilyMap EqFamilyMap -> EqFamilyMap [ctor assoc comm id: nil] .
+  op nil : -> EqFamilyMap [ctor] .
+
+  op getEqFamilies : Module ~> EqFamilyMap .
+  eq getEqFamilies(M) = getEqFamilies(M,splitConsts(nonctors(getOps(M)))) .
+
+  op getEqFamilies : Module OpDeclSetPair ~> EqFamilyMap .
+  eq getEqFamilies(M,(OS,OS')) = getEqFamilies(M,getOpFamilies(M,true,OS),getOpFamilies(M,false,OS'),getEqs(M),nil) .
+
+  op getEqFamilies : Module OpFamilyMap OpFamilyMap EquationSet EqFamilyMap ~> EqFamilyMap .
+  eq getEqFamilies(M,CFM,OFM,E ES,EFM) = getEqFamilies(M,CFM,OFM,ES,$eqF($uniqueDefOpInTerm(M,E,true,lhs(E),$uniqueDefOpInTerm(M,E,false,lhs(E),nil,OFM),CFM),E,EFM)) .
+  eq getEqFamilies(M,CFM,OFM,none,EFM) = EFM .
+
+  op $eqF : NeQidList Equation EqFamilyMap ~> EqFamilyMap .
+  eq $eqF(Q TYL,E,((Q,TYL) |-> ES) EFM) = ((Q,TYL) |-> E ES) EFM .
+  eq $eqF(Q TYL,E,EFM)                  = ((Q,TYL) |-> E)    EFM [owise] .
+
+  --- NB: Bool is true iff singleton TypeLists as constants
+  --- return the *unique* NeQidList of the form Qid TypeList which will match an entry in the EqFamilyMap
+  --- if we haven't seen such a QidList yet, store nil
+  op $uniqueDefOpInTerm : Module Equation Bool Term QidList OpFamilyMap ~> QidList .
+  eq $uniqueDefOpInTerm(M,E,false,T,QL,((Q,TYL) |-> OS) OFM) =
+    if matchesX?(M,buildTerm(Q,0,TYL,'Unused),T)
+      then if QL :: NeQidList
+        then qidErrMsg('Equation 'LHS 'contains 'two 'defined 'operators Q 'and head(QL))
+	else $uniqueDefOpInTerm(M,E,false,T,Q TYL,OFM)
+      fi else $uniqueDefOpInTerm(M,E,false,T,QL,OFM)
+    fi .
+  eq $uniqueDefOpInTerm(M,E,true,T,QL,((Q,TY) |-> OS) CFM) =
+    if matchesX?(M,buildTerm(Q,0,nil,TY),T)
+      then if QL :: NeQidList
+        then qidErrMsg('Equation 'LHS 'contains 'two 'defined 'operators Q 'and head(QL))
+	else $uniqueDefOpInTerm(M,E,true,T,Q,CFM)
+      fi else $uniqueDefOpInTerm(M,E,true,T,QL,CFM)
+    fi .
+  eq $uniqueDefOpInTerm(M,E,B,T,Q TYL,nil) = Q TYL .
+  eq $uniqueDefOpInTerm(M,E,B,T,QL,nil) = qidErrMsg('Equation 'LHS 'does 'not 'contain 'any 'defined 'symbol) .
+
+  op $initEqF : OpFamilyMap -> EqFamilyMap .
+  eq $initEqF(((Q,TYL) |-> OS) OFM) = ((Q,TYL) |-> none) $initEqF(OFM) .
+  eq $initEqF(nil)                  = nil .
 endfm
 
 fmod DECL-SUBSUMPTION is
