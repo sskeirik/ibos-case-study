@@ -170,7 +170,9 @@ fmod CRITICAL-PAIR-SET is
   eq delete(ccp(Id, L, L', T, T', Cd, Status) CPS,CPS') = delete(CPS,CPS' ccp(Id, L, L', T, T', Cd,if Status == pending and-then T == T' then joined else Status fi)) .
   eq delete(none,CPS') = CPS' .
 
+  op delete! : CritPairSet -> CritPairSet .
   op delete! : CritPairSet CritPairSet -> CritPairSet .
+  eq delete!(CPS) = delete!(CPS,none) .
   eq delete!(CP CPS,CPS') = delete!(CPS,CPS' if lhs(CP) == rhs(CP) then none else CP fi) .
   eq delete!(none,  CPS') = CPS' .
 
@@ -533,6 +535,7 @@ fmod CONFLUENCE-CHECK is
   pr CONFLUENCE-AUX .
   pr NARROWING .
   pr CRC-CONTEXT-JOINABILITY-UNFEASIBILITY .
+  pr EQ-FAMILY .
 
   sort Tuple{CritPairSet, CritPairSet}  . op ((_,_)) : CritPairSet  CritPairSet -> Tuple{CritPairSet,  CritPairSet} [ctor] .
   op p1 : Tuple{CritPairSet, CritPairSet} -> CritPairSet .
@@ -581,6 +584,7 @@ fmod CONFLUENCE-CHECK is
   vars Id Id' St1 St2 : String .
   var  QIL : QidList .
   var  Atts : AttrSet .
+  var EFM : EqFamilyMap .
 
 **** We declare sorts for critical pairs (\texttt{CritPair}) and for sets of
 **** critical pairs (\texttt{CritPairSet}), and constructors for them.  The
@@ -654,6 +658,9 @@ fmod CONFLUENCE-CHECK is
 
   op sym-crcCritPairs@ : Module Nat -> Tuple{CritPairSet,Nat} .
   eq sym-crcCritPairs@(M,N) = sym-crcCritPairs1(M,pickEq(N,getEqs(M)),dropEqs(N,getEqs(M)),(none,0)) .
+
+  op sym-crcCritPairs : Module EquationSet -> Tuple{CritPairSet, Nat} .
+  eq sym-crcCritPairs(M,EqS) = sym-crcCritPairs(M,EqS,EqS,(none,0)) .
 
   op sym-crcCritPairs : Module EquationSet EquationSet Tuple{CritPairSet, Nat} -> Tuple{CritPairSet, Nat} .
   eq sym-crcCritPairs(M, Eq EqS, Eq EqS', (CPS,N)) =
@@ -825,6 +832,20 @@ fmod CONFLUENCE-CHECK is
                 crcCritPairs(M)),
               M)),
           M)) .
+
+  op sym-confluenceCheck : Module ~> CritPairSet .
+  op sym-confluenceCheck : Module EqFamilyMap ~> CritPairSet .
+  eq sym-confluenceCheck(M) = sym-confluenceCheck(M,getEqFamilies(M)) .
+  eq sym-confluenceCheck(M,((F,TpL) |-> EqS) EFM)
+    = crcContextJoinableAndUnfeasibleCPs(M,
+        maximalCPSet(
+          delete!(
+            simplify(
+              delete!(
+                getCPs(sym-crcCritPairs(M,EqS))),
+              M)),
+	M)) sym-confluenceCheck(M,EFM) .
+  eq sym-confluenceCheck(M,nil) = none .
 endfm
 
 mod CONFLUENCE-TOOLS is
