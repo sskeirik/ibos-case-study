@@ -170,6 +170,10 @@ fmod CRITICAL-PAIR-SET is
   eq delete(ccp(Id, L, L', T, T', Cd, Status) CPS,CPS') = delete(CPS,CPS' ccp(Id, L, L', T, T', Cd,if Status == pending and-then T == T' then joined else Status fi)) .
   eq delete(none,CPS') = CPS' .
 
+  op delete! : CritPairSet CritPairSet -> CritPairSet .
+  eq delete!(CP CPS,CPS') = delete!(CPS,CPS' if lhs(CP) == rhs(CP) then none else CP fi) .
+  eq delete!(none,  CPS') = CPS' .
+
   op simplify1 : CritPair Module ~> CritPair .
   eq simplify1(cp(Id, L, L', T, T',pending),M) = cp(Id, L, L', getTerm(metaReduce(M, T)), getTerm(metaReduce(M, T')), pending) .
   eq simplify1(ccp(Id, L, L', T, T', Cd, pending),M) = ccp(Id, L, L', getTerm(metaReduce(M, T)), getTerm(metaReduce(M, T')), Cd, pending) .
