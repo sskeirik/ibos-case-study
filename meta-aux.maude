@@ -3390,6 +3390,16 @@ fmod UNIFIERS is
   op matches? : Module Term Term -> Bool .
   eq matches?(M,T,T') = wellFormed(M,T) and-then wellFormed(M,T') and-then sameKind(M,leastSort(M,T),leastSort(M,T')) and-then metaMatch(M,T,T',nil,0) :: Substitution .
 
+  op matchesX? : Module Term Term -> Bool .
+  eq matchesX?(M,T,T') = wellFormed(M,T) and-then wellFormed(M,T') and-then sameKind(M,leastSort(M,T),leastSort(M,T')) and-then metaXmatch(M,T,T',nil,0,unbounded,0) :: MatchPair .
+
+  op  nontrivCtxtMatch? : Module Term Term -> Bool .
+  op $nontrivCtxtMatch? : Module Term Term Nat -> Bool .
+  eq  nontrivCtxtMatch?(M,T,T')   = wellFormed(M,T) and-then wellFormed(M,T') and-then sameKind(M,leastSort(M,T),leastSort(M,T')) and-then $nontrivCtxtMatch?(M,T,T',0) .
+  eq $nontrivCtxtMatch?(M,T,T',I) =
+    metaXmatch(M,T,T',nil,0,unbounded,I) :: MatchPair and-then
+   (getContext(metaXmatch(M,T,T',nil,0,unbounded,I)) =/= [] or-else $nontrivCtxtMatch?(M,T,T',s(I))) .
+
   op allUnifiers : Module Bool Term TermSet -> SubstitutionSet .
   eq allUnifiers(M,B,T,T' | TS) = if sameKind(M,leastSort(M,T),leastSort(M,T')) then disjUnifiersL(M,B,T,T') else empty fi | allUnifiers(M,B,T,TS) .
   eq allUnifiers(M,B,T,emptyTermSet) = empty .
