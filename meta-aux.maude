@@ -1430,6 +1430,9 @@ fmod OPDECLSET-EXTRA is
   pr UNIT-FM .
   pr TERM-EXTRA .
 
+  sort OpDeclSetPair .
+  op ((_,_)) : OpDeclSet OpDeclSet -> OpDeclSetPair [ctor] .
+
   op _inODS_     : OpDecl OpDeclSet -> Bool .
   op _-_         : OpDeclSet OpDeclSet -> OpDeclSet .
   op subset?     : OpDeclSet OpDeclSet -> Bool .
@@ -1440,7 +1443,11 @@ fmod OPDECLSET-EXTRA is
   op $resTypeSet : OpDeclSet TypeSet -> TypeListSet .
   op constants   : OpDeclSet -> OpDeclSet .
   op $constants  : OpDeclSet OpDeclSet -> OpDeclSet .
+  op splitConsts  : OpDeclSet -> OpDeclSetPair .
+  op $splitConsts : OpDeclSet OpDeclSet OpDeclSet -> OpDeclSetPair .
   op ctors       : OpDeclSet -> OpDeclSet .
+  op nonctors    : OpDeclSet -> OpDeclSet .
+  op splitCtors  : OpDeclSet -> OpDeclSetPair .
   op stripAttrs  : OpDeclSet -> OpDeclSet .
   op opByName    : Qid OpDeclSet -> OpDeclSet .
   op opByName    : Qid Sort OpDeclSet -> OpDeclSet .
@@ -1509,6 +1516,12 @@ fmod OPDECLSET-EXTRA is
     $constants(OS,if argTypes(OD) == nil then OD else none fi OS') .
   eq $constants(none,OS') = OS' .
 
+  eq splitConsts(OS) = $splitConsts(OS,none,none) .
+  eq $splitConsts(OD OS,OS',OS'') =
+    if argTypes(OD) == nil then $splitConsts(OS,OD OS',   OS'')
+                           else $splitConsts(OS,   OS',OD OS'') fi .
+  eq $splitConsts(none, OS',OS'') = (OS',OS'') .
+
   --- INP: OpDeclSet
   --- PRE: None
   --- OUT: Extracts all ctors
@@ -1517,6 +1530,18 @@ fmod OPDECLSET-EXTRA is
   eq $ctors(op Q : TYL -> TY [ctor AS]. OS,OS') =
      $ctors(OS,op Q : TYL -> TY [ctor AS]. OS') .
   eq $ctors(OS,OS') = OS' [owise] .
+
+  op $nonctors      : OpDeclSet OpDeclSet -> OpDeclSet .
+  eq nonctors(OS) = $nonctors(OS,none) .
+  eq $nonctors(op Q : TYL -> TY [ctor AS]. OS,OS') =
+     $nonctors(OS,op Q : TYL -> TY [ctor AS]. OS') .
+  eq $nonctors(OS,OS') = OS [owise] .
+
+  op $splitCtors      : OpDeclSet OpDeclSet -> OpDeclSetPair .
+  eq splitCtors(OS) = $splitCtors(OS,none) .
+  eq $splitCtors(op Q : TYL -> TY [ctor AS]. OS,OS') =
+     $splitCtors(OS,op Q : TYL -> TY [ctor AS]. OS') .
+  eq $splitCtors(OS,OS') = (OS',OS) [owise] .
 
   --- INP: OpDeclSet
   --- PRE: None
