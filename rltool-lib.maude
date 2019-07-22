@@ -674,11 +674,11 @@ mod RLTL-PROC-CMD is
                                   else write('Focus 'term 'failed 'to 'match 'any 'goals)
                                 fi .
   eq proc(focus(NS),       R) = if getgl!(get-prf(R),NS) :: ProofGoalSet
-                                 then prf(getgl!(get-prf(R),NS)) & write('Successfully 'focused 'on 'target 'goal/goals)
+                                 then prf(getgl!(get-prf(R),NS)) & write('Successfully 'focused 'on 'target 'goal/goals '`( 'count: printPar(| NS |) '`))
                                  else write('Some 'target 'goal/goals 'not 'found: '\n printSpaces(8) printNatSet(NS))
                                 fi .
   eq proc(focus(QFT),      R) = if goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R))) :: NeProofGoalSet
-                                  then prf(goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R)))) & write('Successfully 'focus 'on 'target 'goal/goals)
+                                  then prf(goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R)))) & write('Successfully 'focus 'on 'target 'goal/goals '`( 'count: printPar(size(goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R))))) '`))
 				  else write('Focus 'term 'failed 'to 'match 'any 'goals)
 				fi .
   eq proc(dostep(N),       R) = if getgl!(get-prf(R),N) :: ProofGoalSet
