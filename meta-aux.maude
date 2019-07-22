@@ -3537,43 +3537,40 @@ fmod EQ-FAMILY is
   op nil : -> EqFamilyMap [ctor] .
 
   op getEqFamilies : Module ~> EqFamilyMap .
-  eq getEqFamilies(M) = getEqFamilies(M,splitConsts(nonctors(getOps(M)))) .
+  eq getEqFamilies(M) = getEqFamilies(M,splitConsts(getOps(M))) .
 
   op getEqFamilies : Module OpDeclSetPair ~> EqFamilyMap .
   eq getEqFamilies(M,(OS,OS')) = getEqFamilies(M,getOpFamilies(M,true,OS),getOpFamilies(M,false,OS'),getEqs(M),nil) .
 
   op getEqFamilies : Module OpFamilyMap OpFamilyMap EquationSet EqFamilyMap ~> EqFamilyMap .
-  eq getEqFamilies(M,CFM,OFM,E ES,EFM) = getEqFamilies(M,CFM,OFM,ES,$eqF($uniqueDefOpInTerm(M,E,true,lhs(E),$uniqueDefOpInTerm(M,E,false,lhs(E),nil,OFM),CFM),E,EFM)) .
+  eq getEqFamilies(M,CFM,OFM,E ES,EFM) = getEqFamilies(M,CFM,OFM,ES,$eqF($topOperator(M,lhs(E),CFM,OFM),E,EFM)) .
   eq getEqFamilies(M,CFM,OFM,none,EFM) = EFM .
 
   op $eqF : NeQidList Equation EqFamilyMap ~> EqFamilyMap .
   eq $eqF(Q TYL,E,((Q,TYL) |-> ES) EFM) = ((Q,TYL) |-> E ES) EFM .
   eq $eqF(Q TYL,E,EFM)                  = ((Q,TYL) |-> E)    EFM [owise] .
 
-  --- NB: Bool is true iff singleton TypeLists as constants
-  --- return the *unique* NeQidList of the form Qid TypeList which will match an entry in the EqFamilyMap
-  --- if we haven't seen such a QidList yet, store nil
-  op $uniqueDefOpInTerm : Module Equation Bool Term QidList OpFamilyMap ~> QidList .
-  eq $uniqueDefOpInTerm(M,E,false,T,QL,((Q,TYL) |-> OS) OFM) =
-    if matchesX?(M,buildTerm(Q,0,TYL,'Unused),T)
-      then if QL :: NeQidList
-        then qidErrMsg('Equation 'LHS 'contains 'two 'defined 'operators Q 'and head(QL))
-	else $uniqueDefOpInTerm(M,E,false,T,Q TYL,OFM)
-      fi else $uniqueDefOpInTerm(M,E,false,T,QL,OFM)
+  op $topOperator : Module Term OpFamilyMap OpFamilyMap -> QidList .
+  eq $topOperator(M,T,CFM,OFM) =
+    if $topOperator(M,true,T,CFM) :: NeQidList
+      then $topOperator(M,true,T,CFM)
+      else $topOperator(M,false,T,OFM)
     fi .
-  eq $uniqueDefOpInTerm(M,E,true,T,QL,((Q,TY) |-> OS) CFM) =
-    if matchesX?(M,buildTerm(Q,0,nil,TY),T)
-      then if QL :: NeQidList
-        then qidErrMsg('Equation 'LHS 'contains 'two 'defined 'operators Q 'and head(QL))
-	else $uniqueDefOpInTerm(M,E,true,T,Q,CFM)
-      fi else $uniqueDefOpInTerm(M,E,true,T,QL,CFM)
-    fi .
-  eq $uniqueDefOpInTerm(M,E,B,T,Q TYL,nil) = Q TYL .
-  eq $uniqueDefOpInTerm(M,E,B,T,QL,nil) = qidErrMsg('Equation 'LHS 'does 'not 'contain 'any 'defined 'symbol) .
 
-  op $initEqF : OpFamilyMap -> EqFamilyMap .
-  eq $initEqF(((Q,TYL) |-> OS) OFM) = ((Q,TYL) |-> none) $initEqF(OFM) .
-  eq $initEqF(nil)                  = nil .
+  --- Return the operator type that matches this one at the top
+  --- NOTE: there should always be one --- otherwise it is an error
+  op $topOperator : Module Bool Term OpFamilyMap -> QidList .
+  eq $topOperator(M,false,T,((Q,TYL) |-> OS) OFM) =
+    if matches?(M,buildTerm(Q,0,TYL,'Unused),T)
+      then Q TYL
+      else $topOperator(M,false,T,OFM)
+    fi .
+  eq $topOperator(M,true,T,((Q,TY) |-> OS) CFM) =
+    if matches?(M,buildTerm(Q,0,nil,TY),T)
+      then Q
+      else $topOperator(M,true,T,CFM)
+    fi .
+  eq $topOperator(M,B,T,nil) = nil .
 endfm
 
 fmod DECL-SUBSUMPTION is
