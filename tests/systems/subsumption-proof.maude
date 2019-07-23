@@ -1,0 +1,167 @@
+set include BOOL off .
+load ibos-preds.maude
+load ../../rltool-lib.maude
+
+
+mod SUBSUMPTION-PROOF is
+  pr RLTOOL .
+
+  op ibos : -> Module .
+  eq ibos = upModule('IBOS-PREDS,true) .
+  ops new-sop sop1 sop2 sop3 sop4 : -> CCTerm .
+
+  ---@ (  NWC
+  ---@    < ui | toKernel(UIML) >
+  ---@    < display | activeWebapp(WI), displayedContent(DISP) >
+  ---@    < nic | in(NICIN), nic-out(NICOUT) >
+  ---@    < webappmgr | nextWPN(NWP) >
+  ---@    < kernel | weblabels(WIS), netlabels(NIS), displayedTopBar(CURR), handledCurrently(MSG?), nextNPN(NNP),
+  ---@        msgPolicy(policy(webapp, network,MSG-FETCH-URL ),ps
+  ---@                  policy(ui,     webapp, MSG-NEW-URL   ),ps
+  ---@                  policy(ui,     webapp, MSG-SWITCH-TAB),ps
+  ---@                  policy(network,webapp, MSG-RETURN-URL)) > ) |
+  ---@    (p(NWC,WIS,NIS,MSG?))                                          = (true)  /\
+  ---@    (nwp-reqattrs?(NWC))                                           = (true)  /\
+  ---@    (conf-attr-dupl?(NWC))                                         = (false) /\
+  ---@    (weblabels-dupl?(WIS))                                         = (false) /\
+  ---@    (netlabels-dupl?(NIS))                                         = (false) /\
+  ---@    (conf-dupl?(NWC))                                              = (false) /\
+  ---@    (fresh-wp-id?(webapp(NWP), NWC))                               = (true)  /\
+  ---@    (fresh-np-id?(network(NNP),NWC))                               = (true)  /\
+  ---@    (fresh-weblabel?(webapp(NWP),WIS))                             = (true)  /\
+  ---@    (fresh-netlabel?(network(NNP),NIS))                            = (true)  /\
+  ---@    (ui-consistent?(UIML,WIS))                                     = (true)  /\
+  ---@    (currHandled2?(MSG?,WIS))                                      = (true)  /\
+  ---@    ---
+  ---@    (weblabel-by-pid(WI,WIS) ~l CURR)                              = (true)  /\
+  ---@    (display-topbar-consistent?(WI,DISP,CURR,NWC))                 = (true)  /\
+  ---@    (render-consistent?(NWC))                                      = (true)
+  ---@    --- TODO: add constraint for np-by-inlbl?(L,NIS) = false but inside label inside NIC
+  ---@
+  eq new-sop = ( '__[
+                      '<_|_>['ui.NonPipeId,'toKernel['UIML:MessageList]],
+                      '<_|_>['display.NonPipeId,'_`,_['activeWebapp['WI:ConcWebProcId],'displayedContent['DISP:Label]]],
+                      '<_|_>['nic.NonPipeId,'_`,_['in['NICIN:LabelList],'nic-out['NICOUT:LabelSet]]],
+                      '<_|_>['webappmgr.NonPipeId,'nextWPN['NWP:Nat]],
+                      '<_|_>['kernel.NonPipeId,'_`,_[
+                              'weblabels['WIS:WebProcInfoSet],
+                              'netlabels['NIS:NetProcInfoSet],
+                              'displayedTopBar['CURR:Label],
+                              'handledCurrently['MSG?:Message?],
+                              'nextNPN['NNP:Nat],
+                              'msgPolicy['_`,ps_[
+                                'policy['webapp.AbsWebProcId,'network.AbsNetProcId,'MSG-FETCH-URL.MsgType],
+                                'policy['ui.UIId,'webapp.AbsWebProcId,'MSG-NEW-URL.MsgType],
+                                'policy['ui.UIId,'webapp.AbsWebProcId,'MSG-SWITCH-TAB.MsgType],
+                                'policy['network.AbsNetProcId,'webapp.AbsWebProcId,'MSG-RETURN-URL.MsgType]
+                              ]]
+                            ]],
+                      'NWC:NetWebProcConfig
+                    ] | 
+                    'p['NWC:NetWebProcConfig,'WIS:WebProcInfoSet,'NIS:NetProcInfoSet,'MSG?:Message?] ?= 'true.Bool
+                 /\ 'nwp-reqattrs?['NWC:NetWebProcConfig] ?= 'true.Bool
+                 /\ 'weblabels-dupl?['WIS:WebProcInfoSet] ?= 'false.Bool
+                 /\ 'netlabels-dupl?['NIS:NetProcInfoSet] ?= 'false.Bool
+                 /\ 'conf-dupl?['NWC:NetWebProcConfig] ?= 'true.Bool
+                 /\ 'fresh-wp-id?['webapp['NWP:Nat],'NWC:NetWebProcConfig] ?= 'true.Bool
+                 /\ 'fresh-np-id?['webapp['NNP:Nat],'NWC:NetWebProcConfig] ?= 'true.Bool
+                 /\ 'fresh-weblabel?['webapp['NWP:Nat],'WIS:WebProcInfoSet] ?= 'true.Bool
+                 /\ 'fresh-netlabel?['webapp['NNP:Nat],'NIS:NetProcInfoSet] ?= 'true.Bool
+                 /\ 'ui-consistent?['UIML:MessageList,'WIS:WebProcInfoSet] ?= 'true.Bool
+                 /\ 'currHandled2?['MSG?:Message?,'WIS:WebProcInfoSet] ?= 'true.Bool
+                 /\ '_~l_['weblabel-by-pid['WI:ConcWebProcId,'WIS:WebProcInfoSet],'CURR:Label] ?= 'true.Bool
+                 /\ 'display-topbar-consistent?['WI:ConcWebProcId,'DISP:Label,'CURR:Label,'NWC:NetWebProcConfig] ?= 'true.Bool
+                 /\ 'render-consistent?['NWC:NetWebProcConfig] ?= 'true.Bool
+               ) .
+
+  --- < N      | fromKernel(msg(W, N, MSG-FETCH-URL, L1), ML),              A  >
+  --- < kernel | weblabels(pi(W,L1'), WIS), netlabels(pi(N, L2', L2), NIS), A' >
+  ---
+  --- such that L1 =/= L2 or L1' =/= L2'
+  eq sop1 = ('__[
+                   '<_|_>['N:ConcNetProcId,
+                          '_`,_['fromKernel[
+                                '_@_['msg['W:ConcWebProcId,'N:ConcNetProcId,'MSG-FETCH-URL.MsgType,'L1:Label],
+                                     'ML:MessageList
+                                    ]
+                                ],
+                                'A:AttributeSet
+                               ]
+                         ],
+                   '<_|_>['kernel.NonPipeId,
+                          '_`,_['weblabels['_`,wp_['pi['W:ConcWebProcId,'L1':Label],'WIS:WebProcInfoSet]],
+                                'netlabels['_`,np_['pi['N:ConcNetProcId,'L2':Label,'L2:Label],'NIS:NetProcInfoSet]],
+                                'A':AttributeSet
+                               ]
+                         ],
+                   'C:Configuration
+                 ] | 'L1:Label ?= 'L2:Label /\ 'L1':Label ?= 'L2':Label ) .
+
+  --- < N      | in(L1, LL),                   A  >
+  --- < kernel | netlabels(pi(N, L, L2), NIS), A' >
+  ---
+  --- such that L1 =/= L2
+  eq sop2 = ('__[
+                   '<_|_>['N:ConcNetProcId,
+                          '_`,_['in['_;_['L1:Label,'LL:LabelList]],
+                                'A:AttributeSet
+                               ]
+                         ],
+                   '<_|_>['kernel.NonPipeId,
+                          '_`,_['netlabels['_`,np_['pi['N:ConcNetProcId,'L:Label,'L2:Label],'NIS:NetProcInfoSet]],
+                                'A':AttributeSet
+                               ]
+                         ],
+                   'C:Configuration
+                 ] | 'L1:Label ?= 'L2:Label ) .
+
+  --- < N      | out(L1),                       A  >
+  --- < kernel | netlabels(pi(N, L, L2), NIS), A' >
+  ---
+  --- such that L1 =/= L2
+  eq sop3 = ('__[
+                   '<_|_>['N:ConcNetProcId,
+                          '_`,_['out['L1:Label],
+                                'A:AttributeSet
+                               ]
+                         ],
+                   '<_|_>['kernel.NonPipeId,
+                          '_`,_['netlabels['_`,np_['pi['N:ConcNetProcId,'L:Label,'L2:Label],'NIS:NetProcInfoSet]],
+                                'A':AttributeSet
+                               ]
+                         ],
+                   'C:Configuration
+                 ] | 'L1:Label ?= 'L2:Label ) .
+
+  --- < W      | loading(true), fromKernel(msg(N, W, MSG-RETURN-URL, L2), ML), A  >
+  --- < kernel | weblabels(pi(W, L), WIS), netlabels(pi(N, L, L1), NIS),       A' >
+  ---
+  --- such that L1 =/= L2
+  eq sop4 = ('__[
+                   '<_|_>['W:ConcWebProcId,
+                          '_`,_['loading['true.Bool],
+                                'fromKernel[
+                                '_@_['msg['N:ConcNetProcId,'W:ConcWebProcId,'MSG-RETURN-URL.MsgType,'L1:Label],
+                                     'ML:MessageList
+                                    ]
+                                ],
+                                'A:AttributeSet
+                               ]
+                         ],
+                   '<_|_>['kernel.NonPipeId,
+                          '_`,_['weblabels['_`,wp_['pi['W:ConcWebProcId,'L:Label],'WIS:WebProcInfoSet]],
+                                'netlabels['_`,np_['pi['N:ConcNetProcId,'L:Label,'L2:Label],'NIS:NetProcInfoSet]],
+                                'A':AttributeSet
+                               ]
+                         ],
+                   'C:Configuration
+                 ] | 'L1:Label ?= 'L2:Label ) .
+endm
+
+red wellFormed(ibos,new-sop) .
+red wellFormed(ibos,sop1) .
+red wellFormed(ibos,sop2) .
+red wellFormed(ibos,sop3) .
+red wellFormed(ibos,sop4) .
+
+quit
