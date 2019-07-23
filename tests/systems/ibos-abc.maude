@@ -163,16 +163,9 @@ loop rltl-init .
 (focus ({ < WI | A > < WI' | A' > C }) | true .)
 (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 (split ({ < WI | loading(B), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
-(split ({ C }) | (p(< WI | loading(B), A > NWC,WIS,NIS,MSG?)) = (true) by (webproc-req-attrs(A)) = (true) and (webproc-req-attrs(A)) = (false) .)
+
+(split ({ C }) | (p(< WI | loading(B), A > NWC,WIS,NIS,MSG?)) = (true) by (webproc-req-attrs((loading(B), A))) = (true) and (webproc-req-attrs((loading(B), A))) = (false) .)
 (split ({ < WI | loading(B), A > < kernel | weblabels(pi(WI,L),wp WIS), netlabels(NIS), A' > C }) by (np-by-inlbl?(L,NIS)) = (true) and (np-by-inlbl?(L,NIS)) = (false) .)
-
-(focus ({ C }) | (np-by-inlbl?(L,NIS)) = (false) .)
-(split ({ < WI | loading(B), URL(U), A > C }) by (U) = (about-blank) and (U) = (NBL:NonBlankLabel) .)
-(split ({ < WI | fromKernel(F), A > C }) by (F) = (NML) and (F) = (mt) .)
-(split ({ C }) | (p(< WI | fromKernel(NML), A > < NI | A' > NWC,WIS,NIS,MSG?)) = (true) by (sender(NML) ~p NI) = (true) and  (sender(NML) ~p NI) = (false) .)
-(split ({ C }) | (p(< WI | loading(B), rendered(U'), URL(U), A > NWC,WIS,NIS,MSG?)) = (true) by (U' blank-or-equal U) = (true) and (U' blank-or-equal U) = (false) .)
-
----(
 (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 (split ({ < kernel | netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
 (split ({ < NI | returnTo(PP1), A > < WI | loading(B), A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
@@ -189,8 +182,7 @@ loop rltl-init .
 .)
 (split ({ < WI | loading(B), URL(U), A > C }) by (U) = (about-blank) and (U) = (NBL:NonBlankLabel) .)
 (split ({ < WI | fromKernel(F), A > C }) by (F) = (NML) and (F) = (mt) .)
-(auto .)
----)
+--- (auto .)
 
 --- request-from-webapp
 --- the previous webproc is loaded
