@@ -122,9 +122,12 @@ fmod CONTEXT-REW is
           then reduce(setEqs(UCC,ES),PD << S)
           else if truefalseContradict(addEqs(ES,UCC),false,ES - getTaggedIdEqs(ES))
 	    then mtForm
-	    --- TODO: check if equations need to be reoriented after interreduction
-	    --- TODO: double-check not reducing id equations is OK
-	    else reduce(addEqs(interreduce(UCC,ES - getTaggedIdEqs(ES),getTaggedIdEqs(ES)),UCC),PD << S)
+	    else if size(reduce(addEqs(ES,UCC),PD << S)) < size(PD)
+	      then reduce(addEqs(ES,UCC),PD << S)
+	      --- TODO: check if equations need to be reoriented after interreduction
+	      --- TODO: double-check not reducing id equations is OK
+	      else reduce(addEqs(interreduce(UCC,ES - getTaggedIdEqs(ES),getTaggedIdEqs(ES)),UCC),PD << S)
+            fi
           fi
         fi)) .
 
