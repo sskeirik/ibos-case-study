@@ -160,28 +160,31 @@ loop rltl-init .
 
 --- render --- multi process
 --- (focus 272 -- 279, 288 -- 295 .)
-(focus ({ < WI | A > < WI' | A' > C }) | true .)
-(split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
-(split ({ < WI | loading(B), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
-
-(split ({ C }) | (p(< WI | loading(B), A > NWC,WIS,NIS,MSG?)) = (true) by (webproc-req-attrs((loading(B), A))) = (true) and (webproc-req-attrs((loading(B), A))) = (false) .)
-(split ({ < WI | loading(B), A > < kernel | weblabels(pi(WI,L),wp WIS), netlabels(NIS), A' > C }) by (np-by-inlbl?(L,NIS)) = (true) and (np-by-inlbl?(L,NIS)) = (false) .)
-(split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
-(split ({ < kernel | netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
-(split ({ < NI | returnTo(PP1), A > < WI | loading(B), A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
-(split ({ < WI | loading(B), rendered(U'), URL(U), A > C }) by (U ~l U') = (true) and (U ~l U') = (false) .)
-(split ({ C }) | (p(< WI | fromKernel(NML), A > < NI | A' > NWC,WIS,NIS,MSG?)) = (true) by (sender(NML) ~p NI) = (true) and  (sender(NML) ~p NI) = (false) .)
-(split ({ C }) | (p(< WI | loading(B), rendered(U'), URL(U), A > NWC,WIS,NIS,MSG?)) = (true) by (U' blank-or-equal U) = (true) and (U' blank-or-equal U) = (false) .)
-(split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(NML), A > < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC, pi(WI,L),wp WIS,pi(NI,L,L),np NIS,MSG?)) = (true)
-  by
-    (B and currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,B,L,WTK,NIS) and fetchMsg2?(WI,NI,L,tail(NML))
-        and allEqLabel?(L,OL ; IL) and L ~l MO and L ~l MI and retMsg?(WI,NI,L,NTK @ tail(NML))) = (true)
-  and
-     (B and currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,B,L,WTK,NIS) and fetchMsg2?(WI,NI,L,tail(NML))
-        and allEqLabel?(L,OL ; IL) and L ~l MO and L ~l MI and retMsg?(WI,NI,L,NTK @ tail(NML))) = (false)
-.)
-(split ({ < WI | loading(B), URL(U), A > C }) by (U) = (about-blank) and (U) = (NBL:NonBlankLabel) .)
-(split ({ < WI | fromKernel(F), A > C }) by (F) = (NML) and (F) = (mt) .)
+--- (focus ({ < WI | A > < WI' | A' > C }) | true .)
+--- EXTRA code for dealing with two web procs
+--- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
+--- (split ({ < WI | loading(B), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+--- MATCHES code above
+--- (split ({ C }) | (p(< WI | loading(B), A > NWC,WIS,NIS,MSG?)) = (true) by (webproc-req-attrs((loading(B), A))) = (true) and (webproc-req-attrs((loading(B), A))) = (false) .)
+--- (split ({ < WI | loading(B), A > < kernel | weblabels(pi(WI,L),wp WIS), netlabels(NIS), A' > C }) by (np-by-inlbl?(L,NIS)) = (true) and (np-by-inlbl?(L,NIS)) = (false) .)
+--- ADDED to avoid stack overflows
+--- (focus ({ C }) | (np-by-inlbl?(L,NIS)) = (false) .)
+--- ---@ (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
+--- ---@ (split ({ < kernel | netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
+--- ---@ (split ({ < NI | returnTo(PP1), A > < WI | loading(B), A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
+--- (split ({ < WI | loading(B), rendered(U'), URL(U), A > C }) by (U ~l U') = (true) and (U ~l U') = (false) .)
+--- ---@ (split ({ C }) | (p(< WI | fromKernel(NML), A > < NI | A' > NWC,WIS,NIS,MSG?)) = (true) by (sender(NML) ~p NI) = (true) and  (sender(NML) ~p NI) = (false) .)
+--- (split ({ C }) | (p(< WI | loading(B), rendered(U'), URL(U), A > NWC,WIS,NIS,MSG?)) = (true) by (U' blank-or-equal U) = (true) and (U' blank-or-equal U) = (false) .)
+--- ---@ (split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(NML), A > < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC, pi(WI,L),wp WIS,pi(NI,L,L),np NIS,MSG?)) = (true)
+--- ---@   by
+--- ---@     (B and currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,B,L,WTK,NIS) and fetchMsg2?(WI,NI,L,tail(NML))
+--- ---@         and allEqLabel?(L,OL ; IL) and L ~l MO and L ~l MI and retMsg?(WI,NI,L,NTK @ tail(NML))) = (true)
+--- ---@   and
+--- ---@      (B and currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,B,L,WTK,NIS) and fetchMsg2?(WI,NI,L,tail(NML))
+--- ---@         and allEqLabel?(L,OL ; IL) and L ~l MO and L ~l MI and retMsg?(WI,NI,L,NTK @ tail(NML))) = (false)
+--- ---@ .)
+--- (split ({ < WI | loading(B), URL(U), A > C }) by (U) = (about-blank) and (U) = (NBL:NonBlankLabel) .)
+--- (split ({ < WI | fromKernel(F), A > C }) by (F) = (NML) and (F) = (mt) .)
 --- (auto .)
 
 --- request-from-webapp
