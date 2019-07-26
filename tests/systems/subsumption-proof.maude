@@ -2,9 +2,14 @@ set include BOOL off .
 load ibos-preds.maude
 load ../../rltool-lib.maude
 
+--- STRATEGY:
+--- Instead of doing a subsumption proof, do a non-intersection proof,
+--- which agrees with what Ralf originally did
+--- and should be much easier to complete
 
 mod SUBSUMPTION-PROOF is
-  pr RLTOOL .
+  pr REMOVE-IDS .
+  pr RLTOOL * (op _|_ : FOForm?Set FOForm?Set -> FOForm?Set to _|_ [format (d n n d)] ).
 
   op ibos : -> Module .
   eq ibos = upModule('IBOS-PREDS,true) .
@@ -57,7 +62,7 @@ mod SUBSUMPTION-PROOF is
                               ]]
                             ]],
                       'NWC:NetWebProcConfig
-                    ] | 
+                    ] |
                     'p['NWC:NetWebProcConfig,'WIS:WebProcInfoSet,'NIS:NetProcInfoSet,'MSG?:Message?] ?= 'true.Bool
                  /\ 'nwp-reqattrs?['NWC:NetWebProcConfig] ?= 'true.Bool
                  /\ 'weblabels-dupl?['WIS:WebProcInfoSet] ?= 'false.Bool
@@ -95,7 +100,7 @@ mod SUBSUMPTION-PROOF is
                                ]
                          ],
                    'C:Configuration
-                 ] | 'L1:Label ?= 'L2:Label /\ 'L1':Label ?= 'L2':Label ) .
+                 ] | 'L1:Label != 'L2:Label \/ 'L1':Label != 'L2':Label ) .
 
   --- < N      | in(L1, LL),                   A  >
   --- < kernel | netlabels(pi(N, L, L2), NIS), A' >
@@ -113,7 +118,7 @@ mod SUBSUMPTION-PROOF is
                                ]
                          ],
                    'C:Configuration
-                 ] | 'L1:Label ?= 'L2:Label ) .
+                 ] | 'L1:Label != 'L2:Label ) .
 
   --- < N      | out(L1),                       A  >
   --- < kernel | netlabels(pi(N, L, L2), NIS), A' >
@@ -131,7 +136,7 @@ mod SUBSUMPTION-PROOF is
                                ]
                          ],
                    'C:Configuration
-                 ] | 'L1:Label ?= 'L2:Label ) .
+                 ] | 'L1:Label != 'L2:Label ) .
 
   --- < W      | loading(true), fromKernel(msg(N, W, MSG-RETURN-URL, L2), ML), A  >
   --- < kernel | weblabels(pi(W, L), WIS), netlabels(pi(N, L, L1), NIS),       A' >
@@ -155,7 +160,7 @@ mod SUBSUMPTION-PROOF is
                                ]
                          ],
                    'C:Configuration
-                 ] | 'L1:Label ?= 'L2:Label ) .
+                 ] | 'L1:Label != 'L2:Label ) .
 endm
 
 red wellFormed(ibos,new-sop) .
@@ -163,5 +168,88 @@ red wellFormed(ibos,sop1) .
 red wellFormed(ibos,sop2) .
 red wellFormed(ibos,sop3) .
 red wellFormed(ibos,sop4) .
+
+--- red getForm(#disjIntersect(removeIds(ibos,all),new-sop,sop1)) .
+red renameAllVar(ibos,notFound,
+'false.Bool ?= 'netlabels-dupl?['_`,np_['#18:NetProcInfoSet,'pi['#10:ConcNetProcId,'#11:Label,'#12:Label]]]
+/\ 'false.Bool ?= 'weblabels-dupl?['_`,wp_['#19:WebProcInfoSet,'pi['#13:ConcWebProcId,'#14:Label]]]
+/\ 'true.Bool ?= '_~l_['weblabel-by-pid['#1:ConcWebProcId,'_`,wp_['#19:WebProcInfoSet,'pi['#13:ConcWebProcId,'#14:Label]]],'#3:Label]
+/\ 'true.Bool ?= 'conf-dupl?['__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]]]
+/\ 'true.Bool ?= 'currHandled2?['#4:Message?,'_`,wp_['#19:WebProcInfoSet,'pi['#13:ConcWebProcId,'#14:Label]]]
+/\ 'true.Bool ?= 'display-topbar-consistent?['#1:ConcWebProcId,'#2:Label,'#3:Label,'__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]]]
+/\ 'true.Bool ?= 'fresh-netlabel?['webapp['#5:Nat],'_`,np_['#18:NetProcInfoSet,'pi['#10:ConcNetProcId,'#11:Label,'#12:Label]]]
+/\ 'true.Bool ?= 'fresh-np-id?['webapp['#5:Nat],'__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]]]
+/\ 'true.Bool ?= 'fresh-weblabel?['webapp['#9:Nat],'_`,wp_['#19:WebProcInfoSet,'pi['#13:ConcWebProcId,'#14:Label]]]
+/\ 'true.Bool ?= 'fresh-wp-id?['webapp['#9:Nat],'__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]]]
+/\ 'true.Bool ?= 'nwp-reqattrs?['__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]]]
+/\ 'true.Bool ?= 'p['__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]],'_`,wp_['#19:WebProcInfoSet,'pi['#13:ConcWebProcId,'#14:Label]],'_`,np_['#18:NetProcInfoSet,'pi['#10:ConcNetProcId,'#11:Label,'#12:Label]],'#4:Message?]
+/\ 'true.Bool ?= 'render-consistent?['__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]]]
+/\ 'true.Bool ?= 'ui-consistent?['#8:MessageList,'_`,wp_['#19:WebProcInfoSet,'pi['#13:ConcWebProcId,'#14:Label]]]
+/\ '#11:Label != '#14:Label \/ '#12:Label != '#15:Label) .
+---
+red renameAllVar(ibos,notFound,
+'false.Bool ?= 'netlabels-dupl?['_`,np_['#38:NetProcInfoSet,'pi['#31:ConcNetProcId,'#32:Label,'#33:Label]]]
+/\ 'false.Bool ?= 'weblabels-dupl?['_`,wp_['#39:WebProcInfoSet,'pi['#34:ConcWebProcId,'#35:Label]]]
+/\ 'true.Bool ?= '_~l_['weblabel-by-pid['#22:ConcWebProcId,'_`,wp_['#39:WebProcInfoSet,'pi['#34:ConcWebProcId,'#35:Label]]],'#24:Label]
+/\ 'true.Bool ?= 'conf-dupl?['<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]]]
+/\ 'true.Bool ?= 'currHandled2?['#25:Message?,'_`,wp_['#39:WebProcInfoSet,'pi['#34:ConcWebProcId,'#35:Label]]]
+/\ 'true.Bool ?= 'display-topbar-consistent?['#22:ConcWebProcId,'#23:Label,'#24:Label,'<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]]]
+/\ 'true.Bool ?= 'fresh-netlabel?['webapp['#26:Nat],'_`,np_['#38:NetProcInfoSet,'pi['#31:ConcNetProcId,'#32:Label,'#33:Label]]]
+/\ 'true.Bool ?= 'fresh-np-id?['webapp['#26:Nat],'<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]]]
+/\ 'true.Bool ?= 'fresh-weblabel?['webapp['#30:Nat],'_`,wp_['#39:WebProcInfoSet,'pi['#34:ConcWebProcId,'#35:Label]]]
+/\ 'true.Bool ?= 'fresh-wp-id?['webapp['#30:Nat],'<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]]]
+/\ 'true.Bool ?= 'nwp-reqattrs?['<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]]]
+/\ 'true.Bool ?= 'p['<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]],'_`,wp_['#39:WebProcInfoSet,'pi['#34:ConcWebProcId,'#35:Label]],'_`,np_['#38:NetProcInfoSet,'pi['#31:ConcNetProcId,'#32:Label,'#33:Label]],'#25:Message?]
+/\ 'true.Bool ?= 'render-consistent?['<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]]]
+/\ 'true.Bool ?= 'ui-consistent?['#29:MessageList,'_`,wp_['#39:WebProcInfoSet,'pi['#34:ConcWebProcId,'#35:Label]]]
+/\ '#32:Label != '#35:Label \/ '#33:Label != '#36:Label
+) .
+---(
+'false.Bool ?= 'netlabels-dupl?['_`,np_['&0:NetProcInfoSet,'pi['&1:ConcNetProcId,'&2:Label,'&3:Label]]]
+'false.Bool ?= 'weblabels-dupl?['_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
+'true.Bool ?= '_~l_['weblabel-by-pid['&7:ConcWebProcId,'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]],'&8:Label]
+'true.Bool ?= 'conf-dupl?['__['&9:NetWebProcConfig,'<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]]]
+'true.Bool ?= 'currHandled2?['&13:Message?,'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
+'true.Bool ?= 'display-topbar-consistent?['&7:ConcWebProcId,'&14:Label,'&8:Label,'__['&9:NetWebProcConfig,'<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]]]
+'true.Bool ?= 'fresh-netlabel?['webapp['&15:Nat],'_`,np_['&0:NetProcInfoSet,'pi['&1:ConcNetProcId,'&2:Label,'&3:Label]]]
+'true.Bool ?= 'fresh-np-id?['webapp['&15:Nat],'__['&9:NetWebProcConfig,'<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]]]
+'true.Bool ?= 'fresh-weblabel?['webapp['&16:Nat],'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
+'true.Bool ?= 'fresh-wp-id?['webapp['&16:Nat],'__['&9:NetWebProcConfig,'<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]]]
+'true.Bool ?= 'nwp-reqattrs?['__['&9:NetWebProcConfig,'<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]]]
+'true.Bool ?= 'render-consistent?['__['&9:NetWebProcConfig,'<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]]]
+'true.Bool ?= 'ui-consistent?['&17:MessageList,'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
+
+'true.Bool ?=
+  'p['__['&9:NetWebProcConfig,
+    '<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]],
+    '_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]],
+    '_`,np_['&0:NetProcInfoSet,'pi['&1:ConcNetProcId,'&2:Label,'&3:Label]],'&13:Message?]
+'&11:Label != '&3:Label \/ '&2:Label != '&6:Label
+---
+---
+'false.Bool ?= 'netlabels-dupl?['_`,np_['&0:NetProcInfoSet,'pi['&1:ConcNetProcId,'&2:Label,'&3:Label]]]
+'false.Bool ?= 'weblabels-dupl?['_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
+'true.Bool ?= '_~l_['weblabel-by-pid['&7:ConcWebProcId,'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]],'&8:Label]
+'true.Bool ?= 'conf-dupl?['<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]]]
+'true.Bool ?= 'currHandled2?['&12:Message?,'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
+'true.Bool ?= 'display-topbar-consistent?['&7:ConcWebProcId,'&13:Label,'&8:Label,'<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]]]
+'true.Bool ?= 'fresh-netlabel?['webapp['&14:Nat],'_`,np_['&0:NetProcInfoSet,'pi['&1:ConcNetProcId,'&2:Label,'&3:Label]]]
+'true.Bool ?= 'fresh-np-id?['webapp['&14:Nat],'<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]]]
+'true.Bool ?= 'fresh-weblabel?['webapp['&15:Nat],'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
+'true.Bool ?= 'fresh-wp-id?['webapp['&15:Nat],'<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]]]
+'true.Bool ?= 'nwp-reqattrs?['<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]]]
+'true.Bool ?= 'render-consistent?['<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]]]
+'true.Bool ?= 'ui-consistent?['&16:MessageList,'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
+
+'true.Bool ?= 'p[
+  '<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]],
+  '_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]],'_`,np_['&0:NetProcInfoSet,'pi['&1:ConcNetProcId,'&2:Label,'&3:Label]],'&12:Message?]
+'&10:Label != '&3:Label \/ '&2:Label != '&6:Label
+---)
+
+
+--- red #disjIntersect(ibos,new-sop,sop2) .
+--- red #disjIntersect(ibos,new-sop,sop3) .
+--- red #disjIntersect(ibos,new-sop,sop4) .
 
 quit
