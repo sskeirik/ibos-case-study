@@ -472,7 +472,7 @@ fmod PATTERN-OPS is
 
   var U : Module . var MS : [ModuleSubstPair] . var S S' : Substitution .
   var VS : VariableSet . var B : Bool .
-  var C C' C'' : QFCTerm . var CS CS' CS1 CS2 : QFCTermSet .
+  var C C' C'' C1 C2 : QFCTerm . var CS CS' CS1 CS2 : QFCTermSet .
   var N N' : Nat . var T T' : Term . var F F' : QFForm? .
 
   ******************************************************************************
@@ -542,6 +542,13 @@ fmod PATTERN-OPS is
   op #intersect : Module QFCTerm QFCTermSet -> FOFormSubstPairSet .
   eq #intersect(U,C,C' | C'' | CS) = #intersect(U,C,C') | #intersect(U,C,C'' | CS) .
   eq #intersect(U,(T | F),(T' | F')) = (F /\ F') Pair<< safeUnify(U,T,T') .
+
+  op #disjIntersect : Module QFCTerm QFCTerm -> FOFormSubstPairSet .
+ ceq #disjIntersect(U,C,C') = #intersect(U,C1,C2)
+  if (S, T ,N ) := #renameAllVar(U,none,  upTerm(C ))
+  /\ (S',T',N') := #renameAllVar(U,none,N,upTerm(C'))
+  /\ C1         := downTerm(T ,noterm)
+  /\ C2         := downTerm(T',noterm) .
 endfm
 
 fmod CONSTRAINED-TERM-INVARIANT is
