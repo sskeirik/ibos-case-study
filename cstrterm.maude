@@ -541,7 +541,7 @@ fmod PATTERN-OPS is
   ---      instantiated Formulas of each QFCTerm in the QFCTermSet
   op #intersect : Module QFCTerm QFCTermSet -> FOFormSubstPairSet .
   eq #intersect(U,C,C' | C'' | CS) = #intersect(U,C,C') | #intersect(U,C,C'' | CS) .
-  eq #intersect(U,(T | F),(T' | F')) = F' Pair<< safeUnify(U,T,T') .
+  eq #intersect(U,(T | F),(T' | F')) = (F /\ F') Pair<< safeUnify(U,T,T') .
 endfm
 
 fmod CONSTRAINED-TERM-INVARIANT is
