@@ -603,7 +603,7 @@ fmod FOFORM-OPERATIONS is
   op flip : FOForm? -> FOForm? .
   eq flip(mtForm) = mtForm .
   eq flip(F1 /\ F2) = flip(F1) \/ flip(F2) .
-  eq flip(F1 \/ F2) = flip(F1) /\ flip(F1) .
+  eq flip(F1 \/ F2) = flip(F1) /\ flip(F2) .
   eq flip(~ F1)     = flip(flip(F1)) .
   eq flip(A[QS] F1) = E[QS] flip(F1) .
   eq flip(E[QS] F1) = A[QS] flip(F1) .
