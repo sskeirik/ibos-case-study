@@ -1060,11 +1060,11 @@ fmod IBOS-SOP-PRED is
   --- Throw out all cases where configuration process groups/metadata inconsistent
  ceq p(< WI |                     A > NWC,WIS,NIS,M?) = false if weblabel-by-pid(WI,WIS)       = nolabel .
  ceq p(< WI | URL(L),             A > NWC,WIS,NIS,M?) = false if in-wis?(pi(WI,L),WIS)         = false   .
- ceq p(< WI | URL(L),             A > NWC,WIS,NIS,M?) = false if (not np-by-inlbl?(L,NIS)) and (lbl-in-non-origin?(L,< WI | URL(L), A > NWC) or lbl-in-msg?(L,M?)) = true .
+ --- ceq p(< WI | URL(L),             A > NWC,WIS,NIS,M?) = false if (not np-by-inlbl?(L,NIS)) and (lbl-in-non-origin?(L,< WI | URL(L), A > NWC) or lbl-in-msg?(L,M?)) = true .
  ceq p(< WI | loading(B), URL(L), A > NWC,WIS,NIS,M?) = false if np-by-inlbl?(L,NIS) and not B = true    .
  ceq p(< NI |                     A > NWC,WIS,NIS,M?) = false if netlabelpair-by-pid(NI,NIS)   = nopair  .
- ceq p(< NI | returnTo(WI),       A > NWC,WIS,NIS,M?) = false if weblabel-by-pid(WI,WIS)       = nolabel .
- ceq p(< NI | returnTo(WI),       A > NWC,WIS,NIS,M?) = false if in-conf?(WI,NWC)              = false   .
+ ceq p(< NI | returnTo(CPI),      A > NWC,WIS,NIS,M?) = false if weblabel-by-pid(CPI,WIS)      = nolabel .
+ ceq p(< NI | returnTo(CPI),      A > NWC,WIS,NIS,M?) = false if in-conf?(CPI,NWC)             = false   .
 
  ceq p(< WI | URL(L),             A > NWC,pi(WI ,L'),wp WIS,NIS,M?) = false if L  ~l L'  = false .
  ceq p(< WI | URL(L),             A > NWC,pi(WI',L ),wp WIS,NIS,M?) = false if WI ~p WI' = false .
