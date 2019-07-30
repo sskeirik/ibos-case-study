@@ -152,6 +152,23 @@ fmod PARSE-FORM is
 ceq checkType(M,TY:Type,T) = T if sortLeq(M,leastSort(M,T),TY:Type) .
 endfm
 
+--- TODO: restructure command processing into four phases
+--- Phase 1 (no change required) : resolve original QID-LIST into term with bubbles
+--- Phase 2                      : resolve term with bubbles into command structure with arguments
+--- Phase 3                      : resolve any abstract goal identifiers into concrete goal identifiers
+--- Phase 4                      : apply command with concrete goal identifiers
+--- TODO: as part of above restructuring process, generalize all goal commands to accept a goal identifier argument
+---       and change the parsing function to parse these generalized goal identifiers
+--- NOTE: Types of Goal Identifiers:
+--- [1] a set of numbers
+--- [2] a term
+--- [3] a constrained term
+--- [4] a term goal identifier restricted by a list of terms/constrained terms
+--- Goal identifier semantics:
+--- [1] the goals identified by given numbers
+--- [2] the set of goals whose body term is matched by the term
+--- [3] the set of goals whose body is matched by the constrained term with an extension variable on the constraint
+--- [4] the set of goals matched by the term goal identifier and NOT matched by any term/constrained term in the list
 fmod META-RLTL-COMMAND is
    pr SET{Nat} .
    pr GOAL-IDENTIFIER .
