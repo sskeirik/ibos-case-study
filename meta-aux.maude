@@ -3237,6 +3237,14 @@ fmod UNIFIERS is
   var NTS  : NeTermSet .
   var SharedVars : VariableSet .
 
+  --- PRE: Module well-defined; terms are well-defined in module
+  --- OUT: The desired match number
+  op metaMatch : Module Term Term Nat -> Substitution? .
+  eq metaMatch(M,T,T',I) = metaMatch(M,T,T',nil,I) .
+
+  op metaMatch : Module Term Term -> Substitution? .
+  eq metaMatch(M,T,T') = metaMatch(M,T,T',nil,0) .
+
   --- INP: Module UnificationProblem
   --- PRE: Unification problem is well-formed in Module
   --- OUT: A complete set of unifiers
@@ -3276,6 +3284,12 @@ fmod UNIFIERS is
  ceq safeMatch(M,SharedVars,T,T') = matches(M,T,T') if intersection(vars(T),vars(T')) \ SharedVars == none .
   eq safeMatch(M,SharedVars,T,T') = errsub('Match 'unexpected 'shared 'variable) [owise print "Safe Match Variable Error"] .
   eq safeMatch(M,T,T')            = safeMatch(M,none,T,T') .
+
+  op safeMatch : Module Term Term Nat -> Substitution? .
+  op safeMatch : Module VariableSet Term Term Nat -> Substitution? .
+ ceq safeMatch(M,SharedVars,T,T',I) = metaMatch(M,T,T',I) if intersection(vars(T),vars(T')) \ SharedVars == none .
+  eq safeMatch(M,SharedVars,T,T',I) = errsub('Match 'unexpected 'shared 'variable) [owise print "Safe Match Variable Error"] .
+  eq safeMatch(M,T,T',I)            = safeMatch(M,none,T,T',I) .
 
   --- PRE: [1] Terms are well-defined in module
   ---      [2] Terms have no shared variables except for shared variables
