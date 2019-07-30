@@ -220,6 +220,7 @@ fmod META-RLTL-COMMAND is
    op auto`.                 : -> MetaRLTLCommand [ctor] .
    op try-finish_.           : NeSet{Nat} -> MetaRLTLCommand [ctor] .
    op try-finish_.           : @QFCTerm@ -> MetaRLTLCommand [ctor] .
+   op try-finish_/_.         : @QFCTerm@ @QFCTerm@ -> MetaRLTLCommand [ctor] .
    op case_on_by_.           : Nat @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
    op cases_on_by_.          : @Term@ @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
    op cases+_on_by_.         : @QFCTerm@ @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
@@ -267,6 +268,7 @@ fmod RLTL-COMMAND is
    op auto              : Bound -> RLTLCommand [ctor] .
    op try-finish        : NeSet{Nat} -> RLTLCommand [ctor] .
    op try-finish        : QFCTerm -> RLTLCommand [ctor] .
+   op try-finish        : QFCTerm QFCTerm -> RLTLCommand [ctor] .
    op case              : Nat Variable TermSet -> RLTLCommand  [ctor] .
    op cases             : QFCTerm Variable TermSet -> RLTLCommand [ctor] .
    op split             : Nat Bool EqQFForm? QFForm? -> RLTLCommand [ctor] .
@@ -318,6 +320,7 @@ fmod PARSE-RLTLCOMMAND is
    eq rltl-parse((M,S),'auto*`..MetaRLTLCommand)       = auto(unbounded) .
   ceq rltl-parse((M,S),'try-finish_.[T1])              = try-finish(downNeNatSet(T1)) if downNeNatSet(T1) :: NeSet{Nat} .
   ceq rltl-parse((M,S),'try-finish_.[T1])              = try-finish(parse-qfcterm((M,S),true,T1)) if parse-qfcterm((M,S),true,T1) :: QFCTerm .
+   eq rltl-parse((M,S),'try-finish_/_.[T1,T2])         = try-finish(parse-qfcterm((M,S),true,T1),parse-qfcterm((M,S),true,T2)) .
 
    --- run in ON mode
    eq rltl-parse((M,S),'case_on_by_.[T1,T2,T3])          = case(downNat(T1),parse-token(T2),parse-termset((M,S),true,T3)) .
@@ -589,7 +592,7 @@ mod RLTL-PROC-CMD is
   var T T' : Term . var TS : TermSet . var TL : TermList .
   var ID Q Q' : Qid . var QS : QidSet . var L L' : QidList . var V  : Variable . var VS : VariableSet . var QK : [Qid] .
   var U : Module . var US : ModuleList .
-  var QF QF' QF1 QF2 : QFForm? . var QFT : QFCTerm . var MF MF' : QFCTermSet .
+  var QF QF' QF1 QF2 : QFForm? . var QFT QFT2 : QFCTerm . var MF MF' : QFCTermSet .
   var F : ReachForm .
   var LX : LabelReachFormEx . var LF LF' : LabelReachForm . var LS : LabelReachFormList . var LK : [LabelReachFormEx] .
   var G : ProofGoal . var GS : ProofGoalSet . var GK : [ProofGoalSet] . var R : ProofMetadata .
@@ -692,6 +695,10 @@ mod RLTL-PROC-CMD is
   eq proc(try-finish(QFT), R) = if goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R))) :: NeProofGoalSet
                                   then atomic-run(true,R,goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R)))) & (write('\n 'Finished 'given 'goals '`( 'count: printPar(size(goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R))))) '`) '\n) ; write-if-done)
                                   else write('Focus 'term 'failed 'to 'match 'any 'goals)
+                                fi .
+  eq proc(try-finish(QFT,QFT2), R) = if !goalsByMatch(get-mod(R),QFT2,goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R)))) :: NeProofGoalSet
+                                  then atomic-run(true,R,!goalsByMatch(get-mod(R),QFT2,goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R))))) & (write('\n 'Finished 'given 'goals '`( 'count: printPar(size(goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R))))) '`) '\n) ; write-if-done)
+                                  else write('Focus 'terms 'failed 'to 'match 'any 'goals)
                                 fi .
   eq proc(focus(NS),       R) = if getgl!(get-prf(R),NS) :: ProofGoalSet
                                  then prf(getgl!(get-prf(R),NS)) & write('Successfully 'focused 'on 'target 'goal/goals '`( 'count: printPar(| NS |) '`))
