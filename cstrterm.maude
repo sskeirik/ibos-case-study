@@ -418,10 +418,12 @@ fmod CONSTRAINED-TERMSET-MATCH is
   var F G : QFForm? . var O S : Qid .
   var V : Variable .
   var SUB : Substitution .
+  var Safe? : Bool . var N : Nat .
 
   op subsumeByMatch : Module QFCTermSet QFCTermSet -> Bool .
   eq subsumeByMatch(U,CS,CS') = matches#(U,CS',CS) =/= empty .
 
+  --- Return all matches for sets of constrained terms
   op matches : Module QFCTermSet QFCTermSet -> FOFormSubstPairSet .
   eq matches(U,CS,CS') = idem(tt Pair<< matches#(U,CS,CS')) .
 
@@ -435,6 +437,7 @@ fmod CONSTRAINED-TERMSET-MATCH is
     remove(safeMatch(cterm-func(U),cterm-func-ext(U,'X,C'),cterm-func(U,C)),form-variable(S) <- tt-literal(O)) |
     matches#(U,O,S,CS,C) .
 
+  --- Return all matches for two formulas
   op matches : Module QFForm? QFForm? -> FOFormSubstPairSet .
   eq matches(U,F,G) = idem(tt Pair<< matches#(U,F,G)) .
 
@@ -444,6 +447,22 @@ fmod CONSTRAINED-TERMSET-MATCH is
   op matches# : Module Qid Qid QFForm? QFForm? -> SubstitutionSet .
   eq matches#(U,O,S,F,G) =
     remove(safeMatch(cterm-func(U),'/\[eqform-func(U,F),form-variable(S)],eqform-func(U,G)),form-variable(S) <- tt-literal(O)) .
+
+  --- Return given match number for two constrained terms (with optionally safe match)
+  op match# : Module Bool QFCTerm QFCTerm Nat -> Substitution? .
+  op match# : Module Bool Qid Qid QFCTerm QFCTerm Nat -> Substitution? .
+  ----------------------------------------------------------------------
+  eq match#(U,Safe?,C,C',N) = match#(U,Safe?,qid(opPrefix(U)),qid(sortPrefix(U)),C,C',N) .
+  eq match#(U,true, O,S,C,C',N) = remove(safeMatch(cterm-func(U),cterm-func-ext(U,'X,C),cterm-func(U,C'),N),form-variable(S) <- tt-literal(O)) .
+  eq match#(U,false,O,S,C,C',N) = remove(metaMatch(cterm-func(U),cterm-func-ext(U,'X,C),cterm-func(U,C'),N),form-variable(S) <- tt-literal(O)) .
+
+  --- Return given match number for two formulas (with optionally safe match)
+  op match# : Module Bool QFForm? QFForm? Nat -> Substitution? .
+  op match# : Module Bool Qid Qid QFForm? QFForm? Nat -> Substitution? .
+  ----------------------------------------------------------------------
+  eq match#(U,Safe?,F,G,N) = match#(U,Safe?,qid(opPrefix(U)),qid(sortPrefix(U)),F,G,N) .
+  eq match#(U,true, O,S,F,G,N) = remove(safeMatch(cterm-func(U),'/\[eqform-func(U,F),form-variable(S)],eqform-func(U,G),N),form-variable(S) <- tt-literal(O)) .
+  eq match#(U,false,O,S,F,G,N) = remove(metaMatch(cterm-func(U),'/\[eqform-func(U,F),form-variable(S)],eqform-func(U,G),N),form-variable(S) <- tt-literal(O)) .
 
   op getFormValue : Module Substitution -> FOFormSubstPair .
   eq getFormValue(U,SUB) = getFormValue(U,form-variable(qid(sortPrefix(U))),SUB) .
