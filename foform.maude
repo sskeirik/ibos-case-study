@@ -585,9 +585,9 @@ fmod FOFORM-OPERATIONS is
   eq  falseId (mtForm) = ff .
   eq  falseId (F1)     = F1 [owise] .
   eq  true2mt (tt)     = mtForm .
-  eq  true2mt (F1)     = F1 [owise] .
+  eq  true2mt (F?)     = F? [owise] .
   eq  false2mt(ff)     = mtForm .
-  eq  false2mt(F1)     = F1 [owise] .
+  eq  false2mt(F?)     = F? [owise] .
 
   --- OUT: flip atom polarities
   op flip : Atom -> Atom .
