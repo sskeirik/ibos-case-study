@@ -66,9 +66,9 @@ loop rltl-init .
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U (MSG:Message) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (NML:NeMessageList) U
 	      (DISP:Label) U (NICIN:LabelList) U (NICOUT:LabelSet) U (NI:ConcNetProcId) U (NI?:NetProcId) U
-	      (F:MessageList) U (T:MessageList) U (D:Label) U (U:Label) U (U':Label) U (U2:Label) U (IN:Label) U (IN2:Label) U (OUT:Label) U (OUT2:Label) U
+	      (F:MessageList) U (T:MessageList) U (D:Label) U (U:Label) U (U':Label) U (U2:Label) U (IN:Label) U (IN2:Label) U (IN3:Label) U (OUT:Label) U (OUT2:Label) U
 	      (A:AttributeSet) U (A':AttributeSet) U (A'':AttributeSet) U (MT:MsgType) U (LL:LabelList) U (RNDR:Label) U
-	      (NWI:ConcNetWebProcId) U (WI:ConcWebProcId) U (WI':ConcWebProcId) U (PP1:ConcPipeId) U (GPPI:PipeId) U
+	      (NWI:ConcNetWebProcId) U (WI:ConcWebProcId) U (WI':ConcWebProcId) U (WI'':ConcWebProcId) U (PP1:ConcPipeId) U (GPPI:PipeId) U
 
 	      (L:Label) U (MI:MaybeLabel) U (MO:MaybeLabel) U (OL:LabelList) U (IL:LabelList) U (WTK:MessageList) U (WFK:MessageList) U (NTK:MessageList) U (NFK:MessageList)
 	      .)
