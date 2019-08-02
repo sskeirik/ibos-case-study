@@ -3103,7 +3103,8 @@ fmod RENAME-TERM is
   pr SUBSTITUTION-AUX .
 
   var N : Nat . var V V' : Variable  . var TL : TermList    . var C : Constant . var S : VarSubstitution .
-  var Q : Qid . var L L' : GTermList . var CL : NeCTermList . var T : GTerm    .
+  var Q : Qid . var L L' : GTermList . var CL : NeCTermList . var T T' : GTerm .
+  var TQ TQ' : TermQid . var TQS : TermQidSet . var STR : String .
 
   sort NameData .
   op [_,_] : Nat VarSubstitution -> NameData [ctor] .
@@ -3152,14 +3153,47 @@ fmod RENAME-TERM is
   eq rvRenameVar([N,S],noqid,V) = [[s(N),S ; V <- rvVar(N,V)],rvVar(N,V)] .
 
   op rvGetTerm : RenamedGTermList ~> GTermList .
+  op rvGetSub  : RenamedGTermList ~> Substitution .
   op rvVar     : Nat Variable     -> Variable  .
   ----------------------------------------------
   eq rvGetTerm([[N,S],L:[Term]]) = L:[Term] .
+  eq rvGetSub ([[N,S],L:[Term]]) = S .
   eq rvVar(N,V) =
     qid("&"          +
         string(N,10) +
         ":"          +
         substr(string(V), rfind(string(V), ":", length(string(V))) + 1, length(string(V)))) .
+
+  op freshifyVars : Nat TermQidSet -> Substitution .
+  --------------------------------------------------
+  eq freshifyVars(N,TQS) = rvGetSub(#renameVars([s(N),none],TermList(TQS))) .
+
+  op maxVar : TermQid -> Nat .
+  op maxVar : GTermList -> Nat .
+  op maxVar : TermQidSet -> Nat .
+  -------------------------------
+  eq maxVar(C) = 0 .
+  eq maxVar(V) = parseIndex(string(getName(V))) .
+
+  eq maxVar(Q[TL]) = maxVar(TL) .
+  eq maxVar(Q[CL]) = maxVar(CL) .
+  eq maxVar((T,T',L)) = max(maxVar(T),maxVar((T',L))) .
+  eq maxVar(empty) = 0 .
+
+  eq maxVar(TQ ; TQ' ; TQS) = max(maxVar(TQ),maxVar(TQ' ; TQS)) .
+  eq maxVar(none) = 0 .
+
+  op parseIndex : String ~> Nat .
+  op parseIndex : FindResult String ~> Nat .
+  op parseIndex : Nat ~> Nat .
+  ----------------------------
+  eq parseIndex(STR) = parseIndex(rfind(STR,"&",length(STR)),STR) .
+
+  eq parseIndex(notFound,STR) = 0 .
+  eq parseIndex(N,       STR) = parseIndex(rat(substr(STR,s(N),length(STR)),10)) .
+
+  eq parseIndex(N)       = N .
+  eq parseIndex(N:[Nat]) = 0 [owise] .
 endfm
 
 fmod RENAME-TERM-AUX is
