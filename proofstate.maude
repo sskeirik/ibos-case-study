@@ -173,6 +173,9 @@ fmod REACH-PROOF-GOAL is
   op getpvars : ProofGoal -> QidSet .
   eq getpvars([P,N,CN,PS,VS,F]) = vars(antc(F)) .
 
+  op getallvars : ProofGoal -> QidSet .
+  eq getallvars([P,N,CN,PS,VS,F]) = vars(F) ; VS .
+
   op setvars : ProofGoal VariableSet -> ProofGoal .
   eq setvars([P,N,CN,PS,VS,F],VS') = [P,N,CN,PS,VS',F] .
 
