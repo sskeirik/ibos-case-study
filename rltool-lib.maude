@@ -244,6 +244,7 @@ fmod META-RLTL-COMMAND is
    op show`goals`.           : -> MetaRLTLCommand [ctor] .
    op do`step_.              : Nat -> MetaRLTLCommand [ctor] .
    op get_parents_.          : Bound NeSet{Nat} -> MetaRLTLCommand [ctor] .
+   op deleteInactive`.       : -> MetaRLTLCommand [ctor] .
 endfm
 
 fmod RLTL-COMMAND is
@@ -283,6 +284,7 @@ fmod RLTL-COMMAND is
    op showgoal          : -> RLTLCommand [ctor] .
    op dostep            : Nat -> RLTLCommand [ctor] .
    op getparents        : Bound Set{Nat} -> RLTLCommand [ctor] .
+   op delete            : -> RLTLCommand [ctor] .
 endfm
 
 fmod PARSE-RLTLCOMMAND is
@@ -359,6 +361,7 @@ fmod PARSE-RLTLCOMMAND is
    eq rltl-parse((M,S),'show`goals_.[T1])               = showgoal(downNeNatSet(T1)) .
    eq rltl-parse((M,S),'show`goals`..MetaRLTLCommand)   = showgoal .
    eq rltl-parse((M,S),'get_parents_.[T1,T2])           = getparents(downBound(T1),downNeNatSet(T2)) .
+   eq rltl-parse((M,S),'deleteInactive`..MetaRLTLCommand) = delete .
 endfm
 
 --- Actions are the result of commands
@@ -742,6 +745,7 @@ mod RLTL-PROC-CMD is
 				   fi) .
   eq proc(showgoal(NS),     R) = write('Show 'goals: '\n printGoals(get-mod(R),getgl(get-prf(R),NS))) .
   eq proc(showgoal,         R) = write('Show 'active 'goals: '\n printGoals(get-mod(R),goalsByStatus(active,get-prf(R)))) .
+  eq proc(delete,           R) = prf(!goalsByStatus(inactive,get-prf(R))) & write('Deleted printPar(size(!goalsByStatus(inactive,get-prf(R)))) 'inactive 'goals) .
 endm
 
 mod RLTL-UI is
