@@ -396,17 +396,28 @@ fmod REACH-PROOF-GOALSET is
 
   --- OUT: Get the set of active goals
   op goalsByStatus : ProofGoalStatus ProofGoalSet -> ProofGoalSet .
-  eq goalsByStatus(PS,[P,N,CN,PS',VS,F] && GS) =
-    if PS == PS' then [P,N,CN,active,VS,F] else mt fi && goalsByStatus(PS,GS) .
-  eq goalsByStatus(PS,GS) = mt .
+  op goalsByStatus : ProofGoalStatus ProofGoalSet ProofGoalSet -> ProofGoalSet .
+  ------------------------------------------------------------------------------
+  eq goalsByStatus(PS,GS) = goalsByStatus(PS,GS,mt) .
+  eq goalsByStatus(PS,[P,N,CN,PS',VS,F] && GS,GS') =
+    goalsByStatus(PS,GS,if PS == PS' then [P,N,CN,PS',VS,F] && GS' else GS' fi) .
+  eq goalsByStatus(PS,mt,GS') = GS' .
+
+  op !goalsByStatus : ProofGoalStatus ProofGoalSet -> ProofGoalSet .
+  op !goalsByStatus : ProofGoalStatus ProofGoalSet ProofGoalSet -> ProofGoalSet .
+  -------------------------------------------------------------------------------
+  eq !goalsByStatus(PS,GS) = !goalsByStatus(PS,GS,mt) .
+  eq !goalsByStatus(PS,[P,N,CN,PS',VS,F] && GS,GS') =
+    !goalsByStatus(PS,GS,if PS =/= PS' then [P,N,CN,PS',VS,F] && GS' else GS' fi) .
+  eq !goalsByStatus(PS,mt,GS') = GS' .
 
   op readyGoals : ProofGoalSet -> ProofGoalSet .
-  eq readyGoals([P,N,CN,PS,VS,F] && GS) =
-    if PS == active or PS == paused
-      then [P,N,CN,PS,VS,F]
-      else mt
-    fi && readyGoals(GS) .
-  eq readyGoals(mt) = mt .
+  op readyGoals : ProofGoalSet ProofGoalSet -> ProofGoalSet .
+  -----------------------------------------------------------
+  eq readyGoals(GS) = readyGoals(GS,mt) .
+  eq readyGoals([P,N,CN,PS,VS,F] && GS,GS') =
+    readyGoals(GS,if PS == active or PS == paused then [P,N,CN,PS,VS,F] && GS' else GS' fi) .
+  eq readyGoals(mt,GS') = GS' .
 
   --- OUT: Get an active goal if it exists
   op getActiveGoal : ProofGoalSet ~> ProofGoal .
