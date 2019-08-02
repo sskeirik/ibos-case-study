@@ -3201,10 +3201,14 @@ fmod RENAME-TERM-AUX is
 
   var D : NameData . var T T' : Term . var S S' : TermSet .
   var G : GTerm . var L L' : GTermList . var N : Nat .
+  var SB SB' : Substitution .
 
   sort RenamedTermSet .
   subsort RenamedTerm < RenamedTermSet .
   op [_,_] : NameData TermSet -> RenamedTermSet [ctor] .
+
+  sort RenamedSubstitution .
+  op [_,_] : NameData Substitution -> RenamedSubstitution [ctor] .
 
   op renameVars  : TermSet -> TermSet .
   op renameVars  : NameData TermSet -> TermSet .
@@ -3240,6 +3244,14 @@ fmod RENAME-TERM-AUX is
   eq rvRenameListD(D,(G,L),L') = rvRenameListD(rvRenameTerm(clear(D),G),L,L') .
   eq rvRenameListD(D,empty,L') = [clear(D),L'] .
   eq rvRenameListD([D,G],L,L') = rvRenameListD(D,L,(L',G)) .
+
+  ---(
+  op renameVars : Substitution -> Substitution .
+  op renameVars : NameData Substitution -> Substitution .
+  op #renameVars : NameData Substitution -> Substitution .
+  --------------------------------------------------------
+  --- eq renameVars()
+  ---)
 endfm
 
 fmod UNIFIERS is
