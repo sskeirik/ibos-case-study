@@ -3104,7 +3104,7 @@ fmod RENAME-TERM is
 
   var N : Nat . var V V' : Variable  . var TL : TermList    . var C : Constant . var S : VarSubstitution .
   var Q : Qid . var L L' : GTermList . var CL : NeCTermList . var T T' : GTerm .
-  var TQ TQ' : TermQid . var TQS : TermQidSet . var STR : String .
+  var TQ TQ' : TermQid . var TQS : TermQidSet . var STR : String . var KN : [Nat] .
 
   sort NameData .
   op [_,_] : Nat VarSubstitution -> NameData [ctor] .
@@ -3192,8 +3192,7 @@ fmod RENAME-TERM is
   eq parseIndex(notFound,STR) = 0 .
   eq parseIndex(N,       STR) = parseIndex(rat(substr(STR,s(N),length(STR)),10)) .
 
-  eq parseIndex(N)       = N .
-  eq parseIndex(N:[Nat]) = 0 [owise] .
+  eq parseIndex(KN) = if KN :: Nat then KN else 0 fi .
 endfm
 
 fmod RENAME-TERM-AUX is
