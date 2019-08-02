@@ -501,7 +501,7 @@ mod RLTL-ACTION-IMPL is
 
   --- OUT: true iff the proof is completed
   op proof-completed : ProofMetadata -> Bool .
-  eq proof-completed(PM) = goalsByStatus(active,get-prf(PM)) && goalsByStatus(paused,get-prf(PM)) == mt .
+  eq proof-completed(PM) = readyGoals(get-prf(PM)) == mt .
 
   --- OUT: true iff we need to stop for output
   op pause-for-output : ProofMetadata -> Bool .
