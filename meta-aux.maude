@@ -3818,21 +3818,21 @@ fmod REMOVE-IDS is
 
   eq getRlVariants(IdM, M, ({'@<@_@>@[T], Subst, N, P:Parent,B:Bool} | VtS), T', nil, AtS, RlS)
     = getRlVariants(IdM, M, VtS, T', nil, AtS, RlS
-        (rl getTerm(metaNormalize(M, T)) => getTerm(metaNormalize(M, _<<_(T', Subst))) [AtS] .)
+        (rl getTerm(metaNormalize(M, T)) => getTerm(metaNormalize(M, _<<_(getTerm(metaNormalize(M,T')), Subst))) [AtS] .)
       ) .
   eq getRlVariants(IdM, M, ({F[T, TL], Subst,N,P:Parent,B:Bool} | VtS), T', Cond, AtS, RlS)
     = getRlVariants(IdM, M, VtS, T', Cond, AtS, RlS
-        (crl getTerm(metaNormalize(M, T)) => getTerm(metaNormalize(M, _<<_(T', Subst))) if makeCond(TL, Cond, Subst) [AtS] .)
+        (crl getTerm(metaNormalize(M, T)) => getTerm(metaNormalize(M, _<<_(getTerm(metaNormalize(M,T')), Subst))) if makeCond(TL, Cond, Subst) [AtS] .)
       ) .
   eq getRlVariants(IdM, M, empty, T', Cond, AtS, RlS) = moreGeneralRls(IdM,RlS) .
 
   eq getEqVariants(IdM, M, ({'@<@_@>@[T], Subst, N,P:Parent,B:Bool} | VtS), T', nil, AtS, EqS)
     = getEqVariants(IdM, M, VtS, T', nil, AtS, EqS
-        (eq getTerm(metaNormalize(M, T)) = getTerm(metaNormalize(M, _<<_(T', Subst))) [AtS] .)
+        (eq getTerm(metaNormalize(M, T)) = getTerm(metaNormalize(M, _<<_(getTerm(metaNormalize(M,T')), Subst))) [AtS] .)
       ) .
   eq getEqVariants(IdM, M, ({F[T, TL], Subst, N,P:Parent,B:Bool} | VtS), T', Cond, AtS, EqS)
     = getEqVariants(IdM, M, VtS, T', Cond, AtS, EqS
-        (ceq getTerm(metaNormalize(M, T)) = getTerm(metaNormalize(M, _<<_(T', Subst))) if makeCond(TL, Cond, Subst) [AtS] .)
+        (ceq getTerm(metaNormalize(M, T)) = getTerm(metaNormalize(M, _<<_(getTerm(metaNormalize(M,T')), Subst))) if makeCond(TL, Cond, Subst) [AtS] .)
       ) .
   eq getEqVariants(IdM, M, empty, T', Cond, AtS, EqS) = moreGeneralEqs(IdM,EqS) .
 
