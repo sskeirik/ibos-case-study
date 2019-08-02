@@ -412,18 +412,25 @@ fmod REACH-PROOF-GOALSET is
   op getActiveGoal : ProofGoalSet ~> ProofGoal .
   eq getActiveGoal([P,N,CN,active,VS,F] && GS) = [P,N,CN,active,VS,F] .
 
-  --- OUT: Get a set of goals whose LHS matches the pattern plus the witnessing substitutions
+  --- PRE: Term and VariableSet have no shared variables
+  --- OUT: A set of goals whose LHS matches the pattern plus witnessing substitutions
+  ---      such that witnessing substitutions remap all variables in VariableSet to be
+  ---      fresh with respect to the ProofGoal that they match
   op #goalsByMatch : Module Term ProofGoalSet    ~> ProofGoalSubstPairSet .
   op #goalsByMatch : Module QFCTerm ProofGoalSet ~> ProofGoalSubstPairSet .
-  -------------------------------------------------------------------------
-  eq #goalsByMatch(U,T,      GS) = #goalsByMatchImpl(U,(T | mtForm),    GS,.ProofGoalSubstPairSet) .
-  eq #goalsByMatch(U,(T | C),GS) = #goalsByMatchImpl(U,(T | true2mt(C)),GS,.ProofGoalSubstPairSet) .
+  op #goalsByMatch : Module VariableSet Term ProofGoalSet    ~> ProofGoalSubstPairSet .
+  op #goalsByMatch : Module VariableSet QFCTerm ProofGoalSet ~> ProofGoalSubstPairSet .
+  -------------------------------------------------------------------------------------
+  eq #goalsByMatch(U,   T,      GS) = #goalsByMatch(U,none,T,      GS) .
+  eq #goalsByMatch(U,   (T | C),GS) = #goalsByMatch(U,none,(T | C),GS) .
+ ceq #goalsByMatch(U,VS,T,      GS) = #goalsByMatchImpl(U,VS,(T | mtForm),    GS,.ProofGoalSubstPairSet) if intersection(vars(T),      VS) == none .
+ ceq #goalsByMatch(U,VS,(T | C),GS) = #goalsByMatchImpl(U,VS,(T | true2mt(C)),GS,.ProofGoalSubstPairSet) if intersection(vars((T | C)),VS) == none .
 
-  op #goalsByMatchImpl : Module QFCTerm ProofGoalSet ProofGoalSubstPairSet ~> ProofGoalSubstPairSet .
-  ---------------------------------------------------------------------------------------------------
-  eq #goalsByMatchImpl(U,(T | mtForm),G && GS,GSS) = #goalsByMatchImpl(U,(T | mtForm),GS,if metaMatch(U,T,lhs(getbody(G)),0)            :: Substitution then (G,metaMatch(U,T,lhs(getbody(G)),0))            && GSS else GSS fi) .
-  eq #goalsByMatchImpl(U,(T | C!),    G && GS,GSS) = #goalsByMatchImpl(U,(T | C!),    GS,if match#(U,false,(T | C!),antc(getbody(G)),0) :: Substitution then (G,match#(U,false,(T | C!),antc(getbody(G)),0)) && GSS else GSS fi) .
-  eq #goalsByMatchImpl(U,(T | C),     mt,     GSS) = GSS .
+  op #goalsByMatchImpl : Module VariableSet QFCTerm ProofGoalSet ProofGoalSubstPairSet ~> ProofGoalSubstPairSet .
+  ---------------------------------------------------------------------------------------------------------------
+  eq #goalsByMatchImpl(U,VS,(T | mtForm),G && GS,GSS) = #goalsByMatchImpl(U,VS,(T | mtForm),GS,if metaMatch(U,T,lhs(getbody(G)),0)            :: Substitution then (G,metaMatch(U,T,lhs(getbody(G)),0)            ; freshifyVars(maxVar(getallvars(G)),VS)) && GSS else GSS fi) .
+  eq #goalsByMatchImpl(U,VS,(T | C!),    G && GS,GSS) = #goalsByMatchImpl(U,VS,(T | C!),    GS,if match#(U,false,(T | C!),antc(getbody(G)),0) :: Substitution then (G,match#(U,false,(T | C!),antc(getbody(G)),0) ; freshifyVars(maxVar(getallvars(G)),VS)) && GSS else GSS fi) .
+  eq #goalsByMatchImpl(U,VS,(T | C),     mt,     GSS) = GSS .
 
   --- OUT: Goalset whose LHS does matches OR does NOT match the pattern
   op  goalsByMatch : Module Term ProofGoalSet    ~> ProofGoalSet .
