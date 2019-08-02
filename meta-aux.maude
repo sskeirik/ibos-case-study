@@ -30,6 +30,11 @@ fmod QIDSET-REFINEMENT is
   op pickAny : QidSet -> [Qid] .
   op pickAny : NeQidSet -> Qid .
   eq pickAny(Q:Qid ; QS:QidSet) = Q:Qid .
+
+  op TermList : TermQid -> TermQid .
+  op TermList : TermQidSet -> TermList .
+  eq TermList(TQ:TermQid ; TQS:TermQidSet) = TQ:TermQid,TermList(TQS:TermQidSet) .
+  eq TermList(none) = empty .
 endfm
 
 --- ### New
