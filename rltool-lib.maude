@@ -420,7 +420,7 @@ mod RLTL-ACTION-IMPL is
   pr RLTOOL-SWITCHES .
 
   var AS : AttributeSet .
-  var B B' : Bool .
+  var OneShot? Print? : Bool .
   var BD : Bound .
   var NBD : NzBound .
   var U : Module .
@@ -543,20 +543,23 @@ mod RLTL-ACTION-IMPL is
 
   --- take goal set, evaluate to completion or return original state with error message
   op atomic-run : ProofMetadata ProofGoalSet ~> ProofMetadata .
-  eq atomic-run(PM,GS) = atomic-run(false,PM,GS) .
+  eq atomic-run(PM,GS) = atomic-run(false,false,PM,GS) .
 
   op atomic-run : Bool ProofMetadata ProofGoalSet ~> ProofMetadata .
-  eq atomic-run(B,PM,GS) =
+  eq atomic-run(OneShot?,PM,GS) = atomic-run(OneShot?,false,PM,GS) .
+
+  op atomic-run : Bool Bool ProofMetadata ProofGoalSet ~> ProofMetadata .
+  eq atomic-run(OneShot?,Print?,PM,GS) =
     if GS =/= mt
-      then atomic-run(B,size(GS),PM,GS,run-cycle(mode : active(0), proof : {raw-set(PM,prf(GS))}))
+      then atomic-run(OneShot?,Print?,PM,GS,run-cycle(mode : active(0), proof : {raw-set(PM,prf(GS))}))
       else raw-set(PM,out('Internal 'Warning: 'atomic-run 'should 'be 'called 'with 'non-empty 'goalset))
     fi .
 
-  op atomic-run : Bool Nat ProofMetadata ProofGoalSet AttributeSet ~> ProofMetadata .
-  eq atomic-run(B,N,PM,GS,(mode : M, proof : [PM'])) =
-    if active-mode?(M) or-else (B and-then not proof-completed(PM'))
-      then raw-set(PM,out(if B then 'Warning: 'Failed 'to 'complete 'goal 'in 'one 'shot '\n else nil fi get-out(PM')))
-      else raw-set(merge(delgl(PM,GS),prf(flipPaused(get-prf(PM'))) ; out(get-out(PM')) ; st(get-st(PM'))),gn(get-gn(PM')))
+  op atomic-run : Bool Bool ProofMetadata ProofGoalSet AttributeSet ~> ProofMetadata .
+  eq atomic-run(OneShot?,Print?,PM,GS,(mode : M, proof : [PM'])) =
+    if active-mode?(M) or-else (OneShot? and-then not proof-completed(PM'))
+      then raw-set(PM,out(if OneShot? then 'Warning: 'Failed 'to 'complete 'goal 'in 'one 'shot '\n else nil fi get-out(PM')))
+      else raw-set(merge(delgl(PM,GS),prf(flipPaused(get-prf(PM'))) ; out(get-out(PM') if Print? then printGoals(get-mod(PM),goalsByStatus(paused,get-prf(PM'))) else nil fi) ; st(get-st(PM'))),gn(get-gn(PM')))
     fi .
 endm
 
