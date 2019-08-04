@@ -745,7 +745,7 @@ mod RLTL-PROC-CMD is
 				   fi) .
   eq proc(showgoal(NS),     R) = write('Show 'goals: '\n printGoals(get-mod(R),getgl(get-prf(R),NS))) .
   eq proc(showgoal,         R) = write('Show 'active 'goals: '\n printGoals(get-mod(R),goalsByStatus(active,get-prf(R)))) .
-  eq proc(delete,           R) = prf(!goalsByStatus(inactive,get-prf(R))) & write('Deleted printPar(size(!goalsByStatus(inactive,get-prf(R)))) 'inactive 'goals) .
+  eq proc(delete,           R) = prf(!goalsByStatus(inactive,get-prf(R))) & write('Deleted printPar(size(goalsByStatus(inactive,get-prf(R)))) 'inactive 'goals) .
 endm
 
 mod RLTL-UI is
