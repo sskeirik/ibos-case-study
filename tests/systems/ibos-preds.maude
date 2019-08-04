@@ -666,7 +666,8 @@ fmod IBOS-AUX-FVP is
  ceq netproc-req-attrs(A) = false if in-attrset?(out(mtLL)        | A) = false .
   eq netproc-req-attrs(toKernel(T:NeMessageList),   A) = netproc-req-attrs(toKernel(mt),        A) .
   eq netproc-req-attrs(fromKernel(F:NeMessageList), A) = netproc-req-attrs(fromKernel(mt),      A) .
-  eq netproc-req-attrs(returnTo(W:WebProcId),       A) = netproc-req-attrs(returnTo(ui),        A) .
+  eq netproc-req-attrs(returnTo(W:ConcWebProcId),   A) = netproc-req-attrs(returnTo(ui),        A) .
+  eq netproc-req-attrs(returnTo(N:ConcNetProcId),   A) = netproc-req-attrs(returnTo(ui),        A) .
   eq netproc-req-attrs(mem-in(L:Label),             A) = netproc-req-attrs(mem-in(nolabel),     A) .
   eq netproc-req-attrs(mem-out(L:Label),            A) = netproc-req-attrs(mem-out(nolabel),    A) .
   eq netproc-req-attrs(in(L:NeLabelList),           A) = netproc-req-attrs(in(mtLL),            A) .
@@ -822,7 +823,8 @@ fmod IBOS-AUX-NONFVP is
   eq conf-attr-dupl?(< CNWP | rendered        (X:NonBlankLabel), A > C) = conf-attr-dupl?(< CNWP | rendered(about-blank) , A > C) .
   eq conf-attr-dupl?(< CNWP | URL             (X:NonBlankLabel), A > C) = conf-attr-dupl?(< CNWP | URL(about-blank)      , A > C) .
   eq conf-attr-dupl?(< CNWP | loading         (true)           , A > C) = conf-attr-dupl?(< CNWP | loading(false)        , A > C) .
-  eq conf-attr-dupl?(< CNWP | returnTo        (X:WebProcId)    , A > C) = conf-attr-dupl?(< CNWP | returnTo(ui)          , A > C) .
+  eq conf-attr-dupl?(< CNWP | returnTo        (X:ConcWebProcId), A > C) = conf-attr-dupl?(< CNWP | returnTo(ui)          , A > C) .
+  eq conf-attr-dupl?(< CNWP | returnTo        (X:ConcNetProcId), A > C) = conf-attr-dupl?(< CNWP | returnTo(ui)          , A > C) .
   eq conf-attr-dupl?(< CNWP | in              (X:NeLabelList)  , A > C) = conf-attr-dupl?(< CNWP | in(mtLL)              , A > C) .
   eq conf-attr-dupl?(< CNWP | out             (X:NeLabelList)  , A > C) = conf-attr-dupl?(< CNWP | out(mtLL)             , A > C) .
   eq conf-attr-dupl?(< CNWP | mem-in          (X:Label)        , A > C) = conf-attr-dupl?(< CNWP | mem-in(nolabel)       , A > C) .
@@ -840,7 +842,8 @@ fmod IBOS-AUX-NONFVP is
   eq nwp-reqattrs?(< CNWP | rendered        (X:NonBlankLabel), A > NWC) = nwp-reqattrs?(< CNWP | rendered(about-blank) , A > NWC) .
   eq nwp-reqattrs?(< CNWP | URL             (X:NonBlankLabel), A > NWC) = nwp-reqattrs?(< CNWP | URL(about-blank)      , A > NWC) .
   eq nwp-reqattrs?(< CNWP | loading         (true)           , A > NWC) = nwp-reqattrs?(< CNWP | loading(false)        , A > NWC) .
-  eq nwp-reqattrs?(< CNWP | returnTo        (X:WebProcId)    , A > NWC) = nwp-reqattrs?(< CNWP | returnTo(ui)          , A > NWC) .
+  eq nwp-reqattrs?(< CNWP | returnTo        (X:ConcWebProcId), A > NWC) = nwp-reqattrs?(< CNWP | returnTo(ui)          , A > NWC) .
+  eq nwp-reqattrs?(< CNWP | returnTo        (X:ConcNetProcId), A > NWC) = nwp-reqattrs?(< CNWP | returnTo(ui)          , A > NWC) .
   eq nwp-reqattrs?(< CNWP | in              (X:NeLabelList)  , A > NWC) = nwp-reqattrs?(< CNWP | in(mtLL)              , A > NWC) .
   eq nwp-reqattrs?(< CNWP | out             (X:NeLabelList)  , A > NWC) = nwp-reqattrs?(< CNWP | out(mtLL)             , A > NWC) .
   eq nwp-reqattrs?(< CNWP | mem-in          (X:Label)        , A > NWC) = nwp-reqattrs?(< CNWP | mem-in(nolabel)       , A > NWC) .
