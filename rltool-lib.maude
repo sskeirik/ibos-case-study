@@ -203,6 +203,7 @@ fmod META-RLTL-COMMAND is
    op focus_.                : NeSet{Nat} -> MetaRLTLCommand [ctor] .
    op focus_.                : @Term@ -> MetaRLTLCommand [ctor] .
    op focus_.                : @QFCTerm@ -> MetaRLTLCommand [ctor] .
+   op focus_/_.              : @QFCTerm@ @QFCTerm@ -> MetaRLTLCommand [ctor] .
    op subsumed_=<_.          : @QFCTerm@ @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
    op intersect_=_.          : @QFCTerm@ @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
    op add-goal_.             : @LabelReachFormEx@ -> MetaRLTLCommand [ctor] . --- add as goal and axiom
@@ -258,6 +259,7 @@ fmod RLTL-COMMAND is
    op ls-status         : -> RLTLCommand [ctor] .
    op focus             : NeSet{Nat} -> RLTLCommand [ctor] .
    op focus             : QFCTerm -> RLTLCommand [ctor] .
+   op focus             : QFCTerm QFCTerm -> RLTLCommand [ctor] .
    op subsumed          : QFCTermSet QFCTermSet -> RLTLCommand [ctor] .
    op intersect         : QFCTermSet QFCTermSet -> RLTLCommand [ctor] .
    op add-goal          : LabelReachFormEx Bool -> RLTLCommand [ctor] .
@@ -340,6 +342,7 @@ fmod PARSE-RLTLCOMMAND is
   ceq rltl-parse((M,S),'focus_.[T1])                     = focus(downNeNatSet(T1)) if downNeNatSet(T1) :: NeSet{Nat} .
   ceq rltl-parse((M,S),'focus_.[T1])                     = focus((parse-term((M,S),true,T1) | tt)) if parse-term((M,S),true,T1) :: Term .
   ceq rltl-parse((M,S),'focus_.[T1])                     = focus(parse-qfcterm((M,S),true,T1)) if parse-qfcterm((M,S),true,T1) :: QFCTerm .
+   eq rltl-parse((M,S),'focus_/_.[T1,T2])                = focus(parse-qfcterm((M,S),true,T1),parse-qfcterm((M,S),true,T2)) .
    eq rltl-parse((M,S),'list-goals`..MetaRLTLCommand)    = ls(true) .
    eq rltl-parse((M,S),'list-goal-ids`..MetaRLTLCommand) = ls(false) .
    eq rltl-parse((M,S),'list-status`..MetaRLTLCommand)   = ls-status .
@@ -705,6 +708,10 @@ mod RLTL-PROC-CMD is
                                 fi .
   eq proc(focus(QFT),      R) = if goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R))) :: NeProofGoalSet
                                   then prf(goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R)))) & write('Successfully 'focus 'on 'target 'goal/goals '`( 'count: printPar(size(goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R))))) '`))
+				  else write('Focus 'term 'failed 'to 'match 'any 'goals)
+				fi .
+  eq proc(focus(QFT,QFT2), R) = if !goalsByMatch(get-mod(R),QFT2,goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R)))) :: NeProofGoalSet
+                                  then prf(!goalsByMatch(get-mod(R),QFT2,goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R))))) & write('Successfully 'focus 'on 'target 'goal/goals '`( 'count: printPar(size(!goalsByMatch(get-mod(R),QFT2,goalsByMatch(get-mod(R),QFT,readyGoals(get-prf(R)))))) '`))
 				  else write('Focus 'term 'failed 'to 'match 'any 'goals)
 				fi .
   eq proc(dostep(N),       R) = if getgl!(get-prf(R),N) :: ProofGoalSet
