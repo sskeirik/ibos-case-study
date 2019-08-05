@@ -3,7 +3,7 @@ load ../../systems/ibos-preds-nou.maude      --- contextual rewriting
 load ../../systems/ibos-noau.maude           --- everything
 
 set show advisories off .
-set print attribute on .
+--- set print attribute on .
 
 load ../../rltool-lib.maude
 
@@ -231,6 +231,13 @@ loop rltl-init .
 --- FIXME: decide if we need this split or not
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp pi(WI',IN2),wp WIS), A > C }) | (WI ~p WI') = (false) by (IN ~l IN2) = (true) and (IN ~l IN2) = (false) .)
 
+--- set print conceal on .
+--- print conceal mod_is_sorts_._____endm fmod_is_sorts_.____endfm `[_`,_`,_`,_`,_`,_`] .
+--- set break on .
+--- break select _::`NeProofGoalSubstPairSet .
+--- FIXME: Finish this test
+--- (focus ({ < NI | out(LL ; U), A > < kernel | netlabels(pi(NI,IN,IN),np NIS), A' > C }) | true / ({ < NI | out(LL ; IN), A > < kernel | netlabels(pi(NI,IN,IN),np NIS), A' > C }) | true .)
+
 --- request-from-webapp
 --- netproc well-formed and metadata correctly recorded
 (split ({ C }) | (p(< NI | A > NWC,WIS,NIS,MSG?)) = (true) by (netproc-req-attrs(A)) = (true) and (netproc-req-attrs(A)) = (false) .)
@@ -255,9 +262,31 @@ loop rltl-init .
 --- outgoing matches netproc out
 (split ({ < NI | out(LL ; U), A > < kernel | netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- make sure fresh returnTo agrees (NOTE: this blows up in size because we can't discharge until we apply axiom)
+(deleteInactive .)
 (split ({ < NI | returnTo(PP1), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
+(deleteInactive .)
+--- split by p() requirements
+(split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
+                    < NI | returnTo(WI), fromKernel(NFK), out(OL ; U), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
+		    pi(WI,L),wp WIS,pi(NI,L,L),np NIS,MSG?)) = (true)
+  by  (allEqLabel?(L,OL ; IL)) = (true)
+  and (allEqLabel?(L,OL ; IL)) = (false)
+.)
+(deleteInactive .)
+---(
+(split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
+                    < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
+		    pi(WI,L),wp WIS,pi(NI,L,L),np NIS,MSG?)) = (true)
+  by  (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and L ~l MO and L ~l MI and fetchMsg2?(WI,NI,L,WFK) and retMsg?(WI,NI,L,NTK)) = (true)
+  and (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and L ~l MO and L ~l MI and fetchMsg2?(WI,NI,L,WFK) and retMsg?(WI,NI,L,NTK)) = (false)
+.)
+(deleteInactive .)
+--- split netproc original attrs for conf-attr-dupl
+(split ({ < NI | out(LL ; U),   A > C }) by (LL)  = (mtLL) and (LL) = (N:NeLabelList) .)
+(deleteInactive .)
+---)
 
-(list-status .)
+--- (list-status .)
 --- (auto .)
 
 --- proc-in
