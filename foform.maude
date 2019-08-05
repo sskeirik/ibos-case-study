@@ -466,7 +466,7 @@ fmod FOFORMREDUCE is
   pr TERM-EXTRA . --- vars/groundLeastSortGreater function
   pr CTOR-SIG   . --- ctor-signautre
 
-  var F F' : FOForm . var T T' : Term . var M : Module . var E : EqAtom .
+  var F F' : FOForm . var T T' : Term . var M : Module . var A A' : Atom .
   var Q  : NeQidSet . var AT AF : TruthAtom . var B : Bool .
 
   op reduce : Module FOForm? ~> FOForm? .
@@ -481,9 +481,9 @@ fmod FOFORMREDUCE is
   eq reduce(M,B,~ F)     = ~ reduce(M,B,F) .
   eq reduce(M,B,AT)      = AT .
 
-  eq reduce(M,true, T ?= T') = reduce(M,tt,ff,metaReduce2(M,T),metaReduce2(M,T')) .
+  eq reduce(M,true, T ?= T') = reduceDebugPrint(T ?= T',reduce(M,tt,ff,metaReduce2(M,T),metaReduce2(M,T'))) .
   eq reduce(M,true, T != T') = reduce(M,ff,tt,metaReduce2(M,T),metaReduce2(M,T')) .
-  eq reduce(M,false,T ?= T') = metaReduce2(M,T) ?= metaReduce2(M,T') .
+  eq reduce(M,false,T ?= T') = reduceDebugPrint(T ?= T',metaReduce2(M,T) ?= metaReduce2(M,T')) .
   eq reduce(M,false,T != T') = metaReduce2(M,T) != metaReduce2(M,T') .
 
   op reduce : Module Atom Atom Term Term ~> Atom .
@@ -496,6 +496,10 @@ fmod FOFORMREDUCE is
           then T ?= T'
           else T != T'
     fi fi fi .
+
+  op reduceDebugPrint : Atom Atom -> Atom .
+  eq reduceDebugPrint(A,'false.Bool ?= 'true.Bool) = 'false.Bool ?= 'true.Bool [print "Atom Reduced to Contradiction: " A] .
+  eq reduceDebugPrint(A,A')                        = A' [owise] .
 endfm
 
 fmod FOFORM-OPERATIONS is
