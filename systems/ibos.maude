@@ -136,7 +136,6 @@ fmod PROC-ID is
   var  CPP : ConcPipeId .
   var  WP  : WebProcId .
   var  NP  : NetProcId .
-  var  UI  : UIId .
   vars N M : Nat .
   var  Z   : NzNat .
 
@@ -155,8 +154,8 @@ fmod PROC-ID is
   eq APP            ~p CPP        = false [variant] .
   --- Net/WebProc Disequality
   eq WP             ~p NP         = false [variant] .
-  eq NP             ~p UI         = false [variant] .
-  eq WP             ~p UI         = false [variant] .
+  eq NP             ~p ui         = false [variant] .
+  eq WP             ~p ui         = false [variant] .
   eq network(N + Z) ~p network(N) = false [variant] .
   eq webapp (N + Z) ~p webapp (N) = false [variant] .
 endfm
@@ -466,7 +465,6 @@ fmod KERNEL-POLICIES-NONFVP is
   var NPIS : NetProcInfoSet . var WPIS : WebProcInfoSet .
   var PI PI' : ConcProcId .
   var NPI NPI' : NonPipeId .
-  var UI : UIId .
 
   **** auxiliary function for checking that a network process links to a given label
   op np-by-lbl? : Label NetProcInfoSet -> Bool [metadata "83"] .

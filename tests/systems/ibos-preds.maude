@@ -549,7 +549,6 @@ fmod IBOS-AUX-FVP is
   var NP NP' : ConcNetProcId .
   var NN : NullProcId .
   var SP : NonPipeId .
-  var UI : UIId .
 
   var C : Configuration .
   var NWC : NetWebProcConfig .
@@ -678,7 +677,7 @@ fmod IBOS-AUX-FVP is
   eq in-conf?(WP, < WP | toKernel(T:MessageList), fromKernel(F:MessageList), URL(U:Label), rendered(R:Label), loading(B:Bool), A > C) = true [variant] .
   eq in-conf?(NP, < NP | toKernel(T:MessageList), fromKernel(F:MessageList), returnTo(P:ConcPipeId),
                          mem-in(M1:MaybeLabel), mem-out(M2:MaybeLabel), in(L1:LabelList), out(L2:LabelList), A > C) = true [variant] .
-  eq in-conf?(UI, < UI | A > C) = true [variant] .
+  eq in-conf?(ui, < ui | A > C) = true [variant] .
   eq in-conf?(SP, < SP | A > C) = true [variant] .
   --- recursive cases
  ceq in-conf?(WP, < WP | A > C) = in-conf?(WP,C) if webproc-req-attrs(A) = false .
