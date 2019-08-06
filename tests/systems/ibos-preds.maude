@@ -95,6 +95,10 @@ fmod LABEL-FVP-EXT is
   eq url(N)      blank-or-equal about-blank = false [variant] .
   eq url(N)      blank-or-equal url(N + P)  = false [variant] .
   eq url(N + P)  blank-or-equal url(N)      = false [variant] .
+
+  op _undef-or-equal_ : MaybeLabel Label -> Bool [metadata "95"] .
+  eq nolabel undef-or-equal L' = true    [variant] .
+  eq       L undef-or-equal L' = L ~l L' [variant] .
 endfm
 
 ---
@@ -1090,14 +1094,14 @@ fmod IBOS-SOP-PRED is
               pi(WI,L),wp WIS,pi(NI,L,L),np NIS,M?)
    = p(NWC,WIS,NIS,consumeCurrHandled?(WI,NI,M?))
   if B and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,WFK)
-       and allEqLabel?(L,OL ; IL) and L ~l MO and L ~l MI and retMsg?(WI,NI,L,NTK @ WFK) = true .
+       and allEqLabel?(L,OL ; IL) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) = true .
 
  ceq p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
        < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
               pi(WI,L),wp WIS,pi(NI,L,L),np NIS,M?)
    = false
   if B and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,WFK)
-       and allEqLabel?(L,OL ; IL) and L ~l MO and L ~l MI and retMsg?(WI,NI,L,NTK @ WFK) = false .
+       and allEqLabel?(L,OL ; IL) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) = false .
 
   --- Group 1 - not loaded WebProc
  ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > NWC,pi(WI,L),wp WIS,NIS,M?) = p(NWC,WIS,NIS,M?)
