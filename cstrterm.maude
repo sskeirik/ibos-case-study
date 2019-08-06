@@ -539,16 +539,6 @@ fmod PATTERN-OPS is
   op overapproximateDiff : Module VariableSet QFCTerm QFCTermSet ~> QFCTerm .
   eq overapproximateDiff(U,VS,C,CS) = conj(C,conj-join(getForm(applyMatchToCond(U,VS,C,toNNF(negateCond(CS)))))) .
 
-  --- PRE: Constrained term sets are well-defined with respect to Module
-  --- OUT: The intersection between the two constrained termsets; all variables except
-  ---      those specified in optional VariableSet are renamed BEFORE unification
-  op sharedIntersect : Module VariableSet QFCTermSet QFCTermSet -> QFCTermSet .
- ceq sharedIntersect(U,VS,CS,CS') = intersect(U,CS1,CS2)
-  if (S, T ,N ) := #renameAllVar(U,none,upTerm(CS))
-  /\ (S',T',N') := #renameAllVar(U,S |>* varsToTermList(VS),N,upTerm(CS'))
-  /\ CS1        := downTerm(T, noterm)
-  /\ CS2        := downTerm(T',noterm) .
-
   op intersect : Module QFCTermSet QFCTermSet -> QFCTermSet .
   eq intersect(U,C | C' | CS,CS')  = intersect(U,C,CS' ) | intersect(U,C' | CS,CS') .
   eq intersect(U,C,C' | C'' | CS) = intersect(U,C,C') | intersect(U,C,C'' | CS) .

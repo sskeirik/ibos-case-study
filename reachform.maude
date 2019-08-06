@@ -530,27 +530,6 @@ fmod ABSTRACT-RULES is
   eq  toLabelLCCRuleSet(K,crl L => R if EC [AS]. RLS,LRS) = toLabelLCCRuleSet(K,RLS,LRS | (get-label(AS) : (L | tt) => (R | eqCond2Conj(EC,K,mtForm)))) .
 endfm
 
-fmod TRANSITION-RENAME is
-  pr TRANSITION .
-  pr TRANSITION-PROJECTIONS .
-  pr TRANSITIONSET .
-  pr RENAME-METAVARS .
-  pr VARIABLES-TO-CONSTANTS .
-  pr CONSTRAINED-TERM-OPERATIONS .
-
-  var T : Term . var FS FS' : ReachFormSet . var N : Nat . var M : Module .
-
-  --- PFE: ReachFormSet is well-formed in Module
-  --- OUT: ReachFormSet with all tmp variable renamed
-  op $renameForm  : Module Nat ReachFormSet -> ReachFormSet .
-  op $renameForm  : ReachFormSet TermData -> ReachFormSet .
-  op $renameForm  : ReachFormSet ReachFormSet -> ReachFormSet .
-  eq $renameForm(M,N,FS)           = $renameForm(FS,#renameTmpVar(M,N,upTerm(FS))) .
-  eq $renameForm(FS,termdata(T,N)) = $renameForm(FS,downTerm(T,mt)) .
-  eq $renameForm(mt,mt)            = mt .
- ceq $renameForm(FS,FS')           = FS' if FS =/= mt and-then FS' =/= mt .
-endfm
-
 fmod TRANSITION-TUPLES is
   pr TRANSITIONSET .
   pr SUBSTITUTIONSET-AUX .
