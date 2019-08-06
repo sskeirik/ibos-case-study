@@ -620,6 +620,7 @@ mod RLTL-PROC-CMD is
   eq $pall(U,LF ; LF' ; LS) = print(U,LF) '\n printSpaces(8) $pall(U,LF' ; LS) .
   eq $pall(U,nil)           = &mt .
 
+  --- TODO: remove dependency on old renaming functionality
   --- PRE: Goals should be all current goals that pattern term T matches
   --- OUT: Goal set GS such that:
   ---        1. GS has been generalized by a pattern term T
