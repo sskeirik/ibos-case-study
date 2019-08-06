@@ -3105,6 +3105,7 @@ fmod RENAME-TERM is
   var N : Nat . var V V' : Variable  . var TL : TermList    . var C : Constant . var S : VarSubstitution .
   var Q : Qid . var L L' : GTermList . var CL : NeCTermList . var T T' : GTerm .
   var TQ TQ' : TermQid . var TQS : TermQidSet . var STR : String . var KN : [Nat] .
+  var VS : VariableSet .
 
   sort NameData .
   op [_,_] : Nat VarSubstitution -> NameData [ctor] .
@@ -3119,6 +3120,12 @@ fmod RENAME-TERM is
   op nullNameData : -> NameData .
   eq nullNameData = [0,none] .
 
+  op nameData : Nat -> NameData .
+  eq nameData(N) = [N,none] .
+
+  op nameData : VariableSet -> NameData .
+  eq nameData(VS) = [0,idsub(VS)] .
+
   op clear : NameData -> NameData .
   eq clear([N,S]) = [N,none] .
 
@@ -3126,8 +3133,8 @@ fmod RENAME-TERM is
   op renameVars  : NameData GTermList -> GTermList .
   op #renameVars : NameData GTermList -> RenamedGTermList .
   ---------------------------------------------------------
-  eq  renameVars(L)       = rvGetTerm(#renameVars([0,none],L)) .
-  eq  renameVars([N,S],L) = rvGetTerm(#renameVars([N,S],   L)) .
+  eq  renameVars(L)       = rvGetObj(#renameVars([0,none],L)) .
+  eq  renameVars([N,S],L) = rvGetObj(#renameVars([N,S],   L)) .
   eq #renameVars([N,S],L) = rvRenameList([N,S],L,empty) .
 
   op rvRenameList : NameData GTermList GTermList    -> RenamedGTermList .
@@ -3152,11 +3159,11 @@ fmod RENAME-TERM is
   eq rvRenameVar([N,S],V',V)    = [[N,S],V'] .
   eq rvRenameVar([N,S],noqid,V) = [[s(N),S ; V <- rvVar(N,V)],rvVar(N,V)] .
 
-  op rvGetTerm : RenamedGTermList ~> GTermList .
-  op rvGetSub  : RenamedGTermList ~> Substitution .
-  op rvVar     : Nat Variable     -> Variable  .
+  op rvGetObj : RenamedGTermList ~> GTermList .
+  op rvGetSub : RenamedGTermList ~> Substitution .
+  op rvVar    : Nat Variable     -> Variable  .
   ----------------------------------------------
-  eq rvGetTerm([[N,S],L:[Term]]) = L:[Term] .
+  eq rvGetObj([[N,S],L:[Term]]) = L:[Term] .
   eq rvGetSub ([[N,S],L:[Term]]) = S .
   eq rvVar(N,V) =
     qid("&"          +
@@ -3198,17 +3205,18 @@ endfm
 fmod RENAME-TERM-AUX is
   pr RENAME-TERM .
   pr TERMSET-FM .
+  pr SUBSTITUTIONSET .
 
   var D : NameData . var T T' : Term . var S S' : TermSet .
   var G : GTerm . var L L' : GTermList . var N : Nat .
-  var SB SB' : Substitution .
+  var SB SB' : Substitution . var SBS : SubstitutionSet .
+  var V : Variable .
 
   sort RenamedTermSet .
   subsort RenamedTerm < RenamedTermSet .
   op [_,_] : NameData TermSet -> RenamedTermSet [ctor] .
-
-  sort RenamedSubstitution .
-  op [_,_] : NameData Substitution -> RenamedSubstitution [ctor] .
+  ------------------------------------------------------
+  ------------------------------------------------------
 
   op renameVars  : TermSet -> TermSet .
   op renameVars  : NameData TermSet -> TermSet .
@@ -3218,8 +3226,8 @@ fmod RENAME-TERM-AUX is
   op renameVars  : NameData Term -> Term .
   op #renameVars : NameData Term -> RenamedTerm .
   -----------------------------------------------------
-  eq  renameVars(S)              = rvGetTerm(#renameVars([0,none],S)) .
-  eq  renameVars(D,S)            = rvGetTerm(#renameVars(D,S)) .
+  eq  renameVars(S)              = rvGetObj(#renameVars([0,none],S)) .
+  eq  renameVars(D,S)            = rvGetObj(#renameVars(D,S)) .
   eq #renameVars(D,T | T' | S)   = rvRenameTS(D,T | T' | S,emptyTermSet) .
   eq #renameVars(D,emptyTermSet) = [D,emptyTermSet] .
 
@@ -3234,8 +3242,8 @@ fmod RENAME-TERM-AUX is
   op renameDisjVars : Nat GTermList -> GTermList .
   op #renameDisjVars : Nat GTermList -> RenamedGTermList .
   --------------------------------------------------------
-  eq  renameDisjVars(L)   = rvGetTerm(#renameDisjVars(0,L)) .
-  eq  renameDisjVars(N,L) = rvGetTerm(#renameDisjVars(N,L)) .
+  eq  renameDisjVars(L)   = rvGetObj(#renameDisjVars(0,L)) .
+  eq  renameDisjVars(N,L) = rvGetObj(#renameDisjVars(N,L)) .
   eq #renameDisjVars(N,L) = rvRenameListD([N,none],L,empty) .
 
   op rvRenameListD : NameData GTermList GTermList -> RenamedGTermList .
@@ -3245,13 +3253,33 @@ fmod RENAME-TERM-AUX is
   eq rvRenameListD(D,empty,L') = [clear(D),L'] .
   eq rvRenameListD([D,G],L,L') = rvRenameListD(D,L,(L',G)) .
 
-  ---(
+
+  sort RenamedSubstitution .
+  op [_,_] : NameData Substitution -> RenamedSubstitution [ctor] .
+  ----------------------------------------------------------------
+  ----------------------------------------------------------------
+  op rvGetObj : RenamedSubstitution -> Substitution .
+  eq rvGetObj([D,SB]) = SB .
+
   op renameVars : Substitution -> Substitution .
   op renameVars : NameData Substitution -> Substitution .
-  op #renameVars : NameData Substitution -> Substitution .
-  --------------------------------------------------------
-  --- eq renameVars()
-  ---)
+  op #renameVars : NameData Substitution -> RenamedSubstitution .
+  ---------------------------------------------------------------
+  eq  renameVars(SB)   = renameVars(nullNameData,SB) .
+  eq  renameVars(D,SB) = rvGetObj(#renameVars(D,SB)) .
+  eq #renameVars(D,SB) = rvRenameSub(D,SB,none) .
+
+  op rvRenameSub : NameData Substitution Substitution -> RenamedSubstitution .
+  op rvRenameSub : RenamedTerm Variable Substitution Substitution -> RenamedSubstitution .
+  ----------------------------------------------------------------------------------------
+  eq rvRenameSub(D,V <- T ; SB,SB') = rvRenameSub(rvRenameTerm(D,T),V,SB,SB') .
+  eq rvRenameSub(D,none,SB')        = [D,SB'] .
+  eq rvRenameSub([D,T'],V,SB,SB')   = rvRenameSub(D,SB,SB' ; V <- T') .
+
+  op renameVars : NameData SubstitutionSet -> SubstitutionSet .
+  -------------------------------------------------------------
+  eq renameVars(D,SB | SBS) = renameVars(D,SB) | renameVars(D,SBS) .
+  eq renameVars(D,(empty).SubstitutionSet) = empty .
 endfm
 
 fmod UNIFIERS is
