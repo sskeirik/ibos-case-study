@@ -196,6 +196,7 @@ fmod REACH-PROOF-GOALSET is
   pr TRANSITIONSET-PROJECTIONS .
   pr FOFORMSET-OPERATIONS .
   pr CONSTRAINED-TERMSET-MATCH .
+  pr FINDRESULT-AUX .
 
   var P P' : Parent .
   var N N' M : Nat .
@@ -326,14 +327,14 @@ fmod REACH-PROOF-GOALSET is
   ---      because they are part of the same metaterm that is renamed
   op renameNormalizeGoal : Module FindResult ProofGoalSet -> ProofGoalSet .
   eq renameNormalizeGoal(U,Idx,G && GS) =
-     renameNormalizeGoal2(U,Idx,#renameAllVar(U,none,Idx,upTerm(getbody(G))),G) &&
+     renameNormalizeGoal2(U,Idx,freshifyVars(toNat(Idx,0),getallvars(G)),G) &&
      renameNormalizeGoal(U,Idx,GS) .
   eq renameNormalizeGoal(U,Idx,mt) = (mt).ProofGoalSet .
 
-  op renameNormalizeGoal2 : Module FindResult RenameData ProofGoal -> ProofGoal .
-  eq renameNormalizeGoal2(U,Idx,(S,T,Idx2),G) =
+  op renameNormalizeGoal2 : Module FindResult Substitution ProofGoal -> ProofGoal .
+  eq renameNormalizeGoal2(U,Idx,S,G) =
     setvars(
-      setbody(G,normalize(U,downTerm(T,(mt).ReachFormSet))),
+      setbody(G,normalize(U,getbody(G) << S)),
       captureNewVars(getvars(G),S)) .
 
   --- OUT: deletes duplicate goals in a set and renumbers them starting from given value
@@ -1216,7 +1217,7 @@ fmod VISUALIZE is
   --- OUT: print a list of differences
   op printDifferencesList : Module [ReachForm] ReachFormList -> QidList .
   eq printDifferencesList(U,RK,RF ; RL) =
-    '\n printSpaces(4) printDifferences(U,RK,downTerm(renameAllVar(U,upTerm(RF)),(mt).ReachFormSet))
+    '\n printSpaces(4) printDifferences(U,RK,RF << freshifyVars(0,vars(RF)))
     printDifferencesList(U,RF,RL) .
   eq printDifferencesList(U,RK,nil) = nil .
 

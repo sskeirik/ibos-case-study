@@ -267,14 +267,25 @@ fmod TRANSITIONSET-PRINTER is pr TRANSITIONSET . pr TRANSITION-PRINTER .
   eq printMeta(mt)             = 'mt .
 endfm
 
-fmod TRANSITIONSET-RENAME is pr TRANSITIONSET . pr RENAME-METAVARS .
+fmod TRANSITIONSET-RENAME is
+  pr TRANSITIONSET .
+  pr TRANSITION-SUBSTITUTION .
+  pr TRANSITION-OPERATIONS .
+  pr RENAME-METAVARS .
+  pr RENAME-TERM-AUX .
+  pr FINDRESULT-AUX .
+
   op renameAllVar : Module FindResult ReachFormSet -> ReachFormSet .
   op renameTmpVar : Module FindResult ReachFormSet -> ReachFormSet .
   op unwrapReachFormSet : TermData                 -> ReachFormSet .
-  var U : Module . var F : ReachFormSet . var N : FindResult . var T : Term .
-  eq renameAllVar(U,N,F) = unwrapReachFormSet(#renameAllVar(U,N,upTerm(F))) .
-  eq renameTmpVar(U,N,F) = unwrapReachFormSet(#renameTmpVar(U,N,upTerm(F))) .
+  var U : Module . var F : ReachForm . var FS : ReachFormSet . var N : FindResult . var T : Term .
+  eq renameAllVar(U,N,FS) = unwrapReachFormSet(#renameAllVar(U,N,upTerm(FS))) .
+  eq renameTmpVar(U,N,FS) = unwrapReachFormSet(#renameTmpVar(U,N,upTerm(FS))) .
   eq unwrapReachFormSet(termdata(T,N)) = downTerm(T,mt) .
+
+  op renameVars : FindResult ReachFormSet -> ReachFormSet .
+  eq renameVars(N,F & FS) = F << freshifyVars(toNat(N,0),vars(F)) & renameVars(N,FS) .
+  eq renameVars(N,mt)     = mt .
 endfm
 
 --- LABELED TRANSITIONS
@@ -623,7 +634,8 @@ fmod VAR-UNIF-SIMPLIFY is
   pr TRANSITION-TUPLES .
   pr FOFORM-FILTER .
   pr CTOR-VARIANT .
-  pr SUBSTITUTION-RENAME .
+  pr RENAME-TERM-AUX .
+  pr TRANSITION-OPERATIONS .
   pr VAR-UNIF-PARTIAL-FVP .
 
   var M : Module .
@@ -657,7 +669,7 @@ fmod VAR-UNIF-SIMPLIFY is
   eq varunif-simp2(M,(F,S),(C?,C'?)) = (F,S) [owise] .
 
   op varunif-simp3 : Module ReachFormSubstPair SubstitutionSet -> ReachFormSubstPairSet .
-  eq varunif-simp3(M,(F,S),SS) = (F,S) << renameTmpVar(M,upTerm(F),SS) .
+  eq varunif-simp3(M,(F,S),SS) = (F,S) << renameVars(nameData(maxVar(vars(F))),SS) .
 endfm
 
 --- TODO:

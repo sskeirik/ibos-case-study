@@ -13,7 +13,7 @@ fmod INTERSECT-REACHFORM is
   op intersectReachform : Module FOFormSubstPair ReachForm -> ReachFormSet .
   eq intersectReachform(U,mtFSPS,R) = mt .
   eq intersectReachform(U,(C',S) | FSS,R) =
-    renameTmpVar(U,notFound,conj-antc(R << S,C')) & intersectReachform(U,FSS,R) .
+    renameVars(0,conj-antc(R << S,C')) & intersectReachform(U,FSS,R) .
 
   --- OUT: simplify the result of intersecting a reachability formula with a pattern predicate
   ---  NB: we need multiple module arguments for the simplify function

@@ -656,8 +656,7 @@ fmod CONSTRAINED-TERM-TRANSFORM is
   pr CONSTRAINED-TERMSET-MATCH .
   pr CONSTRAINED-TERM-SUBSTITUTIONSET .
   pr FOFORMSIMPLIFY .
-  pr RENAME-METAVARS .
-  pr FRESHIFY-ALL .
+  pr RENAME-TERM-AUX .
 
   var T : Term .
   var F F' : FOForm? .
@@ -685,7 +684,7 @@ fmod CONSTRAINED-TERM-TRANSFORM is
       CT
     fi | transform(U,CT,VS,SS,CTS) .
   eq transform(U,CT,VS,SS,noterm) = noterm .
-  eq transform(U,VSub,SS,CT) = CT << (invert(VSub) << #freshifyAll(highestSVar(U,upTerm(CT)),SS)) .
+  eq transform(U,VSub,SS,CT) = CT << (invert(VSub) << renameVars(nameData(maxVar(vars(CT))),SS)) .
 
   ---op transform : CTerm FOForm?Set CTermSet -> CTermSet .
 endfm
