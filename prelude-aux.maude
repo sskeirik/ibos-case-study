@@ -491,3 +491,12 @@ fmod DEBUG-PRINT is
   op debug-print : String -> Bool .
   eq debug-print(S:String) = false [print S:String] .
 endfm
+
+fmod FINDRESULT-AUX is
+  pr STRING .
+  var F : FindResult .  var N : Nat .
+
+  op toNat : FindResult Nat -> Nat .
+  ----------------------------------
+  eq toNat(F,N) = if F :: Nat then F else N fi .
+endfm
