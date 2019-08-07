@@ -1912,6 +1912,7 @@ fmod INTERREDUCE is
 
   var U : Module .
   var Eq : Equation .
+  var AS : AttrSet .
   var Eqs RedEqs : EquationSet .
 
   op interreduce : Module EquationSet -> EquationSet .
@@ -1919,12 +1920,17 @@ fmod INTERREDUCE is
   eq interreduce(U,Eqs) = interreduce(U,Eqs,none) .
   eq interreduce(U,Eq Eqs,RedEqs) =
     interreduce(U,Eqs,RedEqs
-      deleteTrivial(eq metaReduce2(addEqs(Eqs RedEqs,U),lhs(Eq)) =
-         metaReduce2(addEqs(Eqs RedEqs,U),rhs(Eq)) [none].)) .
+      orientHack(deleteTrivial(eq metaReduce2(addEqs(Eqs RedEqs,U),lhs(Eq)) =
+         metaReduce2(addEqs(Eqs RedEqs,U),rhs(Eq)) [none].))) .
   eq interreduce(U,none,RedEqs) = RedEqs .
 
   op deleteTrivial : Equation -> EquationSet .
   eq deleteTrivial(Eq) = if lhs(Eq) == rhs(Eq) then none else Eq fi .
+
+  op orientHack : EquationSet -> EquationSet .
+  eq orientHack(eq 'false.Bool = 'true.Bool [AS].) = eq 'true.Bool = 'false.Bool [AS]. .
+  eq orientHack(Eq)                                = Eq [owise] .
+  eq orientHack(none) = none .
 endfm
 
 --- this module has functionality to generate unique prefixes with
