@@ -810,7 +810,7 @@ fmod IBOS-AUX-NONFVP is
   var MSG? : Message? .
   var MSGL MSGL2 : MessageList .
   var L L' L1 L2 IN OUT : Label .
-  var LL LL' : LabelList .
+  var LL LL' LL'' : LabelList .
   var LS : LabelSet .
   var MI MO : MaybeLabel .
 
@@ -897,6 +897,8 @@ fmod IBOS-AUX-NONFVP is
   eq allEqLabel?(L,LL ; L  ; LL') = allEqLabel?(L,LL ; LL') .
  ceq allEqLabel?(L,LL ; L' ; LL') = false if L ~l L' = false .
   eq allEqLabel?(L,mtLL)          = true .
+ ceq allEqLabel?(L,N:NeLabelList ; LL' ; LL'') = false if allEqLabel?(L,LL') = false .
+ ceq allEqLabel?(L,LL'' ; LL' ; N:NeLabelList) = false if allEqLabel?(L,LL') = false .
 
   op def-eq : MaybeLabel Label -> Bool [metadata "142"] .
   eq def-eq(nolabel,L) = true .
