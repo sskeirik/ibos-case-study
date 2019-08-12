@@ -3131,7 +3131,7 @@ fmod RENAME-TERM is
   eq nullNameData = [0,none] .
 
   op nameData : Nat -> NameData .
-  eq nameData(N) = [N,none] .
+  eq nameData(N) = [s(N),none] .
 
   op nameData : VariableSet -> NameData .
   eq nameData(VS) = [0,idsub(VS)] .
