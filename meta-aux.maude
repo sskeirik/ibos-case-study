@@ -6,6 +6,10 @@
 fmod QIDSET-REFINEMENT is
   pr META-MODULE .
   ---
+  var V : Variable .
+  var VS : VariableSet .
+  var QS1 QS2 : QidSet .
+  ---
   sort VariableSet   ConstantSet   TermQidSet    .
   sort NeVariableSet NeConstantSet NeTermQidSet  .
   ---
@@ -35,6 +39,19 @@ fmod QIDSET-REFINEMENT is
   op TermList : TermQidSet -> TermList .
   eq TermList(TQ:TermQid ; TQS:TermQidSet) = TQ:TermQid,TermList(TQS:TermQidSet) .
   eq TermList(none) = empty .
+
+  --- FIXME: Input VariableSet must be a proper set (no redundancies)
+  ----       for this to work correctly --- ideally should be checked
+  op overlappingVarNames : VariableSet -> QidSet .
+  op overlappingVarNames : VariableSet QidSet QidSet -> QidSet .
+  -------------------------------------------------------------
+  eq overlappingVarNames(VS) = overlappingVarNames(VS,none,none) .
+  eq overlappingVarNames(V ; VS,QS1,QS2) =
+    if getName(V) in QS2
+      then overlappingVarNames(VS,QS1 ; getName(V),QS2             )
+      else overlappingVarNames(VS,QS1,             QS2 ; getName(V))
+    fi .
+  eq overlappingVarNames(none,  QS1,QS2) = QS1 .
 endfm
 
 --- ### New
