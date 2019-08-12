@@ -2913,15 +2913,15 @@ fmod VARIABLES-TO-CONSTANTS-FIXED-SIGNATURE is
   op fixedIdFunc : Module Qid Qid -> Module .
   eq fixedIdFunc(M,OQ,SQ) =
     addOps(fiInjections(OQ,SQ,getSorts(M))
-           op fiZeroSym(OQ) : nil           -> fiNatSort(SQ) [none].
-           op fiSuccSym(OQ) : fiNatSort(SQ) -> fiNatSort(SQ) [none].,
+           op fiZeroSym(OQ) : nil           -> fiNatSort(SQ) [ctor].
+           op fiSuccSym(OQ) : fiNatSort(SQ) -> fiNatSort(SQ) [ctor iter].,
       addSorts(fiNatSort(SQ),M)) .
 
   --- Module signature extension
   ------------------------------
   op fiInjections : Qid Qid SortSet -> OpDeclSet .
   eq fiInjections(OQ,SQ,S ; SS) =
-    (op fiInjSym(OQ,S) : fiNatSort(SQ) -> S [none] .)
+    (op fiVarSym(OQ,S) : fiNatSort(SQ) -> S [ctor] .)
     fiInjections(OQ,SQ,SS) .
   eq fiInjections(OQ,SQ,none) = none .
 
@@ -2931,8 +2931,8 @@ fmod VARIABLES-TO-CONSTANTS-FIXED-SIGNATURE is
   op fiZeroSymOp : Qid Qid -> Constant .
   eq fiZeroSymOp(OQ,SQ) = join(fiZeroSym(OQ) '. fiNatSort(SQ)) .
 
-  op fiInjSym : Qid Sort -> Qid .
-  eq fiInjSym(OQ,S) = join(OQ 'inj S) .
+  op fiVarSym : Qid Sort -> Qid .
+  eq fiVarSym(OQ,S) = join(OQ 'Var S) .
 
   op fiZeroSym : Qid -> Constant .
   eq fiZeroSym(OQ) = join(OQ 'fz) .
@@ -2956,7 +2956,7 @@ fmod VARIABLES-TO-CONSTANTS-FIXED-SIGNATURE is
   -------------------------------------------
   op varsToConsts : Qid Qid NatVarMap TermList ~> TermList .
   eq varsToConsts(OQ,SQ,NVM,C    ) = C .
-  eq varsToConsts(OQ,SQ,NVM,V    ) = fiInjSym(OQ,getType(V))[fiNat(OQ,SQ,getNat(NVM,V))] .
+  eq varsToConsts(OQ,SQ,NVM,V    ) = fiVarSym(OQ,getType(V))[fiNat(OQ,SQ,getNat(NVM,V))] .
   eq varsToConsts(OQ,SQ,NVM,Q[NL]) = Q[varsToConsts(OQ,SQ,NVM,NL)] .
   eq varsToConsts(OQ,SQ,NVM,(T,L)) = varsToConsts(OQ,SQ,NVM,T),varsToConsts(OQ,SQ,NVM,L) .
   eq varsToConsts(OQ,SQ,NVM,empty) = empty .
@@ -2964,18 +2964,22 @@ fmod VARIABLES-TO-CONSTANTS-FIXED-SIGNATURE is
   op constsToVars : Qid NatVarMap TermList -> TermList .
   eq constsToVars(OQ,NVM,C      ) = C .
   eq constsToVars(OQ,NVM,V      ) = V .
-  eq constsToVars(OQ,NVM,Q[T]   ) = if parseFiInj(OQ,Q) then getVar(NVM,termSize(T)) else Q[constsToVars(OQ,NVM,T)] fi .
+  eq constsToVars(OQ,NVM,Q[T]   ) = if parseFiVar(OQ,Q,T) :: Nat then getVar(NVM,parseFiVar(OQ,Q,T)) else Q[constsToVars(OQ,NVM,T)] fi .
   eq constsToVars(OQ,NVM,Q[T,NL]) = Q[constsToVars(OQ,NVM,(T,NL))] .
   eq constsToVars(OQ,NVM,(T,L)  ) = constsToVars(OQ,NVM,T),constsToVars(OQ,NVM,L) .
   eq constsToVars(OQ,NVM,empty  ) = empty .
 
   --- Auxiliary Functions
   -----------------------
-  op parseFiInj : Qid Qid -> Bool .
-  eq parseFiInj(OQ,Q) = substr(string(Q),0,length(string(OQ)) + 3) == (string(OQ) + "inj") .
+  op parseFiVar : Qid Qid Term ~> Nat .
+  op parseFiVar : Bool Term ~> Nat .
+  ----------------------------------
+  eq parseFiVar(OQ,Q,T)    = parseFiVar(substr(string(Q),0,length(string(OQ)) + 3) == (string(OQ) + "Var"),T) .
+  eq parseFiVar(true,C)    = 0 .
+  eq parseFiVar(true,Q[T]) = rat(substr(string(Q),s(rfind(string(Q),"^",length(string(Q)))),length(string(Q))),10) .
 
   op fiNat : Qid Qid Nat -> Term .
-  eq fiNat(OQ,SQ,s(N)) = fiSuccSym(OQ)[fiNat(OQ,SQ,N)] .
+  eq fiNat(OQ,SQ,s(N)) = join(fiSuccSym(OQ) '^ qid(string(s(N),10)))[fiZeroSymOp(OQ,SQ)] .
   eq fiNat(OQ,SQ,0   ) = fiZeroSymOp(OQ,SQ) .
 endfm
 
