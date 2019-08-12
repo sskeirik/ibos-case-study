@@ -899,6 +899,11 @@ fmod REACH-PROOF-STATE-VALIDATION is
   op quant-check : QFCTermSet ReachFormSet -> ReachFormSet .
   eq quant-check(CT,RF & RFS) = if not intersection(vars(CT),vars(succ(RF))) subset vars(antc(RF)) then RF else mt fi & quant-check(CT,RFS) .
   eq quant-check(CT,mt)     = mt .
+
+  --- OUT: check if two variables (minus type) have the same name
+  op overlappingVarNames : ReachFormSet -> QidSet .
+  eq overlappingVarNames(RF & RFS) = overlappingVarNames(vars(RF)) ; overlappingVarNames(RFS) .
+  eq overlappingVarNames(mt)       = none .
 endfm
 
 fmod REACH-PROOF-STATE-OPS is

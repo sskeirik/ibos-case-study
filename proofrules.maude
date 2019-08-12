@@ -293,12 +293,13 @@ fmod REACH-PROOF-RULES-AUX is
   op printStep : Bool String [ProofUpdate] -> ProofUpdate .
   eq printStep(true, STR,(D')) = (D') [print STR " step checked failure"] .
   eq printStep(true, STR,(D' || GS)) =
-    if STR == "term-action" or-else STR == "pause-action" then (D' || GS) else printStepNum(STR,numGoals(GS),(D' || GS)) fi .
+    if STR == "term-action" or-else STR == "pause-action" then (D' || GS) else printStepNum(STR,numGoals(GS),overlappingVarNames(getbody(GS)),(D' || GS)) fi .
   eq printStep(true, STR,PU) = PU [print STR " ERROR step unchecked failure!" owise label printStepFail] .
   eq printStep(false,STR,PU) = PU .
 
-  op printStepNum : String Nat [ProofUpdate] -> ProofUpdate .
-  eq printStepNum(STR,GN,PU) = PU [print STR " step successors: " GN] .
+  op printStepNum : String Nat QidSet [ProofUpdate] -> ProofUpdate .
+  eq printStepNum(STR,GN,none,        PU) = PU [print STR " step successors: " GN] .
+  eq printStepNum(STR,GN,NQS:NeQidSet,PU) = PU [print STR " step successors: " GN " and overlapping vars: " NQS:NeQidSet] .
 
   op apply-proof-action : ProofMetadata ProofStrat ProofGoal -> ProofUpdate .
   eq apply-proof-action(D,simplify(B),G)= printStep(printStepName,"simp-action",simp-action(D,get-mod(D),B,G)) .
