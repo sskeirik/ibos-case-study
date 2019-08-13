@@ -61,7 +61,7 @@ loop rltl-init .
 --- 22. tab-change
 --- 23. kernelReceivesOPMessage-pa10
 
-(select-rls mem-in .)
+(select-rls kernelReceivesOPMessage-pa6-b .)
 
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U (MSG:Message) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (NML:NeMessageList) U
@@ -453,24 +453,45 @@ loop rltl-init .
 
 --- pa6-a
 --- pa6-b
---- (split ({ < WI | toKernel(T),                  A > C }) by (in-attrset?(URL(about-blank) | A)) = (true) and (in-attrset?(URL(about-blank) | A)) = (false) .)
---- (split ({ < WI | toKernel(T),                  A > C }) by (in-attrset?(loading(true)    | A)) = (true) and (in-attrset?(loading(true)    | A)) = (false) .)
---- (split ({ < WI | toKernel(T), loading(B:Bool), A > C }) by (B:Bool) = (true) and (B:Bool) = (false) .)
---- ---
---- (cases+ ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T:MessageList), A > NWC,WIS,NIS,none)) on T:MessageList by (N:NonFetchMsgList) U (H:HasFetchMsgList) .)
---- ---
---- (split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (PP1 ~p WI)      = (true) and (PP1 ~p WI)      = (false) .)
---- (split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (PP1 ~p WI)      = (true) and (PP1 ~p WI)      = (false) .)
---- ---
---- (split ({ C }) | (true) = (p(< WI | URL(OUT), toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (U ~l OUT)       = (true) and (U ~l OUT)       = (false) .)
---- (split ({ C }) | (true) = (p(< WI | URL(OUT), toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (U ~l OUT)       = (true) and (U ~l OUT)       = (false) .)
---- ---
---- (split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (NI? ~p network) = (true) and (NI? ~p network) = (false) .)
---- (split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (NI? ~p network) = (true) and (NI? ~p network) = (false) .)
---- ---
---- --- --- NB: only needed in 6-b case, so ensure match fails for 6-a
---- (split ({ < NI | A > < kernel | netlabels(pi(NI,IN,OUT),np NIS), A' > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
---- ---
+--- netproc well-formed and metadata correctly recorded
+(focus ({ < WI | toKernel(mt), A > C }) | true .)
+--- (focus ({ < WI | toKernel(T),  A > C }) | true / ({ < WI | toKernel(mt),  A > C }) | true .)
+--- check webproc atttrs are present
+(split ({ < WI | toKernel(T),                  A > C }) by (webproc-req-attrs(toKernel(T), A)) = (true) and (webproc-req-attrs(toKernel(T),A )) = (false) .)
+(split ({ < WI | toKernel(T),                  A > C }) by (T) = (mt) and (T) = (N:NeMessageList) .)
+(split ({ < WI | fromKernel(T),                A > C }) by (noRetMsg?(T)) = (true) and (noRetMsg?(T)) = (false) .)
+--- check that webproc's URL matches its metadata
+(split ({ < WI | loading(B), URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
+--- check that webproc is loaded
+(split ({ < WI | loading(B), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (B) = (true) and (B) = (false) .)
+--- check that netproc is loaded
+(split ({ < kernel | netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
+--- make sure returnTo agrees (NOTE: this blows up in size because we can't discharge until we apply axiom)
+(split ({ < NI | returnTo(PP1), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
+--- split by p() requirements
+(split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (PP1 ~p WI)      = (true) and (PP1 ~p WI)      = (false) .)
+(split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (PP1 ~p WI)      = (true) and (PP1 ~p WI)      = (false) .)
+---
+(split ({ C }) | (true) = (p(< WI | URL(OUT), toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (U ~l OUT)       = (true) and (U ~l OUT)       = (false) .)
+(split ({ C }) | (true) = (p(< WI | URL(OUT), toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (U ~l OUT)       = (true) and (U ~l OUT)       = (false) .)
+---
+(split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,none)) by (NI? ~p network) = (true) and (NI? ~p network) = (false) .)
+(split ({ C }) | (true) = (p(< WI |           toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,none)) by (NI? ~p network) = (true) and (NI? ~p network) = (false) .)
+--- TODO: figure out why these goals fail to match
+(split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
+                    < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
+                    pi(WI,L),wp WIS,pi(NI,L,L),np NIS,none)) = (true)
+  by  (MO undef-or-equal L and MI undef-or-equal L and fetchMsg2?(WI,NI,L,WFK) and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (true)
+  and (MO undef-or-equal L and MI undef-or-equal L and fetchMsg2?(WI,NI,L,WFK) and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (false)
+.)
+(split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(WTK @ T), fromKernel(WFK), A >
+                    < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
+                    pi(WI,L),wp WIS,pi(NI,L,L),np NIS,none)) = (true)
+  by  (fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS)) = (true)
+  and (fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS)) = (false)
+.)
+set print attribute on .
+(list-status . )
 --- (auto .)
 
 --- pa7
