@@ -174,11 +174,6 @@ fmod MSG-FVP-EXT is
   eq newurl-nodupl?(L,ML @ msg(PI,PI',MSG-SWITCH-TAB,OUT) @ ML2) = newurl-nodupl?(L,ML @ ML2) .
   eq newurl-nodupl?(L,mt)                                        = true .
 
-  op noRetMsg? : MessageList -> Bool [metadata "195 false"] .
-  eq noRetMsg?(ML @ R:RetMsg     @ ML2) = false [variant] .
-  eq noRetMsg?(ML @ NR:NonRetMsg @ ML2) = noRetMsg?(ML @ ML2) .
-  eq noRetMsg?(mt)                      = true .
-
   op sender : NeMessageList -> PipeId [metadata "194"] .
   eq sender(msg(PI,PI',M:MsgType,OUT) @ ML) = PI [variant] .
 
@@ -1062,6 +1057,11 @@ fmod IBOS-SOP-PRED is
  ceq retMsg?(WI,NI,L,ML @ msg(PI,PI',MSG-RETURN-URL,L') @ ML2) = false                     if NI ~p PI and WI ~p PI' and L ~l L' = false .
   eq retMsg?(WI,NI,L,ML @ NRM:NonRetMsg @ ML2)                 = retMsg?(WI,NI,L,ML @ ML2) .
   eq retMsg?(WI,NI,L,mt)                                       = true .
+
+  op noRetMsg? : MessageList -> Bool [metadata "195"] .
+  eq noRetMsg?(ML @ R:RetMsg     @ ML2) = false [variant] .
+  eq noRetMsg?(ML @ NR:NonRetMsg @ ML2) = noRetMsg?(ML @ ML2) .
+  eq noRetMsg?(mt)                      = true .
 
   --- Check the same-origin policy (SOP), written `p` for brevity
   op p : NetWebProcConfig WebProcInfoSet NetProcInfoSet Message? -> Bool? [metadata "250"] .
