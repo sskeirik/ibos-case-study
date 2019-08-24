@@ -799,7 +799,7 @@ mod RLTL-UI is
   =>
      if rltl-parse(PM,getTerm(rltl-metaparse(IN))) :: RLTLCommand
        then [nil,< rltl-o : rltl-c |
-         process-action(proc(rltl-parse(PM,getTerm(rltl-metaparse(IN))),PM), proof : [PM], AS) >,QL']
+         process-action(proc(rltl-parse(PM,getTerm(rltl-metaparse(IN))),PM), proof : [PM], AS) >,'\n 'Command: IN '\n QL']
        else [nil,< rltl-o : rltl-c | proof : [PM], AS > C,
          if not rltl-metaparse(IN) :: ResultPair
            then QL' 'Parse 'failure: 'command 'not 'recognized
