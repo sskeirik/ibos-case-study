@@ -556,69 +556,68 @@ loop rltl-init .
 --- (split ({ < ui | toKernel(T), A > < kernel | handledCurrently(msg(ui,webapp,MSG-NEW-URL,OUT)), weblabels(WIS), A' > C}) by (lbl-in-weblabels?(OUT,WIS)) = (true) and (lbl-in-weblabels?(OUT,WIS)) = (false) .)
 --- (auto .)
 
---- pa10 (webproc)
-(split ({ < NWI:ConcNetWebProcId | toKernel(T), A > C }) by (NWI:ConcNetWebProcId) = (WI) and (NWI:ConcNetWebProcId) = (NI) .)
-(focus ({ < WI | toKernel(T), A > C }) | true .)
---- check webproc attrs are present
-(split ({ < WI | toKernel(T),                  A > C }) by (webproc-req-attrs(toKernel(T), A)) = (true) and (webproc-req-attrs(toKernel(T),A )) = (false) .)
-(split ({ < WI | toKernel(T),                  A > C }) by (T) = (mt) and (T) = (N:NeMessageList) .)
---- TODO: fixme
-(focus ({ < WI | toKernel(NML), A > C }) | true .)
---- add webproc to metadata
-(split ({ < WI | URL(L), toKernel(T), A > < kernel | weblabels(WIS), A' > C }) by (in-wis?(pi(WI,L),WIS)) = (true) and (in-wis?(pi(WI,L),WIS)) = (false) .)
---- check that webproc's URL matches its metadata and is loaded
-(split ({ < WI | loading(B), URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
-(split ({ < WI | loading(B), URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (B)       = (true) and (B)       = (false) .)
---- split by p() requirements before netproc created
---- shared p() requirements
-(split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MT,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (MT) = (MSG-FETCH-URL) and (MT) = (N:NonFetchMsgType) .)
-(split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MT,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (MT) = (MSG-FETCH-URL) and (MT) = (N:NonFetchMsgType) .)
----
-(split ({ C }) | (true) = (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T),A > NWC,WIS,NIS,MSG?)) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
-(split ({ C }) | (true) = (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ),A > NWC,WIS,NIS,MSG?)) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
----
-(split ({ C }) | (true) = (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T),A > NWC,WIS,NIS,MSG?)) by (GPPI ~p network) = (true) and (GPPI ~p network) = (false) .)
-(split ({ C }) | (true) = (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ),A > NWC,WIS,NIS,MSG?)) by (GPPI ~p network) = (true) and (GPPI ~p network) = (false) .)
----
-(split  ({ C }) | (p(< WI | URL(OUT), toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
-(split  ({ C }) | (p(< WI | URL(OUT), toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (U ~l OUT) = (true) and (U ~l OUT) = (false) .)
-(split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A > < kernel | netlabels(NIS), A' > C })
-  by  (np-by-inlbl?(L,NIS)) = (true)
-  and (np-by-inlbl?(L,NIS)) = (false)
-.)
---- TODO: remove me
-(focus ({ C }) | (np-by-inlbl?(L,NIS)) = (false) .)
---- np-by-inlbl?(L,NIS) = false case
-(split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A > < kernel | netlabels(NIS), A' > C }) | (np-by-inlbl?(L,NIS)) = (false)
-  by  (noRetMsg?(WFK)) = (true)
-  and (noRetMsg?(WFK)) = (false)
-.)
-(split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(NML), fromKernel(WTK @ N:NonFetchMsg), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false)
-  by  (fetchMsg1?(WI,B,L,NML,NIS)) = (true)
-  and (fetchMsg1?(WI,B,L,NML,NIS)) = (false)
-.)
-(split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(NML), fromKernel(WTK @ N:FetchMsg), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false)
-  by  (fetchMsg1?(WI,false,L,NML,NIS)) = (true)
-  and (fetchMsg1?(WI,false,L,NML,NIS)) = (false)
-.)
+--- --- pa10 (webproc)
+--- (split ({ < NWI:ConcNetWebProcId | toKernel(T), A > C }) by (NWI:ConcNetWebProcId) = (WI) and (NWI:ConcNetWebProcId) = (NI) .)
+--- (focus ({ < WI | toKernel(T), A > C }) | true .)
+--- --- check webproc attrs are present
+--- (split ({ < WI | toKernel(T),                  A > C }) by (webproc-req-attrs(toKernel(T), A)) = (true) and (webproc-req-attrs(toKernel(T),A )) = (false) .)
+--- (split ({ < WI | toKernel(T),                  A > C }) by (T) = (mt) and (T) = (N:NeMessageList) .)
+--- --- add webproc to metadata
+--- (split ({ < WI | URL(L), toKernel(T), A > < kernel | weblabels(WIS), A' > C }) by (in-wis?(pi(WI,L),WIS)) = (true) and (in-wis?(pi(WI,L),WIS)) = (false) .)
+--- --- check that webproc's URL matches its metadata and is loaded
+--- (split ({ < WI | loading(B), URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
+--- (split ({ < WI | loading(B), URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (B)       = (true) and (B)       = (false) .)
+--- --- split by p() requirements before netproc created
+--- --- shared requirements
+--- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MT,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (MT) = (MSG-FETCH-URL) and (MT) = (N:NonFetchMsgType) .)
+--- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MT,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (MT) = (MSG-FETCH-URL) and (MT) = (N:NonFetchMsgType) .)
+--- --- split on netproc
+--- (split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A > < kernel | netlabels(NIS), A' > C })
+---   by  (np-by-inlbl?(L,NIS)) = (true)
+---   and (np-by-inlbl?(L,NIS)) = (false)
+--- .)
+--- --- np-by-inlbl?(L,NIS) = false case
+--- --- split with these conditions first because the branch factor is low
+--- (split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A > < kernel | netlabels(NIS), A' > C }) | (np-by-inlbl?(L,NIS)) = (false)
+---   by  (noRetMsg?(WFK)) = (true)
+---   and (noRetMsg?(WFK)) = (false)
+--- .)
+--- ---
+--- (split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(N:NonFetchMsg @ NML), fromKernel(WFK), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false)
+---   by  (fetchMsg1?(WI,B,L,NML,NIS)) = (true)
+---   and (fetchMsg1?(WI,B,L,NML,NIS)) = (false)
+--- .)
+--- (split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(F:FetchMsg @ NML),    fromKernel(WFK), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false)
+---   by  (fetchMsg1?(WI,false,L,NML,NIS)) = (true)
+---   and (fetchMsg1?(WI,false,L,NML,NIS)) = (false)
+--- .)
+--- --- split on these conditions next due to a high branching factor
+--- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T),A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
+--- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ),A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
+--- ---
+--- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T),A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false) by (GPPI ~p network) = (true) and (GPPI ~p network) = (false) .)
+--- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ),A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false) by (GPPI ~p network) = (true) and (GPPI ~p network) = (false) .)
+--- ---
+--- (split ({ C }) | (p(< WI | URL(L), toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false) by (U ~l L) = (true) and (U ~l L) = (false) .)
+--- (split ({ C }) | (p(< WI | URL(L), toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false) by (U ~l L) = (true) and (U ~l L) = (false) .)
 --- --- np-by-inlbl?(L,NIS) = true case
 --- --- ensure netproc exists and metadata wellformed
---- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
+--- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,IN), np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
 --- (split ({ < NI | returnTo(PP1), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
---- --- check that webproc is loaded
---- (split ({ < WI | loading(B), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (B) = (true) and (B) = (false) .)
 --- ---
---- (split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A > < kernel | netlabels(pi(NI,L,L),np NIS), A' > C })
----   by  (fetchMsg2?(WI,NI,L,WFK) and retMsg?(WI,NI,L,WFK)) = (true)
----   and (fetchMsg2?(WI,NI,L,WFK) and retMsg?(WI,NI,L,WFK)) = (false)
+--- (split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
+---           < NI | toKernel(NTK), mem-out(MO), mem-in(MI), out(OL), in(IL), A' > C })
+---   by  (fetchMsg2?(WI,NI,L,WFK) and allEqLabel?(L,OL ; IL) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK)) = (true)
+---   and (fetchMsg2?(WI,NI,L,WFK) and allEqLabel?(L,OL ; IL) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK)) = (false)
 --- .)
---- (split ({ < WI | URL(L), loading(B), toKernel(NML), fromKernel(WFK), A > < kernel | netlabels(pi(NI,L,L),np NIS), A' > C })
+--- ---
+--- (split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(N:NonFetchMsg @ NML), A > NWC,WIS,pi(NI,L,L),np NIS,MSG?)) = (true)
 ---   by  (fetchMsg1?(WI,B,L,NML,pi(NI,L,L),np NIS)) = (true)
 ---   and (fetchMsg1?(WI,B,L,NML,pi(NI,L,L),np NIS)) = (false)
 --- .)
-
-(list-status .)
+--- --- finish things off
+--- (auto .)
 
 --- pa10 (netproc)
 --- (split ({ < NWI:ConcNetWebProcId | toKernel(T), A > C }) by (NWI:ConcNetWebProcId) = (WI) and (NWI:ConcNetWebProcId) = (NI) .)
