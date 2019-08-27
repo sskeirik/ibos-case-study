@@ -647,6 +647,39 @@ loop rltl-init .
 (deleteInactive .)
 --- split on toKernel variable for induction purposes
 (split ({ < NI | toKernel(T), A > C }) by (T) = (mt) and (T) = (N:NeMessageList) .)
+--- split by p() requirements
+(split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
+          < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' >
+          < kernel | netlabels(pi(NI,L,L),np NIS), weblabels(pi(WI,L),wp WIS), A'' > C })
+  by  (fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,WFK) and allEqLabel?(L,OL ; IL) and MO undef-or-equal L and MI undef-or-equal L) = (true)
+  and (fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,WFK) and allEqLabel?(L,OL ; IL) and MO undef-or-equal L and MI undef-or-equal L) = (false)
+.)
+(split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
+          < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(mt), A' >
+          < kernel | netlabels(pi(NI,L,L),np NIS), weblabels(pi(WI,L),wp WIS), A'' > C })
+  by  (retMsg?(WI,NI,L,WFK)) = (true)
+  and (retMsg?(WI,NI,L,WFK)) = (false)
+.)
+(split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
+          < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NML), A' >
+          < kernel | netlabels(pi(NI,L,L),np NIS), weblabels(pi(WI,L),wp WIS), A'' > C })
+  by  (retMsg?(WI,NI,L,NML @ WFK)) = (true)
+  and (retMsg?(WI,NI,L,NML @ WFK)) = (false)
+.)
+--- shared requirements
+(split ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) by (MT) = (MSG-RETURN-URL) and (MT) = (N:NonRetMsgType) .)
+(split ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MT,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (MT) = (MSG-RETURN-URL) and (MT) = (N:NonRetMsgType) .)
+--- split on these conditions next due to a high branching factor
+(split ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MSG-RETURN-URL,U) @ T),A > NWC,WIS,NIS,MSG?)) = (true) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
+(split ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MSG-RETURN-URL,U)    ),A > NWC,WIS,NIS,MSG?)) = (true) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
+---
+(split ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MSG-RETURN-URL,U) @ T),A > NWC,pi(WI,L),wp WIS,pi(NI,L,L),np NIS,MSG?)) = (true) by (GPPI ~p WI) = (true) and (GPPI ~p WI) = (false) .)
+(split ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MSG-RETURN-URL,U)    ),A > NWC,pi(WI,L),wp WIS,pi(NI,L,L),np NIS,MSG?)) = (true) by (GPPI ~p WI) = (true) and (GPPI ~p WI) = (false) .)
+---
+(split ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MSG-RETURN-URL,U) @ T), A > NWC,WIS,pi(NI,L,L),np NIS,MSG?)) = (true) by (U ~l L) = (true) and (U ~l L) = (false) .)
+(split ({ C }) | (p(< NI | toKernel(msg(PP1,GPPI,MSG-RETURN-URL,U)    ), A > NWC,WIS,pi(NI,L,L),np NIS,MSG?)) = (true) by (U ~l L) = (true) and (U ~l L) = (false) .)
+--- finish up
+(auto .)
 
 --- --- pa10
 --- (split ({ < NWI:ConcNetWebProcId | toKernel(T), A > C }) by (NWI:ConcNetWebProcId) = (WI) and (NWI:ConcNetWebProcId) = (NI) .)
