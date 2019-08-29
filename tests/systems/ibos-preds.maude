@@ -1021,8 +1021,7 @@ fmod IBOS-SOP-PRED is
   eq currHandled1?(WI,NI,L,msg(PI,PI',MSG-FETCH-URL, L')) = (WI ~p PI and NI ~p PI' and L ~l L') or not (WI ~p PI or NI ~p PI' or L ~l L') .
   eq currHandled1?(WI,NI,L,msg(PI,PI',MSG-RETURN-URL,L')) = (NI ~p PI and WI ~p PI' and L ~l L') or not (NI ~p PI or WI ~p PI' or L ~l L') .
   --- don't care true cases
-  eq currHandled1?(WI,NI,L,msg(PI,PI',MSG-SWITCH-TAB,L')) = true .
-  eq currHandled1?(WI,NI,L,msg(PI,PI',MSG-NEW-URL,   L')) = true .
+  eq currHandled1?(WI,NI,L,NRFM:NonRetFetchMsg          ) = true .
   eq currHandled1?(WI,NI,L,none                         ) = true .
 
   op currHandled2? : Message? WebProcInfoSet -> Bool [metadata "203"] .
