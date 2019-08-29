@@ -1048,10 +1048,7 @@ fmod IBOS-SOP-PRED is
  ceq fetchMsg1?(WI,true, L,ML,NIS) = true  if fetchMsg1?(WI,false,L,ML,NIS) = true  .
 
   op fetchMsg2? : ConcWebProcId ConcNetProcId Label MessageList -> Bool [metadata "205"] .
- ceq fetchMsg2?(WI,NI,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2) = fetchMsg2?(WI,NI,L,ML @ ML2) if WI ~p PI and NI ~p PI' and L ~l L' = true  .
- ceq fetchMsg2?(WI,NI,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2) = false                        if WI ~p PI and NI ~p PI' and L ~l L' = false .
-  eq fetchMsg2?(WI,NI,L,ML @ NFM:NonFetchMsg @ ML2)              = fetchMsg2?(WI,NI,L,ML @ ML2) .
-  eq fetchMsg2?(WI,NI,L,mt)                                      = true .
+  eq fetchMsg2?(WI,NI,L,ML) = true .
 
   op retMsg? : ConcWebProcId ConcNetProcId Label MessageList -> Bool [metadata "206"] .
  ceq retMsg?(WI,NI,L,ML @ msg(PI,PI',MSG-RETURN-URL,L') @ ML2) = retMsg?(WI,NI,L,ML @ ML2) if NI ~p PI and WI ~p PI' and L ~l L' = true  .
