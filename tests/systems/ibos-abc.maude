@@ -18,12 +18,6 @@ fmod FOFORMSIMPLIFY-IMP-IMPL-EXT is
   eq 'false.Bool != '_and_[T,T'] = 'false.Bool != T \/ 'false.Bool != T' .
   eq 'false.Bool ?= 'true.Bool   = ff .
   eq 'false.Bool != 'true.Bool   = tt .
-
-  --- Lemmas needed for kernelReceivesOPMessage-pa9/10
-  var LBL MSGL PI PI' WIS : Term .
-  eq 'true.Bool != 'newurl-nodupl?[LBL,MSGL]
-  \/ 'true.Bool != 'ui-consistent?['_@_['msg[PI,'webapp.AbsWebProcId,'MSG-NEW-URL.NonRetFetchMsgType,LBL],MSGL],WIS]
-   = 'true.Bool != 'ui-consistent?[MSGL,WIS] .
 endfm
 
 select RLTOOL .
@@ -102,7 +96,6 @@ loop rltl-init .
    (weblabel-by-pid(WI,WIS) ~l CURR)                              = (true)  /\
    (display-topbar-consistent?(WI,DISP,CURR,NWC))                 = (true)  /\
    (render-consistent?(NWC))                                      = (true)
-   --- TODO: add constraint for np-by-inlbl?(L,NIS) = false but inside label inside NIC
 .)
 
 (start-proof .)
