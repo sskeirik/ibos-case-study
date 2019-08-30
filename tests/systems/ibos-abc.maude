@@ -55,7 +55,7 @@ loop rltl-init .
 --- 22. tab-change
 --- 23. kernelReceivesOPMessage-pa10
 
-(select-rls kernelReceivesOPMessage-pa10 .)
+(select-rls kernelReceivesOPMessage-pa6-b .)
 
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U (MSG:Message) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (NML:NeMessageList) U
@@ -109,7 +109,7 @@ loop rltl-init .
 --- (split ({ < webappmgr | nextWPN(NWP + 1), A > < kernel | weblabels(pi(webapp(NWP),U),wp WIS), A' > < webapp(NWP) | URL(U), A'' > C}) by
 ---   (lbl-in-weblabels?(U,WIS)) = (true) and (lbl-in-weblabels?(U,WIS)) = (false) .)
 --- (split ({ < webappmgr | nextWPN(NWP + 1), A > < kernel | weblabels(pi(webapp(NWP),U),wp WIS), netlabels(NIS), A' > < webapp(NWP) | URL(U), A'' > C}) by
----   (np-by-inlbl?(U,NIS)) = (true) and (np-by-inlbl?(U,NIS)) = (false) .)
+---   (np-by-lbl?(U,NIS)) = (true) and (np-by-lbl?(U,NIS)) = (false) .)
 --- (auto .)
 
 --- tab-change
@@ -122,7 +122,7 @@ loop rltl-init .
 --- (split ({ < WI | loading(B), A > C }) by (webproc-req-attrs(loading(B), A)) = (true) and (webproc-req-attrs(loading(B), A)) = (false) .)
 --- (split ({ < WI | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (U) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
 --- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
---- (split ({ < WI | loading(B), URL(U), A > < kernel | netlabels(NIS), A' > C }) by (np-by-inlbl?(U,NIS)) = (true) and (np-by-inlbl?(U,NIS)) = (false) .)
+--- (split ({ < WI | loading(B), URL(U), A > < kernel | netlabels(NIS), A' > C }) by (np-by-lbl?(U,NIS)) = (true) and (np-by-lbl?(U,NIS)) = (false) .)
 --- (split ({ < WI | loading(B), toKernel(T @ MSG), A > C }) by (T) = (N:NeMessageList) and (T) = (mt) .)
 --- (split ({ < WI | URL(U), toKernel(T @ MSG), fromKernel(F), A > < kernel | netlabels(NIS), A' > C }) by
 ---    (fetchMsg1?(WI,false,U,T,NIS) and noRetMsg?(F)) = (true) and (fetchMsg1?(WI,false,U,T,NIS) and noRetMsg?(F)) = (false) .)
@@ -133,7 +133,7 @@ loop rltl-init .
 --- (focus ({ C }) | true / ({ < WI | A > < WI' | A' > C }) | true .)
 --- --- Instantiate terms for p() predicate
 --- (split ({ C }) | (p(< WI | A > NWC,WIS,NIS,MSG?)) = (true) by (webproc-req-attrs(A)) = (true) and (webproc-req-attrs(A)) = (false) .)
---- (split ({ < kernel | weblabels(pi(WI,L),wp WIS), netlabels(NIS), A > C }) by (np-by-inlbl?(L,NIS)) = (true) and (np-by-inlbl?(L,NIS)) = (false) .)
+--- (split ({ < kernel | weblabels(pi(WI,L),wp WIS), netlabels(NIS), A > C }) by (np-by-lbl?(L,NIS)) = (true) and (np-by-lbl?(L,NIS)) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
 --- (split ({ < NI | returnTo(PP1), A > < WI | A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
@@ -175,7 +175,7 @@ loop rltl-init .
 --- (split ({ C }) | (p(< WI | loading(B), A > NWC,WIS,NIS,MSG?)) = (true) by
 ---   (webproc-req-attrs((loading(B), A))) = (true) and (webproc-req-attrs((loading(B), A))) = (false) .)
 --- (split ({ < WI | loading(B), A > < kernel | weblabels(pi(WI,L),wp WIS), netlabels(NIS), A' > C }) by
----   (np-by-inlbl?(L,NIS)) = (true) and (np-by-inlbl?(L,NIS)) = (false) .)
+---   (np-by-lbl?(L,NIS)) = (true) and (np-by-lbl?(L,NIS)) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
 --- (split ({ < NI | returnTo(PP1), A > < WI | loading(B), A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
@@ -458,11 +458,6 @@ loop rltl-init .
 --- (split ({ < WI | loading(B), URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- (split ({ < WI | loading(B), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (B) = (true) and (B) = (false) .)
 --- --- split by p() requirements before netproc created
---- (split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A > < kernel | netlabels(pi(NI,L,L),np NIS), A' > C })
----   by  (np-by-inlbl?(L,NIS)) = (true)
----   and (np-by-inlbl?(L,NIS)) = (false)
---- .)
---- ---
 --- (split ({ C }) | (true) = (p(< WI | toKernel(msg(PP1,NI?,MSG-FETCH-URL,U) @ T),A > NWC,WIS,NIS,none)) by (PP1 ~p WI)      = (true) and (PP1 ~p WI)      = (false) .)
 --- (split ({ C }) | (true) = (p(< WI | toKernel(msg(PP1,NI?,MSG-FETCH-URL,U)    ),A > NWC,WIS,NIS,none)) by (PP1 ~p WI)      = (true) and (PP1 ~p WI)      = (false) .)
 --- ---
@@ -479,8 +474,8 @@ loop rltl-init .
 --- .)
 --- --- split by p() requirements after netproc created
 --- (split ({ < WI | URL(L), loading(B), toKernel(NML), fromKernel(WFK), A > < kernel | netlabels(pi(NI,L,L),np NIS), A' > C })
----   by  (fetchMsg1?(WI,B,L,NML,pi(NI,L,L),np NIS)) = (true)
----   and (fetchMsg1?(WI,B,L,NML,pi(NI,L,L),np NIS)) = (false)
+---   by  (fetchMsg1?(WI,B,L,NML,pi(NI,L,L),np NIS) and retMsg?(WI,NI,L,WFK)) = (true)
+---   and (fetchMsg1?(WI,B,L,NML,pi(NI,L,L),np NIS) and retMsg?(WI,NI,L,WFK)) = (false)
 --- .)
 --- (auto .)
 
@@ -547,34 +542,34 @@ loop rltl-init .
 --- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MT,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) by (MT) = (MSG-FETCH-URL) and (MT) = (N:NonFetchMsgType) .)
 --- --- split on netproc
 --- (split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A > < kernel | netlabels(NIS), A' > C })
----   by  (np-by-inlbl?(L,NIS)) = (true)
----   and (np-by-inlbl?(L,NIS)) = (false)
+---   by  (np-by-lbl?(L,NIS)) = (true)
+---   and (np-by-lbl?(L,NIS)) = (false)
 --- .)
---- --- np-by-inlbl?(L,NIS) = false case
+--- --- np-by-lbl?(L,NIS) = false case
 --- --- split with these conditions first because the branch factor is low
---- (split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A > < kernel | netlabels(NIS), A' > C }) | (np-by-inlbl?(L,NIS)) = (false)
+--- (split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A > < kernel | netlabels(NIS), A' > C }) | (np-by-lbl?(L,NIS)) = (false)
 ---   by  (noRetMsg?(WFK)) = (true)
 ---   and (noRetMsg?(WFK)) = (false)
 --- .)
 --- ---
---- (split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(N:NonFetchMsg @ NML), fromKernel(WFK), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false)
+--- (split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(N:NonFetchMsg @ NML), fromKernel(WFK), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-lbl?(L,NIS)) = (false)
 ---   by  (fetchMsg1?(WI,B,L,NML,NIS)) = (true)
 ---   and (fetchMsg1?(WI,B,L,NML,NIS)) = (false)
 --- .)
---- (split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(F:FetchMsg @ NML),    fromKernel(WFK), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false)
+--- (split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(F:FetchMsg @ NML),    fromKernel(WFK), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-lbl?(L,NIS)) = (false)
 ---   by  (fetchMsg1?(WI,false,L,NML,NIS)) = (true)
 ---   and (fetchMsg1?(WI,false,L,NML,NIS)) = (false)
 --- .)
 --- --- split on these conditions next due to a high branching factor
---- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T),A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
---- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ),A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
+--- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T),A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-lbl?(L,NIS)) = (false) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
+--- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ),A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-lbl?(L,NIS)) = (false) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
 --- ---
---- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T),A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false) by (GPPI ~p network) = (true) and (GPPI ~p network) = (false) .)
---- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ),A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false) by (GPPI ~p network) = (true) and (GPPI ~p network) = (false) .)
+--- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T),A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-lbl?(L,NIS)) = (false) by (GPPI ~p network) = (true) and (GPPI ~p network) = (false) .)
+--- (split ({ C }) | (p(< WI | toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ),A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-lbl?(L,NIS)) = (false) by (GPPI ~p network) = (true) and (GPPI ~p network) = (false) .)
 --- ---
---- (split ({ C }) | (p(< WI | URL(L), toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false) by (U ~l L) = (true) and (U ~l L) = (false) .)
---- (split ({ C }) | (p(< WI | URL(L), toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false) by (U ~l L) = (true) and (U ~l L) = (false) .)
---- --- np-by-inlbl?(L,NIS) = true case
+--- (split ({ C }) | (p(< WI | URL(L), toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U) @ T), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-lbl?(L,NIS)) = (false) by (U ~l L) = (true) and (U ~l L) = (false) .)
+--- (split ({ C }) | (p(< WI | URL(L), toKernel(msg(PP1,GPPI,MSG-FETCH-URL,U)    ), A > NWC,WIS,NIS,MSG?)) = (true) /\ (np-by-lbl?(L,NIS)) = (false) by (U ~l L) = (true) and (U ~l L) = (false) .)
+--- --- np-by-lbl?(L,NIS) = true case
 --- --- ensure netproc exists and metadata wellformed
 --- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,IN), np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
@@ -723,17 +718,17 @@ loop rltl-init .
 --- (split ({ < WI | loading(B), URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (B)       = (true) and (B)       = (false) .)
 --- --- split on netproc
 --- (split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A > < kernel | netlabels(NIS), A' > C })
----   by  (np-by-inlbl?(L,NIS)) = (true)
----   and (np-by-inlbl?(L,NIS)) = (false)
+---   by  (np-by-lbl?(L,NIS)) = (true)
+---   and (np-by-lbl?(L,NIS)) = (false)
 --- .)
 --- --- split on fromKernel attr
 --- (split ({ C }) | (p(< WI | fromKernel(NFK), A > NWC,WIS,NIS,MSG?)) = (true) by (NFK) = (mt) and (NFK) = (N:NeMessageList) .)
---- --- np-by-inlbl?(L,NIS) = false case
---- (split ({ C }) | (p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > NWC,pi(WI,L),wp WIS,NIS,MSG?)) = (true) /\ (np-by-inlbl?(L,NIS)) = (false)
+--- --- np-by-lbl?(L,NIS) = false case
+--- (split ({ C }) | (p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > NWC,pi(WI,L),wp WIS,NIS,MSG?)) = (true) /\ (np-by-lbl?(L,NIS)) = (false)
 ---   by  (fetchMsg1?(WI,B,L,WTK,NIS) and noRetMsg?(WFK)) = (true)
 ---   and (fetchMsg1?(WI,B,L,WTK,NIS) and noRetMsg?(WFK)) = (false)
 --- .)
---- --- np-by-inlbl?(L,NIS) = true case
+--- --- np-by-lbl?(L,NIS) = true case
 --- --- ensure netproc exists and metadata wellformed
 --- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,IN), np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)

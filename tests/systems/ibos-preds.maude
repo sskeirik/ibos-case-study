@@ -634,10 +634,10 @@ fmod IBOS-AUX-FVP is
   eq lbl-in-weblabels?(IN,mtWPIS)              = false .
 
   --- 24. Check if a label appears in the first component of a NetProcInfo in a NetProcInfoSet
-  op np-by-inlbl? : Label NetProcInfoSet -> Bool [metadata "113 true"] .
-  eq np-by-inlbl?(IN,pi(NP,IN, OUT),np NIS) = true [variant] .
- ceq np-by-inlbl?(IN,pi(NP,IN',OUT),np NIS) = np-by-inlbl?(IN,NIS) if IN ~l IN' = false .
-  eq np-by-inlbl?(IN,               mtNPIS) = false .
+  ---   op np-by-inlbl? : Label NetProcInfoSet -> Bool [metadata "113 true"] .
+  ---   eq np-by-inlbl?(IN,pi(NP,IN, OUT),np NIS) = true [variant] .
+  ---  ceq np-by-inlbl?(IN,pi(NP,IN',OUT),np NIS) = np-by-inlbl?(IN,NIS) if IN ~l IN' = false .
+  ---   eq np-by-inlbl?(IN,               mtNPIS) = false .
 
   op webproc-req-attrs : AttributeSet -> Bool [metadata "114 true"] .
   eq webproc-req-attrs(toKernel(T:MessageList), fromKernel(F:MessageList), URL(U:Label), rendered(R:Label), loading(B:Bool), A) = true [variant] .
@@ -1038,10 +1038,10 @@ fmod IBOS-SOP-PRED is
   eq currHandled2?(RM:RetMsg,WIS)   = true .
   eq currHandled2?(none,WIS)        = true .
 
-  --- NOTE: not np-by-inlbl?() condition forces only fetch-url to be processed
+  --- NOTE: not np-by-lbl?() condition forces only fetch-url to be processed
   op fetchMsg1? : ConcWebProcId Bool Label MessageList NetProcInfoSet -> Bool [metadata "204"] .
- ceq fetchMsg1?(WI,B,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = fetchMsg1?(WI,false,L,ML @ ML2,NIS) if B and WI ~p PI and network ~p PI' and L ~l L' and not np-by-inlbl?(L,NIS) = true  .
- ceq fetchMsg1?(WI,B,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = false                               if B and WI ~p PI and network ~p PI' and L ~l L' and not np-by-inlbl?(L,NIS) = false .
+ ceq fetchMsg1?(WI,B,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = fetchMsg1?(WI,false,L,ML @ ML2,NIS) if B and WI ~p PI and network ~p PI' and L ~l L' and not np-by-lbl?(L,NIS) = true  .
+ ceq fetchMsg1?(WI,B,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = false                               if B and WI ~p PI and network ~p PI' and L ~l L' and not np-by-lbl?(L,NIS) = false .
   eq fetchMsg1?(WI,B,L,ML @ NFM:NonFetchMsg @ ML2,NIS)              = fetchMsg1?(WI,B,L,ML @ ML2,NIS) .
   eq fetchMsg1?(WI,B,L,mt,NIS)                                      = true .
   --- Lemma needed for for rule pa10
@@ -1066,8 +1066,8 @@ fmod IBOS-SOP-PRED is
   --- Throw out all cases where configuration process groups/metadata inconsistent
  ceq p(< WI |                     A > NWC,WIS,NIS,M?) = false if weblabel-by-pid(WI,WIS)       = nolabel .
  ceq p(< WI | URL(L),             A > NWC,WIS,NIS,M?) = false if in-wis?(pi(WI,L),WIS)         = false   .
- --- ceq p(< WI | URL(L),             A > NWC,WIS,NIS,M?) = false if (not np-by-inlbl?(L,NIS)) and (lbl-in-non-origin?(L,< WI | URL(L), A > NWC) or lbl-in-msg?(L,M?)) = true .
- ceq p(< WI | loading(B), URL(L), A > NWC,WIS,NIS,M?) = false if np-by-inlbl?(L,NIS) and not B = true    .
+ --- ceq p(< WI | URL(L),             A > NWC,WIS,NIS,M?) = false if (not np-by-lbl?(L,NIS)) and (lbl-in-non-origin?(L,< WI | URL(L), A > NWC) or lbl-in-msg?(L,M?)) = true .
+ ceq p(< WI | loading(B), URL(L), A > NWC,WIS,NIS,M?) = false if np-by-lbl?(L,NIS) and not B = true    .
  ceq p(< NI |                     A > NWC,WIS,NIS,M?) = false if netlabelpair-by-pid(NI,NIS)   = nopair  .
  ceq p(< NI | returnTo(CPI),      A > NWC,WIS,NIS,M?) = false if weblabel-by-pid(CPI,WIS)      = nolabel .
  ceq p(< NI | returnTo(CPI),      A > NWC,WIS,NIS,M?) = false if in-conf?(CPI,NWC)             = false   .
@@ -1105,11 +1105,11 @@ fmod IBOS-SOP-PRED is
 
   --- Group 1 - not loaded WebProc
  ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > NWC,pi(WI,L),wp WIS,NIS,M?) = p(NWC,WIS,NIS,M?)
-  if np-by-inlbl?(L,NIS) = false
+  if np-by-lbl?(L,NIS) = false
   /\ fetchMsg1?(WI,B,L,WTK,NIS) and noRetMsg?(WFK) = true .
 
  ceq p(< WI | loading(B), URL(L), toKernel(WTK), fromKernel(WFK), A > NWC,pi(WI,L),wp WIS,NIS,M?) = false
-  if np-by-inlbl?(L,NIS) = false
+  if np-by-lbl?(L,NIS) = false
   /\ fetchMsg1?(WI,B,L,WTK,NIS) and noRetMsg?(WFK) = false .
 
  ceq p(NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,none) if dropCurrHandled?(M?) = true .
