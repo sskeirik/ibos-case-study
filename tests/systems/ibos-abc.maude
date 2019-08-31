@@ -473,9 +473,13 @@ loop rltl-init .
 ---   and (fetchMsg1?(WI,false,L,NML,NIS)) = (false)
 --- .)
 --- --- split by p() requirements after netproc created
+--- (split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A > < kernel | netlabels(pi(NI,L,L),np NIS), A' > C })
+---   by  (retMsg?(WI,NI,L,WFK)) = (true)
+---   and (retMsg?(WI,NI,L,WFK)) = (false)
+--- .)
 --- (split ({ < WI | URL(L), loading(B), toKernel(NML), fromKernel(WFK), A > < kernel | netlabels(pi(NI,L,L),np NIS), A' > C })
----   by  (fetchMsg1?(WI,B,L,NML,pi(NI,L,L),np NIS) and retMsg?(WI,NI,L,WFK)) = (true)
----   and (fetchMsg1?(WI,B,L,NML,pi(NI,L,L),np NIS) and retMsg?(WI,NI,L,WFK)) = (false)
+---   by  (fetchMsg1?(WI,B,L,NML,pi(NI,L,L),np NIS)) = (true)
+---   and (fetchMsg1?(WI,B,L,NML,pi(NI,L,L),np NIS)) = (false)
 --- .)
 --- (auto .)
 
