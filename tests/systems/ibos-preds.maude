@@ -767,7 +767,6 @@ endfm
 ---
 fmod IBOS-AUX-NONFVP is
   pr IBOS-PREDS-FVP .
-  pr KERNEL-POLICIES-NONFVP .
   pr ATTRIBUTE-NONFVP-EXT .
 
   var W N M : Nat .

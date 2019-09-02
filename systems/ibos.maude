@@ -455,19 +455,12 @@ fmod KERNEL-POLICIES-FVP is
   **** message to be sent - initial policy set defined in RUN
   **** Transformed into labeled conditional rules in module KERNEL
   ****
-endfm
-
-fmod KERNEL-POLICIES-NONFVP is
-  pr KERNEL-POLICIES-FVP .
 
   var L L' L'' : Label . var N N' : Nat .
-  var NI NI' : ConcNetProcId . var WI WI' : ConcWebProcId .
-  var NPIS : NetProcInfoSet . var WPIS : WebProcInfoSet .
-  var PI PI' : ConcProcId .
-  var NPI NPI' : NonPipeId .
+  var NPIS : NetProcInfoSet .
 
   **** auxiliary function for checking that a network process links to a given label
-  op np-by-lbl? : Label NetProcInfoSet -> Bool [metadata "83"] .
+  op np-by-lbl? : Label NetProcInfoSet -> Bool [metadata "83 true"] .
   eq np-by-lbl?(L',(pi(network(N),L,L') ,np NPIS)) = true [variant] .
  ceq np-by-lbl?(L',(pi(network(N),L,L'') ,np NPIS)) = np-by-lbl?(L',NPIS) if L' ~l L'' = false .
   eq np-by-lbl?(L',mtNPIS) = false .
@@ -475,7 +468,7 @@ endfm
 
 mod KERNEL is
   **** A lot of the 'kernel' things are found above in 'KERNEL-POLICIES' instead
-  inc KERNEL-POLICIES-NONFVP .
+  inc KERNEL-POLICIES-FVP .
 
   var Att Att2    : AttributeSet .
   var Att3        : AttributeSet .
