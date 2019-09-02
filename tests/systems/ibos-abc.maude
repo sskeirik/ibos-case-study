@@ -55,7 +55,7 @@ loop rltl-init .
 --- 22. tab-change
 --- 23. kernelReceivesOPMessage-pa10
 
-(select-rls kernelReceivesOPMessage-pa6-b .)
+(select-rls kernelForwardsOPMessage .)
 
 (declare-vars (C:Configuration) U (NWC:NetWebProcConfig) U (WIS:WebProcInfoSet) U (NIS:NetProcInfoSet) U (MSG?:Message?) U (MSG:Message) U
               (NNP:Nat) U (NWP:Nat) U (CURR:Label) U (B:Bool) U (B':Bool) U (UIML:MessageList) U (NML:NeMessageList) U
@@ -520,11 +520,11 @@ loop rltl-init .
 --- .)
 --- (auto .)
 
---- pa8
+--- --- pa8
 --- (split ({ < kernel | handledCurrently(msg(ui,WI,MSG-SWITCH-TAB,OUT)), weblabels(WIS), A > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
 --- (auto .)
 
---- pa9
+--- --- pa9
 --- (split ({ < ui | toKernel(T), A > < kernel | handledCurrently(msg(ui,webapp,MSG-NEW-URL,OUT)), A' > C}) by (newurl-nodupl?(OUT,T)) = (true) and (newurl-nodupl?(OUT,T)) = (false) .)
 --- (split ({ < ui | toKernel(T), A > < kernel | handledCurrently(msg(ui,webapp,MSG-NEW-URL,OUT)), weblabels(WIS), A' > C}) by (lbl-in-weblabels?(OUT,WIS)) = (true) and (lbl-in-weblabels?(OUT,WIS)) = (false) .)
 --- (auto .)
@@ -592,7 +592,7 @@ loop rltl-init .
 --- --- finish things off
 --- (auto .)
 
---- pa10 (netproc)
+--- --- pa10 (netproc)
 --- (split ({ < NWI:ConcNetWebProcId | toKernel(T), A > C }) by (NWI:ConcNetWebProcId) = (WI) and (NWI:ConcNetWebProcId) = (NI) .)
 --- (focus ({ < NI | A > C }) | true .)
 --- --- netproc well-formed and metadata correctly recorded
@@ -749,3 +749,5 @@ loop rltl-init .
 --- (split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
 --- --- Finish things up
 --- (auto .)
+
+quit
