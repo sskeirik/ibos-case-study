@@ -1931,6 +1931,10 @@ fmod STMT-EXTRA is
   op eqsByMetadata : String EquationSet -> EquationSet .
   eq eqsByMetadata(S,E ES) = if metadata(E) == S then E else none fi eqsByMetadata(S,ES) .
   eq eqsByMetadata(S,none) = none .
+
+  op eqCondToEqs : EqCondition ~> EquationSet .
+  eq eqCondToEqs(U = V /\ EC) = eq U = V [none]. eqCondToEqs(EC) .
+  eq eqCondToEqs(nil)         = none .
 endfm
 
 fmod INTERREDUCE is
@@ -2602,26 +2606,32 @@ fmod EQUATIONSET-FUNCTOR is
   pr UNIQUE-PREFIX .
 
   --- module conversions
-  op eqset-func   : Module         -> Module      [memo] .
-  op eqset-sort   : Module         -> Sort        .
-  op eq-opid      : Module         -> Qid         [memo] .
-  op eqset-opid   : Module         -> Qid         [memo] .
-  op eqsetid-term : Module         -> TermQid     [memo] .
-  op eq-ops       : Module KindSet -> OpDeclSet   .
-  op eq-eqs       : Module KindSet -> EquationSet .
+  op eqset-pair-func : Module         -> Module      [memo] .
+  op eqset-func      : Module         -> Module      [memo] .
+  op eqset-sort      : Module         -> Sort        .
+  op eqsetp-sort     : Module         -> Sort        .
+  op eq-opid         : Module         -> Qid         [memo] .
+  op eqsetp-opid     : Module         -> Qid         [memo] .
+  op eqset-opid      : Module         -> Qid         [memo] .
+  op eqsetid-term    : Module         -> TermQid     [memo] .
+  op eq-ops          : Module KindSet -> OpDeclSet   .
+  op eq-eqs          : Module KindSet -> EquationSet .
 
   var M : Module . var K : Kind . var KS : KindSet .
-  var T T' : Term . var A : AttrSet . var E : Equation . var ES : EquationSet .
+  var T T' : Term . var A : AttrSet . var E : Equation . var ES ES' : EquationSet .
 
   --- extend module by topping it and then adding equations
   eq eqset-func(M) = addEqs(eq-eqs(M,getKinds(M)),addSorts(eqset-sort(M),addOps(eq-ops(M,getKinds(M)),M))) .
+  eq eqset-pair-func(M) = addOps(op eqsetp-opid(M) : eqset-sort(M) eqset-sort(M) -> eqsetp-sort(M) [ctor].,addSorts(eqsetp-sort(M),eqset-func(M))) .
 
   --- fresh sort for equation sets
-  eq eqset-sort(M) = qid(sortPrefix(M) + "EqSet") .
+  eq eqset-sort(M)  = qid(sortPrefix(M) + "EqSet") .
+  eq eqsetp-sort(M) = qid(sortPrefix(M) + "EqSetPair") .
 
   --- fresh operator ids for equation sets
   eq eq-opid(M)      = qid(opPrefix(M)   + "~") .
   eq eqset-opid(M)   = qid(opPrefix(M)   + "|") .
+  eq eqsetp-opid(M)  = qid(opPrefix(M)   + "esp") .
   eq eqsetid-term(M) = qid("none." + string(eqset-sort(M))) .
 
   --- operator and equation declarations for equation sets
@@ -2638,6 +2648,9 @@ fmod EQUATIONSET-FUNCTOR is
   op toEqSetTerm1 : Module EquationSet ~> TermList .
   eq toEqSetTerm1(M,eq T = T' [A]. ES) = eq-opid(M)[T,T'], toEqSetTerm1(M,ES) .
   eq toEqSetTerm1(M,none)              = empty .
+
+  op toEqSetPairTerm : Module EquationSet EquationSet ~> Term .
+  eq toEqSetPairTerm(M,ES,ES') = eqsetp-opid(M)[toEqSetTerm(M,ES),toEqSetTerm(M,ES')] .
 endfm
 
 --- Extension of the equationset functor that converts all equations to rules
