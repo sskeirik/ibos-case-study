@@ -1,0 +1,31 @@
+load ../systems/ibos-preds.maude
+load ../../rltool-lib.maude
+
+mod IMPORTS is
+  pr CONFLUENCE-TOOLS .
+  pr SIMPLE-CRITPAIR .
+endm
+
+mod TEST is
+  pr IMPORTS *
+    (op __ : EquationSet EquationSet -> EquationSet to _eq_,
+     op __ : SubsortDeclSet SubsortDeclSet -> SubsortDeclSet to _sbs_
+    ) .
+
+  op pid : -> Module .
+  eq pid = upModule('PROC-ID,true) .
+
+  op mfe : -> Module .
+  eq mfe = upModule('MSG-FVP-EXT,true) .
+
+  op afe : -> Module .
+  eq afe = upModule('ATTRIBUTE-FVP-EXT,true) .
+
+  op ibos : -> Module .
+  eq ibos = upModule('IBOS-PREDS,true) .
+endm
+
+--- set print conceal on .
+--- print conceal _eq_ _sbs_ .
+red subsume(ibos,simplify(ibos,getSimpleCritPairs(deleteIdEqs(removeIds(ibos,non-handled))))) .
+quit
