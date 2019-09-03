@@ -124,7 +124,7 @@ endv
 
 fmod CRITICAL-PAIR-SET is
   pr CONFLUENCE-AUX .
-  pr (SET * (op empty to none, op _,_ to __)){CritPair}
+  pr (SET * (op empty to none, op _,_ to __ [format (d n d)])){CritPair}
           * (sort Set{CritPair} to CritPairSet) .
 
   vars T T' T'' T''' T1 T1' T1'' T1''' T2 T2' T2'' T2''' : Term .
@@ -896,7 +896,7 @@ fmod SIMPLE-CRITPAIR is
   sort SimpleCritPair SimpleCritPairSet .
   subsort SimpleCritPair < SimpleCritPairSet .
   op cp  : NeQidList CommTermPair EqCondition -> SimpleCritPair [ctor] .
-  op __  : SimpleCritPairSet SimpleCritPairSet -> SimpleCritPairSet [ctor assoc comm id: .SimpleCritPairSet] .
+  op __  : SimpleCritPairSet SimpleCritPairSet -> SimpleCritPairSet [ctor assoc comm id: .SimpleCritPairSet format (d n d)] .
   op .SimpleCritPairSet : -> SimpleCritPairSet [ctor] .
   -----------------------------------------------------
   op getOpId : SimpleCritPair -> NeQidList .
