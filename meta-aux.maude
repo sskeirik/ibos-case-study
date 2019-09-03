@@ -3832,6 +3832,7 @@ fmod REMOVE-IDS is
   pr EQ-VARIANT .
   pr ATTR-EXTRA .
   pr DECL-SUBSUMPTION .
+  pr STMT-EXTRA .
 
   var C : Constant .
   var M M' IdM : Module .
@@ -3859,7 +3860,7 @@ fmod REMOVE-IDS is
   sort IdsToRemove .
   ops all non-handled : -> IdsToRemove .
 
-  op removeIds  : Module IdsToRemove ~> Module .
+  op removeIds  : Module IdsToRemove ~> Module [memo] .
   op removeIds  : Module Bool IdsToRemove ~> Module .
   op $removeIds : Module Bool IdsToRemove ~> Module .
   op $removeIds : Module IdsToRemove ~> Module .
@@ -4073,6 +4074,13 @@ fmod REMOVE-IDS is
   op addIdMetadata : Module Term AttrSet ~> AttrSet .
   eq addIdMetadata(M,C,metadata(Str) AtS) = metadata(Str + " ID " + string(getName(C)) + "." + string(leastSort(M,C))) AtS .
   eq addIdMetadata(M,C,AtS) = metadata(string(C)) AtS [owise] .
+
+  op deleteIdEqs : Module -> Module .
+  eq deleteIdEqs(M) = setEqs(M,nonIdEqs(getEqs(M))) .
+
+  op nonIdEqs : EquationSet -> EquationSet .
+  eq nonIdEqs(Eq EqS) = if metadata(Eq) == "id" then nonIdEqs(EqS) else Eq nonIdEqs(EqS) fi .
+  eq nonIdEqs(none) = none .
 endfm
 
 fmod SHOW-VARIANTS is
