@@ -592,6 +592,8 @@ fmod SUBSTITUTION-HANDLING is
   var N : Nat .
   var NeTL : NeTermList .
   var CtL : NeCTermList .
+  var ST : Sort .
+  var Cnd : Condition .
 
   --- Apply Substitution to Term --------------------------------------------
   op _<<_ : Term Substitution -> Term .
@@ -610,6 +612,13 @@ fmod SUBSTITUTION-HANDLING is
   eq F[CtL,NeTL] << Subst = F[CtL << Subst,NeTL << Subst] .
   eq F[NeTL,CtL] << Subst = F[NeTL << Subst, CtL << Subst] .
   eq F[Ct] << Subst = F[Ct << Subst] .
+
+  op _<<_ : Condition Substitution -> Condition .
+  eq (T1  = T2 /\ Cnd) << S = (T1 << S)  = (T2 << S) /\ (Cnd << S) .
+  eq (T1 := T2 /\ Cnd) << S = (T1 << S) := (T2 << S) /\ (Cnd << S) .
+  eq (T1 :  ST /\ Cnd) << S = (T1 << S) :   ST       /\ (Cnd << S) .
+  eq (T1 => T2 /\ Cnd) << S = (T1 << S) => (T2 << S) /\ (Cnd << S) .
+  eq (nil).EqCondition << S = nil .
 
   op _<<_ : Substitution Substitution -> Substitution .
   eq S << (none).Substitution = S .
