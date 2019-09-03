@@ -3444,14 +3444,15 @@ fmod UNIFIERS is
 
   op  disjUnifiersL : Module Bool Term Term -> SubstitutionSet .
   op $disjUnifiersL : Module Bool RenamedTerm RenamedTerm -> SubstitutionSet .
-  op $disjUnifiersL : Module Bool Substitution Nat UnificationProblem UnificationTriple -> SubstitutionSet .
+  op $disjUnifiersL : Module Bool Substitution Nat UnificationProblem UnificationTriple SubstitutionSet -> SubstitutionSet .
   eq  disjUnifiersL(M,B,T,T')                  = $disjUnifiersL(M,B,#renameVars(nullNameData,T),#renameVars(nullNameData,T')) .
   eq $disjUnifiersL(M,B,[[I,S],T],[[J,S'],T']) =
      $disjUnifiersL(M,B,S,0,T =? T',if B then metaVariantDisjointUnify(M,T =? T',empty,0,0)
-                                         else metaDisjointUnify(M,T =? T',0,0) fi) .
-  eq $disjUnifiersL(M,true, S2,I,UP,{S,S',J})  = (S2 << S) | $disjUnifiersL(M,true, S2,s(I),UP,metaVariantDisjointUnify(M,UP,empty,0,s(I))) .
-  eq $disjUnifiersL(M,false,S2,I,UP,{S,S',J})  = (S2 << S) | $disjUnifiersL(M,false,S2,s(I),UP,metaDisjointUnify(M,UP,0,s(I))) .
-  eq $disjUnifiersL(M,B,S2,I,UP,noUnifier)     = empty .
+                                         else metaDisjointUnify(M,T =? T',0,0) fi,empty) .
+
+  eq $disjUnifiersL(M,true, S2,I,UP,{S,S',J},SS) = $disjUnifiersL(M,true, S2,s(I),UP,metaVariantDisjointUnify(M,UP,empty,0,s(I)),SS | (S2 << S)) .
+  eq $disjUnifiersL(M,false,S2,I,UP,{S,S',J},SS) = $disjUnifiersL(M,false,S2,s(I),UP,metaDisjointUnify(M,UP,0,s(I)),             SS | (S2 << S)) .
+  eq $disjUnifiersL(M,B,S2,I,UP,noUnifier,   SS) = SS .
 endfm
 
 fmod EQ-VARIANT is
