@@ -2611,7 +2611,7 @@ fmod EQUATIONSET-FUNCTOR is
   op eq-eqs       : Module KindSet -> EquationSet .
 
   var M : Module . var K : Kind . var KS : KindSet .
-  var T T' : Term . var A : AttrSet . var E ES : EquationSet .
+  var T T' : Term . var A : AttrSet . var E : Equation . var ES : EquationSet .
 
   --- extend module by topping it and then adding equations
   eq eqset-func(M) = addEqs(eq-eqs(M,getKinds(M)),addSorts(eqset-sort(M),addOps(eq-ops(M,getKinds(M)),M))) .
@@ -2632,7 +2632,7 @@ fmod EQUATIONSET-FUNCTOR is
 
   op toEqSetTerm : Module EquationSet ~> Term .
   eq toEqSetTerm(M,eq T = T' [A].)      = eq-opid(M)[T,T'] .
-  eq toEqSetTerm(M,eq T = T' [A]. E ES) = eqset-opid(M)[toEqSetTerm1(M,eq T = T' [A]. ES)] .
+  eq toEqSetTerm(M,eq T = T' [A]. E ES) = eqset-opid(M)[toEqSetTerm1(M,eq T = T' [A]. E ES)] .
   eq toEqSetTerm(M,none)                = eqsetid-term(M) .
 
   op toEqSetTerm1 : Module EquationSet ~> TermList .
