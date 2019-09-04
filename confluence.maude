@@ -876,8 +876,9 @@ fmod SIMPLE-CRITPAIR is
   var ES ES' : EquationSet .
   var EFM : EqFamilyMap .
   var EPS : EqPairSet .
-  var S : Substitution .
+  var S S' : Substitution .
   var SS : SubstitutionSet .
+  var SPS : SubstitutionPairSet .
   var T1 T2 : Term .
   var C : EqCondition .
   var CP CP' : SimpleCritPair .
@@ -921,16 +922,16 @@ fmod SIMPLE-CRITPAIR is
 
   op scps : Module EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
   op scps : Module QidList EqPairSet EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
-  op scps : Module QidList SubstitutionSet EquationPair EqPairSet EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
+  op scps : Module QidList SubstitutionPairSet EquationPair EqPairSet EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
   ----------------------------------------------------------------------------------------------------------------
   eq scps(M,((Q,TL) |-> ES) EFM, CPS) = scps(M,Q TL,getEqPairs(ES),EFM,CPS) .
   eq scps(M, nil,                CPS) = CPS .
 
-  eq scps(M,QL,(E,E') | EPS, EFM, CPS) = scps(M,QL,disjUnifiersL(M,false,lhs(E),lhs(E')), (E,E'), EPS, EFM, CPS) .
+  eq scps(M,QL,(E,E') | EPS, EFM, CPS) = scps(M,QL,disjUnifiers(M,false,lhs(E),lhs(E')), (E,E'), EPS, EFM, CPS) .
   eq scps(M,QL,.EqPairSet,   EFM, CPS) = scps(M,EFM,CPS) .
 
-  eq scps(M,QL,S | SS,(E,E'),EPS,EFM,CPS) = scps(M,QL,SS,(E,E'),EPS,EFM,CPS cp(QL,ctp(rhs(E) << S,rhs(E') << S),(cond(E) /\ cond(E')) << S)) .
-  eq scps(M,QL,empty, (E,E'),EPS,EFM,CPS) = scps(M,QL,EPS,EFM,CPS) .
+  eq scps(M,QL,(S,S') | SPS,(E,E'),EPS,EFM,CPS) = scps(M,QL,SPS,(E,E'),EPS,EFM,CPS cp(QL,ctp(rhs(E) << S,rhs(E') << S'),(cond(E) << S) /\ (cond(E') << S'))) .
+  eq scps(M,QL,empty,       (E,E'),EPS,EFM,CPS) = scps(M,QL,EPS,EFM,CPS) .
 
   op simplify : Module SimpleCritPairSet -> SimpleCritPairSet .
   op simplify : Module SimpleCritPairSet SimpleCritPairSet -> SimpleCritPairSet .
