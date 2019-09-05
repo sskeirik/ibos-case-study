@@ -214,6 +214,14 @@ fmod TERMSET-FM is
 
   eq T | T = T .
 
+  op |_| : TermSet -> Nat .
+  op $card : TermSet Nat -> Nat .
+  -------------------------------
+  eq | TS | = $card(TS,0) .
+
+  eq $card(T | TS,      N) = $card(TS,s(N)) .
+  eq $card(emptyTermSet,N) = N .
+
   op _in_ : Term TermSet -> Bool .
   eq T in (T | TS) = true .
   eq T in TS = false [owise] .
