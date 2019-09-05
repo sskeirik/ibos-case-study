@@ -713,8 +713,7 @@ loop rltl-init .
 --- --- kernelForwardsOPMessage (webproc)
 --- (cases ({ < NWI:ConcNetWebProcId | fromKernel(F), A  > C }) on NWI:ConcNetWebProcId by (WI) .)
 --- --- check webproc attrs are present
---- (split ({ < WI | fromKernel(F),                  A > C }) by (webproc-req-attrs(fromKernel(F), A)) = (true) and (webproc-req-attrs(fromKernel(F),A )) = (false) .)
---- (split ({ < WI | fromKernel(F),                  A > C }) by (F) = (mt) and (F) = (N:NeMessageList) .)
+--- (split ({ C }) | (p(< WI | fromKernel(F), A > NWC,WIS,NIS,MSG?)) = (true) by (webproc-req-attrs(fromKernel(F), A)) = (true) and (webproc-req-attrs(fromKernel(F),A )) = (false) .)
 --- --- add webproc to metadata
 --- (split ({ < WI | URL(L), fromKernel(F), A > < kernel | weblabels(WIS), A' > C }) by (in-wis?(pi(WI,L),WIS)) = (true) and (in-wis?(pi(WI,L),WIS)) = (false) .)
 --- --- check that webproc's URL matches its metadata and is loaded
@@ -744,7 +743,7 @@ loop rltl-init .
 ---   and (fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and allEqLabel?(L,OL ; IL) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK)) = (false)
 --- .)
 --- --- Split on Message Type
---- (cases ({ < WI | fromKernel(F @ msg(PP1,WI,MT:MsgType,U)), A > < kernel | netlabels(pi(NI,IN,IN),np NIS), A' > C }) on MT:MsgType by (MSG-RETURN-URL) U (N:NonRetFetchMsgType) .)
+--- (cases ({ < WI | fromKernel(F @ msg(PP1,WI,MT:MsgType,U)),     A >                                                 C }) on MT:MsgType by (MSG-RETURN-URL) U (N:NonRetFetchMsgType) .)
 --- (split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN)   = (true) and (U ~l IN)   = (false) .)
 --- (split ({ < WI | fromKernel(F @ msg(PP1,WI,MSG-RETURN-URL,U)), A > < kernel | netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (PP1 ~p NI) = (true) and (PP1 ~p NI) = (false) .)
 --- --- Finish things up
