@@ -18,11 +18,17 @@ mod TEST is
   op mfe : -> Module .
   eq mfe = upModule('MSG-FVP-EXT,true) .
 
+  op safe-mfe : -> Module [memo] .
+  eq safe-mfe = deleteIdEqs(removeIds(mfe,non-handled)) .
+
   op afe : -> Module .
   eq afe = upModule('ATTRIBUTE-FVP-EXT,true) .
 
   op ibos : -> Module .
   eq ibos = upModule('IBOS-PREDS,true) .
+
+  op safe-ibos : -> Module [memo] .
+  eq safe-ibos = deleteIdEqs(removeIds(ibos,non-handled)) .
 endm
 
 --- set print conceal on .
@@ -30,5 +36,8 @@ endm
 --- NOTE: based on source code check and reading CRC paper,
 ---       all context-joinability/unfeasibility checks only use search
 ---       so they can occur in the original module in this case
-red crcContextJoinableAndUnfeasibleCPs(ibos,toStdCritPairs(subsume(ibos,simplify(ibos,getSimpleCritPairs(deleteIdEqs(removeIds(ibos,non-handled))))))) .
+--- SIMPLE EXAMPLE
+--- red pendingCPs(crcContextJoinableAndUnfeasibleCPs(safe-mfe,toStdCritPairs(renameCPs(subsume(mfe,simplify(mfe,getSimpleCritPairs(safe-mfe))))))) .
+--- FULL TEST
+red pendingCPs(crcContextJoinableAndUnfeasibleCPs(safe-ibos,toStdCritPairs(renameCPs(subsume(ibos,simplify(ibos,getSimpleCritPairs(safe-ibos))))))) .
 quit
