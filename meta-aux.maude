@@ -3449,7 +3449,7 @@ fmod UNIFIERS is
 
   eq $disjUnifiersL(M,B,[[I,S],T],[[J,S'],T']) = $disjUnifiersL(M,B,S,0,T =? T',metaDisjointUnify2(M,B,T =? T',0),empty) .
 
-  eq $disjUnifiersL(M,B,S2,I,UP,{S,S',J}, SS)  = $disjUnifiersL(M,B,S2,s(I),UP,metaDisjointUnify2(M,B,UP,s(I)),SS | (S2 << S)) .
+  eq $disjUnifiersL(M,B,S2,I,UP,{S,S',J}, SS)  = $disjUnifiersL(M,B,S2,s(I),UP,metaDisjointUnify2(M,B,UP,s(I)),SS | renameDom(true,S,invert(S2))) .
   eq $disjUnifiersL(M,B,S2,I,UP,noUnifier,SS)  = SS .
 
   op  disjUnifiers : Module Bool Term Term -> SubstitutionPairSet .
@@ -3460,7 +3460,7 @@ fmod UNIFIERS is
 
   eq $disjUnifiers(M,B,[[I,S],T],[[J,S'],T'])    = $disjUnifiers(M,B,S,S',0,T =? T',metaDisjointUnify2(M,B,T =? T',0),empty) .
 
-  eq $disjUnifiers(M,B,S1,S2,I,UP,{S,S',J}, SPS) = $disjUnifiers(M,B,S,S',s(I),UP,metaDisjointUnify2(M,B,UP,s(I)),SPS | (S1 << S,S2 << S')) .
+  eq $disjUnifiers(M,B,S1,S2,I,UP,{S,S',J}, SPS) = $disjUnifiers(M,B,S1,S2,s(I),UP,metaDisjointUnify2(M,B,UP,s(I)),SPS | (renameDom(true,S,invert(S1)),renameDom(true,S',invert(S2)))) .
   eq $disjUnifiers(M,B,S1,S2,I,UP,noUnifier,SPS) = SPS .
 
   op metaDisjointUnify2 : Module Bool UnificationProblem Nat -> UnificationTriple .
