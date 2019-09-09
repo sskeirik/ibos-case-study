@@ -573,7 +573,7 @@ fmod IBOS-AUX-FVP is
 
   --- 30. Check that given Net/WebProcId is greater than all those in the Configuration
   op fresh-np-id? : ConcNetProcId Configuration -> Bool [metadata "106 false"] .
-  eq fresh-np-id?(network(N    ), < network(N + M) | A  > C) = false .
+  eq fresh-np-id?(network(N    ), < network(N + M) | A  > C) = false [variant] .
   eq fresh-np-id?(network(N + Z), < network(N)     | A  > C) = fresh-np-id?(network(N + Z),C) .
   eq fresh-np-id?(NP,             none                     ) = true .
   eq fresh-np-id?(NP,             < N:NonNetPipeId | A  > C) = fresh-np-id?(NP,C) .
@@ -582,7 +582,7 @@ fmod IBOS-AUX-FVP is
  ceq fresh-np-id?(network(N + 1),                         C) = true if fresh-np-id?(network(N),C) = true .
 
   op fresh-wp-id? : ConcWebProcId Configuration -> Bool [metadata "107 false"] .
-  eq fresh-wp-id?(webapp(N    ), < webapp(N + M)  | A  > C) = false .
+  eq fresh-wp-id?(webapp(N    ), < webapp(N + M)  | A  > C) = false [variant] .
   eq fresh-wp-id?(webapp(N + Z), < webapp(N)      | A  > C) = fresh-wp-id?(webapp(N + Z),C) .
   eq fresh-wp-id?(WP,            none                     ) = true .
   eq fresh-wp-id?(WP,            < N:NonWebPipeId | A  > C) = fresh-wp-id?(WP,C) .
@@ -592,13 +592,13 @@ fmod IBOS-AUX-FVP is
 
   --- 34. Check that given Net/WebProcId is greater than all those in the Net/WebProcInfoSet
   op fresh-weblabel? : ConcWebProcId WebProcInfoSet -> Bool [metadata "108 false"] .
-  eq fresh-weblabel?(webapp(N),    (pi(webapp(N + M),L),wp WIS)) = false .
+  eq fresh-weblabel?(webapp(N),    (pi(webapp(N + M),L),wp WIS)) = false [variant] .
   eq fresh-weblabel?(webapp(N + Z),(pi(webapp(N    ),L),wp WIS)) = fresh-weblabel?(webapp(N + Z),WIS) .
   eq fresh-weblabel?(webapp(N),mtWPIS)                           = true .
  ceq fresh-weblabel?(webapp(N + Z),WIS)                          = true if fresh-weblabel?(webapp(N),WIS) = true .
 
   op fresh-netlabel? : ConcNetProcId NetProcInfoSet -> Bool [metadata "109 false"] .
-  eq fresh-netlabel?(network(N),    (pi(network(N + M),L,L'),np NIS)) = false .
+  eq fresh-netlabel?(network(N),    (pi(network(N + M),L,L'),np NIS)) = false [variant] .
   eq fresh-netlabel?(network(N + Z),(pi(network(N    ),L,L'),np NIS)) = fresh-netlabel?(network(N + Z),NIS) .
   eq fresh-netlabel?(network(N),mtNPIS)                               = true .
  ceq fresh-netlabel?(network(N + Z),NIS)                              = true if fresh-netlabel?(network(N),NIS) = true .
