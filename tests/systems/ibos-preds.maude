@@ -212,6 +212,7 @@ fmod ATTRIBUTE-FVP-EXT is
   pr PROC-ID-FVP-EXT .
   pr KERNEL-POLICIES-FVP .
   pr MSG-FVP-EXT .
+  pr LABEL-FVP-EXT .
   var A A' : Attribute . var AS AS' : AttributeSet .
 
   --- 18. Add attribute type equality predicate _~a_
@@ -493,6 +494,30 @@ fmod ATTRIBUTE-FVP-EXT is
   eq in-attrset?(activeWebapp    (X:MaybeConcWebProcId) | (activeWebapp    (Y:MaybeConcWebProcId), AS)) = true [variant] .
  ceq in-attrset?(A | A', AS) = in-attrset?(A | AS) if A ~a A' = false .
   eq in-attrset?(A | none)   = false .
+  ---
+  eq in-attrset?(fromKernel(X:NeMessageList) | AS) = in-attrset?(fromKernel(mt)        | AS) .
+  eq in-attrset?(toKernel  (X:NeMessageList) | AS) = in-attrset?(toKernel(mt)          | AS) .
+  eq in-attrset?(rendered  (X:NonBlankLabel) | AS) = in-attrset?(rendered(about-blank) | AS) .
+  eq in-attrset?(URL       (X:NonBlankLabel) | AS) = in-attrset?(URL(about-blank)      | AS) .
+  eq in-attrset?(loading   (true)            | AS) = in-attrset?(loading(false)        | AS) .
+  eq in-attrset?(returnTo  (X:ConcWebProcId) | AS) = in-attrset?(returnTo(ui)          | AS) .
+  eq in-attrset?(returnTo  (X:ConcNetProcId) | AS) = in-attrset?(returnTo(ui)          | AS) .
+  eq in-attrset?(in        (X:NeLabelList)   | AS) = in-attrset?(in(mtLL)              | AS) .
+  eq in-attrset?(out       (X:NeLabelList)   | AS) = in-attrset?(out(mtLL)             | AS) .
+  eq in-attrset?(mem-in    (X:Label)         | AS) = in-attrset?(mem-in(nolabel)       | AS) .
+  eq in-attrset?(mem-out   (X:Label)         | AS) = in-attrset?(mem-out(nolabel)      | AS) .
+  ---
+  eq in-attrset?(A | fromKernel(X:NeMessageList) , AS) = in-attrset?(A | fromKernel(mt)        , AS) .
+  eq in-attrset?(A | toKernel  (X:NeMessageList) , AS) = in-attrset?(A | toKernel(mt)          , AS) .
+  eq in-attrset?(A | rendered  (X:NonBlankLabel) , AS) = in-attrset?(A | rendered(about-blank) , AS) .
+  eq in-attrset?(A | URL       (X:NonBlankLabel) , AS) = in-attrset?(A | URL(about-blank)      , AS) .
+  eq in-attrset?(A | loading   (true)            , AS) = in-attrset?(A | loading(false)        , AS) .
+  eq in-attrset?(A | returnTo  (X:ConcWebProcId) , AS) = in-attrset?(A | returnTo(ui)          , AS) .
+  eq in-attrset?(A | returnTo  (X:ConcNetProcId) , AS) = in-attrset?(A | returnTo(ui)          , AS) .
+  eq in-attrset?(A | in        (X:NeLabelList)   , AS) = in-attrset?(A | in(mtLL)              , AS) .
+  eq in-attrset?(A | out       (X:NeLabelList)   , AS) = in-attrset?(A | out(mtLL)             , AS) .
+  eq in-attrset?(A | mem-in    (X:Label)         , AS) = in-attrset?(A | mem-in(nolabel)       , AS) .
+  eq in-attrset?(A | mem-out   (X:Label)         , AS) = in-attrset?(A | mem-out(nolabel)      , AS) .
 
   --- 20. Add partially FVP attr-dupl?() predicate for checking if an attribute type occurs twice in a given attribute set
   op attr-dupl? : AttributeSet -> Bool [metadata "103 true"] .
@@ -519,6 +544,18 @@ fmod ATTRIBUTE-FVP-EXT is
   eq attr-dupl?(activeWebapp    (X:MaybeConcWebProcId), activeWebapp    (Y:MaybeConcWebProcId), AS) = true [variant] .
  ceq attr-dupl?(A,AS) = attr-dupl?(AS) if in-attrset?(A | AS) = false .
   eq attr-dupl?(none) = false .
+  ---
+  eq attr-dupl?(fromKernel(X:NeMessageList) , AS) = attr-dupl?(fromKernel(mt)        , AS) .
+  eq attr-dupl?(toKernel  (X:NeMessageList) , AS) = attr-dupl?(toKernel(mt)          , AS) .
+  eq attr-dupl?(rendered  (X:NonBlankLabel) , AS) = attr-dupl?(rendered(about-blank) , AS) .
+  eq attr-dupl?(URL       (X:NonBlankLabel) , AS) = attr-dupl?(URL(about-blank)      , AS) .
+  eq attr-dupl?(loading   (true)            , AS) = attr-dupl?(loading(false)        , AS) .
+  eq attr-dupl?(returnTo  (X:ConcWebProcId) , AS) = attr-dupl?(returnTo(ui)          , AS) .
+  eq attr-dupl?(returnTo  (X:ConcNetProcId) , AS) = attr-dupl?(returnTo(ui)          , AS) .
+  eq attr-dupl?(in        (X:NeLabelList)   , AS) = attr-dupl?(in(mtLL)              , AS) .
+  eq attr-dupl?(out       (X:NeLabelList)   , AS) = attr-dupl?(out(mtLL)             , AS) .
+  eq attr-dupl?(mem-in    (X:Label)         , AS) = attr-dupl?(mem-in(nolabel)       , AS) .
+  eq attr-dupl?(mem-out   (X:Label)         , AS) = attr-dupl?(mem-out(nolabel)      , AS) .
 endfm
 
 ---
@@ -650,6 +687,12 @@ fmod IBOS-AUX-FVP is
  ceq webproc-req-attrs(A) = false if in-attrset?(loading(true)         | A) = false .
   eq webproc-req-attrs(toKernel(T:NeMessageList),   A) = webproc-req-attrs(toKernel(mt),          A) .
   eq webproc-req-attrs(fromKernel(F:NeMessageList), A) = webproc-req-attrs(fromKernel(mt),        A) .
+  eq webproc-req-attrs(returnTo(W:ConcWebProcId),   A) = webproc-req-attrs(returnTo(ui),        A) .
+  eq webproc-req-attrs(returnTo(N:ConcNetProcId),   A) = webproc-req-attrs(returnTo(ui),        A) .
+  eq webproc-req-attrs(mem-in(L:Label),             A) = webproc-req-attrs(mem-in(nolabel),     A) .
+  eq webproc-req-attrs(mem-out(L:Label),            A) = webproc-req-attrs(mem-out(nolabel),    A) .
+  eq webproc-req-attrs(in(L:NeLabelList),           A) = webproc-req-attrs(in(mtLL),            A) .
+  eq webproc-req-attrs(out(L:NeLabelList),          A) = webproc-req-attrs(out(mtLL),           A) .
   eq webproc-req-attrs(URL(U:NonBlankLabel),        A) = webproc-req-attrs(URL(about-blank),      A) .
   eq webproc-req-attrs(rendered(R:NonBlankLabel),   A) = webproc-req-attrs(rendered(about-blank), A) .
   eq webproc-req-attrs(loading(true),               A) = webproc-req-attrs(loading(false),        A) .
@@ -672,6 +715,9 @@ fmod IBOS-AUX-FVP is
   eq netproc-req-attrs(mem-out(L:Label),            A) = netproc-req-attrs(mem-out(nolabel),    A) .
   eq netproc-req-attrs(in(L:NeLabelList),           A) = netproc-req-attrs(in(mtLL),            A) .
   eq netproc-req-attrs(out(L:NeLabelList),          A) = netproc-req-attrs(out(mtLL),           A) .
+  eq netproc-req-attrs(URL(U:NonBlankLabel),        A) = netproc-req-attrs(URL(about-blank),      A) .
+  eq netproc-req-attrs(rendered(R:NonBlankLabel),   A) = netproc-req-attrs(rendered(about-blank), A) .
+  eq netproc-req-attrs(loading(true),               A) = netproc-req-attrs(loading(false),        A) .
 
   --- 3. Add partially FVP predicate for checking if an object with the named ID is in the configuration
   op in-conf? : ProcessId Configuration -> Bool [metadata "116 true"] .
@@ -693,10 +739,21 @@ fmod IBOS-AUX-FVP is
 
   --- 4. Add partially FVP predicate for checking for duplicate object IDs in the configuration
   op conf-dupl? : Configuration -> Bool [metadata "133 true"] .
-  eq conf-dupl?(< P | A  > < P | A' > C) = true .
+  eq conf-dupl?(< P | A  > < P | A' > C) = true [variant] .
   eq conf-dupl?(none) = false .
- ceq conf-dupl?(< P | none > C) = conf-dupl?(C) if in-conf?(P,C) = false .
-  eq conf-dupl?(< P | NA > C) = conf-dupl?(< P | none > C) .
+ ceq conf-dupl?(< P | A > C) = conf-dupl?(C) if in-conf?(P,C) = false .
+  ---
+  eq conf-dupl?(< P | toKernel(T:NeMessageList),   A > C) = conf-dupl?(< P | toKernel(mt),          A > C) .
+  eq conf-dupl?(< P | fromKernel(F:NeMessageList), A > C) = conf-dupl?(< P | fromKernel(mt),        A > C) .
+  eq conf-dupl?(< P | returnTo(W:ConcWebProcId),   A > C) = conf-dupl?(< P | returnTo(ui),          A > C) .
+  eq conf-dupl?(< P | returnTo(N:ConcNetProcId),   A > C) = conf-dupl?(< P | returnTo(ui),          A > C) .
+  eq conf-dupl?(< P | mem-in(L:Label),             A > C) = conf-dupl?(< P | mem-in(nolabel),       A > C) .
+  eq conf-dupl?(< P | mem-out(L:Label),            A > C) = conf-dupl?(< P | mem-out(nolabel),      A > C) .
+  eq conf-dupl?(< P | in(L:NeLabelList),           A > C) = conf-dupl?(< P | in(mtLL),              A > C) .
+  eq conf-dupl?(< P | out(L:NeLabelList),          A > C) = conf-dupl?(< P | out(mtLL),             A > C) .
+  eq conf-dupl?(< P | URL(U:NonBlankLabel),        A > C) = conf-dupl?(< P | URL(about-blank),      A > C) .
+  eq conf-dupl?(< P | rendered(R:NonBlankLabel),   A > C) = conf-dupl?(< P | rendered(about-blank), A > C) .
+  eq conf-dupl?(< P | loading(true),               A > C) = conf-dupl?(< P | loading(false),        A > C) .
 
   op in-wis? : WebProcInfo WebProcInfoSet -> Bool [metadata "130 true"] .
   eq in-wis?(pi(WP,IN),pi(WP ,IN) ,wp WIS) = true [variant] .
