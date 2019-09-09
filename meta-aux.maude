@@ -3,6 +3,9 @@
 --- desc: This file extends the meta-level
 ---       with many additional operations
 
+view Term     from TRIV to META-MODULE is sort Elt to Term     . endv
+view TermList from TRIV to META-MODULE is sort Elt to TermList . endv
+
 fmod QIDSET-REFINEMENT is
   pr META-MODULE .
   ---

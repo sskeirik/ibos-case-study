@@ -1,6 +1,3 @@
-view Term     from TRIV to META-MODULE is sort Elt to Term     . endv
-view TermList from TRIV to META-MODULE is sort Elt to TermList . endv
-
 fmod VERIFY-PARTIALFVP-AUX is
   pr CONG-CLOSURE-SAFETY .
   pr PREDICATE-FUNCTOR .
