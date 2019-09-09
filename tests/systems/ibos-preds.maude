@@ -885,7 +885,8 @@ fmod IBOS-AUX-NONFVP is
   eq ui-consistent?(MSGL @ msg(PP,PP',FetchMT,OUT) @ MSGL2,WIS) = false .
   eq ui-consistent?(mt,WIS) = true .
   --- Simplification of WIS
- ceq ui-consistent?(MSGL,pi(WP,IN),wp WIS) = ui-consistent?(MSGL,WIS) if fresh-weblabel?(WP,WIS) = true .
+  --- NOTE: equation below is non-confluent
+  --- ceq ui-consistent?(MSGL,pi(WP,IN),wp WIS) = ui-consistent?(MSGL,WIS) if fresh-weblabel?(WP,WIS) = true .
 
   op allEqLabel? : Label LabelList -> Bool [metadata "201"] .
   eq allEqLabel?(L,LL ; L  ; LL') = allEqLabel?(L,LL ; LL') .
