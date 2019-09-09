@@ -573,6 +573,7 @@ fmod IBOS-AUX-FVP is
 
   --- 30. Check that given Net/WebProcId is greater than all those in the Configuration
   op fresh-np-id? : ConcNetProcId Configuration -> Bool [metadata "106 false"] .
+  eq fresh-np-id?(NP,             < NP             | A  > C) = false [variant] .
   eq fresh-np-id?(network(N    ), < network(N + M) | A  > C) = false [variant] .
   eq fresh-np-id?(network(N + Z), < network(N)     | A  > C) = fresh-np-id?(network(N + Z),C) .
   eq fresh-np-id?(NP,             none                     ) = true .
@@ -582,6 +583,7 @@ fmod IBOS-AUX-FVP is
  ceq fresh-np-id?(network(N + 1),                         C) = true if fresh-np-id?(network(N),C) = true .
 
   op fresh-wp-id? : ConcWebProcId Configuration -> Bool [metadata "107 false"] .
+  eq fresh-wp-id?(WP,            < WP             | A  > C) = false [variant] .
   eq fresh-wp-id?(webapp(N    ), < webapp(N + M)  | A  > C) = false [variant] .
   eq fresh-wp-id?(webapp(N + Z), < webapp(N)      | A  > C) = fresh-wp-id?(webapp(N + Z),C) .
   eq fresh-wp-id?(WP,            none                     ) = true .
