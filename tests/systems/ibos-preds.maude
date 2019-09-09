@@ -972,6 +972,7 @@ fmod IBOS-SOP-PRED is
   var PI PI' : PipeId .
   var L L' IN OUT : Label .
   var LL LL' : LabelList .
+  var M   : Message .
   var M?  : Message? .
   var WTK WFK NTK NFK : MessageList .
   var IL OL : LabelList .
@@ -1000,7 +1001,7 @@ fmod IBOS-SOP-PRED is
   such that L1 =/= L2
   ---)
 
-  op dropCurrHandled? : Message? -> Bool [metadata "208"] .
+  op dropCurrHandled? : Message -> Bool [metadata "208"] .
   eq dropCurrHandled?(NRFM:NonRetFetchMsg) = true .
   eq dropCurrHandled?(F:FetchMsg) = false .
   eq dropCurrHandled?(R:RetMsg) = false .
@@ -1111,7 +1112,7 @@ fmod IBOS-SOP-PRED is
   if np-by-lbl?(L,NIS) = false
   /\ fetchMsg1?(WI,B,L,WTK,NIS) and noRetMsg?(WFK) = false .
 
- ceq p(NWC,WIS,NIS,M?) = p(NWC,WIS,NIS,none) if dropCurrHandled?(M?) = true .
+ ceq p(NWC,WIS,NIS,M) = p(NWC,WIS,NIS,none) if dropCurrHandled?(M) = true .
 
   eq p(none,mtWPIS,mtNPIS,M?) = true .
 endfm
