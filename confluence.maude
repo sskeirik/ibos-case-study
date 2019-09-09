@@ -848,6 +848,8 @@ fmod CONFLUENCE-CHECK is
   eq sym-confluenceCheck(M,nil) = none .
 endfm
 
+view EqCondition from TRIV to META-LEVEL is sort Elt to EqCondition . endv
+
 ---
 --- Simplified Critical Pair Generation Routines
 --- Requirements:
@@ -867,6 +869,7 @@ fmod SIMPLE-CRITPAIR is
   pr EQ-FAMILY           . --- generate subsort-polymorphic equation families
   pr EQUATIONSET-FUNCTOR . --- functor for critical pair subsumption
   pr CRITICAL-PAIR-SET   . --- standard critical pair set definition
+  pr MAP{Term,EqCondition} * (sort Map{Term,EqCondition} to TermConditionMap) .
 
   var M : Module .
   var N : Nat .
@@ -886,6 +889,7 @@ fmod SIMPLE-CRITPAIR is
   var CPS CPS' : SimpleCritPairSet .
   var OCPS : CritPairSet .
   var D : NameData .
+  var TCM : TermConditionMap .
 
   sort EquationPair EqPairSet .
   subsort EquationPair < EqPairSet .
@@ -919,21 +923,32 @@ fmod SIMPLE-CRITPAIR is
 
   --- NOTE: this function MUST be tail-recursive to handle large modules
   op getSimpleCritPairs : Module -> SimpleCritPairSet .
+  op getSimpleCritPairs : Module TermConditionMap -> SimpleCritPairSet .
   -----------------------------------------------------
-  eq getSimpleCritPairs(M) = scps(M, getEqFamilies(M), .SimpleCritPairSet) .
+  eq getSimpleCritPairs(M)     = getSimpleCritPairs(M,empty) .
+  eq getSimpleCritPairs(M,TCM) = scps(M, TCM, getEqFamilies(M), .SimpleCritPairSet) .
 
-  op scps : Module EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
-  op scps : Module QidList EqPairSet EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
-  op scps : Module QidList SubstitutionPairSet EquationPair EqPairSet EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
+  op scps : Module TermConditionMap EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
+  op scps : Module TermConditionMap QidList EqPairSet EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
+  op scps : Module TermConditionMap QidList SubstitutionPairSet EquationPair EqPairSet EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
   ----------------------------------------------------------------------------------------------------------------
-  eq scps(M,((Q,TL) |-> ES) EFM, CPS) = scps(M,Q TL,getEqPairs(ES),EFM,CPS) .
-  eq scps(M, nil,                CPS) = CPS .
+  eq scps(M,TCM,((Q,TL) |-> ES) EFM, CPS) = scps(M,TCM,Q TL,getEqPairs(ES),EFM,CPS) .
+  eq scps(M,TCM, nil,                CPS) = CPS .
 
-  eq scps(M,QL,(E,E') | EPS, EFM, CPS) = scps(M,QL,disjUnifiers(M,false,lhs(E),lhs(E')), (E,E'), EPS, EFM, CPS) .
-  eq scps(M,QL,.EqPairSet,   EFM, CPS) = scps(M,EFM,CPS) .
+  eq scps(M,TCM,QL,(E,E') | EPS, EFM, CPS) = scps(M,TCM,QL,disjUnifiers(M,false,lhs(E),lhs(E')), (E,E'), EPS, EFM, CPS) .
+  eq scps(M,TCM,QL,.EqPairSet,   EFM, CPS) = scps(M,TCM,EFM,CPS) .
 
-  eq scps(M,QL,(S,S') | SPS,(E,E'),EPS,EFM,CPS) = scps(M,QL,SPS,(E,E'),EPS,EFM,CPS cp(QL,ctp(rhs(E) << S,rhs(E') << S'),(cond(E) << S) /\ (cond(E') << S'))) .
-  eq scps(M,QL,empty,       (E,E'),EPS,EFM,CPS) = scps(M,QL,EPS,EFM,CPS) .
+  eq scps(M,TCM,QL,(S,S') | SPS,(E,E'),EPS,EFM,CPS) = scps(M,TCM,QL,SPS,(E,E'),EPS,EFM,CPS cp(QL,ctp(rhs(E) << S,rhs(E') << S'),(cond(E) << S) /\ (cond(E') << S') /\ getCondition(M,lhs(E) << S,TCM))) .
+  eq scps(M,TCM,QL,empty,       (E,E'),EPS,EFM,CPS) = scps(M,TCM,QL,EPS,EFM,CPS) .
+
+  op getCondition : Module Term TermConditionMap -> EqCondition .
+  op getCondition : Module Term Substitution? EqCondition TermConditionMap -> EqCondition .
+  -----------------------------------------------------------------------------------------
+  eq getCondition(M,T1,(T2 |-> C,TCM)) = getCondition(M,T1,metaMatch(M,T2,T1),C,TCM) .
+  eq getCondition(M,T1,empty)          = nil .
+
+  eq getCondition(M,T1,noMatch,C,TCM) = getCondition(M,T1,TCM) .
+  eq getCondition(M,T1,S,      C,TCM) = C << S .
 
   op simplify : Module SimpleCritPairSet -> SimpleCritPairSet .
   op simplify : Module SimpleCritPairSet SimpleCritPairSet -> SimpleCritPairSet .
