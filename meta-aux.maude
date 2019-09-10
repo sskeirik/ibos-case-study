@@ -3369,10 +3369,10 @@ fmod UNIFIERS is
   --- PRE: Module well-defined; terms are well-defined in module
   --- OUT: The desired match number
   op metaMatch : Module Term Term Nat -> Substitution? .
-  eq metaMatch(M,T,T',I) = metaMatch(M,T,T',nil,I) .
+  eq metaMatch(M,T,T',I) = if sameKind(M,leastSort(M,T),leastSort(M,T')) then metaMatch(M,T,T',nil,I) else noMatch fi .
 
   op metaMatch : Module Term Term -> Substitution? .
-  eq metaMatch(M,T,T') = metaMatch(M,T,T',nil,0) .
+  eq metaMatch(M,T,T') = if sameKind(M,leastSort(M,T),leastSort(M,T')) then metaMatch(M,T,T',nil,0) else noMatch fi .
 
   --- INP: Module UnificationProblem
   --- PRE: Unification problem is well-formed in Module
