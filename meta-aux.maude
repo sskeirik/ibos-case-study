@@ -1810,7 +1810,7 @@ fmod STMT-EXTRA is
   pr TERMSET-FM .
 
   var M : Module . var R R' : Rule . var RS : RuleSet . var Q : Qid . var Y : Sort .
-  var U V : Term . var A : AttrSet . var C : Condition . var EC : EqCondition .
+  var U V T : Term . var A : AttrSet . var C : Condition . var EC : EqCondition .
   var E E' : Equation . var ES ES' : EquationSet . var B B' : MembAx . var BS : MembAxSet .
   var S : String .
 
@@ -1889,6 +1889,13 @@ fmod STMT-EXTRA is
   eq lhs((none).RuleSet) = none .
   eq lhs(E E' ES) = lhs(E) | lhs(E' ES) .
   eq lhs((none).EquationSet) = none .
+
+  op set-lhs : Rule Term -> Rule .
+  op set-lhs : Equation Term -> Equation .
+  eq set-lhs(rl  U => V       [A].,T) =  rl T => V       [A]. .
+  eq set-lhs(eq  U =  V       [A].,T) =  eq T =  V       [A]. .
+  eq set-lhs(crl U => V if C  [A].,T) = crl T => V if C  [A]. .
+  eq set-lhs(ceq U =  V if EC [A].,T) = ceq T =  V if EC [A]. .
 
   op rhs : Rule -> Term .
   op rhs : Equation -> Term .
