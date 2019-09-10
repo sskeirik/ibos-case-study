@@ -183,6 +183,9 @@ fmod TERM-EXTRA is
   op buildTerm' : Nat TypeList -> TermList .
   eq buildTerm'(N,Y YL) = qid("@" + string(N,10) + ":" + string(Y)), buildTerm'(s(N),YL) .
   eq buildTerm'(N,nil ) = empty .
+
+  op buildVar : Qid Type -> Variable .
+  eq buildVar(Q,X) = qid(string(Q) + ":" + string(X)) .
 endfm
 
 fmod TERMLISTPAIR is
