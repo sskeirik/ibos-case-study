@@ -122,7 +122,7 @@ fmod CONTEXT-REW is
           then reduce(setEqs(UCC,ES),PD << S)
           else if truefalseContradict(addEqs(ES,UCC),false,ES - getTaggedIdEqs(ES))
 	    then mtForm
-	    else if size(reduce(addEqs(ES,UCC),PD << S)) < size(PD)
+	    else if size(debugBreak(reduce(addEqs(ES,UCC),PD << S))) < size(PD)
 	      then reduce(addEqs(ES,UCC),PD << S)
 	      --- TODO: check if equations need to be reoriented after interreduction
 	      --- TODO: double-check not reducing id equations is OK
@@ -130,6 +130,9 @@ fmod CONTEXT-REW is
             fi
           fi
         fi)) .
+
+  op debugBreak : FOForm? -> FOForm? [strat (0)] .
+  eq debugBreak(FK) = FK .
 
   --- OUT: simplify QFForm by contextual rewriting if it is a clause
   op context-rew-simp  : Module QFForm? -> QFForm? .
