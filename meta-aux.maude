@@ -180,7 +180,7 @@ fmod TERM-EXTRA is
   eq buildTerm(Q,N,Y YL,X) = Q[buildTerm'(N,Y YL)] .
   eq buildTerm(Q,N,nil ,X) = qid(string(Q) + "." + string(X)) .
 
-  op buildTerm' : Nat TypeList -> Term .
+  op buildTerm' : Nat TypeList -> TermList .
   eq buildTerm'(N,Y YL) = qid("@" + string(N,10) + ":" + string(Y)), buildTerm'(s(N),YL) .
   eq buildTerm'(N,nil ) = empty .
 endfm
