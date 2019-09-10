@@ -1650,9 +1650,6 @@ fmod OPDECLSET-EXTRA is
     fi removeComm(OS) .
   eq removeComm(none) = none .
 
-  op removeComm : Module -> Module .
-  eq removeComm(U) = setOps(U,removeComm(getOps(U))) .
-
   --- PRE: None
   --- OUT: Return true if any attr occurs
   op anyAttrOccurs? : AttrSet OpDeclSet -> Bool .
@@ -4143,6 +4140,83 @@ fmod REMOVE-IDS is
   op nonIdEqs : EquationSet -> EquationSet .
   eq nonIdEqs(Eq EqS) = if metadata(Eq) == "id" then nonIdEqs(EqS) else Eq nonIdEqs(EqS) fi .
   eq nonIdEqs(none) = none .
+endfm
+
+fmod REMOVE-COMM is
+  pr UNIT-FM .
+  pr TERMSET-FM .
+  pr TERM-EXTRA .
+  pr STMT-EXTRA .
+  pr OPDECLSET-EXTRA .
+  pr METASEARCH .
+
+  var U : Module .
+  var Q  : Qid .
+  var YL : TypeList .
+  var Y1 Y2 Y3 Y : Type .
+  var AS : AttrSet .
+  var ODS : OpDeclSet .
+  var T L R : Term .
+  var TS : TermSet .
+  var Rl : Rule .
+  var RlS : RuleSet .
+  var Eq : Equation .
+  var EqS : EquationSet .
+
+  --- Entry points
+  op removeComm : Module -> Module [memo] .
+  op removeComm : Module Term -> TermSet .
+  ----------------------------------------
+  eq removeComm(U) =
+    setRls(
+      setEqs(
+        setOps(U,removeComm(getOps(U))),
+        removeComm$(commRuleModule(U),getEqs(U))),
+      removeComm$(commRuleModule(U),getRls(U))) .
+
+  eq removeComm(U,T) = TermSet(searchAll(commRuleModule(U),T)) .
+
+  --- Iterate over rules/equations and transform them
+  op removeComm$ : Module RuleSet -> RuleSet .
+  op removeComm$ : Module EquationSet -> EquationSet .
+  ----------------------------------------------------
+  eq removeComm$(U,Rl RlS) =
+    removeComm$(Rl,TermSet(searchAll(U,lhs(Rl)))) removeComm$(U,RlS) .
+  eq removeComm$(U,(none).RuleSet) = none .
+
+  eq removeComm$(U,Eq EqS) =
+    removeComm$(Eq,TermSet(searchAll(U,lhs(Eq)))) removeComm$(U,EqS) .
+  eq removeComm$(U,(none).EquationSet) = none .
+
+  op removeComm$ : Rule TermSet  -> RuleSet .
+  op removeComm$ : Equation TermSet -> EquationSet .
+  --------------------------------------------------
+  eq removeComm$(Rl,T | TS)       = set-lhs(Rl,T) removeComm$(Rl,TS) .
+  eq removeComm$(Rl,emptyTermSet) = (none).RuleSet .
+
+  eq removeComm$(Eq,T | TS)       = set-lhs(Eq,T) removeComm$(Eq,TS) .
+  eq removeComm$(Eq,emptyTermSet) = (none).EquationSet .
+
+  --- Create module which we will use to explore commutative equivalence classes
+  op commRuleModule : Module -> Module [memo] .
+  ---------------------------------------------
+  eq commRuleModule(U) = setRls(setEqs(setOps(U,removeComm(getOps(U))),none),commRules(U,getOps(U))) .
+
+  op commRules : Module OpDeclSet ~> RuleSet .
+  --------------------------------------------
+  eq commRules(U,op Q : Y1 Y2 -> Y [AS]. ODS) =
+    if in(comm,AS) and not in(assoc,AS)
+       then if sameKind(U,Y1,Y2)
+         then (rl Q[buildVar('L,getKind(U,Y1)),buildVar('R,getKind(U,Y1))] => Q[buildVar('R,getKind(U,Y1)),buildVar('L,getKind(U,Y1))] [none].)
+         else (rl Q[buildVar('L,getKind(U,Y1)),buildVar('R,getKind(U,Y2))] => Q[buildVar('R,getKind(U,Y2)),buildVar('L,getKind(U,Y1))] [none].
+               rl Q[buildVar('L,getKind(U,Y2)),buildVar('R,getKind(U,Y1))] => Q[buildVar('R,getKind(U,Y1)),buildVar('L,getKind(U,Y2))] [none].)
+         fi
+       else none
+    fi commRules(U,ODS) .
+  eq commRules(U,op Q : nil         -> Y [AS]. ODS) = commRules(U,ODS) .
+  eq commRules(U,op Q : Y1          -> Y [AS]. ODS) = commRules(U,ODS) .
+  eq commRules(U,op Q : Y1 Y2 Y3 YL -> Y [AS]. ODS) = commRules(U,ODS) .
+  eq commRules(U,none)                              = none .
 endfm
 
 fmod SHOW-VARIANTS is
