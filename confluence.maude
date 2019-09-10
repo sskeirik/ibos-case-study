@@ -926,7 +926,7 @@ fmod SIMPLE-CRITPAIR is
   op getSimpleCritPairs : Module TermConditionMap -> SimpleCritPairSet .
   -----------------------------------------------------
   eq getSimpleCritPairs(M)     = getSimpleCritPairs(M,empty) .
-  eq getSimpleCritPairs(M,TCM) = scps(M, TCM, getEqFamilies(M), .SimpleCritPairSet) .
+ ceq getSimpleCritPairs(M,TCM) = scps(M, TCM, getEqFamilies(M), .SimpleCritPairSet) if wellFormed(M,TCM) .
 
   op scps : Module TermConditionMap EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
   op scps : Module TermConditionMap QidList EqPairSet EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
@@ -1017,6 +1017,16 @@ fmod SIMPLE-CRITPAIR is
   eq renameCond(D,nil,         C') = C' .
 
   eq renameCond([D,(T1',T2')],C,C') = renameCond(D,C,C' /\ T1' = T2') .
+
+  op wellFormed : Module TermConditionMap -> Bool .
+  -------------------------------------------------
+  eq wellFormed(M,(T1 |-> C, TCM)) = vars(flatten(C)) subset vars(T1) and-then wellFormedSet(M,TermSet((T1,flatten(C)))) and-then wellFormed(M,TCM) .
+  eq wellFormed(M,(empty).TermConditionMap) = true .
+
+  op flatten : EqCondition ~> TermList .
+  --------------------------------------
+  eq flatten(T1 = T2 /\ C) = T1,T2,flatten(C) .
+  eq flatten(nil)          = empty .
 endfm
 
 mod CONFLUENCE-TOOLS is
