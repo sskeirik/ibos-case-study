@@ -1642,9 +1642,9 @@ fmod OPDECLSET-EXTRA is
   eq assoc?(AS) = false [owise] .
 
   op removeComm : OpDeclSet -> OpDeclSet .
-  eq removeComm(op Q : TYL -> TY [comm AS]. OS) =
-    if assoc?(AS) then
-      op Q : TYL -> TY [comm AS].
+  eq removeComm(op Q : TYL -> TY [AS]. OS) =
+    if in(comm,AS) and not in(assoc,AS) then
+      op Q : TYL -> TY [AS % comm].
     else
       op Q : TYL -> TY [AS].
     fi removeComm(OS) .
