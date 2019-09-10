@@ -39,5 +39,16 @@ endm
 --- SIMPLE EXAMPLE
 --- red pendingCPs(crcContextJoinableAndUnfeasibleCPs(safe-mfe,toStdCritPairs(renameCPs(subsume(mfe,simplify(mfe,getSimpleCritPairs(safe-mfe))))))) .
 --- FULL TEST
-red pendingCPs(crcContextJoinableAndUnfeasibleCPs(safe-ibos,toStdCritPairs(renameCPs(subsume(ibos,simplify(ibos,getSimpleCritPairs(safe-ibos))))))) .
+red pendingCPs(crcContextJoinableAndUnfeasibleCPs(safe-ibos,toStdCritPairs(renameCPs(subsume(ibos,simplify(ibos,
+getSimpleCritPairs(safe-ibos,
+('p['NWC:NetWebProcConfig,'WIS:WebProcInfoSet,'NIS:NetProcInfoSet,'M:Message?] |->
+   ('nwp-reqattrs?  ['NWC:NetWebProcConfig] = 'true.Bool  /\
+    'conf-attr-dupl?['NWC:NetWebProcConfig] = 'false.Bool /\
+    'weblabels-dupl?['WIS:WebProcInfoSet]   = 'false.Bool /\
+    'netlabels-dupl?['NIS:NetProcInfoSet]   = 'false.Bool /\
+    'conf-dupl?     ['NWC:NetWebProcConfig] = 'false.Bool),
+ 'render-consistent?['NWC:NetWebProcConfig] |->
+   ('conf-attr-dupl?['NWC:NetWebProcConfig] = 'false.Bool)
+))
+)))))) .
 quit
