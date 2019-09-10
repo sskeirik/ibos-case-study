@@ -3577,6 +3577,41 @@ fmod NARROWING is
   eq toResultTripleSet(.NarrowingSearchResultSet) = empty .
 endfm
 
+fmod METASEARCH is
+  pr META-LEVEL .
+  pr TERMSET-FM .
+  pr NARROWING .
+
+  var U : Module .
+  var S T : Term .
+  var C : Condition .
+  var R : Qid .
+  var B : Bound .
+  var N : Nat .
+  var RT : ResultTriple .
+  var RTS : ResultTripleSet .
+  var Sub : Substitution .
+  var Ty : Type .
+
+  op searchAll : Module Term -> ResultTripleSet .
+  op searchAll : Module Term Qid -> ResultTripleSet .
+  ---------------------------------------------------
+  eq searchAll(U,S)   = searchAll(U,S,buildVar('X,getKind(U,leastSort(U,S))),nil,'*,unbounded) .
+  eq searchAll(U,S,R) = searchAll(U,S,buildVar('X,getKind(U,leastSort(U,S))),nil,R ,unbounded) .
+
+  op searchAll : Module Term Term Condition Qid Bound -> ResultTripleSet .
+  op searchAll : Module Term Term Condition Qid Bound Nat ResultTriple ResultTripleSet -> ResultTripleSet .
+  ---------------------------------------------------------------------------------------------------------
+  eq searchAll(U,S,T,C,R,B) = searchAll(U,S,T,C,R,B,0,metaSearch(U,S,T,C,R,B,0),empty) .
+
+  eq searchAll(U,S,T,C,R,B,N,RT,     RTS) = searchAll(U,S,T,C,R,B,s(N),metaSearch(U,S,T,C,R,B,s(N)),RTS | RT) .
+  eq searchAll(U,S,T,C,R,B,N,failure,RTS) = RTS .
+
+  op TermSet : ResultTripleSet -> TermSet .
+  eq TermSet({T,Ty,Sub} | RTS)        = T | TermSet(RTS) .
+  eq TermSet((empty).ResultTripleSet) = emptyTermSet .
+endfm
+
 fmod OP-FAMILY is
   pr TYPE-EXTRA .
   pr OPDECL-TYPING .
