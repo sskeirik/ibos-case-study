@@ -885,7 +885,7 @@ fmod SIMPLE-CRITPAIR is
   var SS : SubstitutionSet .
   var SPS : SubstitutionPairSet .
   var T1 T2 T1' T2' : Term .
-  var C C' : EqCondition .
+  var C C' A A' : EqCondition .
   var CP CP' : SimpleCritPair .
   var CPS CPS' : SimpleCritPairSet .
   var OCPS : CritPairSet .
@@ -903,12 +903,12 @@ fmod SIMPLE-CRITPAIR is
   ------------------------------------------------
   sort SimpleCritPair SimpleCritPairSet .
   subsort SimpleCritPair < SimpleCritPairSet .
-  op cp  : NeQidList CommTermPair EqCondition -> SimpleCritPair [ctor] .
+  op cp  : NeQidList CommTermPair EqCondition EqCondition -> SimpleCritPair [ctor] .
   op __  : SimpleCritPairSet SimpleCritPairSet -> SimpleCritPairSet [ctor assoc comm id: .SimpleCritPairSet format (d n d)] .
   op .SimpleCritPairSet : -> SimpleCritPairSet [ctor] .
   -----------------------------------------------------
   op getOpId : SimpleCritPair -> NeQidList .
-  eq getOpId(cp(Q QL,ctp(T1,T2),C)) = Q QL .
+  eq getOpId(cp(Q QL,ctp(T1,T2),C,A)) = Q QL .
 
   op getEqPairs  : EquationSet -> EqPairSet .
   op getEqPairs  : EquationSet EquationSet EqPairSet -> EqPairSet .
@@ -943,7 +943,7 @@ fmod SIMPLE-CRITPAIR is
   eq scps(M,TCM,QL,(E,E') | EPS, EFM, CPS) = scps(M,TCM,QL,disjUnifiers(M,false,lhs(E),lhs(E')), (E,E'), EPS, EFM, CPS) .
   eq scps(M,TCM,QL,.EqPairSet,   EFM, CPS) = scps(M,TCM,EFM,CPS) .
 
-  eq scps(M,TCM,QL,(S,S') | SPS,(E,E'),EPS,EFM,CPS) = scps(M,TCM,QL,SPS,(E,E'),EPS,EFM,CPS cp(QL,ctp(rhs(E) << S,rhs(E') << S'),(cond(E) << S) /\ (cond(E') << S') /\ getCondition(M,lhs(E) << S,TCM))) .
+  eq scps(M,TCM,QL,(S,S') | SPS,(E,E'),EPS,EFM,CPS) = scps(M,TCM,QL,SPS,(E,E'),EPS,EFM,CPS cp(QL,ctp(rhs(E) << S,rhs(E') << S'),(cond(E) << S) /\ (cond(E') << S'),getCondition(M,lhs(E) << S,TCM))) .
   eq scps(M,TCM,QL,empty,       (E,E'),EPS,EFM,CPS) = scps(M,TCM,QL,EPS,EFM,CPS) .
 
   op getCondition : Module Term TermConditionMap -> EqCondition .
@@ -958,10 +958,10 @@ fmod SIMPLE-CRITPAIR is
   op simplify : Module SimpleCritPairSet -> SimpleCritPairSet .
   op simplify : Module SimpleCritPairSet SimpleCritPairSet -> SimpleCritPairSet .
   -------------------------------------------------------------------------------
-  eq simplify(M,CPS)                          = simplify(M,CPS,.SimpleCritPairSet) .
+  eq simplify(M,CPS)                            = simplify(M,CPS,.SimpleCritPairSet) .
 
-  eq simplify(M,cp(QL,ctp(T1,T2),C) CPS,CPS') = simplify(M,CPS,CPS' equalOrDelete(cp(QL,ctp(metaReduce2(M,T1),metaReduce2(M,T2)),C))) .
-  eq simplify(M,.SimpleCritPairSet,CPS')      = CPS' .
+  eq simplify(M,cp(QL,ctp(T1,T2),C,A) CPS,CPS') = simplify(M,CPS,CPS' equalOrDelete(cp(QL,ctp(metaReduce2(M,T1),metaReduce2(M,T2)),C,A))) .
+  eq simplify(M,.SimpleCritPairSet,CPS')        = CPS' .
 
   op subsume  : Module SimpleCritPairSet -> SimpleCritPairSet .
   op subsume  : Module SimpleCritPairSet SimpleCritPairSet -> SimpleCritPairSet .
@@ -985,22 +985,22 @@ fmod SIMPLE-CRITPAIR is
   --- miscellaneous utility functions
   -----------------------------------
   op equalOrDelete : SimpleCritPair -> SimpleCritPairSet .
-  eq equalOrDelete(cp(QL,ctp(T1,T2),C)) = if T1 == T2 then .SimpleCritPairSet else cp(QL,ctp(T1,T2),C) fi .
+  eq equalOrDelete(cp(QL,ctp(T1,T2),C,A)) = if T1 == T2 then .SimpleCritPairSet else cp(QL,ctp(T1,T2),C,A) fi .
 
   op cp-matches? : Module SimpleCritPair SimpleCritPair -> Bool .
   eq cp-matches?(M,CP,CP') = getOpId(CP) == getOpId(CP') and-then matches?(eqset-pair-func(M),scpToTerm(M,CP),scpToTerm(M,CP')) .
 
   op scpToTerm : Module SimpleCritPair ~> Term .
-  eq scpToTerm(M,cp(QL,ctp(T1,T2),C)) = toEqSetPairTerm(M,eq T1 = T2 [none].,eqCondToEqs(C)) .
+  eq scpToTerm(M,cp(QL,ctp(T1,T2),C,A)) = toEqSetPairTerm(M,eq T1 = T2 [none].,eqCondToEqs(C)) .
 
   op toStdCritPairs : SimpleCritPairSet -> CritPairSet .
   op toStdCritPairs : SimpleCritPairSet CritPairSet -> CritPairSet .
   ------------------------------------------------------------------
   eq toStdCritPairs(CPS) = toStdCritPairs(CPS,none) .
-  eq toStdCritPairs(cp(Q QL,ctp(T1,T2),C) CPS, OCPS) =
-    toStdCritPairs(CPS, OCPS if C == nil
-      then  cp(string(Q),qid(""),qid(""),T1,T2,  pending)
-      else ccp(string(Q),qid(""),qid(""),T1,T2,C,pending)
+  eq toStdCritPairs(cp(Q QL,ctp(T1,T2),C,A) CPS, OCPS) =
+    toStdCritPairs(CPS, OCPS if (C /\ A) == nil
+      then  cp(string(Q),qid(""),qid(""),T1,T2,       pending)
+      else ccp(string(Q),qid(""),qid(""),T1,T2,C /\ A,pending)
     fi) .
   eq toStdCritPairs(.SimpleCritPairSet, OCPS) = OCPS .
 
@@ -1014,9 +1014,10 @@ fmod SIMPLE-CRITPAIR is
 
   op renameCP : SimpleCritPair ~> SimpleCritPair .
   ------------------------------------------------
- ceq renameCP(cp(QL,ctp(T1,T2),C)) = cp(QL,ctp(T1',T2'),C')
+ ceq renameCP(cp(QL,ctp(T1,T2),C,A)) = cp(QL,ctp(T1',T2'),C',A')
   if [D ,(T1',T2')] := #renameVars(nullNameData,(T1,T2))
-  /\ [D1,C']        := #renameCond(D,C,nil) .
+  /\ [D1,C']        := #renameCond(D,C,nil)
+  /\ [D2,A']        := #renameCond(D,A,nil) .
 
   sort RenamedCondition .
   op [_,_] : NameData Condition -> RenamedCondition [ctor] .
