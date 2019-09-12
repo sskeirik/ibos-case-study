@@ -1,0 +1,95 @@
+fmod WRAPPED-TERMLIST-SET is
+  pr META-LEVEL .
+  pr TERM-EXTRA .
+  pr TYPE-EXTRA .
+
+  var U : Module .
+  var TYL : TypeList .
+  var TL : TermList .
+  var WTS : WTermListSet .
+
+  sort WTermList WTermListSet .
+  subsort WTermList < WTermListSet .
+  ----------------------------------
+  op {_} : TermList -> WTermList [ctor] .
+  op __ : WTermListSet WTermListSet -> WTermListSet [ctor assoc comm id: .WTermListSet] .
+  op .WTermListSet : -> WTermListSet [ctor] .
+
+  op wellTyped : Module TypeList WTermListSet -> Bool .
+  -----------------------------------------------------
+  eq wellTyped(U,TYL,{TL} WTS)    = typeLeqS(U,termListTypes(U,TL),TYL) and-then wellTyped(U,TYL,WTS) .
+  eq wellTyped(U,TYL,.WTermListSet) = true .
+
+  op linear : WTermListSet -> Bool .
+  ----------------------------------
+  eq linear({TL} WTS)    = linear(TL) and-then linear(WTS) .
+  eq linear(.WTermListSet) = true .
+endfm
+
+fmod COVERSET-AUTOMATON is
+  --- pr SCC .
+  pr WRAPPED-TERMLIST-SET .
+  pr UNIT-FM .
+  pr UNIQUE-PREFIX .
+
+  var U : Module .
+  var OP SP : String .
+  var TYL : TypeList .
+  var WTS : WTermListSet .
+  var TL : TermList .
+
+  op sca : Module -> Module .
+
+  op csa : Module TypeList WTermListSet -> Module .
+  -------------------------------------------------
+ ceq csa(U,TYL,WTS) = sca(csa-mod(getSig(U),opPrefix(U),sortPrefix(U),TYL,WTS))
+  if wellTyped(U,TYL,WTS) and-then linear(WTS) .
+
+  op csa-mod : Module String String TypeList WTermListSet -> Module .
+  -------------------------------------------------------------------
+  eq csa-mod(U,OP,SP,TYL,WTS) =
+    addOps(op qid(OP + "def") : TYL -> qid(SP + "tt") [none].
+           op qid(OP + "tt")  : nil -> qid(SP + "tt") [ctor].,
+      addSorts(qid(SP + "tt"),
+        addEqs(cover-eqs(OP,SP,WTS),U))) .
+
+  op cover-eqs : String String WTermListSet -> EquationSet .
+  ----------------------------------------------------------
+  eq cover-eqs(OP,SP,{TL} WTS) =
+    (eq qid(OP + "def")[TL] = qid(OP + "tt." + SP + "tt") [none].)
+    cover-eqs(OP,SP,WTS) .
+  eq cover-eqs(OP,SP,.WTermListSet) = none .
+endfm
+
+fmod SIMPLE-SUFFCOMP is
+  pr TERMSET-FM .
+  pr CONSTRAINED-TERMSET .
+  pr COVERSET-AUTOMATON .
+  pr OP-FAMILY .
+  pr REMOVE-COMM .
+  pr FOFORMSET .
+
+  sort SuffCompTermTransform SuffCompTermTransformList .
+  subsort SuffCompTermTransform < SuffCompTermTransformList .
+  -----------------------------------------------------------
+  op using_on_case_              : Term Variable TermSet -> SuffCompTermTransform [ctor] .
+  op using_with_split_           : Term Term TermSet -> SuffCompTermTransform [ctor] .
+  op using_with_split-equal_and_ : Term Qid Variable Variable -> SuffCompTermTransform [ctor] .
+  op using_unify-cond            : Term -> SuffCompTermTransform [ctor] .
+  op skip                        : -> SuffCompTermTransformList [ctor] .
+  op _;;_ : SuffCompTermTransform SuffCompTermTransformList -> SuffCompTermTransformList [ctor right id: skip] .
+
+  sort SuffCompObligation SuffCompObligationSet .
+  subsort SuffCompObligation < SuffCompObligationSet .
+  ----------------------------------------------------
+  op .SuffCompObligationSet : -> SuffCompObligationSet [ctor] .
+
+  sort SuffCompStrategy SuffCompStrategyList .
+  subsort SuffCompStrategy < SuffCompStrategyList .
+  -------------------------------------------------
+  op op_:_->_|_|_ : Qid TypeList Type WTermListSet SuffCompTermTransformList -> SuffCompStrategy [ctor] .
+  op _;;_  : SuffCompStrategy SuffCompStrategyList -> SuffCompStrategyList [ctor] .
+  op nil   : -> SuffCompStrategyList [ctor] .
+
+  op suffcomp : Module SuffCompStrategyList -> SuffCompObligationSet .
+endfm
