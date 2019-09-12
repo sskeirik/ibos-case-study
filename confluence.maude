@@ -943,17 +943,17 @@ fmod SIMPLE-CRITPAIR is
   eq scps(M,TCM,QL,(E,E') | EPS, EFM, CPS) = scps(M,TCM,QL,disjUnifiers(M,false,lhs(E),lhs(E')), (E,E'), EPS, EFM, CPS) .
   eq scps(M,TCM,QL,.EqPairSet,   EFM, CPS) = scps(M,TCM,EFM,CPS) .
 
-  eq scps(M,TCM,QL,(S,S') | SPS,(E,E'),EPS,EFM,CPS) = scps(M,TCM,QL,SPS,(E,E'),EPS,EFM,CPS cp(QL,ctp(rhs(E) << S,rhs(E') << S'),(cond(E) << S) /\ (cond(E') << S'),getCondition(M,lhs(E) << S,TCM))) .
+  eq scps(M,TCM,QL,(S,S') | SPS,(E,E'),EPS,EFM,CPS) = scps(M,TCM,QL,SPS,(E,E'),EPS,EFM,CPS cp(QL,ctp(rhs(E) << S,rhs(E') << S'),(cond(E) << S) /\ (cond(E') << S'),getCond(M,lhs(E) << S,TCM))) .
   eq scps(M,TCM,QL,empty,       (E,E'),EPS,EFM,CPS) = scps(M,TCM,QL,EPS,EFM,CPS) .
 
-  op getCondition : Module Term TermConditionMap -> EqCondition .
-  op getCondition : Module Term Substitution? EqCondition TermConditionMap -> EqCondition .
-  -----------------------------------------------------------------------------------------
-  eq getCondition(M,T1,(T2 |-> C,TCM)) = getCondition(M,T1,metaMatch(M,T2,T1),C,TCM) .
-  eq getCondition(M,T1,empty)          = nil .
+  op getCond : Module Term TermConditionMap -> EqCondition .
+  op getCond : Module Term Substitution? EqCondition TermConditionMap -> EqCondition .
+  ------------------------------------------------------------------------------------
+  eq getCond(M,T1,(T2 |-> C,TCM)) = getCond(M,T1,metaMatch(M,T2,T1),C,TCM) .
+  eq getCond(M,T1,empty)          = nil .
 
-  eq getCondition(M,T1,noMatch,C,TCM) = getCondition(M,T1,TCM) .
-  eq getCondition(M,T1,S,      C,TCM) = C << S .
+  eq getCond(M,T1,noMatch,C,TCM) = getCond(M,T1,TCM) .
+  eq getCond(M,T1,S,      C,TCM) = C << S .
 
   op simpCond : Module EqCondition EqCondition ~> EqCondition .
   -------------------------------------------------------------
