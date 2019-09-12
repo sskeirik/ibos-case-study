@@ -3767,8 +3767,8 @@ fmod EQ-FAMILY is
   eq getEqFamilies(M,EFM,O OS,EFM') = getEqFamilies(M,EFM,OS,EFM' getEqFamily(EFM,qid(O) toKind(M,argTypes(O)))) .
   eq getEqFamilies(M,EFM,none,EFM') = EFM' .
 
-  op getEqFamily : EqFamilyMap QidList -> EqFamily .
-  --------------------------------------------------
+  op getEqFamily : EqFamilyMap QidList -> EqFamilyMap .
+  -----------------------------------------------------
   eq getEqFamily(((Q,TYL) |-> ES) EFM,Q TYL) = (Q,TYL) |-> ES .
   eq getEqFamily(                 EFM,Q TYL) = nil [owise] .
 
