@@ -2,11 +2,14 @@ fmod WRAPPED-TERMLIST-SET is
   pr META-LEVEL .
   pr TERM-EXTRA .
   pr TYPE-EXTRA .
+  pr TERMSET-FM .
 
   var U : Module .
   var TYL : TypeList .
+  var NTL : NeTermList .
   var TL : TermList .
   var WTS : WTermListSet .
+  var Q : Qid .
 
   sort WTermList WTermListSet .
   subsort WTermList < WTermListSet .
@@ -24,6 +27,11 @@ fmod WRAPPED-TERMLIST-SET is
   ----------------------------------
   eq linear({TL} WTS)    = linear(TL) and-then linear(WTS) .
   eq linear(.WTermListSet) = true .
+
+  op TermSet : Qid WTermListSet ~> TermSet .
+  ------------------------------------------
+  eq TermSet(Q,{NTL} WTS)     = (Q[NTL]) | TermSet(Q,WTS) .
+  eq TermSet(Q,.WTermListSet) = emptyTermSet .
 endfm
 
 fmod COVERSET-AUTOMATON is
