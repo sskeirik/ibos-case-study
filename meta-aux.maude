@@ -3735,11 +3735,12 @@ fmod EQ-FAMILY is
   var TYL : TypeList .
   var TY : Type .
   var T : Term .
+  var O : OpDecl .
   var OS OS' : OpDeclSet .
   var OFM CFM : OpFamilyMap .
   var E : Equation .
   var ES : EquationSet .
-  var EFM : EqFamilyMap .
+  var EFM EFM' : EqFamilyMap .
 
   sort EqFamily EqFamilyMap .
   subsort EqFamily < EqFamilyMap .
@@ -3747,6 +3748,7 @@ fmod EQ-FAMILY is
   op __ : EqFamilyMap EqFamilyMap -> EqFamilyMap [ctor assoc comm id: nil] .
   op nil : -> EqFamilyMap [ctor] .
 
+  --- Constructors
   op getEqFamilies : Module ~> EqFamilyMap .
   eq getEqFamilies(M) = getEqFamilies(M,splitConsts(getOps(M))) .
 
@@ -3757,6 +3759,20 @@ fmod EQ-FAMILY is
   eq getEqFamilies(M,CFM,OFM,E ES,EFM) = getEqFamilies(M,CFM,OFM,ES,$eqF($topOperator(M,lhs(E),CFM,OFM),E,EFM)) .
   eq getEqFamilies(M,CFM,OFM,none,EFM) = EFM .
 
+  --- Selectors
+  op getEqFamilies : Module EqFamilyMap OpDeclSet -> EqFamilyMap .
+  op getEqFamilies : Module EqFamilyMap OpDeclSet EqFamilyMap -> EqFamilyMap .
+  ----------------------------------------------------------------------------
+  eq getEqFamilies(M,EFM,OS)        = getEqFamilies(M,EFM,OS,nil) .
+  eq getEqFamilies(M,EFM,O OS,EFM') = getEqFamilies(M,EFM,OS,EFM' getEqFamily(EFM,qid(O) toKind(M,argTypes(O)))) .
+  eq getEqFamilies(M,EFM,none,EFM') = EFM' .
+
+  op getEqFamily : EqFamilyMap QidList -> EqFamily .
+  --------------------------------------------------
+  eq getEqFamily(((Q,TYL) |-> ES) EFM,Q TYL) = (Q,TYL) |-> ES .
+  eq getEqFamily(                 EFM,Q TYL) = nil [owise] .
+
+  --- Auxiliary
   op $eqF : NeQidList Equation EqFamilyMap ~> EqFamilyMap .
   eq $eqF(Q TYL,E,((Q,TYL) |-> ES) EFM) = ((Q,TYL) |-> E ES) EFM .
   eq $eqF(Q TYL,E,EFM)                  = ((Q,TYL) |-> E)    EFM [owise] .
