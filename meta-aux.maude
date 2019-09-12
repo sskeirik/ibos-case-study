@@ -138,6 +138,15 @@ fmod TERM-EXTRA is
   eq termSize((T,TL)) = termSize(T) + termSize(TL) .
   eq termSize(empty)  = 0 .
 
+  --- OUT: true iff TermList has no repeated variables
+  op linear : TermList -> Bool .
+  op linear : TermList VariableSet -> Bool .
+  eq linear(TL)             = linear(TL,none) .
+  eq linear((Q[NTL],TL),VS) = linear((NTL,TL),VS) .
+  eq linear((C,TL),     VS) = linear(TL,      VS) .
+  eq linear((V,TL),     VS) = (not V in VS) and-then linear(TL,V ; VS) .
+  eq linear(empty,      VS) = true .
+
   --- PRE: the module is sort-decreasing
   --- OUT: true iff one of the terms is provably not equal to other
   ---      to the other because either: one is a ground constructor
