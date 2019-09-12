@@ -36,9 +36,12 @@ endm
 --- NOTE: based on source code check and reading CRC paper,
 ---       all context-joinability/unfeasibility checks only use search
 ---       so they can occur in the original module in this case
+---
 --- SIMPLE EXAMPLE
+---
 --- red pendingCPs(crcContextJoinableAndUnfeasibleCPs(safe-mfe,toStdCritPairs(renameCPs(subsume(mfe,simplify(mfe,getSimpleCritPairs(safe-mfe))))))) .
---- FULL TEST
+---
+--- FULL TEST (optionally restricted to opdecls listed)
 red pendingCPs(crcContextJoinableAndUnfeasibleCPs(safe-ibos,toStdCritPairs(renameCPs(subsume(ibos,simplify(ibos,
 getSimpleCritPairs(safe-ibos,
 ('p['NWC:NetWebProcConfig,'WIS:WebProcInfoSet,'NIS:NetProcInfoSet,'M:Message?] |->
@@ -49,6 +52,9 @@ getSimpleCritPairs(safe-ibos,
     'conf-dupl?     ['NWC:NetWebProcConfig] = 'false.Bool),
  'render-consistent?['NWC:NetWebProcConfig] |->
    ('conf-attr-dupl?['NWC:NetWebProcConfig] = 'false.Bool)
-))
+)
+, op 'p : 'NetWebProcConfig 'WebProcInfoSet 'NetProcInfoSet 'Message? -> 'Bool? [none].
+)
 )))))) .
+
 quit
