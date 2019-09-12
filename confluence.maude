@@ -955,6 +955,11 @@ fmod SIMPLE-CRITPAIR is
   eq getCondition(M,T1,noMatch,C,TCM) = getCondition(M,T1,TCM) .
   eq getCondition(M,T1,S,      C,TCM) = C << S .
 
+  op simpCond : Module EqCondition EqCondition ~> EqCondition .
+  -------------------------------------------------------------
+  eq simpCond(M,T1 = T2 /\ C, C') = simpCond(M,C,C' /\ metaReduce2(M,T1) = metaReduce2(M,T2)) .
+  eq simpCond(M,nil,          C') = C' .
+
   op simplify : Module SimpleCritPairSet -> SimpleCritPairSet .
   op simplify : Module SimpleCritPairSet SimpleCritPairSet -> SimpleCritPairSet .
   -------------------------------------------------------------------------------
