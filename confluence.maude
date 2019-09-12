@@ -923,7 +923,14 @@ fmod SIMPLE-CRITPAIR is
   eq getEqPairs2(E,E' ES,EPS) = getEqPairs2(E,ES,EPS | (E,E')) .
   eq getEqPairs2(E,none, EPS) = EPS .
 
-  --- NOTE: this function MUST be tail-recursive to handle large modules
+  --- NOTE: This function MUST be tail-recursive to handle large modules.
+  --- NOTE: Checking critical pairs under a TermConditionMap is equivalent
+  ---       to checking for critical pairs in a specific kind of membership
+  ---       equational logic theory.
+  ---       This functionality is useful in several ways:
+  ---       [1] it may be easier to write your function without all these checks occuring explicitly
+  ---       [2] generating critical pairs means that we can consider fewer critical pairs
+  ---       [3] but this also means that our performance is better, since the unfeasibility check is cheap
   op getSimpleCritPairs : Module -> SimpleCritPairSet .
   op getSimpleCritPairs : Module TermConditionMap -> SimpleCritPairSet .
   op getSimpleCritPairs : Module TermConditionMap OpDeclSet -> SimpleCritPairSet .
