@@ -69,6 +69,61 @@ fmod COVERSET-AUTOMATON is
   eq cover-eqs(OP,SP,.WTermListSet) = none .
 endfm
 
+fmod COVERING-EQUATIONSET is
+  pr META-LEVEL .
+  pr TERM-EXTRA .
+  pr TERMSET-FM .
+  pr EQ-FAMILY  .
+  pr UNIFIERS   .
+  pr WRAPPED-TERMLIST-SET .
+  pr CONSTRAINED-TERMSET .
+  pr CONSTRAINED-TERMSET-MATCH .
+
+  var M : Module .
+  var ES : EquationSet .
+  var Q : Qid .
+  var TYL : TypeList .
+  var C C' : QFCTerm .
+  var CS CS' : QFCTermSet .
+  var U V : Term .
+  var EC : EqCondition .
+  var A : AttrSet .
+  var CJ : Conj? .
+
+  op covering-eqs : Module Qid TypeList QFCTermSet ~> QFCTermSet .
+  op covering-eqs : Module Qid TypeList EqFamilyMap QFCTermSet ~> QFCTermSet .
+  ----------------------------------------------------------------------------
+  eq covering-eqs(M,Q,TYL,CS)                = covering-eqs(M,Q,TYL,getEqFamily(getEqFamilies(M),Q TYL),CS) .
+  eq covering-eqs(M,Q,TYL,(Q,TYL) |-> ES,CS) = covering-eqs(M,ES,CS) .
+
+  op covering-eqs : Module EquationSet QFCTermSet ~> QFCTermSet .
+  op covering-eqs : Module EquationSet QFCTermSet QFCTermSet ~> QFCTermSet .
+  --------------------------------------------------------------------------
+  eq covering-eqs(M,ES,CS) = covering-eqs(M,ES,CS,noterm) .
+
+  eq covering-eqs(M,ES,C | CS,CS') = covering-eqs(M,ES,CS,CS' | if anyMatches?(M,eq-to-cterm(ES),C) then noterm else C fi) .
+  eq covering-eqs(M,ES,noterm,CS') = CS' .
+
+  op anyMatches? : Module QFCTermSet QFCTerm -> Bool .
+  ----------------------------------------------------
+  eq anyMatches?(M,C | CS,C') = matches?(cterm-func(M),cterm-func(M,C),cterm-func(M,C')) or-else anyMatches?(M,CS,C') .
+  eq anyMatches?(M,noterm,C') = false .
+
+  op eq-to-cterm : EquationSet ~> QFCTermSet .
+  op eq-to-cterm : EquationSet QFCTermSet ~> QFCTermSet .
+  -------------------------------------------------------
+  eq eq-to-cterm(ES) = eq-to-cterm(ES,noterm) .
+
+  eq eq-to-cterm( eq U = V       [A]. ES,CS) = eq-to-cterm(ES,CS | (U | mtForm)) .
+  eq eq-to-cterm(ceq U = V if EC [A]. ES,CS) = eq-to-cterm(ES,CS | (U | eqCond2Conj(EC,mtForm))) .
+  eq eq-to-cterm(none,                   CS) = CS .
+
+  op eqCond2Conj : EqCondition Conj? ~> Conj? .
+  ---------------------------------------------
+  eq eqCond2Conj(U = V /\ EC,CJ) = eqCond2Conj(EC,CJ /\ U ?= V) .
+  eq eqCond2Conj(nil,        CJ) = CJ .
+endfm
+
 fmod SIMPLE-SUFFCOMP is
   pr TERMSET-FM .
   pr CONSTRAINED-TERMSET .
