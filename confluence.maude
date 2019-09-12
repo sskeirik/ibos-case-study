@@ -889,7 +889,7 @@ fmod SIMPLE-CRITPAIR is
   var CP CP' : SimpleCritPair .
   var CPS CPS' : SimpleCritPairSet .
   var OCPS : CritPairSet .
-  var D : NameData .
+  var D D1 D2 : NameData .
   var TCM : TermConditionMap .
 
   sort EquationPair EqPairSet .
@@ -1006,22 +1006,27 @@ fmod SIMPLE-CRITPAIR is
 
   op renameCPs : SimpleCritPairSet -> SimpleCritPairSet .
   op renameCPs : SimpleCritPairSet SimpleCritPairSet -> SimpleCritPairSet .
-  op renameCP  : SimpleCritPair RenamedTermList -> SimpleCritPair .
-  -----------------------------------------------------------------
+  -------------------------------------------------------------------------
   eq renameCPs(CPS) = renameCPs(CPS, .SimpleCritPairSet) .
 
-  eq renameCPs(cp(QL,ctp(T1,T2),C) CPS, CPS') = renameCPs(CPS, CPS' renameCP(cp(QL,ctp(T1,T2),C),#renameVars(nullNameData,(T1,T2)))) .
-  eq renameCPs(.SimpleCritPairSet,      CPS') = CPS' .
+  eq renameCPs(CP CPS,            CPS') = renameCPs(CPS, CPS' renameCP(CP)) .
+  eq renameCPs(.SimpleCritPairSet,CPS') = CPS' .
 
-  eq renameCP(cp(QL,ctp(T1,T2),C),[[N,S],(T1',T2')]) = cp(QL,ctp(T1',T2'),renameCond([N,S],C,nil)) .
+  op renameCP : SimpleCritPair ~> SimpleCritPair .
+  ------------------------------------------------
+ ceq renameCP(cp(QL,ctp(T1,T2),C)) = cp(QL,ctp(T1',T2'),C')
+  if [D ,(T1',T2')] := #renameVars(nullNameData,(T1,T2))
+  /\ [D1,C']        := #renameCond(D,C,nil) .
 
-  op renameCond : NameData EqCondition EqCondition -> EqCondition .
-  op renameCond : RenamedTermList EqCondition EqCondition -> EqCondition .
-  ------------------------------------------------------------------------
-  eq renameCond(D,T1 = T2 /\ C,C') = renameCond(#renameVars(D,(T1,T2)),C,C') .
-  eq renameCond(D,nil,         C') = C' .
-
-  eq renameCond([D,(T1',T2')],C,C') = renameCond(D,C,C' /\ T1' = T2') .
+  sort RenamedCondition .
+  op [_,_] : NameData Condition -> RenamedCondition [ctor] .
+  ----------------------------------------------------------
+  op #renameCond : NameData EqCondition EqCondition -> RenamedCondition .
+  op #renameCond : RenamedTermList EqCondition EqCondition -> RenamedCondition .
+  ------------------------------------------------------------------------------
+  eq #renameCond(D,T1 = T2 /\ C,C')  = #renameCond(#renameVars(D,(T1,T2)),C,C') .
+  eq #renameCond(D,nil,         C')  = [D,C'] .
+  eq #renameCond([D,(T1',T2')],C,C') = #renameCond(D,C,C' /\ T1' = T2') .
 
   op wellFormed : Module TermConditionMap -> Bool .
   -------------------------------------------------
