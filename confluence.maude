@@ -869,6 +869,7 @@ fmod SIMPLE-CRITPAIR is
   pr EQ-FAMILY           . --- generate subsort-polymorphic equation families
   pr EQUATIONSET-FUNCTOR . --- functor for critical pair subsumption
   pr CRITICAL-PAIR-SET   . --- standard critical pair set definition
+  pr CRC-CONTEXT-JOINABILITY-UNFEASIBILITY . --- preunfeasible
   pr MAP{Term,EqCondition} * (sort Map{Term,EqCondition} to TermConditionMap) .
 
   var M : Module .
@@ -943,8 +944,17 @@ fmod SIMPLE-CRITPAIR is
   eq scps(M,TCM,QL,(E,E') | EPS, EFM, CPS) = scps(M,TCM,QL,disjUnifiers(M,false,lhs(E),lhs(E')), (E,E'), EPS, EFM, CPS) .
   eq scps(M,TCM,QL,.EqPairSet,   EFM, CPS) = scps(M,TCM,EFM,CPS) .
 
-  eq scps(M,TCM,QL,(S,S') | SPS,(E,E'),EPS,EFM,CPS) = scps(M,TCM,QL,SPS,(E,E'),EPS,EFM,CPS cp(QL,ctp(rhs(E) << S,rhs(E') << S'),(cond(E) << S) /\ (cond(E') << S'),getCond(M,lhs(E) << S,TCM))) .
+  eq scps(M,TCM,QL,(S,S') | SPS,(E,E'),EPS,EFM,CPS) = scps(M,TCM,QL,SPS,(E,E'),EPS,EFM,CPS scp(M,TCM,QL,E,E',S,S')) .
   eq scps(M,TCM,QL,empty,       (E,E'),EPS,EFM,CPS) = scps(M,TCM,QL,EPS,EFM,CPS) .
+
+  --- immediately check if equation instance violates assumption and toss if it does
+  op scp : Module TermConditionMap QidList Equation Equation Substitution Substitution ~> SimpleCritPairSet .
+  -----------------------------------------------------------------------------------------------------------
+  eq scp(M,TCM,QL,E,E',S,S') =
+    if preunfeasible(M,simpCond(M,getCond(M,lhs(E) << S,TCM),nil))
+     then .SimpleCritPairSet
+     else cp(QL,ctp(rhs(E) << S,rhs(E') << S'),(cond(E) << S) /\ (cond(E') << S'),getCond(M,lhs(E) << S,TCM))
+    fi .
 
   op getCond : Module Term TermConditionMap -> EqCondition .
   op getCond : Module Term Substitution? EqCondition TermConditionMap -> EqCondition .
