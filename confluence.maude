@@ -880,6 +880,7 @@ fmod SIMPLE-CRITPAIR is
   var ES ES' : EquationSet .
   var EFM : EqFamilyMap .
   var EPS : EqPairSet .
+  var ODS : OpDeclSet .
   var S S' : Substitution .
   var SS : SubstitutionSet .
   var SPS : SubstitutionPairSet .
@@ -924,14 +925,18 @@ fmod SIMPLE-CRITPAIR is
   --- NOTE: this function MUST be tail-recursive to handle large modules
   op getSimpleCritPairs : Module -> SimpleCritPairSet .
   op getSimpleCritPairs : Module TermConditionMap -> SimpleCritPairSet .
-  -----------------------------------------------------
-  eq getSimpleCritPairs(M)     = getSimpleCritPairs(M,empty) .
- ceq getSimpleCritPairs(M,TCM) = scps(M, TCM, getEqFamilies(M), .SimpleCritPairSet) if wellFormed(M,TCM) .
+  op getSimpleCritPairs : Module TermConditionMap OpDeclSet -> SimpleCritPairSet .
+  op getSimpleCritPairs : Module TermConditionMap EqFamilyMap -> SimpleCritPairSet .
+  ----------------------------------------------------------------------------------
+  eq getSimpleCritPairs(M)         = getSimpleCritPairs(M,empty) .
+  eq getSimpleCritPairs(M,TCM)     = getSimpleCritPairs(M,TCM,getEqFamilies(M)) .
+  eq getSimpleCritPairs(M,TCM,ODS) = getSimpleCritPairs(M,TCM,getEqFamilies(M,getEqFamilies(M),ODS)) .
+ ceq getSimpleCritPairs(M,TCM,EFM) = scps(M, TCM, EFM, .SimpleCritPairSet) if wellFormed(M,TCM) .
 
   op scps : Module TermConditionMap EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
   op scps : Module TermConditionMap QidList EqPairSet EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
   op scps : Module TermConditionMap QidList SubstitutionPairSet EquationPair EqPairSet EqFamilyMap SimpleCritPairSet -> SimpleCritPairSet .
-  ----------------------------------------------------------------------------------------------------------------
+  -----------------------------------------------------------------------------------------------------------------------------------------
   eq scps(M,TCM,((Q,TL) |-> ES) EFM, CPS) = scps(M,TCM,Q TL,getEqPairs(ES),EFM,CPS) .
   eq scps(M,TCM, nil,                CPS) = CPS .
 
