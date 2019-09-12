@@ -66,30 +66,28 @@ fmod SIMPLE-SUFFCOMP is
   pr CONSTRAINED-TERMSET .
   pr COVERSET-AUTOMATON .
   pr OP-FAMILY .
+  pr EQ-FAMILY .
   pr REMOVE-COMM .
   pr FOFORMSET .
 
   sort SuffCompTermTransform SuffCompTermTransformList .
   subsort SuffCompTermTransform < SuffCompTermTransformList .
   -----------------------------------------------------------
-  op using_on_case_              : Term Variable TermSet -> SuffCompTermTransform [ctor] .
-  op using_with_split_           : Term Term TermSet -> SuffCompTermTransform [ctor] .
-  op using_with_split-equal_and_ : Term Qid Variable Variable -> SuffCompTermTransform [ctor] .
-  op using_unify-cond            : Term -> SuffCompTermTransform [ctor] .
+  op using_on_case_              : TermList Variable TermSet -> SuffCompTermTransform [ctor] .
+  op using_with_split_           : TermList Term TermSet -> SuffCompTermTransform [ctor] .
+  op using_with_split_equal_and_ : TermList Qid Type Variable Variable -> SuffCompTermTransform [ctor] .
+  op using_unify-cond            : TermList -> SuffCompTermTransform [ctor] .
   op skip                        : -> SuffCompTermTransformList [ctor] .
-  op _;;_ : SuffCompTermTransform SuffCompTermTransformList -> SuffCompTermTransformList [ctor right id: skip] .
-
-  sort SuffCompObligation SuffCompObligationSet .
-  subsort SuffCompObligation < SuffCompObligationSet .
-  ----------------------------------------------------
-  op .SuffCompObligationSet : -> SuffCompObligationSet [ctor] .
+  op _;;_ : SuffCompTermTransform SuffCompTermTransformList -> SuffCompTermTransformList [ctor] .
 
   sort SuffCompStrategy SuffCompStrategyList .
   subsort SuffCompStrategy < SuffCompStrategyList .
   -------------------------------------------------
-  op op_:_->_|_|_ : Qid TypeList Type WTermListSet SuffCompTermTransformList -> SuffCompStrategy [ctor] .
-  op _;;_  : SuffCompStrategy SuffCompStrategyList -> SuffCompStrategyList [ctor] .
-  op nil   : -> SuffCompStrategyList [ctor] .
+  op handle`op_:_->_|_|_ : Qid TypeList Type WTermListSet SuffCompTermTransformList -> SuffCompStrategy [ctor] .
+  op assert`op_:_->_     : Qid TypeList Type                                        -> SuffCompStrategy [ctor] .
+  op _;;_ : SuffCompStrategy SuffCompStrategyList -> SuffCompStrategyList [ctor] .
+  op nil  : -> SuffCompStrategyList [ctor] .
 
-  op suffcomp : Module SuffCompStrategyList -> SuffCompObligationSet .
+  op suffcomp : Module SuffCompStrategyList -> EqFamilyMap .
+  op suffcomp : Module EqFamilyMap SuffCompStrategyList -> EqFamilyMap .
 endfm
