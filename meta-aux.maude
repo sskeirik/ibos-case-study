@@ -1659,6 +1659,12 @@ fmod OPDECLSET-EXTRA is
     fi removeComm(OS) .
   eq removeComm(none) = none .
 
+  op removeIdAttrs : OpDeclSet -> OpDeclSet .
+  eq removeIdAttrs(op Q : TYL -> TY [AS]. OS) =
+    (op Q : TYL -> TY [AS % (id-attr  right-id-attr  left-id-attr)].)
+     removeIdAttrs(OS) .
+  eq removeIdAttrs(none) = none .
+
   --- PRE: None
   --- OUT: Return true if any attr occurs
   op anyAttrOccurs? : AttrSet OpDeclSet -> Bool .
