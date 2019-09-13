@@ -733,21 +733,15 @@ fmod IBOS-AUX-FVP is
 
   --- 3. Add partially FVP predicate for checking if an object with the named ID is in the configuration
   op in-conf? : ProcessId Configuration -> Bool [metadata "116 true"] .
-  eq in-conf?(WP, < WP | toKernel(T:MessageList), fromKernel(F:MessageList), URL(U:Label), rendered(R:Label), loading(B:Bool), A > C) = true [variant] .
-  eq in-conf?(NP, < NP | toKernel(T:MessageList), fromKernel(F:MessageList), returnTo(P:ConcPipeId),
-                         mem-in(M1:MaybeLabel), mem-out(M2:MaybeLabel), in(L1:LabelList), out(L2:LabelList), A > C) = true [variant] .
-  eq in-conf?(ui, < ui | A > C) = true [variant] .
-  eq in-conf?(SP, < SP | A > C) = true [variant] .
+  eq in-conf?(P, < P  | A > C) = true [variant] .
   --- recursive cases
- ceq in-conf?(WP, < WP | A > C) = in-conf?(WP,C) if webproc-req-attrs(A) = false .
- ceq in-conf?(NP, < NP | A > C) = in-conf?(NP,C) if netproc-req-attrs(A) = false .
- ceq in-conf?(P,  < P' | A > C) = in-conf?(P,C) if P ~p P' = false .
+ ceq in-conf?(P, < P' | A > C) = in-conf?(P,C) if P ~p P' = false .
   --- base cases
-  eq in-conf?(AP, C)            = false .
-  eq in-conf?(P?, none)         = false .
+  eq in-conf?(AP, C)           = false .
+  eq in-conf?(P?, none)        = false .
   --- lemmas
- ceq in-conf?(NP, C)            = false if fresh-np-id?(NP,C) = true .
- ceq in-conf?(WP, C)            = false if fresh-wp-id?(WP,C) = true .
+ ceq in-conf?(NP, C)           = false if fresh-np-id?(NP,C) = true .
+ ceq in-conf?(WP, C)           = false if fresh-wp-id?(WP,C) = true .
   --- attribute canonicalizations
   eq in-conf?(P?, < P | toKernel(T:NeMessageList),   A > C) = in-conf?(P?, < P | toKernel(mt),          A > C) .
   eq in-conf?(P?, < P | fromKernel(F:NeMessageList), A > C) = in-conf?(P?, < P | fromKernel(mt),        A > C) .
