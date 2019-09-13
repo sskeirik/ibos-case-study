@@ -3756,7 +3756,7 @@ fmod EQ-FAMILY is
 
   --- Constructors
   op getEqFamilies : Module ~> EqFamilyMap .
-  eq getEqFamilies(M) = getEqFamilies(M,splitConsts(getOps(M))) .
+  eq getEqFamilies(M) = getEqFamilies(setOps(M,removeIdAttrs(getOps(M))),splitConsts(getOps(M))) .
 
   op getEqFamilies : Module OpDeclSetPair ~> EqFamilyMap .
   eq getEqFamilies(M,(OS,OS')) = getEqFamilies(M,getOpFamilies(M,true,OS),getOpFamilies(M,false,OS'),getEqs(M),nil) .
