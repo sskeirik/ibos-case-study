@@ -3243,8 +3243,10 @@ fmod RENAME-TERM is
         substr(string(V), rfind(string(V), ":", length(string(V))) + 1, length(string(V)))) .
 
   op freshifyVars : Nat TermQidSet -> Substitution .
+  op freshifyVars : Nat Substitution TermQidSet -> Substitution .
   --------------------------------------------------
-  eq freshifyVars(N,TQS) = rvGetSub(#renameVars([s(N),none],TermList(TQS))) .
+  eq freshifyVars(N,TQS)   = rvGetSub(#renameVars([s(N),none],TermList(TQS))) .
+  eq freshifyVars(N,S,TQS) = rvGetSub(#renameVars([s(N),S],   TermList(TQS))) .
 
   op maxVar : TermQid -> Nat .
   op maxVar : GTermList -> Nat .
