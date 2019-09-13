@@ -42,6 +42,7 @@ endm
 --- red pendingCPs(crcContextJoinableAndUnfeasibleCPs(safe-mfe,toStdCritPairs(renameCPs(subsume(mfe,simplify(mfe,getSimpleCritPairs(safe-mfe))))))) .
 ---
 --- FULL TEST (optionally restricted to opdecls listed)
+--- generating CPs for SOP predicate with filter: only 15 minutes and 51 seconds
 red pendingCPs(crcContextJoinableAndUnfeasibleCPs(safe-ibos,toStdCritPairs(renameCPs(subsume(ibos,simplify(ibos,
 getSimpleCritPairs(safe-ibos,
 ('p['NWC:NetWebProcConfig,'WIS:WebProcInfoSet,'NIS:NetProcInfoSet,'M:Message?] |->
@@ -53,7 +54,7 @@ getSimpleCritPairs(safe-ibos,
  'render-consistent?['NWC:NetWebProcConfig] |->
    ('conf-attr-dupl?['NWC:NetWebProcConfig] = 'false.Bool)
 )
-, op 'p : 'NetWebProcConfig 'WebProcInfoSet 'NetProcInfoSet 'Message? -> 'Bool? [none].
+--- , op 'p : 'NetWebProcConfig 'WebProcInfoSet 'NetProcInfoSet 'Message? -> 'Bool? [none].
 )
 )))))) .
 
