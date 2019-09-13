@@ -952,8 +952,8 @@ fmod IBOS-AUX-NONFVP is
   --- 41. Check that all Fetch messages in a given message list have unique labels
   op ui-consistent? : MessageList WebProcInfoSet -> Bool [metadata "200"] .
   --- SWITCH-TAB
- ceq ui-consistent?(MSGL @ msg(PP,PP',MSG-SWITCH-TAB,OUT) @ MSGL2,WIS) = ui-consistent?(MSGL @ MSGL2,WIS) if pid-in-weblabels?(PP',WIS) = true .
- ceq ui-consistent?(MSGL @ msg(PP,PP',MSG-SWITCH-TAB,OUT) @ MSGL2,WIS) = false                            if pid-in-weblabels?(PP',WIS) = false .
+ ceq ui-consistent?(MSGL @ msg(PP,webapp,MSG-SWITCH-TAB,OUT) @ MSGL2,WIS) = ui-consistent?(MSGL @ MSGL2,WIS) if lbl-in-weblabels?(OUT,WIS) = true .
+ ceq ui-consistent?(MSGL @ msg(PP,PP',MSG-SWITCH-TAB,OUT) @ MSGL2,WIS) = false                               if PP' ~p webapp and lbl-in-weblabels?(OUT,WIS) = false .
   --- NEW-URL
  ceq ui-consistent?(MSGL @ msg(PP,webapp,MSG-NEW-URL,OUT) @ MSGL2,WIS) = ui-consistent?(MSGL @ MSGL2,WIS) if newurl-nodupl?(OUT,MSGL @ MSGL2) = true .
  ceq ui-consistent?(MSGL @ msg(PP,PP',MSG-NEW-URL,OUT) @ MSGL2,WIS) = false                               if PP' ~p webapp and newurl-nodupl?(OUT,MSGL @ MSGL2) = false .
