@@ -468,6 +468,18 @@ fmod ATTRIBUTE-FVP-EXT is
   eq displayedTopBar (X:Label)              ~a activeWebapp    (Y:MaybeConcWebProcId) = false [variant] .
 
   eq displayedContent(X:Label)              ~a activeWebapp    (Y:MaybeConcWebProcId) = false [variant] .
+  ---
+  eq fromKernel(X:NeMessageList) ~a A = fromKernel(mt)        ~a A .
+  eq toKernel  (X:NeMessageList) ~a A = toKernel(mt)          ~a A .
+  eq rendered  (X:NonBlankLabel) ~a A = rendered(about-blank) ~a A .
+  eq URL       (X:NonBlankLabel) ~a A = URL(about-blank)      ~a A .
+  eq loading   (true)            ~a A = loading(false)        ~a A .
+  eq returnTo  (X:ConcWebProcId) ~a A = returnTo(ui)          ~a A .
+  eq returnTo  (X:ConcNetProcId) ~a A = returnTo(ui)          ~a A .
+  eq in        (X:NeLabelList)   ~a A = in(mtLL)              ~a A .
+  eq out       (X:NeLabelList)   ~a A = out(mtLL)             ~a A .
+  eq mem-in    (X:Label)         ~a A = mem-in(nolabel)       ~a A .
+  eq mem-out   (X:Label)         ~a A = mem-out(nolabel)      ~a A .
 
   --- 19. Add partially FVP in-attrset?(_|_) predicate for checking if an attribute of a given type exists in an attribute set
   op in-attrset?(_|_) : Attribute AttributeSet -> Bool [metadata "102 true"] .
@@ -736,6 +748,18 @@ fmod IBOS-AUX-FVP is
   --- lemmas
  ceq in-conf?(NP, C)            = false if fresh-np-id?(NP,C) = true .
  ceq in-conf?(WP, C)            = false if fresh-wp-id?(WP,C) = true .
+  --- attribute canonicalizations
+  eq in-conf?(P?, < P | toKernel(T:NeMessageList),   A > C) = in-conf?(P?, < P | toKernel(mt),          A > C) .
+  eq in-conf?(P?, < P | fromKernel(F:NeMessageList), A > C) = in-conf?(P?, < P | fromKernel(mt),        A > C) .
+  eq in-conf?(P?, < P | returnTo(W:ConcWebProcId),   A > C) = in-conf?(P?, < P | returnTo(ui),          A > C) .
+  eq in-conf?(P?, < P | returnTo(N:ConcNetProcId),   A > C) = in-conf?(P?, < P | returnTo(ui),          A > C) .
+  eq in-conf?(P?, < P | mem-in(L:Label),             A > C) = in-conf?(P?, < P | mem-in(nolabel),       A > C) .
+  eq in-conf?(P?, < P | mem-out(L:Label),            A > C) = in-conf?(P?, < P | mem-out(nolabel),      A > C) .
+  eq in-conf?(P?, < P | in(L:NeLabelList),           A > C) = in-conf?(P?, < P | in(mtLL),              A > C) .
+  eq in-conf?(P?, < P | out(L:NeLabelList),          A > C) = in-conf?(P?, < P | out(mtLL),             A > C) .
+  eq in-conf?(P?, < P | URL(U:NonBlankLabel),        A > C) = in-conf?(P?, < P | URL(about-blank),      A > C) .
+  eq in-conf?(P?, < P | rendered(R:NonBlankLabel),   A > C) = in-conf?(P?, < P | rendered(about-blank), A > C) .
+  eq in-conf?(P?, < P | loading(true),               A > C) = in-conf?(P?, < P | loading(false),        A > C) .
 
   --- 4. Add partially FVP predicate for checking for duplicate object IDs in the configuration
   op conf-dupl? : Configuration -> Bool [metadata "133 true"] .
