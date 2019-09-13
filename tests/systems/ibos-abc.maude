@@ -114,6 +114,7 @@ loop rltl-init .
 
 --- tab-change
 --- (split ({ < display | activeWebapp(WI), A' > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
+--- (split ({ < display | activeWebapp(WI), A' > < WI | A > C }) by (webproc-req-attrs(A)) = (true) and (webproc-req-attrs(A)) = (false) .)
 --- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- (split ({ < WI | URL(U), A > < display | activeWebapp(WI), A' > < kernel | displayedTopBar(U'), A'' > C }) by (U ~l U') = (true) and (U ~l U') = (false) .)
 --- (auto .)
@@ -136,6 +137,7 @@ loop rltl-init .
 --- (split ({ < kernel | weblabels(pi(WI,L),wp WIS), netlabels(NIS), A > C }) by (np-by-lbl?(L,NIS)) = (true) and (np-by-lbl?(L,NIS)) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
+--- (split ({ < kernel | netlabels(pi(NI,IN,IN),np NIS), A > < NI | A' > C }) by (netproc-req-attrs(A')) = (true) and (netproc-req-attrs(A')) = (false) .)
 --- (split ({ < NI | returnTo(PP1), A > < WI | A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
 --- (split ({ C }) | (p(< WI | fromKernel(NML), A > < NI | A' > NWC,WIS,NIS,MSG?)) = (true) by (sender(NML) ~p NI) = (true) and  (sender(NML) ~p NI) = (false) .)
 --- --- Handle p() predicate side-conditions
@@ -178,6 +180,7 @@ loop rltl-init .
 ---   (np-by-lbl?(L,NIS)) = (true) and (np-by-lbl?(L,NIS)) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
+--- (split ({ < kernel | netlabels(pi(NI,IN,IN),np NIS), A > < NI | A' > C }) by (netproc-req-attrs(A')) = (true) and (netproc-req-attrs(A')) = (false) .)
 --- (split ({ < NI | returnTo(PP1), A > < WI | loading(B), A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
 --- (split ({ C }) | (p(< WI | loading(B), fromKernel(NML), A > < NI | A' > NWC,WIS,NIS,MSG?)) = (true) by (sender(NML) ~p NI) = (true) and  (sender(NML) ~p NI) = (false) .)
 --- --- Handle p() predicate side-conditions
@@ -224,6 +227,7 @@ loop rltl-init .
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp pi(WI',IN2),wp WIS), A > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- --- ensure webproc exists --- generates extra (maybe unavoidable)
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
+--- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > < WI | A' > C }) by (webproc-req-attrs(A')) = (true) and (webproc-req-attrs(A')) = (false) .)
 --- --- check that webproc's URL matches its metadata
 --- (split ({ < WI | URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- --- check that webproc is loaded
@@ -264,6 +268,7 @@ loop rltl-init .
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp pi(WI',IN2),wp WIS), A > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- --- ensure webproc exists --- generates extra (maybe unavoidable)
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
+--- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > < WI | A' > C }) by (webproc-req-attrs(A')) = (true) and (webproc-req-attrs(A')) = (false) .)
 --- --- check that webproc's URL matches its metadata
 --- (split ({ < WI | URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- --- check that webproc is loaded
@@ -299,6 +304,7 @@ loop rltl-init .
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp pi(WI',IN2),wp WIS), A > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- --- ensure webproc exists --- generates extra (maybe unavoidable)
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
+--- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > < WI | A' > C }) by (webproc-req-attrs(A')) = (true) and (webproc-req-attrs(A')) = (false) .)
 --- --- check that webproc's URL matches its metadata
 --- (split ({ < WI | URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- --- check that webproc is loaded
@@ -334,6 +340,7 @@ loop rltl-init .
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp pi(WI',IN2),wp WIS), A > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- --- ensure webproc exists --- generates extra (maybe unavoidable)
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
+--- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > < WI | A' > C }) by (webproc-req-attrs(A')) = (true) and (webproc-req-attrs(A')) = (false) .)
 --- --- check that webproc's URL matches its metadata
 --- (split ({ < WI | URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- --- check that webproc is loaded
@@ -375,6 +382,7 @@ loop rltl-init .
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp pi(WI',IN2),wp WIS), A > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- --- ensure webproc exists --- generates extra (maybe unavoidable)
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
+--- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > < WI | A' > C }) by (webproc-req-attrs(A')) = (true) and (webproc-req-attrs(A')) = (false) .)
 --- --- check that webproc's URL matches its metadata
 --- (split ({ < WI | URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- --- check that webproc is loaded
@@ -407,6 +415,7 @@ loop rltl-init .
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp pi(WI',IN2),wp WIS), A > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- --- ensure webproc exists --- generates extra (maybe unavoidable)
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
+--- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > < WI | A' > C }) by (webproc-req-attrs(A')) = (true) and (webproc-req-attrs(A')) = (false) .)
 --- --- check that webproc's URL matches its metadata
 --- (split ({ < WI | URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- --- check that webproc is loaded
@@ -443,6 +452,7 @@ loop rltl-init .
 --- (split ({ < WI | loading(B), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (B) = (true) and (B) = (false) .)
 --- --- check that netproc is loaded
 --- (split ({ < kernel | netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
+--- (split ({ < kernel | netlabels(pi(NI,IN,IN),np NIS), A > < NI | A' > C }) by (netproc-req-attrs(A')) = (true) and (netproc-req-attrs(A')) = (false) .)
 --- --- make sure returnTo agrees (NOTE: this blows up in size because we can't discharge until we apply axiom)
 --- (split ({ < NI | returnTo(PP1), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
 --- --- NOTE: auto not needed
@@ -489,6 +499,7 @@ loop rltl-init .
 --- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- --- ensure webproc exists --- generates extra (maybe unavoidable)
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
+--- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > < WI | A' > C }) by (webproc-req-attrs(A')) = (true) and (webproc-req-attrs(A')) = (false) .)
 --- --- check that webproc's URL matches its metadata
 --- (split ({ < WI | URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- --- check that webproc is loaded
@@ -577,6 +588,7 @@ loop rltl-init .
 --- --- ensure netproc exists and metadata wellformed
 --- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,IN), np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
+--- (split ({ < kernel | netlabels(pi(NI,IN,IN), np NIS), A > < NI | A' > C }) by (netproc-req-attrs(A')) = (true) and (netproc-req-attrs(A')) = (false) .)
 --- (split ({ < NI | returnTo(PP1), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
 --- ---
 --- (split ({ < WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
@@ -610,6 +622,7 @@ loop rltl-init .
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp pi(WI',IN2),wp WIS), A > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- --- ensure webproc exists --- generates extra (maybe unavoidable)
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
+--- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > < WI | A' > C }) by (webproc-req-attrs(A')) = (true) and (webproc-req-attrs(A')) = (false) .)
 --- --- check that webproc's URL matches its metadata
 --- (split ({ < WI | URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- --- check that webproc is loaded
@@ -686,6 +699,7 @@ loop rltl-init .
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp pi(WI',IN2),wp WIS), A > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- --- ensure webproc exists --- generates extra (maybe unavoidable)
 --- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
+--- (split ({ < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A > < WI | A' > C }) by (webproc-req-attrs(A')) = (true) and (webproc-req-attrs(A')) = (false) .)
 --- --- check that webproc's URL matches its metadata
 --- (split ({ < WI | URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- --- check that webproc is loaded
@@ -735,6 +749,7 @@ loop rltl-init .
 --- --- ensure netproc exists and metadata wellformed
 --- (split ({ < kernel | netlabels(pi(NI,IN,OUT),np NIS), A > C }) by (IN ~l OUT) = (true) and (IN ~l OUT) = (false) .)
 --- (split ({ < kernel | netlabels(pi(NI,IN,IN), np NIS), A > C }) by (in-conf?(NI,C)) = (true) and (in-conf?(NI,C)) = (false) .)
+--- (split ({ < kernel | netlabels(pi(NI,IN,IN), np NIS), A > < NI | A' > C }) by (netproc-req-attrs(A')) = (true) and (netproc-req-attrs(A')) = (false) .)
 --- (split ({ < NI | returnTo(PP1), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (PP1 ~p WI) = (true) and (PP1 ~p WI) = (false) .)
 --- (split ({ C }) | (p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
 ---                     < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
