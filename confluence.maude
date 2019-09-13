@@ -1038,8 +1038,8 @@ fmod SIMPLE-CRITPAIR is
   ------------------------------------------------
  ceq renameCP(cp(QL,ctp(T1,T2),C,A)) = cp(QL,ctp(T1',T2'),C',A')
   if [D ,(T1',T2')] := #renameVars(nullNameData,(T1,T2))
-  /\ [D1,C']        := #renameCond(D,C,nil)
-  /\ [D2,A']        := #renameCond(D,A,nil) .
+  /\ [D1,C']        := #renameCond(D, C,nil)
+  /\ [D2,A']        := #renameCond(D1,A,nil) .
 
   sort RenamedCondition .
   op [_,_] : NameData Condition -> RenamedCondition [ctor] .
