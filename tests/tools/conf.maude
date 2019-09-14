@@ -27,8 +27,37 @@ mod TEST is
   op ibos : -> Module .
   eq ibos = upModule('IBOS-PREDS,true) .
 
+  op noid-ibos : -> Module .
+  eq noid-ibos = removeIds(ibos,non-handled) .
+
   op safe-ibos : -> Module [memo] .
   eq safe-ibos = deleteIdEqs(removeIds(ibos,non-handled)) .
+
+  op round1 : -> CritPairSet .
+  eq round1 =
+    pendingCPs(
+      crcContextJoinableAndUnfeasibleCPs(noid-ibos,
+        toStdCritPairs(
+          renameCPs(
+            subsume(ibos,
+              simplify(ibos,
+                getSimpleCritPairs(safe-ibos,
+                  ('p['NWC:NetWebProcConfig,'WIS:WebProcInfoSet,'NIS:NetProcInfoSet,'M:Message?] |->
+                     ('nwp-reqattrs?  ['NWC:NetWebProcConfig] = 'true.Bool  /\
+                      'conf-attr-dupl?['NWC:NetWebProcConfig] = 'false.Bool /\
+                      'weblabels-dupl?['WIS:WebProcInfoSet]   = 'false.Bool /\
+                      'netlabels-dupl?['NIS:NetProcInfoSet]   = 'false.Bool /\
+                      'conf-dupl?     ['NWC:NetWebProcConfig] = 'false.Bool),
+                   'render-consistent?['NWC:NetWebProcConfig] |->
+                     ('conf-attr-dupl?['NWC:NetWebProcConfig] = 'false.Bool))))))))) .
+
+
+  op round2 : -> CritPairSet .
+  eq round2 =
+    pendingCPs(
+      crcContextJoinableAndUnfeasibleCPs(noid-ibos,
+        simpCP(ibos,
+	  transform(round1,nil)))) .
 endm
 
 --- set print conceal on .
@@ -43,19 +72,6 @@ endm
 ---
 --- FULL TEST (optionally restricted to opdecls listed)
 --- generating CPs for SOP predicate with filter: only 15 minutes and 51 seconds
-red pendingCPs(crcContextJoinableAndUnfeasibleCPs(safe-ibos,toStdCritPairs(renameCPs(subsume(ibos,simplify(ibos,
-getSimpleCritPairs(safe-ibos,
-('p['NWC:NetWebProcConfig,'WIS:WebProcInfoSet,'NIS:NetProcInfoSet,'M:Message?] |->
-   ('nwp-reqattrs?  ['NWC:NetWebProcConfig] = 'true.Bool  /\
-    'conf-attr-dupl?['NWC:NetWebProcConfig] = 'false.Bool /\
-    'weblabels-dupl?['WIS:WebProcInfoSet]   = 'false.Bool /\
-    'netlabels-dupl?['NIS:NetProcInfoSet]   = 'false.Bool /\
-    'conf-dupl?     ['NWC:NetWebProcConfig] = 'false.Bool),
- 'render-consistent?['NWC:NetWebProcConfig] |->
-   ('conf-attr-dupl?['NWC:NetWebProcConfig] = 'false.Bool)
-)
---- , op 'p : 'NetWebProcConfig 'WebProcInfoSet 'NetProcInfoSet 'Message? -> 'Bool? [none].
-)
-)))))) .
+red round1 .
 
 quit
