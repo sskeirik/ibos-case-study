@@ -1084,13 +1084,20 @@ endfm
 fmod TRANSFORM-CRITPAIR is
   pr SIMPLE-CRITPAIR .
 
-  var M   : Module .
-  var SL  : SLCStrategyList .
-  var SCS : TermSLCCommandPairSet .
-  var CP  : CritPair .
-  var CPS : CritPairSet .
-  var CMD : SLCCommand .
-  var U V : Term .
+  var M    : Module .
+  var SL   : SLCStrategyList .
+  var SCS  : TermSLCCommandPairSet .
+  var CP   : CritPair .
+  var CPS  : CritPairSet .
+  var CMD  : SLCCommand .
+  var U V  : Term .
+  var S    : Substitution .
+  var St   : String .
+  var L L' : Qid .
+  var T T' : Term .
+  var Cd   : Condition .
+  var CPSt : CPStatus .
+  var C C' : EqCondition .
 
   sort SLCStrategy SLCStrategyList .
   subsort SLCStrategy < SLCStrategyList .
@@ -1120,10 +1127,26 @@ fmod TRANSFORM-CRITPAIR is
   eq transform(CP,split-cover(U,(V : CMD) SCS)) = transform(split(CP,U,V),CMD) transform(CP,split-cover(U,SCS)) .
   eq transform(CP,split-cover(U,         none)) = none .
 
-  op simpCond : Module CritPairSet -> CritPairSet .
-  -------------------------------------------------
-  eq simpCond(M,CP CPS) = setCond(CP,simpCond(M,cond(CP),nil)) simpCond(M,CPS) .
-  eq simpCond(M,none)   = none .
+  op simpCP : Module CritPairSet -> CritPairSet .
+  -----------------------------------------------
+  eq simpCP(M,CP CPS) = simpCP(M,CP,cond(CP),nil,none) simpCP(M,CPS) .
+  eq simpCP(M,none)   = none .
+
+  op simpCP : Module CritPair EqCondition EqCondition Substitution ~> CritPair .
+  ------------------------------------------------------------------------------
+  eq simpCP(M,CP,T = T' /\ C, C',S) =
+    if T :: Variable and sortLeq(M,leastSort(M,T'),leastSort(M,T))
+      then simpCP(M,CP,C,C',                                        S ; T <- T')
+      else simpCP(M,CP,C,C' /\ metaReduce2(M,T) = metaReduce2(M,T'),S          )
+    fi .
+  eq simpCP(M,CP,nil,C',S) = setCond(CP,C') << S .
+
+  op _<<_ : CritPair Substitution -> CritPair .
+  ---------------------------------------------
+  eq  cp(    L, L', T, T',     CPSt) << S =   cp(    L, L', T << S, T' << S,          CPSt) .
+  eq ccp(    L, L', T, T', Cd, CPSt) << S =  ccp(    L, L', T << S, T' << S, Cd << S, CPSt) .
+  eq  cp(St, L, L', T, T',     CPSt) << S =   cp(St, L, L', T << S, T' << S,          CPSt) .
+  eq ccp(St, L, L', T, T', Cd, CPSt) << S =  ccp(St, L, L', T << S, T' << S, Cd << S, CPSt) .
 endfm
 
 mod CONFLUENCE-TOOLS is
