@@ -100,13 +100,14 @@ fmod CC-CRITICAL-PAIR is
   op ccp : String Qid Qid Term Term Condition CPStatus -> CritPair .
 
   var S : String .
-  vars T T' : Term .
+  vars T T' U V : Term .
   vars L L' : Qid .
-  var  Cd : Condition .
+  var  Cd Cd' : Condition .
   var  CPSt : CPStatus .
 
   op cp : Qid Qid Term Term CPStatus -> CritPair .
   op ccp : Qid Qid Term Term Condition CPStatus -> CritPair .
+
   ops lhs rhs : CritPair -> Term .
   eq lhs(cp(L, L', T, T', CPSt)) = T .
   eq lhs(ccp(L, L', T, T', Cd, CPSt)) = T .
@@ -116,6 +117,24 @@ fmod CC-CRITICAL-PAIR is
   eq rhs(ccp(L, L', T, T', Cd, CPSt)) = T' .
   eq rhs(cp(S, L, L', T, T', CPSt)) = T' .
   eq rhs(ccp(S, L, L', T, T', Cd, CPSt)) = T' .
+
+  op cond : CritPair -> Condition .
+  eq cond(cp(L, L', T, T', CPSt)) = nil .
+  eq cond(ccp(L, L', T, T', Cd, CPSt)) = Cd .
+  eq cond(cp(S, L, L', T, T', CPSt)) = nil .
+  eq cond(ccp(S, L, L', T, T', Cd, CPSt)) = Cd .
+
+  op setCond : CritPair Condition -> CritPair .
+  eq setCond(ccp(S,L,L',T,T',Cd,CPSt),Cd') = ccp(S,L,L',T,T',Cd',CPSt) .
+  eq setCond(ccp(  L,L',T,T',Cd,CPSt),Cd') = ccp(  L,L',T,T',Cd',CPSt) .
+  eq setCond( cp(S,L,L',T,T',   CPSt),Cd') = ccp(S,L,L',T,T',Cd',CPSt) .
+  eq setCond( cp(  L,L',T,T',   CPSt),Cd') = ccp(  L,L',T,T',Cd',CPSt) .
+
+  op split : CritPair Term Term -> CritPair .
+  eq split(ccp(S,L,L',T,T',Cd,CPSt),U,V) = ccp(S,L,L',T,T',Cd /\ U = V,CPSt) .
+  eq split(ccp(  L,L',T,T',Cd,CPSt),U,V) = ccp(  L,L',T,T',Cd /\ U = V,CPSt) .
+  eq split( cp(S,L,L',T,T',   CPSt),U,V) = ccp(S,L,L',T,T',      U = V,CPSt) .
+  eq split( cp(  L,L',T,T',   CPSt),U,V) = ccp(  L,L',T,T',      U = V,CPSt) .
 endfm
 
 view CritPair from TRIV to CC-CRITICAL-PAIR is
