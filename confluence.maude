@@ -1081,11 +1081,57 @@ fmod SIMPLE-CRITPAIR is
   eq flatten(nil)          = empty .
 endfm
 
+fmod TRANSFORM-CRITPAIR is
+  pr SIMPLE-CRITPAIR .
+
+  var M   : Module .
+  var SL  : SLCStrategyList .
+  var SCS : TermSLCCommandPairSet .
+  var CP  : CritPair .
+  var CPS : CritPairSet .
+  var CMD : SLCCommand .
+  var U V : Term .
+
+  sort SLCStrategy SLCStrategyList .
+  subsort SLCStrategy < SLCStrategyList .
+  op {_} : SLCCommand -> SLCStrategy [ctor] .
+  op __  : SLCStrategyList SLCStrategyList -> SLCStrategyList [ctor assoc id: nil] .
+  op nil : -> SLCStrategyList [ctor] .
+
+  sort SLCCommand .
+  op skip : -> SLCCommand [ctor] .
+  op split-cover : Term TermSLCCommandPairSet -> SLCCommand [ctor] .
+
+  sort TermSLCCommandPair TermSLCCommandPairSet .
+  subsort TermSLCCommandPair < TermSLCCommandPairSet .
+  op (_:_) : Term SLCCommand -> TermSLCCommandPair [ctor] .
+  op __    : TermSLCCommandPairSet TermSLCCommandPairSet -> TermSLCCommandPairSet [ctor assoc comm id: none] .
+  op none  : -> TermSLCCommandPairSet .
+
+  op transform : CritPairSet SLCStrategyList -> CritPairSet .
+  -----------------------------------------------------------
+  eq transform(CP CPS,{ CMD } SL) = transform(CP,CMD) transform(CPS,SL) .
+  eq transform(none,          SL) = none .
+  eq transform(CPS,          nil) = CPS .
+
+  op transform : CritPair SLCCommand -> CritPair .
+  ------------------------------------------------
+  eq transform(CP,skip)                         = CP .
+  eq transform(CP,split-cover(U,(V : CMD) SCS)) = transform(split(CP,U,V),CMD) transform(CP,split-cover(U,SCS)) .
+  eq transform(CP,split-cover(U,         none)) = none .
+
+  op simpCond : Module CritPairSet -> CritPairSet .
+  -------------------------------------------------
+  eq simpCond(M,CP CPS) = setCond(CP,simpCond(M,cond(CP),nil)) simpCond(M,CPS) .
+  eq simpCond(M,none)   = none .
+endfm
+
 mod CONFLUENCE-TOOLS is
   pr UNIT-FM .
   pr REMOVE-IDS .
   pr CONFLUENCE-CHECK .
   pr SIMPLE-CRITPAIR .
+  pr TRANSFORM-CRITPAIR .
 
   var VS : QidSet .
   var S : Sort .
