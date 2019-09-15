@@ -1083,6 +1083,8 @@ endfm
 
 fmod TRANSFORM-CRITPAIR is
   pr SIMPLE-CRITPAIR .
+  pr VAR-UNIF-PARTIAL-FVP .
+  pr ABSTRACT-RULES .
 
   var M    : Module .
   var SL   : SLCStrategyList .
@@ -1091,13 +1093,16 @@ fmod TRANSFORM-CRITPAIR is
   var CPS  : CritPairSet .
   var CMD  : SLCCommand .
   var U V  : Term .
-  var S    : Substitution .
+  var S S' : Substitution .
+  var SS   : SubstitutionSet .
   var St   : String .
   var L L' : Qid .
   var T T' : Term .
   var Cd   : Condition .
   var CPSt : CPStatus .
   var C C' : EqCondition .
+  var PC   : PosConj? .
+  var FSS  : FOFormSubstPairSet .
 
   sort SLCStrategy SLCStrategyList .
   subsort SLCStrategy < SLCStrategyList .
@@ -1141,12 +1146,31 @@ fmod TRANSFORM-CRITPAIR is
     fi .
   eq simpCP(M,CP,nil,C',S) = setCond(CP,C') << S .
 
-  op _<<_ : CritPair Substitution -> CritPair .
-  ---------------------------------------------
+  op partialVarUnif : Module CritPairSet -> CritPairSet .
+  op partialVarUnif : CritPair FOFormSubstPairSet -> CritPairSet .
+  ----------------------------------------------------------------
+  eq partialVarUnif(M,CP CPS) =
+    partialVarUnif(CP,#varunif-simp(M,eqCond2PosConj(cond(CP),mtForm)))
+    partialVarUnif(M,CPS) .
+  eq partialVarUnif(M,none) = none .
+
+  eq partialVarUnif(CP,(PC,S) | FSS) = (setCond(CP,posConj2EqCond(PC)) << S) partialVarUnif(CP,FSS) .
+  eq partialVarUnif(CP,mtFSPS)       = none .
+
+  op _<<_ : CritPair SubstitutionSet -> CritPairSet .
+  ---------------------------------------------------
+  eq CP << (S | S' | SS) = (CP << S) (CP << (S' | SS)) .
+  eq CP << empty         = none .
+
   eq  cp(    L, L', T, T',     CPSt) << S =   cp(    L, L', T << S, T' << S,          CPSt) .
   eq ccp(    L, L', T, T', Cd, CPSt) << S =  ccp(    L, L', T << S, T' << S, Cd << S, CPSt) .
   eq  cp(St, L, L', T, T',     CPSt) << S =   cp(St, L, L', T << S, T' << S,          CPSt) .
   eq ccp(St, L, L', T, T', Cd, CPSt) << S =  ccp(St, L, L', T << S, T' << S, Cd << S, CPSt) .
+
+  op posConj2EqCond : PosConj? -> EqCondition .
+  ---------------------------------------------
+  eq posConj2EqCond(T ?= T' /\ PC) = T = T' /\ posConj2EqCond(PC) .
+  eq posConj2EqCond(mtForm)        = nil .
 endfm
 
 mod CONFLUENCE-TOOLS is
