@@ -57,7 +57,8 @@ mod TEST is
     pendingCPs(
       crcContextJoinableAndUnfeasibleCPs(noid-ibos,
         simpCP(ibos,
-	  transform(round1,nil)))) .
+          partialVarUnif(noid-ibos,
+            simpCP(ibos,round1))))) .
 endm
 
 --- set print conceal on .
@@ -72,6 +73,6 @@ endm
 ---
 --- FULL TEST (optionally restricted to opdecls listed)
 --- generating CPs for SOP predicate with filter: only 15 minutes and 51 seconds
-red round1 .
+red round2 .
 
 quit
