@@ -7,7 +7,6 @@ load meta-aux.maude       --- library of extensions to Maude's META-LEVEL module
 load unsortify.maude      --- code to send ordersorted terms to unsorted and back
 load renaming.maude       --- next-gen renaming library
 load sort-ops.maude       --- empty and finite sort constructions
-load confluence.maude     --- critical pair generation and utilities
 
 load mgci.maude           --- most general constructor instance operation
 load ctor-var-unif.maude  --- computing constructor variants and unifiers
@@ -16,6 +15,7 @@ load foform.maude         --- formula data structure
 load cstrterm.maude       --- constrained term data structure
 load reachform.maude      --- defines reach formulas
 
+load confluence.maude     --- critical pair generation and utilities
 load config.maude         --- set of config flags that can affect proofs
 load proofstate.maude     --- models the state of our proofs
 
