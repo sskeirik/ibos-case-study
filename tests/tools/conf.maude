@@ -51,7 +51,6 @@ mod TEST is
                    'render-consistent?['NWC:NetWebProcConfig] |->
                      ('conf-attr-dupl?['NWC:NetWebProcConfig] = 'false.Bool))))))))) .
 
-
   op round2 : -> CritPairSet .
   eq round2 =
     pendingCPs(
@@ -59,6 +58,42 @@ mod TEST is
         simpCP(ibos,
           partialVarUnif(noid-ibos,
             simpCP(ibos,round1))))) .
+
+  op round3 : -> CritPairSet .
+  eq round3 =
+    pendingCPs(
+      crcContextJoinableAndUnfeasibleCPs(removeIds(ibos,non-handled),
+        simpCP(ibos,
+          transform(round2,
+            { split-cover('fresh-netlabel?['network['_+_['&0:Nat,'&1:Nat]],'&4:NetProcInfoSet],
+              ('true.Bool  : skip )
+              ('false.Bool : skip )) }
+            { split-cover('fresh-netlabel?['network['_+_['&0:Nat,'&2:NzNat]],'&4:NetProcInfoSet],
+              ('true.Bool  : skip )
+              ('false.Bool : skip )) }
+            { split-cover('&0:Nat,
+              ('&0:NzNat : skip)
+              ('0.Nat    : skip)) }
+            { split-cover('&1:NzNat,
+              ('1.NzNat : skip)
+              ('_+_['1.NzNat,'&1:NzNat] : skip)) }
+            { split-cover('fresh-weblabel?['webapp['_+_['&1:Nat,'&2:Nat]],'&4:WebProcInfoSet],
+              ('true.Bool  : skip )
+              ('false.Bool : skip )) }
+            { split-cover('fresh-weblabel?['webapp['_+_['&0:Nat,'&3:NzNat]],'&4:WebProcInfoSet],
+              ('true.Bool  : skip )
+              ('false.Bool : skip )) }
+            { split-cover('&0:Nat,
+              ('&0:NzNat : skip)
+              ('0.Nat    : skip)) }
+            { split-cover('&1:NzNat,
+              ('1.NzNat : skip)
+              ('_+_['1.NzNat,'&1:NzNat] : skip)) }
+            { split-cover('&2:ConcNetProcId,
+              ('network['&99:Nat] : skip)) }
+            { split-cover('&1:ConcWebProcId,
+              ('webapp['&99:Nat] : skip)) }
+            nil)))) .
 endm
 
 --- set print conceal on .
@@ -73,6 +108,6 @@ endm
 ---
 --- FULL TEST (optionally restricted to opdecls listed)
 --- generating CPs for SOP predicate with filter: only 15 minutes and 51 seconds
-red round2 .
+red round3 .
 
 quit
