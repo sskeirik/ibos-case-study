@@ -629,7 +629,8 @@ fmod IBOS-AUX-FVP is
   eq fresh-np-id?(NP,             < N:NonNetPipeId | A  > C) = fresh-np-id?(NP,C) .
   eq fresh-np-id?(NP,             < SP             | A  > C) = fresh-np-id?(NP,C) .
   eq fresh-np-id?(NP,             < P              | NA > C) = fresh-np-id?(NP, < P | none > C) .
- ceq fresh-np-id?(network(N + 1),                         C) = true if fresh-np-id?(network(N),C) = true .
+ ceq fresh-np-id?(network(N + 1),                         C) = true  if fresh-np-id?(network(N),C) = true .
+ ceq fresh-np-id?(NP,             < P              | A  > C) = false if fresh-np-id?(NP,C) = false .
 
   op fresh-wp-id? : ConcWebProcId Configuration -> Bool [metadata "107 false"] .
   eq fresh-wp-id?(WP,            < WP             | A  > C) = false [variant] .
@@ -640,6 +641,7 @@ fmod IBOS-AUX-FVP is
   eq fresh-wp-id?(WP,            < SP             | A  > C) = fresh-wp-id?(WP,C) .
   eq fresh-wp-id?(WP,            < P              | NA > C) = fresh-wp-id?(WP, < P | none > C) .
  ceq fresh-wp-id?(webapp(N + 1),                         C) = true if fresh-wp-id?(webapp(N),C) = true .
+ ceq fresh-wp-id?(WP,            < P              | A  > C) = false if fresh-wp-id?(WP,C) = false .
 
   --- 34. Check that given Net/WebProcId is greater than all those in the Net/WebProcInfoSet
   op fresh-weblabel? : ConcWebProcId WebProcInfoSet -> Bool [metadata "108 false"] .
@@ -647,12 +649,14 @@ fmod IBOS-AUX-FVP is
   eq fresh-weblabel?(webapp(N + Z),(pi(webapp(N    ),L),wp WIS)) = fresh-weblabel?(webapp(N + Z),WIS) .
   eq fresh-weblabel?(webapp(N),mtWPIS)                           = true .
  ceq fresh-weblabel?(webapp(N + Z),WIS)                          = true if fresh-weblabel?(webapp(N),WIS) = true .
+ ceq fresh-weblabel?(WP,           (pi(WP',          L),wp WIS)) = false if fresh-weblabel?(WP,WIS) = false .
 
   op fresh-netlabel? : ConcNetProcId NetProcInfoSet -> Bool [metadata "109 false"] .
   eq fresh-netlabel?(network(N),    (pi(network(N + M),L,L'),np NIS)) = false [variant] .
   eq fresh-netlabel?(network(N + Z),(pi(network(N    ),L,L'),np NIS)) = fresh-netlabel?(network(N + Z),NIS) .
   eq fresh-netlabel?(network(N),mtNPIS)                               = true .
  ceq fresh-netlabel?(network(N + Z),NIS)                              = true if fresh-netlabel?(network(N),NIS) = true .
+ ceq fresh-netlabel?(NP,            (pi(NP',           L,L'),np NIS)) = false if fresh-netlabel?(NP,NIS) = false .
 
   --- 21. Extract a Label/Pair from a Web/NetProcInfoSet by ProcessId
   op weblabel-by-pid : MaybeProcessId WebProcInfoSet -> MaybeLabel [metadata "110 L:Label"] .
