@@ -613,11 +613,11 @@ fmod IBOS-AUX-FVP is
   --- ABC-2. check that the display and address bar are consistent with the rendered() and URL() attributes of the active WebProc
   ---        [this is the intersection of properties P_9 and P_10 in the IBOS paper]
   op display-topbar-consistent? : ConcWebProcId Label Label Configuration -> Bool [metadata "105 true"] .
-  eq display-topbar-consistent?(WP,about-blank,U,< WP |              URL(U), A > C) = true [variant] .
+  eq display-topbar-consistent?(WP,about-blank,U,< WP | rendered(R), URL(U), A > C) = true [variant] .
   eq display-topbar-consistent?(WP,R,U,          < WP | rendered(R), URL(U), A > C) = true [variant] .
+ ceq display-topbar-consistent?(WP,R,U,          < WP |                      A > C) = display-topbar-consistent?(WP,R,U,C) if in-attrset?(URL(about-blank)      | A) = false .
+ ceq display-topbar-consistent?(WP,R,U,          < WP |                      A > C) = display-topbar-consistent?(WP,R,U,C) if in-attrset?(rendered(about-blank) | A) = false .
  ceq display-topbar-consistent?(WP,R,U,          < P  |                      A > C) = display-topbar-consistent?(WP,R,U,C) if WP ~p P = false .
- ceq display-topbar-consistent?(WP,R,U,          < WP |                      A > C) = display-topbar-consistent?(WP,R,U,C) if                             in-attrset?(URL(about-blank)      | A) = false .
- ceq display-topbar-consistent?(WP,R,U,          < WP |                      A > C) = display-topbar-consistent?(WP,R,U,C) if R ~l about-blank = false /\ in-attrset?(rendered(about-blank) | A) = false .
   eq display-topbar-consistent?(WP,R,U,                                       none) = false .
 
   --- 30. Check that given Net/WebProcId is greater than all those in the Configuration
