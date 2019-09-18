@@ -612,6 +612,7 @@ fmod IBOS-AUX-FVP is
 
   --- ABC-2. check that the display and address bar are consistent with the rendered() and URL() attributes of the active WebProc
   ---        [this is the intersection of properties P_9 and P_10 in the IBOS paper]
+  ---        NOTE: confluence must be proved under assumption of conf-attr-dupl?() = false
   op display-topbar-consistent? : ConcWebProcId Label Label Configuration -> Bool [metadata "105 true"] .
   eq display-topbar-consistent?(WP,about-blank,U,< WP | rendered(R), URL(U), A > C) = true [variant] .
   eq display-topbar-consistent?(WP,R,U,          < WP | rendered(R), URL(U), A > C) = true [variant] .
