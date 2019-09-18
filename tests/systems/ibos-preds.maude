@@ -1058,10 +1058,8 @@ fmod IBOS-SOP-PRED is
 
   op currHandled2? : Message? WebProcInfoSet -> Bool [metadata "203"] .
   --- SWITCH-TAB
- ceq currHandled2?(msg(PI,WI,MSG-SWITCH-TAB,L),WIS) = true  if PI ~p ui and pid-in-weblabels?(WI,WIS) = true  .
- ceq currHandled2?(msg(PI,WI,MSG-SWITCH-TAB,L),WIS) = false if PI ~p ui and pid-in-weblabels?(WI,WIS) = false .
-  eq currHandled2?(msg(PI,NI,MSG-SWITCH-TAB,L),WIS) = false .
-  eq currHandled2?(msg(PI,ui,MSG-SWITCH-TAB,L),WIS) = false .
+ ceq currHandled2?(msg(PI,PI',MSG-SWITCH-TAB,L),WIS) = true  if PI ~p ui and pid-in-weblabels?(PI',WIS) = true  .
+ ceq currHandled2?(msg(PI,PI',MSG-SWITCH-TAB,L),WIS) = true  if PI ~p ui and pid-in-weblabels?(PI',WIS) = false .
   --- NEW-URL
  ceq currHandled2?(msg(PI,PI',MSG-NEW-URL,L), WIS) = true if PI ~p ui and PI' ~p webapp and not lbl-in-weblabels?(L,WIS) = true  .
  ceq currHandled2?(msg(PI,PI',MSG-NEW-URL,L), WIS) = true if PI ~p ui and PI' ~p webapp and not lbl-in-weblabels?(L,WIS) = false .
