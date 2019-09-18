@@ -1114,7 +1114,7 @@ fmod IBOS-SOP-PRED is
   eq p(none,NWIS,  NIS,   M?) = false .
   eq p(none,WIS,   NNIS,  M?) = false .
   eq p(NWC, mtWPIS,NNIS,  M?) = false .
-  eq p(NNWC,mtWPIS,mtNPIS,M?) = false .
+  eq p(NNWC,mtWPIS,NIS,   M?) = false .
 
   --- Whenever metadata is consistent, consume whole processing units
   --- Group 2 - loaded WebProc and NetProc
