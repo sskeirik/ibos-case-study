@@ -1104,7 +1104,7 @@ fmod IBOS-SOP-PRED is
  ceq p(< WI | URL(L),             A > NWC,pi(WI ,L'),wp WIS,NIS,M?) = false if L  ~l L'  = false .
  ceq p(< WI | URL(L),             A > NWC,pi(WI',L ),wp WIS,NIS,M?) = false if WI ~p WI' = false .
 
- ceq p(< NI | returnTo(CPI),      A > NWC,pi(WI',L ),wp WIS,pi(NI,L,L'),np NIS,M?) = false if CPI ~p WI' = false .
+ ceq p(< NI | returnTo(CPI),      A > NWC,pi(WI',L ),wp WIS,pi(NI,L',L),np NIS,M?) = false if CPI ~p WI' = false .
 
  ceq p(NWC,pi(WI,IN),wp WIS,                 NIS,M?) = false if in-conf?(WI,NWC)          = false .
  ceq p(NWC,             WIS,pi(NI,IN,OUT),np NIS,M?) = false if in-conf?(NI,NWC)          = false .
