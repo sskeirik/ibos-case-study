@@ -9,5 +9,9 @@ load ~/work/mta/mta.maude
   | ('L:Label           : 'mtLL.LabelList)
   | ('L:Label           : 'mtLS.LabelSet)
   | ('P:ProcessId       : 'none.NullProcId)
+  | ('X:NonBlankLabel   : 'about-blank.Label)
+  | ('X:ConcNetProcId   : 'ui.UIId)
+  | ('X:ConcWebProcId   : 'ui.UIId)
+  | ('X:Message         : 'none.Message?)
 .)
 quit
