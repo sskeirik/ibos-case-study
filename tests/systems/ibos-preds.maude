@@ -1071,12 +1071,12 @@ fmod IBOS-SOP-PRED is
 
   --- NOTE: not np-by-lbl?() condition forces only fetch-url to be processed
   op fetchMsg1? : ConcWebProcId Bool Label MessageList NetProcInfoSet -> Bool [metadata "204"] .
- ceq fetchMsg1?(WI,B,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = fetchMsg1?(WI,false,L,ML @ ML2,NIS) if B and WI ~p PI and network ~p PI' and L ~l L' and not np-by-lbl?(L,NIS) = true  .
- ceq fetchMsg1?(WI,B,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = false                               if B and WI ~p PI and network ~p PI' and L ~l L' and not np-by-lbl?(L,NIS) = false .
-  eq fetchMsg1?(WI,B,L,ML @ NFM:NonFetchMsg @ ML2,NIS)              = fetchMsg1?(WI,B,L,ML @ ML2,NIS) .
-  eq fetchMsg1?(WI,B,L,mt,NIS)                                      = true .
+ ceq fetchMsg1?(WI,true,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = fetchMsg1?(WI,false,L,ML @ ML2,NIS) if ---(B and) WI ~p PI and network ~p PI' and L ~l L' and not np-by-lbl?(L,NIS) = true  .
+ ceq fetchMsg1?(WI,B,   L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = false                               if     B and  WI ~p PI and network ~p PI' and L ~l L' and not np-by-lbl?(L,NIS) = false .
+  eq fetchMsg1?(WI,B,   L,ML @ NFM:NonFetchMsg @ ML2,NIS)              = fetchMsg1?(WI,B,L,ML @ ML2,NIS) .
+  eq fetchMsg1?(WI,B,   L,mt,NIS)                                      = true .
   --- Lemma needed for for rule pa10
- ceq fetchMsg1?(WI,true, L,ML,NIS) = true  if fetchMsg1?(WI,false,L,ML,NIS) = true  .
+ ceq fetchMsg1?(WI,true,L,ML,NIS) = true if fetchMsg1?(WI,false,L,ML,NIS) = true  .
 
   op fetchMsg2? : ConcWebProcId ConcNetProcId Label MessageList -> Bool [metadata "205"] .
   eq fetchMsg2?(WI,NI,L,ML) = true .
