@@ -893,7 +893,7 @@ fmod IBOS-AUX-NONFVP is
   --- 31. Return true iff an attribute type is duplicated in some object in the Configuration
   op conf-attr-dupl? : Configuration -> Bool [metadata "119"] .
  ceq conf-attr-dupl?(< P | At, A > C) = conf-attr-dupl?(< P | A > C) if in-attrset?(At | A) = false .
- ceq conf-attr-dupl?(< P | At, A > C) = false                        if in-attrset?(At | A) = true .
+ ceq conf-attr-dupl?(< P | At, A > C) = true                         if in-attrset?(At | A) = true .
  ceq conf-attr-dupl?(< P |     A > C) = true                         if attr-dupl?(A) = true .
   eq conf-attr-dupl?(< P | At    > C) = conf-attr-dupl?(          C) .
   eq conf-attr-dupl?(< P | none  > C) = conf-attr-dupl?(          C) .
