@@ -33,8 +33,9 @@ print conceal fmod_is_sorts_.____endfm mod_is_sorts_._____endm .
 
 red check-fvp(removeIds(ibos,all),
   (
+    bool-entry('np-by-lbl?,true),
+
     bool-entry('newurl-nodupl?,false),
-    bool-entry('noRetMsg?,false),
 
     bool-entry('in-attrset?`(_|_`),true),
     bool-entry('attr-dupl?,true),
@@ -49,7 +50,6 @@ red check-fvp(removeIds(ibos,all),
     'netlabelpair-by-pid |=> ('MaybeLabelPair,'L:LabelPair,'nopair.MaybeLabelPair),
 
     bool-entry('lbl-in-weblabels?,true),
-    bool-entry('np-by-inlbl?,true),
     bool-entry('webproc-req-attrs,true),
     bool-entry('netproc-req-attrs,true),
     bool-entry('in-conf?,true),
