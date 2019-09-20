@@ -31,7 +31,7 @@ mod TEST is
   eq noid-ibos = removeIds(ibos,non-handled) .
 
   op safe-ibos : -> Module [memo] .
-  eq safe-ibos = deleteIdEqs(removeIds(ibos,non-handled)) .
+  eq safe-ibos = deleteIdEqs(noid-ibos) .
 
   op round1 : -> CritPairSet .
   eq round1 =
@@ -56,47 +56,50 @@ mod TEST is
     pendingCPs(
       crcContextJoinableAndUnfeasibleCPs(noid-ibos,
         simpCP(ibos,
-          partialVarUnif(noid-ibos,
-            simpCP(ibos,round1))))) .
+	  delete!(simplify(
+            partialVarUnif(noid-ibos,
+              simpCP(ibos,round1)),ibos))))) .
 
   op round3 : -> CritPairSet .
   eq round3 =
     pendingCPs(
       crcContextJoinableAndUnfeasibleCPs(removeIds(ibos,non-handled),
         simpCP(ibos,
-          transform(round2,
-            { split-cover('fresh-netlabel?['network['_+_['&0:Nat,'&1:Nat]],'&4:NetProcInfoSet],
-              ('true.Bool  : skip )
-              ('false.Bool : skip )) }
-            { split-cover('fresh-netlabel?['network['_+_['&0:Nat,'&2:NzNat]],'&4:NetProcInfoSet],
-              ('true.Bool  : skip )
-              ('false.Bool : skip )) }
-            { split-cover('&0:Nat,
-              ('&0:NzNat : skip)
-              ('0.Nat    : skip)) }
-            { split-cover('&1:NzNat,
-              ('1.NzNat : skip)
-              ('_+_['1.NzNat,'&1:NzNat] : skip)) }
-            { split-cover('fresh-weblabel?['webapp['_+_['&1:Nat,'&2:Nat]],'&4:WebProcInfoSet],
-              ('true.Bool  : skip )
-              ('false.Bool : skip )) }
-            { split-cover('fresh-weblabel?['webapp['_+_['&0:Nat,'&3:NzNat]],'&4:WebProcInfoSet],
-              ('true.Bool  : skip )
-              ('false.Bool : skip )) }
-            { split-cover('&0:Nat,
-              ('&0:NzNat : skip)
-              ('0.Nat    : skip)) }
-            { split-cover('&1:NzNat,
-              ('1.NzNat : skip)
-              ('_+_['1.NzNat,'&1:NzNat] : skip)) }
-            { split-cover('&2:ConcNetProcId,
-              ('network['&99:Nat] : skip)) }
-            { split-cover('&1:ConcWebProcId,
-              ('webapp['&99:Nat] : skip)) }
-            nil)))) .
+          partialVarUnif(noid-ibos,
+            transform(round2,
+              { split-cover('_<_['&2:Nat,'&1:Nat],
+                ('true.Bool  : skip )
+                ('false.Bool : skip )) }
+              { split-cover('_<_['&3:NzNat,'&2:NzNat],
+                ('true.Bool  : skip )
+                ('false.Bool : skip )) }
+              { split-cover('&0:Nat,
+                ('&0:NzNat : skip)
+                ('0.Nat    : skip)) }
+              { split-cover('&1:NzNat,
+                ('1.NzNat : skip)
+                ('_+_['1.NzNat,'&1:NzNat] : skip)) }
+              { split-cover('_<_['&0:Nat,'&2:Nat],
+                ('true.Bool  : skip )
+                ('false.Bool : skip )) }
+              { split-cover('_<_['&2:NzNat,'&3:NzNat],
+                ('true.Bool  : skip )
+                ('false.Bool : skip )) }
+              { split-cover('&0:Nat,
+                ('&0:NzNat : skip)
+                ('0.Nat    : skip)) }
+              { split-cover('&1:NzNat,
+                ('1.NzNat : skip)
+                ('_+_['1.NzNat,'&1:NzNat] : skip)) }
+              { split-cover('&2:ConcNetProcId,
+                ('network['&99:Nat] : skip)) }
+              { split-cover('&1:ConcWebProcId,
+                ('webapp['&99:Nat] : skip)) }
+              nil))))) .
 endm
 
 --- set print conceal on .
+--- print conceal fmod_is_sorts_.____endfm .
 --- print conceal _eq_ _sbs_ .
 --- NOTE: based on source code check and reading CRC paper,
 ---       all context-joinability/unfeasibility checks only use search
