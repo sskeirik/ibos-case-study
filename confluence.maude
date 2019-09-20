@@ -1057,18 +1057,8 @@ fmod SIMPLE-CRITPAIR is
   ------------------------------------------------
  ceq renameCP(cp(QL,ctp(T1,T2),C,A)) = cp(QL,ctp(T1',T2'),C',A')
   if [D ,(T1',T2')] := #renameVars(nullNameData,(T1,T2))
-  /\ [D1,C']        := #renameCond(D, C,nil)
-  /\ [D2,A']        := #renameCond(D1,A,nil) .
-
-  sort RenamedCondition .
-  op [_,_] : NameData Condition -> RenamedCondition [ctor] .
-  ----------------------------------------------------------
-  op #renameCond : NameData EqCondition EqCondition -> RenamedCondition .
-  op #renameCond : RenamedTermList EqCondition EqCondition -> RenamedCondition .
-  ------------------------------------------------------------------------------
-  eq #renameCond(D,T1 = T2 /\ C,C')  = #renameCond(#renameVars(D,(T1,T2)),C,C') .
-  eq #renameCond(D,nil,         C')  = [D,C'] .
-  eq #renameCond([D,(T1',T2')],C,C') = #renameCond(D,C,C' /\ T1' = T2') .
+  /\ [D1,C']        := #renameCond(D, C)
+  /\ [D2,A']        := #renameCond(D1,A) .
 
   op wellFormed : Module TermConditionMap -> Bool .
   -------------------------------------------------
