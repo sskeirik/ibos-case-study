@@ -1136,16 +1136,21 @@ fmod TRANSFORM-CRITPAIR is
     fi .
   eq simpCP(M,CP,nil,C',S) = setCond(CP,C') << S .
 
-  op partialVarUnif : Module CritPairSet -> CritPairSet .
-  op partialVarUnif : CritPair FOFormSubstPairSet -> CritPairSet .
+  op partialVarUnif  : Module CritPairSet -> CritPairSet .
+  op partialVarUnif1 : CritPair FOFormSubstPairSet -> CritPairSet .
   ----------------------------------------------------------------
   eq partialVarUnif(M,CP CPS) =
-    partialVarUnif(CP,#varunif-simp(M,eqCond2PosConj(cond(CP),mtForm)))
-    partialVarUnif(M,CPS) .
+    partialVarUnif1(CP,dbgPrintVarUnifSimp(false,cond(CP),#varunif-simp(M,eqCond2PosConj(cond(CP),mtForm))))
+    partialVarUnif (M,CPS) .
   eq partialVarUnif(M,none) = none .
 
-  eq partialVarUnif(CP,(PC,S) | FSS) = (setCond(CP,posConj2EqCond(PC)) << S) partialVarUnif(CP,FSS) .
-  eq partialVarUnif(CP,mtFSPS)       = none .
+  eq partialVarUnif1(CP,(PC,S) | FSS) = (setCond(CP,posConj2EqCond(PC)) << S) partialVarUnif1(CP,FSS) .
+  eq partialVarUnif1(CP,mtFSPS)       = none .
+
+  op dbgPrintVarUnifSimp : Bool EqCondition FOFormSubstPairSet -> FOFormSubstPairSet .
+  -----------------------------------------------------------------------------
+  eq dbgPrintVarUnifSimp(true, C,FSS) = FSS [print "For Condition: " C " Forms: " FSS] .
+  eq dbgPrintVarUnifSimp(false,C,FSS) = FSS .
 
   op _<<_ : CritPair SubstitutionSet -> CritPairSet .
   ---------------------------------------------------
