@@ -3276,14 +3276,20 @@ fmod RENAME-TERM is
 endfm
 
 fmod RENAME-TERM-AUX is
+  pr MAYBE-QID .
   pr RENAME-TERM .
   pr TERMSET-FM .
   pr SUBSTITUTIONSET .
+  pr UNIT-FM .
 
-  var D : NameData . var T T' : Term . var S S' : TermSet .
+  var D : NameData . var T T' T1 T2 T1' T2' : Term . var S S' : TermSet .
   var G : GTerm . var L L' : GTermList . var N : Nat .
   var SB SB' : Substitution . var SBS : SubstitutionSet .
-  var V : Variable .
+  var V : Variable . var U : Module .
+  var E : Equation . var ES ES' : EquationSet .
+  var R : Rule . var RS RS' : RuleSet .
+  var EC : EqCondition . var C C' : Condition .
+  var AS : AttrSet . var Q? : MaybeQid . var X : Sort .
 
   sort RenamedTermSet .
   subsort RenamedTerm < RenamedTermSet .
@@ -3353,6 +3359,67 @@ fmod RENAME-TERM-AUX is
   -------------------------------------------------------------
   eq renameVars(D,SB | SBS) = renameVars(D,SB) | renameVars(D,SBS) .
   eq renameVars(D,(empty).SubstitutionSet) = empty .
+
+  --- Code to consistently and safely rename all equations and rules in a module
+  --- Useful for calling after module transformations
+  op renameVars : Module -> Module .
+  op renameVars : NameData Module -> Module .
+  -------------------------------------------
+  eq renameVars(U)   = renameVars(nullNameData,U) .
+  eq renameVars(D,U) = setRls(setEqs(U,renameVars(D,getEqs(U),none)),renameVars(D,getRls(U),none)) .
+
+  op renameVars : NameData EquationSet EquationSet -> EquationSet .
+  op renameVars : NameData RuleSet RuleSet -> RuleSet .
+  -----------------------------------------------------
+  eq renameVars(D,E ES,ES') = renameVars(D,ES,ES' rvRenameEq(D,E)) .
+  eq renameVars(D,none,ES') = ES' .
+
+  eq renameVars(D,R RS,RS') = renameVars(D,RS,RS' rvRenameRl(D,R)) .
+  eq renameVars(D,none,RS') = RS' .
+
+  op rvRenameEq : NameData Equation -> Equation .
+  op rvRenameRl : NameData Rule -> Rule .
+  op rvRenameEq : RenamedTermList Equation -> Equation .
+  op rvRenameRl : RenamedTermList Rule -> Rule .
+  ----------------------------------------------
+  eq rvRenameEq(D, eq T =  T'       [AS].) = rvRenameEq(#renameVars(D,(T,T')), eq T =  T'       [AS].) .
+  eq rvRenameEq(D,ceq T =  T' if EC [AS].) = rvRenameEq(#renameVars(D,(T,T')),ceq T =  T' if EC [AS].) .
+  eq rvRenameRl(D, rl T => T'       [AS].) = rvRenameRl(#renameVars(D,(T,T')), rl T => T'       [AS].) .
+  eq rvRenameRl(D,crl T => T' if C  [AS].) = rvRenameRl(#renameVars(D,(T,T')),crl T => T' if C  [AS].) .
+
+  eq rvRenameEq([D,(T1,T2)], eq T =  T'       [AS].) =  eq T1 =  T2                     [AS]. .
+  eq rvRenameEq([D,(T1,T2)],ceq T =  T' if EC [AS].) = ceq T1 =  T2 if renameCond(D,EC) [AS]. .
+  eq rvRenameRl([D,(T1,T2)], rl T => T'       [AS].) =  rl T1 => T2                     [AS]. .
+  eq rvRenameRl([D,(T1,T2)],crl T => T' if C  [AS].) = crl T1 => T2 if renameCond(D,C)  [AS]. .
+
+  sort RenamedCondition .
+  op [_,_] : NameData Condition -> RenamedCondition [ctor] .
+  ----------------------------------------------------------
+  ----------------------------------------------------------
+  op rvGetObj : RenamedCondition -> Condition .
+  eq rvGetObj([D,C]) = C .
+
+  op  renameCond : Condition -> Condition .
+  op  renameCond : NameData Condition -> Condition .
+  op #renameCond : NameData Condition -> RenamedCondition .
+  ---------------------------------------------------------
+  eq  renameCond(C)   = renameCond(nullNameData,C) .
+  eq  renameCond(D,C) = rvGetObj(#renameCond(D,C)) .
+  eq #renameCond(D,C) = #rvRenameCd(D,C,nil) .
+
+  op #rvRenameCd : NameData Condition Condition -> RenamedCondition .
+  op #rvRenameCd : RenamedTermList Qid MaybeQid Condition Condition -> RenamedCondition .
+  ---------------------------------------------------------------------------------------
+  eq #rvRenameCd(D,T1 =  T2 /\ C,C')  = #rvRenameCd(#renameVars(D,(T1,T2)),'=, noqid,C,C') .
+  eq #rvRenameCd(D,T1 :  X  /\ C,C')  = #rvRenameCd(#renameVars(D, T1    ),':, X,    C,C') .
+  eq #rvRenameCd(D,T1 := T2 /\ C,C')  = #rvRenameCd(#renameVars(D,(T1,T2)),':=,noqid,C,C') .
+  eq #rvRenameCd(D,T1 => T2 /\ C,C')  = #rvRenameCd(#renameVars(D,(T1,T2)),'=>,noqid,C,C') .
+  eq #rvRenameCd(D,nil,          C')  = [D,C'] .
+
+  eq #rvRenameCd([D,(T1',T2')],'=, Q?,C,C') = #rvRenameCd(D,C,C' /\ T1' =  T2') .
+  eq #rvRenameCd([D, T1'     ],': ,X, C,C') = #rvRenameCd(D,C,C' /\ T1' :  X  ) .
+  eq #rvRenameCd([D,(T1',T2')],':=,Q?,C,C') = #rvRenameCd(D,C,C' /\ T1' := T2') .
+  eq #rvRenameCd([D,(T1',T2')],'=>,Q?,C,C') = #rvRenameCd(D,C,C' /\ T1' => T2') .
 endfm
 
 fmod UNIFIERS is
