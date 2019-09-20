@@ -61,8 +61,11 @@ fmod NAT-NO-BUILTIN is
   pr NAT-CTOR-NO-BUILTIN .
   var N M : Nat . var Z : NzNat .
   op _<=_ : Nat Nat -> Bool [ctor metadata "18"] .
+  op _<_  : Nat Nat -> Bool [ctor metadata "19"] .
   eq N     <= N + M = true  [variant] .
   eq N + Z <= N     = false [variant] .
+  eq N     <  N + Z = true  [variant] .
+  eq N + M <  N     = false [variant] .
 endfm
 
 fmod PROC-ID is
