@@ -198,8 +198,8 @@ fmod KERNEL-METADATA-FVP-EXT is
   subsort WebProcInfo < NeWebProcInfoSet < WebProcInfoSet .
   sort NeNetProcInfoSet .
   subsort NetProcInfo < NeNetProcInfoSet < NetProcInfoSet .
-  op _,wp_ : NeWebProcInfoSet WebProcInfoSet -> NeWebProcInfoSet [ctor ditto metadata "74"] .
-  op _,np_ : NeNetProcInfoSet NetProcInfoSet -> NeNetProcInfoSet [ctor ditto metadata "77"] .
+  op _,wp_ : NeWebProcInfoSet WebProcInfoSet -> NeWebProcInfoSet [ctor ditto metadata "76"] .
+  op _,np_ : NeNetProcInfoSet NetProcInfoSet -> NeNetProcInfoSet [ctor ditto metadata "79"] .
 endfm
 
 ---
@@ -222,7 +222,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq nextWPN         (X:Nat)                ~a nextWPN         (Y:Nat)                = true [variant] .
   eq rendered        (X:Label)              ~a rendered        (Y:Label)              = true [variant] .
   eq URL             (X:Label)              ~a URL             (Y:Label)              = true [variant] .
-  eq loading         (X:Bool)               ~a loading         (Y:Bool)               = true [variant] .
+  eq loading         (X:OnOffFlag)          ~a loading         (Y:OnOffFlag)          = true [variant] .
   eq returnTo        (X:ConcPipeId)         ~a returnTo        (Y:ConcPipeId)         = true [variant] .
   eq in              (X:LabelList)          ~a in              (Y:LabelList)          = true [variant] .
   eq out             (X:LabelList)          ~a out             (Y:LabelList)          = true [variant] .
@@ -243,7 +243,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq fromKernel      (X:MessageList)        ~a nextWPN         (Y:Nat)                = false [variant] .
   eq fromKernel      (X:MessageList)        ~a rendered        (Y:Label)              = false [variant] .
   eq fromKernel      (X:MessageList)        ~a URL             (Y:Label)              = false [variant] .
-  eq fromKernel      (X:MessageList)        ~a loading         (Y:Bool)               = false [variant] .
+  eq fromKernel      (X:MessageList)        ~a loading         (Y:OnOffFlag)          = false [variant] .
   eq fromKernel      (X:MessageList)        ~a returnTo        (Y:ConcPipeId)         = false [variant] .
   eq fromKernel      (X:MessageList)        ~a in              (Y:LabelList)          = false [variant] .
   eq fromKernel      (X:MessageList)        ~a out             (Y:LabelList)          = false [variant] .
@@ -263,7 +263,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq toKernel        (X:MessageList)        ~a nextWPN         (Y:Nat)                = false [variant] .
   eq toKernel        (X:MessageList)        ~a rendered        (Y:Label)              = false [variant] .
   eq toKernel        (X:MessageList)        ~a URL             (Y:Label)              = false [variant] .
-  eq toKernel        (X:MessageList)        ~a loading         (Y:Bool)               = false [variant] .
+  eq toKernel        (X:MessageList)        ~a loading         (Y:OnOffFlag)          = false [variant] .
   eq toKernel        (X:MessageList)        ~a returnTo        (Y:ConcPipeId)         = false [variant] .
   eq toKernel        (X:MessageList)        ~a in              (Y:LabelList)          = false [variant] .
   eq toKernel        (X:MessageList)        ~a out             (Y:LabelList)          = false [variant] .
@@ -282,7 +282,7 @@ fmod ATTRIBUTE-FVP-EXT is
 
   eq nextWPN         (X:Nat)                ~a rendered        (Y:Label)              = false [variant] .
   eq nextWPN         (X:Nat)                ~a URL             (Y:Label)              = false [variant] .
-  eq nextWPN         (X:Nat)                ~a loading         (Y:Bool)               = false [variant] .
+  eq nextWPN         (X:Nat)                ~a loading         (Y:OnOffFlag)          = false [variant] .
   eq nextWPN         (X:Nat)                ~a returnTo        (Y:ConcPipeId)         = false [variant] .
   eq nextWPN         (X:Nat)                ~a in              (Y:LabelList)          = false [variant] .
   eq nextWPN         (X:Nat)                ~a out             (Y:LabelList)          = false [variant] .
@@ -300,7 +300,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq nextWPN         (X:Nat)                ~a activeWebapp    (Y:MaybeConcWebProcId) = false [variant] .
 
   eq rendered        (X:Label)              ~a URL             (Y:Label)              = false [variant] .
-  eq rendered        (X:Label)              ~a loading         (Y:Bool)               = false [variant] .
+  eq rendered        (X:Label)              ~a loading         (Y:OnOffFlag)          = false [variant] .
   eq rendered        (X:Label)              ~a returnTo        (Y:ConcPipeId)         = false [variant] .
   eq rendered        (X:Label)              ~a in              (Y:LabelList)          = false [variant] .
   eq rendered        (X:Label)              ~a out             (Y:LabelList)          = false [variant] .
@@ -317,7 +317,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq rendered        (X:Label)              ~a displayedContent(Y:Label)              = false [variant] .
   eq rendered        (X:Label)              ~a activeWebapp    (Y:MaybeConcWebProcId) = false [variant] .
 
-  eq URL             (X:Label)              ~a loading         (Y:Bool)               = false [variant] .
+  eq URL             (X:Label)              ~a loading         (Y:OnOffFlag)          = false [variant] .
   eq URL             (X:Label)              ~a returnTo        (Y:ConcPipeId)         = false [variant] .
   eq URL             (X:Label)              ~a in              (Y:LabelList)          = false [variant] .
   eq URL             (X:Label)              ~a out             (Y:LabelList)          = false [variant] .
@@ -334,21 +334,21 @@ fmod ATTRIBUTE-FVP-EXT is
   eq URL             (X:Label)              ~a displayedContent(Y:Label)              = false [variant] .
   eq URL             (X:Label)              ~a activeWebapp    (Y:MaybeConcWebProcId) = false [variant] .
 
-  eq loading         (X:Bool)               ~a returnTo        (Y:ConcPipeId)         = false [variant] .
-  eq loading         (X:Bool)               ~a in              (Y:LabelList)          = false [variant] .
-  eq loading         (X:Bool)               ~a out             (Y:LabelList)          = false [variant] .
-  eq loading         (X:Bool)               ~a mem-in          (Y:MaybeLabel)         = false [variant] .
-  eq loading         (X:Bool)               ~a mem-out         (Y:MaybeLabel)         = false [variant] .
-  eq loading         (X:Bool)               ~a nic-in          (Y:LabelList)          = false [variant] .
-  eq loading         (X:Bool)               ~a nic-out         (Y:LabelSet)           = false [variant] .
-  eq loading         (X:Bool)               ~a msgPolicy       (Y:PolicySet)          = false [variant] .
-  eq loading         (X:Bool)               ~a nextNPN         (Y:Nat)                = false [variant] .
-  eq loading         (X:Bool)               ~a handledCurrently(Y:Message?)           = false [variant] .
-  eq loading         (X:Bool)               ~a weblabels       (Y:WebProcInfoSet)     = false [variant] .
-  eq loading         (X:Bool)               ~a netlabels       (Y:NetProcInfoSet)     = false [variant] .
-  eq loading         (X:Bool)               ~a displayedTopBar (Y:Label)              = false [variant] .
-  eq loading         (X:Bool)               ~a displayedContent(Y:Label)              = false [variant] .
-  eq loading         (X:Bool)               ~a activeWebapp    (Y:MaybeConcWebProcId) = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a returnTo        (Y:ConcPipeId)         = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a in              (Y:LabelList)          = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a out             (Y:LabelList)          = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a mem-in          (Y:MaybeLabel)         = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a mem-out         (Y:MaybeLabel)         = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a nic-in          (Y:LabelList)          = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a nic-out         (Y:LabelSet)           = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a msgPolicy       (Y:PolicySet)          = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a nextNPN         (Y:Nat)                = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a handledCurrently(Y:Message?)           = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a weblabels       (Y:WebProcInfoSet)     = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a netlabels       (Y:NetProcInfoSet)     = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a displayedTopBar (Y:Label)              = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a displayedContent(Y:Label)              = false [variant] .
+  eq loading         (X:OnOffFlag)          ~a activeWebapp    (Y:MaybeConcWebProcId) = false [variant] .
 
   eq returnTo        (X:ConcPipeId)         ~a in              (Y:LabelList)          = false [variant] .
   eq returnTo        (X:ConcPipeId)         ~a out             (Y:LabelList)          = false [variant] .
@@ -473,7 +473,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq toKernel  (X:NeMessageList) ~a A = toKernel(mt)          ~a A .
   eq rendered  (X:NonBlankLabel) ~a A = rendered(about-blank) ~a A .
   eq URL       (X:NonBlankLabel) ~a A = URL(about-blank)      ~a A .
-  eq loading   (true)            ~a A = loading(false)        ~a A .
+  eq loading   (on)              ~a A = loading(off)          ~a A .
   eq returnTo  (X:ConcWebProcId) ~a A = returnTo(ui)          ~a A .
   eq returnTo  (X:ConcNetProcId) ~a A = returnTo(ui)          ~a A .
   eq in        (X:NeLabelList)   ~a A = in(mtLL)              ~a A .
@@ -488,7 +488,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq in-attrset?(nextWPN         (X:Nat)                | (nextWPN         (Y:Nat),                AS)) = true [variant] .
   eq in-attrset?(rendered        (X:MaybeLabel)         | (rendered        (Y:MaybeLabel),         AS)) = true [variant] .
   eq in-attrset?(URL             (X:Label)              | (URL             (Y:Label),              AS)) = true [variant] .
-  eq in-attrset?(loading         (X:Bool)               | (loading         (Y:Bool),               AS)) = true [variant] .
+  eq in-attrset?(loading         (X:OnOffFlag)          | (loading         (Y:OnOffFlag),          AS)) = true [variant] .
   eq in-attrset?(returnTo        (X:ConcPipeId)         | (returnTo        (Y:ConcPipeId),         AS)) = true [variant] .
   eq in-attrset?(in              (X:LabelList)          | (in              (Y:LabelList),          AS)) = true [variant] .
   eq in-attrset?(out             (X:LabelList)          | (out             (Y:LabelList),          AS)) = true [variant] .
@@ -511,7 +511,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq in-attrset?(toKernel  (X:NeMessageList) | AS) = in-attrset?(toKernel(mt)          | AS) .
   eq in-attrset?(rendered  (X:NonBlankLabel) | AS) = in-attrset?(rendered(about-blank) | AS) .
   eq in-attrset?(URL       (X:NonBlankLabel) | AS) = in-attrset?(URL(about-blank)      | AS) .
-  eq in-attrset?(loading   (true)            | AS) = in-attrset?(loading(false)        | AS) .
+  eq in-attrset?(loading   (on)              | AS) = in-attrset?(loading(off)          | AS) .
   eq in-attrset?(returnTo  (X:ConcWebProcId) | AS) = in-attrset?(returnTo(ui)          | AS) .
   eq in-attrset?(returnTo  (X:ConcNetProcId) | AS) = in-attrset?(returnTo(ui)          | AS) .
   eq in-attrset?(in        (X:NeLabelList)   | AS) = in-attrset?(in(mtLL)              | AS) .
@@ -523,7 +523,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq in-attrset?(A | toKernel  (X:NeMessageList) , AS) = in-attrset?(A | toKernel(mt)          , AS) .
   eq in-attrset?(A | rendered  (X:NonBlankLabel) , AS) = in-attrset?(A | rendered(about-blank) , AS) .
   eq in-attrset?(A | URL       (X:NonBlankLabel) , AS) = in-attrset?(A | URL(about-blank)      , AS) .
-  eq in-attrset?(A | loading   (true)            , AS) = in-attrset?(A | loading(false)        , AS) .
+  eq in-attrset?(A | loading   (on)              , AS) = in-attrset?(A | loading(off)          , AS) .
   eq in-attrset?(A | returnTo  (X:ConcWebProcId) , AS) = in-attrset?(A | returnTo(ui)          , AS) .
   eq in-attrset?(A | returnTo  (X:ConcNetProcId) , AS) = in-attrset?(A | returnTo(ui)          , AS) .
   eq in-attrset?(A | in        (X:NeLabelList)   , AS) = in-attrset?(A | in(mtLL)              , AS) .
@@ -538,7 +538,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq attr-dupl?(nextWPN         (X:Nat),                nextWPN         (Y:Nat),                AS) = true [variant] .
   eq attr-dupl?(rendered        (X:MaybeLabel),         rendered        (Y:MaybeLabel),         AS) = true [variant] .
   eq attr-dupl?(URL             (X:Label),              URL             (Y:Label),              AS) = true [variant] .
-  eq attr-dupl?(loading         (X:Bool),               loading         (Y:Bool),               AS) = true [variant] .
+  eq attr-dupl?(loading         (X:OnOffFlag),          loading         (Y:OnOffFlag),          AS) = true [variant] .
   eq attr-dupl?(returnTo        (X:ConcPipeId),         returnTo        (Y:ConcPipeId),         AS) = true [variant] .
   eq attr-dupl?(in              (X:LabelList),          in              (Y:LabelList),          AS) = true [variant] .
   eq attr-dupl?(out             (X:LabelList),          out             (Y:LabelList),          AS) = true [variant] .
@@ -561,7 +561,7 @@ fmod ATTRIBUTE-FVP-EXT is
   eq attr-dupl?(toKernel  (X:NeMessageList) , AS) = attr-dupl?(toKernel(mt)          , AS) .
   eq attr-dupl?(rendered  (X:NonBlankLabel) , AS) = attr-dupl?(rendered(about-blank) , AS) .
   eq attr-dupl?(URL       (X:NonBlankLabel) , AS) = attr-dupl?(URL(about-blank)      , AS) .
-  eq attr-dupl?(loading   (true)            , AS) = attr-dupl?(loading(false)        , AS) .
+  eq attr-dupl?(loading   (on)              , AS) = attr-dupl?(loading(off)          , AS) .
   eq attr-dupl?(returnTo  (X:ConcWebProcId) , AS) = attr-dupl?(returnTo(ui)          , AS) .
   eq attr-dupl?(returnTo  (X:ConcNetProcId) , AS) = attr-dupl?(returnTo(ui)          , AS) .
   eq attr-dupl?(in        (X:NeLabelList)   , AS) = attr-dupl?(in(mtLL)              , AS) .
@@ -696,12 +696,12 @@ fmod IBOS-AUX-FVP is
   ---   eq np-by-inlbl?(IN,               mtNPIS) = false .
 
   op webproc-req-attrs : AttributeSet -> Bool [metadata "114 true"] .
-  eq webproc-req-attrs(toKernel(T:MessageList), fromKernel(F:MessageList), URL(U:Label), rendered(R:Label), loading(B:Bool), A) = true [variant] .
+  eq webproc-req-attrs(toKernel(T:MessageList), fromKernel(F:MessageList), URL(U:Label), rendered(R:Label), loading(X:OnOffFlag), A) = true [variant] .
  ceq webproc-req-attrs(A) = false if in-attrset?(toKernel(mt)          | A) = false .
  ceq webproc-req-attrs(A) = false if in-attrset?(fromKernel(mt)        | A) = false .
  ceq webproc-req-attrs(A) = false if in-attrset?(URL(about-blank)      | A) = false .
  ceq webproc-req-attrs(A) = false if in-attrset?(rendered(about-blank) | A) = false .
- ceq webproc-req-attrs(A) = false if in-attrset?(loading(true)         | A) = false .
+ ceq webproc-req-attrs(A) = false if in-attrset?(loading(on)           | A) = false .
   eq webproc-req-attrs(toKernel(T:NeMessageList),   A) = webproc-req-attrs(toKernel(mt),          A) .
   eq webproc-req-attrs(fromKernel(F:NeMessageList), A) = webproc-req-attrs(fromKernel(mt),        A) .
   eq webproc-req-attrs(returnTo(W:ConcWebProcId),   A) = webproc-req-attrs(returnTo(ui),        A) .
@@ -712,7 +712,7 @@ fmod IBOS-AUX-FVP is
   eq webproc-req-attrs(out(L:NeLabelList),          A) = webproc-req-attrs(out(mtLL),           A) .
   eq webproc-req-attrs(URL(U:NonBlankLabel),        A) = webproc-req-attrs(URL(about-blank),      A) .
   eq webproc-req-attrs(rendered(R:NonBlankLabel),   A) = webproc-req-attrs(rendered(about-blank), A) .
-  eq webproc-req-attrs(loading(true),               A) = webproc-req-attrs(loading(false),        A) .
+  eq webproc-req-attrs(loading(on),                 A) = webproc-req-attrs(loading(off),        A) .
 
   op netproc-req-attrs : AttributeSet -> Bool [metadata "115 true"] .
   eq netproc-req-attrs(toKernel(T:MessageList), fromKernel(F:MessageList), returnTo(P:ConcPipeId),
@@ -734,7 +734,7 @@ fmod IBOS-AUX-FVP is
   eq netproc-req-attrs(out(L:NeLabelList),          A) = netproc-req-attrs(out(mtLL),           A) .
   eq netproc-req-attrs(URL(U:NonBlankLabel),        A) = netproc-req-attrs(URL(about-blank),      A) .
   eq netproc-req-attrs(rendered(R:NonBlankLabel),   A) = netproc-req-attrs(rendered(about-blank), A) .
-  eq netproc-req-attrs(loading(true),               A) = netproc-req-attrs(loading(false),        A) .
+  eq netproc-req-attrs(loading(on),                 A) = netproc-req-attrs(loading(off),          A) .
 
   --- 3. Add partially FVP predicate for checking if an object with the named ID is in the configuration
   op in-conf? : ProcessId Configuration -> Bool [metadata "116 true"] .
@@ -758,7 +758,7 @@ fmod IBOS-AUX-FVP is
   eq in-conf?(P?, < P | out(L:NeLabelList),          A > C) = in-conf?(P?, < P | out(mtLL),             A > C) .
   eq in-conf?(P?, < P | URL(U:NonBlankLabel),        A > C) = in-conf?(P?, < P | URL(about-blank),      A > C) .
   eq in-conf?(P?, < P | rendered(R:NonBlankLabel),   A > C) = in-conf?(P?, < P | rendered(about-blank), A > C) .
-  eq in-conf?(P?, < P | loading(true),               A > C) = in-conf?(P?, < P | loading(false),        A > C) .
+  eq in-conf?(P?, < P | loading(on),                 A > C) = in-conf?(P?, < P | loading(off),          A > C) .
 
   --- 4. Add partially FVP predicate for checking for duplicate object IDs in the configuration
   op conf-dupl? : Configuration -> Bool [metadata "133 true"] .
@@ -776,7 +776,7 @@ fmod IBOS-AUX-FVP is
   eq conf-dupl?(< P | out(L:NeLabelList),          A > C) = conf-dupl?(< P | out(mtLL),             A > C) .
   eq conf-dupl?(< P | URL(U:NonBlankLabel),        A > C) = conf-dupl?(< P | URL(about-blank),      A > C) .
   eq conf-dupl?(< P | rendered(R:NonBlankLabel),   A > C) = conf-dupl?(< P | rendered(about-blank), A > C) .
-  eq conf-dupl?(< P | loading(true),               A > C) = conf-dupl?(< P | loading(false),        A > C) .
+  eq conf-dupl?(< P | loading(on),                 A > C) = conf-dupl?(< P | loading(off),          A > C) .
 
   op in-wis? : WebProcInfo WebProcInfoSet -> Bool [metadata "130 true"] .
   eq in-wis?(pi(WP,IN),pi(WP ,IN) ,wp WIS) = true [variant] .
@@ -798,6 +798,10 @@ fmod IBOS-AUX-FVP is
   eq goodCtxt?(none,NWIS,  NNIS  ) = false [variant] .
   eq goodCtxt?(NNWC,mtWPIS,NNIS  ) = false [variant] .
   eq goodCtxt?(NNWC,mtWPIS,mtNPIS) = false [variant] .
+
+  op on? : OnOffFlag -> Bool [metadata "200"] .
+  eq on?(on)  = true  [variant] .
+  eq on?(off) = false [variant] .
 endfm
 
 ---
@@ -902,7 +906,7 @@ fmod IBOS-AUX-NONFVP is
   eq conf-attr-dupl?(< CNWP | toKernel        (X:NeMessageList), A > C) = conf-attr-dupl?(< CNWP | toKernel(mt)          , A > C) .
   eq conf-attr-dupl?(< CNWP | rendered        (X:NonBlankLabel), A > C) = conf-attr-dupl?(< CNWP | rendered(about-blank) , A > C) .
   eq conf-attr-dupl?(< CNWP | URL             (X:NonBlankLabel), A > C) = conf-attr-dupl?(< CNWP | URL(about-blank)      , A > C) .
-  eq conf-attr-dupl?(< CNWP | loading         (true)           , A > C) = conf-attr-dupl?(< CNWP | loading(false)        , A > C) .
+  eq conf-attr-dupl?(< CNWP | loading         (on)             , A > C) = conf-attr-dupl?(< CNWP | loading(off)          , A > C) .
   eq conf-attr-dupl?(< CNWP | returnTo        (X:ConcWebProcId), A > C) = conf-attr-dupl?(< CNWP | returnTo(ui)          , A > C) .
   eq conf-attr-dupl?(< CNWP | returnTo        (X:ConcNetProcId), A > C) = conf-attr-dupl?(< CNWP | returnTo(ui)          , A > C) .
   eq conf-attr-dupl?(< CNWP | in              (X:NeLabelList)  , A > C) = conf-attr-dupl?(< CNWP | in(mtLL)              , A > C) .
@@ -921,7 +925,7 @@ fmod IBOS-AUX-NONFVP is
   eq nwp-reqattrs?(< CNWP | toKernel        (X:NeMessageList), A > NWC) = nwp-reqattrs?(< CNWP | toKernel(mt)          , A > NWC) .
   eq nwp-reqattrs?(< CNWP | rendered        (X:NonBlankLabel), A > NWC) = nwp-reqattrs?(< CNWP | rendered(about-blank) , A > NWC) .
   eq nwp-reqattrs?(< CNWP | URL             (X:NonBlankLabel), A > NWC) = nwp-reqattrs?(< CNWP | URL(about-blank)      , A > NWC) .
-  eq nwp-reqattrs?(< CNWP | loading         (true)           , A > NWC) = nwp-reqattrs?(< CNWP | loading(false)        , A > NWC) .
+  eq nwp-reqattrs?(< CNWP | loading         (on)             , A > NWC) = nwp-reqattrs?(< CNWP | loading(off)          , A > NWC) .
   eq nwp-reqattrs?(< CNWP | returnTo        (X:ConcWebProcId), A > NWC) = nwp-reqattrs?(< CNWP | returnTo(ui)          , A > NWC) .
   eq nwp-reqattrs?(< CNWP | returnTo        (X:ConcNetProcId), A > NWC) = nwp-reqattrs?(< CNWP | returnTo(ui)          , A > NWC) .
   eq nwp-reqattrs?(< CNWP | in              (X:NeLabelList)  , A > NWC) = nwp-reqattrs?(< CNWP | in(mtLL)              , A > NWC) .
@@ -989,7 +993,7 @@ endfm
 fmod IBOS-SOP-PRED is
   pr IBOS-AUX-NONFVP .
 
-  var B : Bool .
+  var B : OnOffFlag .
   var NWC : NetWebProcConfig .
   var NNWC : NetWebProcNeConfig .
   var C : Configuration .
@@ -1070,13 +1074,13 @@ fmod IBOS-SOP-PRED is
   eq currHandled2?(none,WIS)        = true .
 
   --- NOTE: not np-by-lbl?() condition forces only fetch-url to be processed
-  op fetchMsg1? : ConcWebProcId Bool Label MessageList NetProcInfoSet -> Bool [metadata "204"] .
- ceq fetchMsg1?(WI,true,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = fetchMsg1?(WI,false,L,ML @ ML2,NIS) if ---(B and) WI ~p PI and network ~p PI' and L ~l L' and not np-by-lbl?(L,NIS) = true  .
- ceq fetchMsg1?(WI,B,   L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = false                               if     B and  WI ~p PI and network ~p PI' and L ~l L' and not np-by-lbl?(L,NIS) = false .
-  eq fetchMsg1?(WI,B,   L,ML @ NFM:NonFetchMsg @ ML2,NIS)              = fetchMsg1?(WI,B,L,ML @ ML2,NIS) .
-  eq fetchMsg1?(WI,B,   L,mt,NIS)                                      = true .
+  op fetchMsg1? : ConcWebProcId OnOffFlag Label MessageList NetProcInfoSet -> Bool [metadata "204"] .
+ ceq fetchMsg1?(WI,on,L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = fetchMsg1?(WI,off,L,ML @ ML2,NIS) if             WI ~p PI and network ~p PI' and L ~l L' and not np-by-lbl?(L,NIS) = true  .
+ ceq fetchMsg1?(WI,B, L,ML @ msg(PI,PI',MSG-FETCH-URL,L') @ ML2,NIS) = false                             if on?(B) and  WI ~p PI and network ~p PI' and L ~l L' and not np-by-lbl?(L,NIS) = false .
+  eq fetchMsg1?(WI,B, L,ML @ NFM:NonFetchMsg @ ML2,NIS)              = fetchMsg1?(WI,B,L,ML @ ML2,NIS) .
+  eq fetchMsg1?(WI,B, L,mt,NIS)                                      = true .
   --- Lemma needed for for rule pa10
- ceq fetchMsg1?(WI,true,L,ML,NIS) = true if fetchMsg1?(WI,false,L,ML,NIS) = true  .
+ ceq fetchMsg1?(WI,on,L,ML,NIS) = true if fetchMsg1?(WI,off,L,ML,NIS) = true  .
 
   op fetchMsg2? : ConcWebProcId ConcNetProcId Label MessageList -> Bool [metadata "205"] .
   eq fetchMsg2?(WI,NI,L,ML) = true .
@@ -1097,7 +1101,7 @@ fmod IBOS-SOP-PRED is
   --- Throw out all cases where configuration process groups/metadata inconsistent
  ceq p(< WI |                     A > NWC,WIS,NIS,M?) = false if weblabel-by-pid(WI,WIS)       = nolabel .
  ceq p(< WI | URL(L),             A > NWC,WIS,NIS,M?) = false if in-wis?(pi(WI,L),WIS)         = false   .
- ceq p(< WI | loading(B), URL(L), A > NWC,WIS,NIS,M?) = false if np-by-lbl?(L,NIS) and not B = true    .
+ ceq p(< WI | loading(off), URL(L), A > NWC,WIS,NIS,M?) = false if np-by-lbl?(L,NIS)           = true    .
  ceq p(< NI |                     A > NWC,WIS,NIS,M?) = false if netlabelpair-by-pid(NI,NIS)   = nopair  .
  ceq p(< NI | returnTo(CPI),      A > NWC,WIS,NIS,M?) = false if weblabel-by-pid(CPI,WIS)      = nolabel .
  ceq p(< NI | returnTo(CPI),      A > NWC,WIS,NIS,M?) = false if in-conf?(CPI,NWC)             = false   .
@@ -1123,14 +1127,14 @@ fmod IBOS-SOP-PRED is
        < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
               pi(WI,L),wp WIS,pi(NI,L,L),np NIS,M?)
    = p(NWC,WIS,NIS,consumeCurrHandled?(WI,NI,M?))
-  if B and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,WFK)
+  if on?(B) and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,WFK)
        and allEqLabel?(L,OL ; IL) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) = true .
 
  ceq p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
        < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
               pi(WI,L),wp WIS,pi(NI,L,L),np NIS,M?)
    = false
-  if B and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,WFK)
+  if on?(B) and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,WFK)
        and allEqLabel?(L,OL ; IL) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) = false .
 
   --- Group 1 - not loaded WebProc
@@ -1161,7 +1165,7 @@ fmod IBOS-ABC-PRED is
   var A : AttributeSet .
   var ML : MessageList .
   var IN OUT L : Label .
-  var B : Bool .
+  var B : OnOffFlag .
 
   --- ABC-3. For each WebProc, the rendered() attribute should be blank or equal to the URL() attribute
   --- COMPLETENESS requires attr-subset condition to negate URL/rendered pair being present

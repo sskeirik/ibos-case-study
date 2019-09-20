@@ -288,7 +288,11 @@ fmod WEBAPP is
   **** This is where the webapp should load its data from!
   op URL : Label -> Attribute [ctor metadata "59"] .
   **** This notes whether it has already loaded, or has not yet started to do so.
-  op loading : Bool -> Attribute [ctor metadata "60"] .
+  sort OnOffFlag .
+  op on  : -> OnOffFlag [ctor metadata "60"] .
+  op off : -> OnOffFlag [ctor metadata "61"] .
+
+  op loading : OnOffFlag -> Attribute [ctor metadata "62"] .
 endfm
 
 **** network process gets a request from a webapp; network process
@@ -338,20 +342,20 @@ endfm
 **** need the capability to check whether a process id is for a netproc
 **** this is now handled by subsorting
 fmod NETPROC is inc LABEL-LIST . inc SYS .
-  op returnTo : ConcPipeId -> Attribute [ctor metadata "61"] .
-  op in       : LabelList  -> Attribute [ctor metadata "62"] .
-  op out      : LabelList  -> Attribute [ctor metadata "63"] .
+  op returnTo : ConcPipeId -> Attribute [ctor metadata "63"] .
+  op in       : LabelList  -> Attribute [ctor metadata "64"] .
+  op out      : LabelList  -> Attribute [ctor metadata "65"] .
 endfm
 
 fmod MEMORY is inc SYS . inc LABEL .
-  op mem-in  : MaybeLabel -> Attribute [ctor metadata "65"] .
-  op mem-out : MaybeLabel -> Attribute [ctor metadata "64"] .
+  op mem-in  : MaybeLabel -> Attribute [ctor metadata "67"] .
+  op mem-out : MaybeLabel -> Attribute [ctor metadata "66"] .
 endfm
 
 fmod NIC is inc SYS . inc LABEL-SET . inc LABEL-LIST .
   --- NOTE: this isn't used
-  op nic-in  : LabelList -> Attribute [ctor metadata "67"] .
-  op nic-out : LabelSet  -> Attribute [ctor metadata "66"] .
+  op nic-in  : LabelList -> Attribute [ctor metadata "69"] .
+  op nic-out : LabelSet  -> Attribute [ctor metadata "68"] .
 endfm
 
 fmod KERNEL-POLICIES-FVP is
@@ -383,30 +387,30 @@ fmod KERNEL-POLICIES-FVP is
   sort PolicySet .
   subsort Policy < PolicySet .
   op mtPS :                       -> PolicySet [ctor metadata "7"] .
-  op _,ps_  : PolicySet PolicySet -> PolicySet [ctor assoc comm id: mtPS metadata "68"] .
+  op _,ps_  : PolicySet PolicySet -> PolicySet [ctor assoc comm id: mtPS metadata "70"] .
 
-  op msgPolicy        : PolicySet             -> Attribute [ctor metadata "69"] .  **** make the policylist an attribute with this wrapper
-  op policy           : PipeId PipeId MsgType -> Policy    [ctor metadata "70"] .  **** a policy is a sender Id, receiver Id and MsgType (only PipeProcs can communicate with kernel)
-  op nextNPN          : Nat                   -> Attribute [ctor metadata "71"] .  **** the next available proc id for a network proc
-  op handledCurrently : Message?              -> Attribute [ctor metadata "72"] .  **** the message currently handled by the kernel
+  op msgPolicy        : PolicySet             -> Attribute [ctor metadata "71"] .  **** make the policylist an attribute with this wrapper
+  op policy           : PipeId PipeId MsgType -> Policy    [ctor metadata "72"] .  **** a policy is a sender Id, receiver Id and MsgType (only PipeProcs can communicate with kernel)
+  op nextNPN          : Nat                   -> Attribute [ctor metadata "73"] .  **** the next available proc id for a network proc
+  op handledCurrently : Message?              -> Attribute [ctor metadata "74"] .  **** the message currently handled by the kernel
   **** webapp info stored by kernel
   **** label identifies the website this webapp is showing - this needs to match the
   **** first label of a network proc to allow communication
   sorts WebProcInfo WebProcInfoSet .
   subsorts WebProcInfo < WebProcInfoSet .
-  op pi        : ConcWebProcId Label           -> WebProcInfo    [ctor metadata "73"] .
+  op pi        : ConcWebProcId Label           -> WebProcInfo    [ctor metadata "75"] .
   op mtWPIS    :                               -> WebProcInfoSet [ctor metadata "8"] .
-  op _,wp_     : WebProcInfoSet WebProcInfoSet -> WebProcInfoSet [ctor assoc comm id: mtWPIS metadata "74"] .
-  op weblabels : WebProcInfoSet                -> Attribute      [ctor metadata "75"] .
+  op _,wp_     : WebProcInfoSet WebProcInfoSet -> WebProcInfoSet [ctor assoc comm id: mtWPIS metadata "76"] .
+  op weblabels : WebProcInfoSet                -> Attribute      [ctor metadata "77"] .
   ****network proc info stored by kernel
   **** first label to identify related webapps, second label for whom
   **** this network proc can communicate with (via actual ethernet; to outside world)
   sorts NetProcInfo NetProcInfoSet .
   subsorts NetProcInfo < NetProcInfoSet .
-  op pi        : ConcNetProcId Label Label     -> NetProcInfo    [ctor metadata "76"] .
+  op pi        : ConcNetProcId Label Label     -> NetProcInfo    [ctor metadata "78"] .
   op mtNPIS    :                               -> NetProcInfoSet [ctor metadata "9"] .
-  op _,np_     : NetProcInfoSet NetProcInfoSet -> NetProcInfoSet [ctor assoc comm id: mtNPIS metadata "77"] .
-  op netlabels : NetProcInfoSet                -> Attribute      [ctor metadata "78"] .
+  op _,np_     : NetProcInfoSet NetProcInfoSet -> NetProcInfoSet [ctor assoc comm id: mtNPIS metadata "79"] .
+  op netlabels : NetProcInfoSet                -> Attribute      [ctor metadata "80"] .
   **** These next two rules are what was promised above in the network
   **** process module above when referring to DMA rules.
   **** Kernel gives network process DMA to NIC - checking that target is
@@ -429,9 +433,9 @@ fmod KERNEL-POLICIES-FVP is
   ****
   **** Made into a topmost rule in module KERNEL
   ****
-  op displayedTopBar  : Label               -> Attribute [ctor metadata "79"] . **** kernel-owned address bar - part of the 'secure' UI
-  op activeWebapp     : MaybeConcWebProcId  -> Attribute [ctor metadata "80"] . **** display memory modeled as an object.
-  op displayedContent : Label               -> Attribute [ctor metadata "81"] . **** label of the things being displayed as an attribute of that object
+  op displayedTopBar  : Label               -> Attribute [ctor metadata "81"] . **** kernel-owned address bar - part of the 'secure' UI
+  op activeWebapp     : MaybeConcWebProcId  -> Attribute [ctor metadata "82"] . **** display memory modeled as an object.
+  op displayedContent : Label               -> Attribute [ctor metadata "83"] . **** label of the things being displayed as an attribute of that object
   ****
   **** Once the policy has been checked, further processing is taken care of;
   **** switching the active tab in the UI is done here.
@@ -467,7 +471,7 @@ fmod KERNEL-POLICIES-FVP is
   var NPIS : NetProcInfoSet .
 
   **** auxiliary function for checking that a network process links to a given label
-  op np-by-lbl? : Label NetProcInfoSet -> Bool [metadata "83 true"] .
+  op np-by-lbl? : Label NetProcInfoSet -> Bool [metadata "84 true"] .
   eq np-by-lbl?(L',(pi(network(N),L,L') ,np NPIS)) = true [variant] .
  ceq np-by-lbl?(L',(pi(network(N),L,L'') ,np NPIS)) = np-by-lbl?(L',NPIS) if L' ~l L'' = false .
   eq np-by-lbl?(L',mtNPIS) = false .
@@ -513,13 +517,13 @@ mod KERNEL is
 
   **** Made into a topmost labeled conditional rule from module WEBAPP
   rl [fetch] :
-     { < WI | rendered(L) ,  URL(L') , loading(false) , toKernel(ML) ,                                    Att > Cnf }
-  => { < WI | rendered(L) ,  URL(L') , loading(true)  , toKernel(ML @ msg(WI,network,MSG-FETCH-URL,L')) , Att > Cnf } .
+     { < WI | rendered(L) ,  URL(L') , loading(off) , toKernel(ML) ,                                    Att > Cnf }
+  => { < WI | rendered(L) ,  URL(L') , loading(on)  , toKernel(ML @ msg(WI,network,MSG-FETCH-URL,L')) , Att > Cnf } .
 
   **** Made into a labeled topmost conditional rule from module WEBAPP
   rl [render] :
-     { < WI | rendered(L)  , URL(L') , loading(true) , fromKernel(msg(PPI1, WI, MSG-RETURN-URL,L2) @ ML) , Att > Cnf }
-  => { < WI | rendered(L2) , URL(L') , loading(true) , fromKernel(ML) ,                                    Att > Cnf } .
+     { < WI | rendered(L)  , URL(L') , loading(on) , fromKernel(msg(PPI1, WI, MSG-RETURN-URL,L2) @ ML) , Att > Cnf }
+  => { < WI | rendered(L2) , URL(L') , loading(on) , fromKernel(ML) ,                                    Att > Cnf } .
 
   **** Made into a topmost rule from module NETWORK
   **** kernel tells network process to fetch data for a webapp
@@ -821,7 +825,7 @@ mod KERNEL is
        < webapp(N) |
            rendered(about-blank),
            URL(URL),
-           loading(false),
+           loading(off),
            fromKernel(mt),
            toKernel(mt) > Cnf } .
 endm
@@ -833,6 +837,6 @@ endm
 mod IBOS-STOP is
   pr IBOS .
   var C : Configuration .
-  op [_] : Configuration -> State [ctor metadata "88"] .
+  op [_] : Configuration -> State [ctor metadata "85"] .
   rl [stop] : { C } => [ C ] .
 endm
