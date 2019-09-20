@@ -3995,6 +3995,7 @@ fmod REMOVE-IDS is
   pr ATTR-EXTRA .
   pr DECL-SUBSUMPTION .
   pr STMT-EXTRA .
+  pr RENAME-TERM-AUX .
 
   var C : Constant .
   var M M' IdM : Module .
@@ -4039,8 +4040,8 @@ fmod REMOVE-IDS is
  ceq removeIds(M, Subsumption?, Which) = $removeIds(M, Subsumption?, Which)
   if not (anyAttrOccurs?(owise idem,getOps(M)) or-else anyLhsIsVar?(getRls(M)) or-else anyLhsIsVar?(getEqs(M))) .
 
-  eq $removeIds(M, true,  Which) = moreGeneralRls(moreGeneralEqs($removeIds(M, Which))) .
-  eq $removeIds(M, false, Which) = $removeIds(M, Which) .
+  eq $removeIds(M, true,  Which) = renameVars(moreGeneralRls(moreGeneralEqs($removeIds(M, Which)))) .
+  eq $removeIds(M, false, Which) = renameVars($removeIds(M, Which)) .
   eq $removeIds(M, Which) = setRls(
                               addEqs(getVariants(makeIdsModule(M,Which),makeIdsTuplingModule(M, Which), addTupling(M, M), getEqs(M)),
                                 makeIdsModule(M, Which)),
