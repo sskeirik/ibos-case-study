@@ -27,6 +27,9 @@ mod TEST is
   op ibos : -> Module .
   eq ibos = upModule('IBOS-PREDS,true) .
 
+  op fvp-ibos : -> Module [memo] .
+  eq fvp-ibos = removeIds(upModule('IBOS-AUX-FVP,true),non-handled) .
+
   op noid-ibos : -> Module .
   eq noid-ibos = removeIds(ibos,non-handled) .
 
@@ -57,7 +60,7 @@ mod TEST is
       crcContextJoinableAndUnfeasibleCPs(noid-ibos,
         simpCP(ibos,
 	  delete!(simplify(
-            partialVarUnif(noid-ibos,
+            partialVarUnif(fvp-ibos,
               simpCP(ibos,round1)),ibos))))) .
 
   op round3 : -> CritPairSet .
@@ -65,7 +68,7 @@ mod TEST is
     pendingCPs(
       crcContextJoinableAndUnfeasibleCPs(removeIds(ibos,non-handled),
         simpCP(ibos,
-          partialVarUnif(noid-ibos,
+          partialVarUnif(fvp-ibos,
             transform(round2,
               { split-cover('_<_['&2:Nat,'&1:Nat],
                 ('true.Bool  : skip )
