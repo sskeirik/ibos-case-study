@@ -488,11 +488,13 @@ fmod PATTERN-OPS is
   pr UNIFIERS                        . --- operations to generate all unifiers/matches
   pr RENAME-METAVARS                 . --- #renameAllVars
   pr CONSTRAINED-TERM-SUBSTITUTIONSET .
+  pr CONSTRAINED-TERM-DNF .
 
   var U : Module . var MS : [ModuleSubstPair] . var S S' : Substitution .
   var VS : VariableSet . var B : Bool .
   var C C' C'' C1 C2 : QFCTerm . var CS CS' CS1 CS2 : QFCTermSet .
-  var N N' : Nat . var T T' : Term . var F F' : QFForm? .
+  var N N' : Nat . var T T' : Term . var F F' : QFForm . var F? F'? : QFForm? .
+  var FS : QFForm?Set .
 
   ******************************************************************************
   *** NOTE:
@@ -542,7 +544,7 @@ fmod PATTERN-OPS is
   op intersect : Module QFCTermSet QFCTermSet -> QFCTermSet .
   eq intersect(U,C | C' | CS,CS')  = intersect(U,C,CS' ) | intersect(U,C' | CS,CS') .
   eq intersect(U,C,C' | C'' | CS) = intersect(U,C,C') | intersect(U,C,C'' | CS) .
-  eq intersect(U,(T | F),(T' | F')) = (T | F /\ F') << safeUnify(U,T,T') .
+  eq intersect(U,(T | F?),(T' | F'?)) = (T | F? /\ F'?) << safeUnify(U,T,T') .
 
   --- PRE: QFCTerm and QFCTermSet have no shared variables
   --- OUT: Pairs of Formulas/Substitutions that represent the intersections of
@@ -550,7 +552,7 @@ fmod PATTERN-OPS is
   ---      instantiated Formulas of each QFCTerm in the QFCTermSet
   op #intersect : Module QFCTerm QFCTermSet -> FOFormSubstPairSet .
   eq #intersect(U,C,C' | C'' | CS) = #intersect(U,C,C') | #intersect(U,C,C'' | CS) .
-  eq #intersect(U,(T | F),(T' | F')) = (F /\ F') Pair<< safeUnify(U,T,T') .
+  eq #intersect(U,(T | F?),(T' | F'?)) = (F? /\ F'?) Pair<< safeUnify(U,T,T') .
 
   op #disjIntersect : Module QFCTerm QFCTerm -> FOFormSubstPairSet .
  ceq #disjIntersect(U,C,C') = #intersect(U,C1,C2)
@@ -558,6 +560,18 @@ fmod PATTERN-OPS is
   /\ (S',T',N') := #renameAllVar(U,none,N,upTerm(C'))
   /\ C1         := downTerm(T ,noterm)
   /\ C2         := downTerm(T',noterm) .
+
+  op toCCTermSet  : QFCTermSet -> QFCTermSet .
+  op toCCTermSet  : QFCTermSet QFCTermSet -> QFCTermSet .
+  op toCCTermSet1 : Term QFForm?Set QFCTermSet -> QFCTermSet .
+  ------------------------------------------------------------
+  eq toCCTermSet(CS) = toCCTermSet(CS,noterm) .
+
+  eq toCCTermSet((T | F?) | CS,CS') = toCCTermSet(CS,CS' | toCCTermSet1(T,disjToSet(toDNF(F?)),noterm)) .
+  eq toCCTermSet(noterm,CS') = CS' .
+
+  eq toCCTermSet1(T,F | FS,   CS) = toCCTermSet1(T,FS,CS | (T | F)) .
+  eq toCCTermSet1(T,mtFormSet,CS) = CS .
 endfm
 
 fmod CONSTRAINED-TERM-INVARIANT is
