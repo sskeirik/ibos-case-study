@@ -1112,7 +1112,7 @@ fmod FOFORMSET-OPERATIONS is
   pr CNF .
   pr DNF .
 
-  var FS : FOForm?Set . var FF FF' : FOForm? . var F : QFForm? .
+  var FS : FOForm?Set . var FF FF' : FOForm? . var CF : QFForm . var F F' : QFForm? .
   var D : Disj . var ND : NegDisj? . var C : Conj .
   var UP : UnificationProblem .
   var T T' : Term . var M : Module .
@@ -1172,6 +1172,14 @@ fmod FOFORMSET-OPERATIONS is
   op flip : AtomSet -> AtomSet .
   eq flip(A | A' | AS) = flip(A) | flip(A' | AS) .
   eq flip(mtFormSet) = mtFormSet .
+
+  --- OUT: convert a disjunction into a formula set
+  op disjToSet : QFForm? -> QFForm?Set .
+  op disjToSet : QFForm? QFForm?Set -> QFForm?Set .
+  eq disjToSet(F) = disjToSet(F,mtFormSet) .
+  eq disjToSet(C \/ CF,FS) = disjToSet(CF,FS | C) .
+  eq disjToSet(CF,     FS) = FS | CF [owise] .
+  eq disjToSet(mtForm, FS) = FS .
 endfm
 
 fmod FOFORM-DESCENT-MAP is
