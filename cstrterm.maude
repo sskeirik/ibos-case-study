@@ -489,6 +489,7 @@ fmod PATTERN-OPS is
   pr RENAME-METAVARS                 . --- #renameAllVars
   pr CONSTRAINED-TERM-SUBSTITUTIONSET .
   pr CONSTRAINED-TERM-DNF .
+  pr RENAME-TERM .
 
   var U : Module . var MS : [ModuleSubstPair] . var S S' : Substitution .
   var VS : VariableSet . var B : Bool .
@@ -572,6 +573,16 @@ fmod PATTERN-OPS is
 
   eq toCCTermSet1(T,F | FS,   CS) = toCCTermSet1(T,FS,CS | (T | F)) .
   eq toCCTermSet1(T,mtFormSet,CS) = CS .
+
+  op renameVars : QFCTermSet -> QFCTermSet .
+  op renameVars : Nat QFCTermSet -> QFCTermSet .
+  op renameVars : Nat QFCTermSet QFCTermSet -> QFCTermSet .
+  ---------------------------------------------------------
+  eq renameVars(CS)   = renameVars(0,CS) .
+  eq renameVars(N,CS) = renameVars(N,CS,noterm) .
+
+  eq renameVars(N,C | CS,CS') = renameVars(N,CS,CS' | (C << freshifyVars(N,vars(C)))) .
+  eq renameVars(N,noterm,CS') = CS' .
 endfm
 
 fmod CONSTRAINED-TERM-INVARIANT is
