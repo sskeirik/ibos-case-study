@@ -1350,6 +1350,7 @@ fmod VAR-UNIF-PARTIAL-FVP is
   var C2 C3 : Conj? .
   var D2 D3 : Disj? .
   var F? : FOForm? .
+  var F?S : FOForm?Set .
   var P1 P2 L R : Term .
   var TPS : TermPairSet .
   var O : OpDecl .
@@ -1419,8 +1420,9 @@ fmod VAR-UNIF-PARTIAL-FVP is
   eq #varunif-simp(U,(NC?,F?)) = (NC? /\ F?,none) .
   eq #varunif-simp(SS,NC?,F?) = (NC? /\ F?) Pair<< SS .
 
-  op varunif-simp : Module FOForm? ~> FOForm? .
-  eq varunif-simp(U,F?) = disj-join(getForm(#varunif-simp(U,F?))) .
+  op varunif-simp : Module FOForm?Set ~> FOForm?Set .
+  eq varunif-simp(U,F? | F?S)  = disj-join(getForm(#varunif-simp(U,F?))) | varunif-simp(U,F?S) .
+  eq varunif-simp(U,mtFormSet) = mtFormSet .
 endfm
 
 fmod FOFORM-SPLIT is
