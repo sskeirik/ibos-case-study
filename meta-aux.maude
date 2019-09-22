@@ -3444,6 +3444,7 @@ fmod UNIFIERS is
   var B : Bool .
   var Str : String .
   var I J X : Nat .
+  var Bnd : Bound .
   var S S' S1 S2 : Substitution .
   var SS   : SubstitutionSet .
   var SPS : SubstitutionPairSet .
@@ -3522,7 +3523,10 @@ fmod UNIFIERS is
   eq matches?(M,T,T') = wellFormed(M,T) and-then wellFormed(M,T') and-then sameKind(M,leastSort(M,T),leastSort(M,T')) and-then metaMatch(M,T,T',nil,0) :: Substitution .
 
   op matchesX? : Module Term Term -> Bool .
-  eq matchesX?(M,T,T') = wellFormed(M,T) and-then wellFormed(M,T') and-then sameKind(M,leastSort(M,T),leastSort(M,T')) and-then metaXmatch(M,T,T',nil,0,unbounded,0) :: MatchPair .
+  eq matchesX?(M,T,T') = matchesX?(M,T,T',0,unbounded) .
+
+  op matchesX? : Module Term Term Nat Bound -> Bool .
+  eq matchesX?(M,T,T',I,Bnd) = wellFormed(M,T) and-then wellFormed(M,T') and-then metaXmatch(M,T,T',nil,I,Bnd,0) :: MatchPair .
 
   op  nontrivCtxtMatch? : Module Term Term -> Bool .
   op $nontrivCtxtMatch? : Module Term Term Nat -> Bool .
