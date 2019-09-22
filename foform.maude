@@ -1367,7 +1367,7 @@ fmod VAR-UNIF-PARTIAL-FVP is
   eq filterConjByPolicy(U,F?) = filterConjByPolicy(U,getFilterPolicy(U),F?,mtForm,mtForm) .
 
   op filterConjByPolicy : Module TermPairSet FOForm? Conj? Conj? ~> FOFormPair .
-  eq filterConjByPolicy(U,TPS,EA /\ F?,C2,C3) = if wellFormed(U,EA) and filterPolicy(U,TPS,EA) then filterConjByPolicy(U,TPS,F?,C2 /\ EA,C3) else filterConjByPolicy(U,TPS,F?,C2,C3 /\ EA) fi .
+  eq filterConjByPolicy(U,TPS,EA /\ F?,C2,C3) = if wellFormed(U,EA) and-then filterPolicy(U,TPS,EA) then filterConjByPolicy(U,TPS,F?,C2 /\ EA,C3) else filterConjByPolicy(U,TPS,F?,C2,C3 /\ EA) fi .
   eq filterConjByPolicy(U,TPS,A  /\ F?,C2,C3) = filterConjByPolicy(U,TPS,F?,C2,C3 /\ A) .
   eq filterConjByPolicy(U,TPS,F?,      C2,C3) = (C2,F? /\ C3) [owise] .
 
@@ -1375,7 +1375,7 @@ fmod VAR-UNIF-PARTIAL-FVP is
   eq filterDisjByPolicy(U,F?) = filterDisjByPolicy(U,getFilterPolicy(U),F?,mtForm,mtForm) .
 
   op filterDisjByPolicy : Module TermPairSet FOForm? Disj? Disj? ~> FOFormPair .
-  eq filterDisjByPolicy(U,TPS,EA \/ F?,D2,D3) = if wellFormed(U,EA) and filterPolicy(U,TPS,EA) then filterDisjByPolicy(U,TPS,F?,D2 \/ EA,D3) else filterDisjByPolicy(U,TPS,F?,D2,D3 \/ EA) fi .
+  eq filterDisjByPolicy(U,TPS,EA \/ F?,D2,D3) = if wellFormed(U,EA) and-then filterPolicy(U,TPS,EA) then filterDisjByPolicy(U,TPS,F?,D2 \/ EA,D3) else filterDisjByPolicy(U,TPS,F?,D2,D3 \/ EA) fi .
   eq filterDisjByPolicy(U,TPS,A  \/ F?,D2,D3) = filterDisjByPolicy(U,TPS,F?,D2,D3 \/ A) .
   eq filterDisjByPolicy(U,TPS,F?,      D2,D3) = (D2,F? /\ D3) [owise] .
 
@@ -1383,9 +1383,16 @@ fmod VAR-UNIF-PARTIAL-FVP is
   eq filterPolicy(U,TPS,L ?= R) = filterPolicy(U,TPS,L,R) .
   eq filterPolicy(U,TPS,L != R) = filterPolicy(U,TPS,L,R) .
 
+  --- The policy has the following structure: (marked symbol, constructor pattern)
+  --- If the marked symbol matches THEN we MUST HAVE
+  ---  [the constructor pattern matches the other side AND
+  ---   the no OTHER marked symbols below]
+  --- Otherwise, we are NOT in the policy
   op filterPolicy : Module TermPairSet Term Term -> Bool .
   eq filterPolicy(U,(P1 : P2) | TPS,L,R) =
-    (matches?(U,P1,L) implies matches?(U,P2,R)) and (matches?(U,P1,R) implies matches?(U,P2,L)) and-then filterPolicy(U,TPS,L,R) .
+    (not (matchesX?(U,P1,L,1,unbounded) or matchesX?(U,P1,R,1,unbounded))) and
+    (matches?(U,P1,L) implies matches?(U,P2,R)) and
+    (matches?(U,P1,R) implies matches?(U,P2,L)) and-then filterPolicy(U,TPS,L,R) .
   eq filterPolicy(U,.TermPairSet,   L,R) = true .
 
   op getFilterPolicy : Module ~> TermPairSet [memo] .
