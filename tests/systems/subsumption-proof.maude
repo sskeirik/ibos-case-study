@@ -7,13 +7,29 @@ load ../../rltool-lib.maude
 --- which agrees with what Ralf originally did
 --- and should be much easier to complete
 
-mod SUBSUMPTION-PROOF is
+mod DEPS is
   pr REMOVE-IDS .
-  pr RLTOOL * (op _|_ : FOForm?Set FOForm?Set -> FOForm?Set to _|_ [format (d n n d)] ).
+  pr RLTOOL .
+endm
+
+mod SUBSUMPTION-PROOF is
+  pr DEPS * (op metaMatch : Module Term Term Condition Nat -> Substitution? to metaMatchOrig,
+             op filterPolicy : Module TermPairSet EqAtom -> Bool to filterPolicy#,
+             op _|_ : FOForm?Set FOForm?Set -> FOForm?Set to _|_ [format (d n n d)]
+            ) .
 
   op ibos : -> Module .
   eq ibos = upModule('IBOS-PREDS,true) .
-  ops new-sop sop1 sop2 sop3 sop4 : -> CCTerm .
+
+  op safe-ibos : -> Module [memo] .
+  eq safe-ibos = removeIds(ibos,non-handled) .
+
+  op fvp-ibos : -> Module [memo] .
+  eq fvp-ibos = removeIds(upModule('IBOS-AUX-FVP,true),non-handled) .
+
+  ops new-sop sop1a sop1b sop2 sop3 sop4 : -> CCTerm .
+
+  ops form1a form1b form2 form3 form4 : -> FOForm?Set .
 
   ---@ (  NWC
   ---@    < ui | toKernel(UIML) >
@@ -41,7 +57,6 @@ mod SUBSUMPTION-PROOF is
   ---@    (weblabel-by-pid(WI,WIS) ~l CURR)                              = (true)  /\
   ---@    (display-topbar-consistent?(WI,DISP,CURR,NWC))                 = (true)  /\
   ---@    (render-consistent?(NWC))                                      = (true)
-  ---@    --- TODO: add constraint for np-by-inlbl?(L,NIS) = false but inside label inside NIC
   ---@
   eq new-sop = ( '__[
                       '<_|_>['ui.NonPipeId,'toKernel['UIML:MessageList]],
@@ -65,13 +80,14 @@ mod SUBSUMPTION-PROOF is
                     ] |
                     'p['NWC:NetWebProcConfig,'WIS:WebProcInfoSet,'NIS:NetProcInfoSet,'MSG?:Message?] ?= 'true.Bool
                  /\ 'nwp-reqattrs?['NWC:NetWebProcConfig] ?= 'true.Bool
+                 /\ 'conf-attr-dupl?['NWC:NetWebProcConfig] ?= 'false.Bool
                  /\ 'weblabels-dupl?['WIS:WebProcInfoSet] ?= 'false.Bool
                  /\ 'netlabels-dupl?['NIS:NetProcInfoSet] ?= 'false.Bool
-                 /\ 'conf-dupl?['NWC:NetWebProcConfig] ?= 'true.Bool
+                 /\ 'conf-dupl?['NWC:NetWebProcConfig] ?= 'false.Bool
                  /\ 'fresh-wp-id?['webapp['NWP:Nat],'NWC:NetWebProcConfig] ?= 'true.Bool
-                 /\ 'fresh-np-id?['webapp['NNP:Nat],'NWC:NetWebProcConfig] ?= 'true.Bool
+                 /\ 'fresh-np-id?['network['NNP:Nat],'NWC:NetWebProcConfig] ?= 'true.Bool
                  /\ 'fresh-weblabel?['webapp['NWP:Nat],'WIS:WebProcInfoSet] ?= 'true.Bool
-                 /\ 'fresh-netlabel?['webapp['NNP:Nat],'NIS:NetProcInfoSet] ?= 'true.Bool
+                 /\ 'fresh-netlabel?['network['NNP:Nat],'NIS:NetProcInfoSet] ?= 'true.Bool
                  /\ 'ui-consistent?['UIML:MessageList,'WIS:WebProcInfoSet] ?= 'true.Bool
                  /\ 'currHandled2?['MSG?:Message?,'WIS:WebProcInfoSet] ?= 'true.Bool
                  /\ '_~l_['weblabel-by-pid['WI:ConcWebProcId,'WIS:WebProcInfoSet],'CURR:Label] ?= 'true.Bool
@@ -83,7 +99,7 @@ mod SUBSUMPTION-PROOF is
   --- < kernel | weblabels(pi(W,L1'), WIS), netlabels(pi(N, L2', L2), NIS), A' >
   ---
   --- such that L1 =/= L2 or L1' =/= L2'
-  eq sop1 = ('__[
+  eq sop1a = ('__[
                    '<_|_>['N:ConcNetProcId,
                           '_`,_['fromKernel[
                                 '_@_['msg['W:ConcWebProcId,'N:ConcNetProcId,'MSG-FETCH-URL.MsgType,'L1:Label],
@@ -100,7 +116,26 @@ mod SUBSUMPTION-PROOF is
                                ]
                          ],
                    'C:Configuration
-                 ] | 'L1:Label != 'L2:Label \/ 'L1':Label != 'L2':Label ) .
+                 ] | '_~l_['L1:Label,'L2:Label] ?= 'false.Bool) .
+	
+  eq sop1b = ('__[
+                   '<_|_>['N:ConcNetProcId,
+                          '_`,_['fromKernel[
+                                '_@_['msg['W:ConcWebProcId,'N:ConcNetProcId,'MSG-FETCH-URL.MsgType,'L1:Label],
+                                     'ML:MessageList
+                                    ]
+                                ],
+                                'A:AttributeSet
+                               ]
+                         ],
+                   '<_|_>['kernel.NonPipeId,
+                          '_`,_['weblabels['_`,wp_['pi['W:ConcWebProcId,'L1':Label],'WIS:WebProcInfoSet]],
+                                'netlabels['_`,np_['pi['N:ConcNetProcId,'L2':Label,'L2:Label],'NIS:NetProcInfoSet]],
+                                'A':AttributeSet
+                               ]
+                         ],
+                   'C:Configuration
+                 ] | '_~l_['L1':Label,'L2':Label] ?= 'false.Bool ) .
 
   --- < N      | in(L1, LL),                   A  >
   --- < kernel | netlabels(pi(N, L, L2), NIS), A' >
@@ -118,7 +153,7 @@ mod SUBSUMPTION-PROOF is
                                ]
                          ],
                    'C:Configuration
-                 ] | 'L1:Label != 'L2:Label ) .
+                 ] | '_~l_['L1:Label,'L2:Label] ?= 'false.Bool ) .
 
   --- < N      | out(L1),                       A  >
   --- < kernel | netlabels(pi(N, L, L2), NIS), A' >
@@ -136,7 +171,7 @@ mod SUBSUMPTION-PROOF is
                                ]
                          ],
                    'C:Configuration
-                 ] | 'L1:Label != 'L2:Label ) .
+                 ] | '_~l_['L1:Label,'L2:Label] ?= 'false.Bool ) .
 
   --- < W      | loading(true), fromKernel(msg(N, W, MSG-RETURN-URL, L2), ML), A  >
   --- < kernel | weblabels(pi(W, L), WIS), netlabels(pi(N, L, L1), NIS),       A' >
@@ -144,7 +179,7 @@ mod SUBSUMPTION-PROOF is
   --- such that L1 =/= L2
   eq sop4 = ('__[
                    '<_|_>['W:ConcWebProcId,
-                          '_`,_['loading['true.Bool],
+                          '_`,_['loading['on.OnOffFlag],
                                 'fromKernel[
                                 '_@_['msg['N:ConcNetProcId,'W:ConcWebProcId,'MSG-RETURN-URL.MsgType,'L1:Label],
                                      'ML:MessageList
@@ -160,96 +195,31 @@ mod SUBSUMPTION-PROOF is
                                ]
                          ],
                    'C:Configuration
-                 ] | 'L1:Label != 'L2:Label ) .
+                 ] | '_~l_['L1:Label,'L2:Label] ?= 'false.Bool ) .
+
+  var FS : FOForm?Set .
+
+  op defaultStrat : FOForm?Set ~> FOForm?Set .
+  eq defaultStrat(FS) = maximalFormSet(ibos,disjToSet(reduce(ibos,simplify(varunif-simp(fvp-ibos,maximalFormSet(ibos,FS)))))) .
+
+  eq form1a = renameVars(getForm(#disjIntersect(safe-ibos,new-sop,sop1a))) .
+  eq form1b = renameVars(getForm(#disjIntersect(safe-ibos,new-sop,sop1b))) .
+  eq form2  = renameVars(getForm(#disjIntersect(safe-ibos,new-sop,sop2))) .
+  eq form3  = renameVars(getForm(#disjIntersect(safe-ibos,new-sop,sop3))) .
+  eq form4  = renameVars(getForm(#disjIntersect(safe-ibos,new-sop,sop4))) .
 endm
 
-red wellFormed(ibos,new-sop) .
-red wellFormed(ibos,sop1) .
-red wellFormed(ibos,sop2) .
-red wellFormed(ibos,sop3) .
-red wellFormed(ibos,sop4) .
+---@ red wellFormed(ibos,new-sop) .
+---@ red wellFormed(ibos,sop1a) .
+---@ red wellFormed(ibos,sop1b) .
+---@ red wellFormed(ibos,sop2) .
+---@ red wellFormed(ibos,sop3) .
+---@ red wellFormed(ibos,sop4) .
 
---- red getForm(#disjIntersect(removeIds(ibos,all),new-sop,sop1)) .
-red renameAllVar(ibos,notFound,
-'false.Bool ?= 'netlabels-dupl?['_`,np_['#18:NetProcInfoSet,'pi['#10:ConcNetProcId,'#11:Label,'#12:Label]]]
-/\ 'false.Bool ?= 'weblabels-dupl?['_`,wp_['#19:WebProcInfoSet,'pi['#13:ConcWebProcId,'#14:Label]]]
-/\ 'true.Bool ?= '_~l_['weblabel-by-pid['#1:ConcWebProcId,'_`,wp_['#19:WebProcInfoSet,'pi['#13:ConcWebProcId,'#14:Label]]],'#3:Label]
-/\ 'true.Bool ?= 'conf-dupl?['__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]]]
-/\ 'true.Bool ?= 'currHandled2?['#4:Message?,'_`,wp_['#19:WebProcInfoSet,'pi['#13:ConcWebProcId,'#14:Label]]]
-/\ 'true.Bool ?= 'display-topbar-consistent?['#1:ConcWebProcId,'#2:Label,'#3:Label,'__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]]]
-/\ 'true.Bool ?= 'fresh-netlabel?['webapp['#5:Nat],'_`,np_['#18:NetProcInfoSet,'pi['#10:ConcNetProcId,'#11:Label,'#12:Label]]]
-/\ 'true.Bool ?= 'fresh-np-id?['webapp['#5:Nat],'__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]]]
-/\ 'true.Bool ?= 'fresh-weblabel?['webapp['#9:Nat],'_`,wp_['#19:WebProcInfoSet,'pi['#13:ConcWebProcId,'#14:Label]]]
-/\ 'true.Bool ?= 'fresh-wp-id?['webapp['#9:Nat],'__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]]]
-/\ 'true.Bool ?= 'nwp-reqattrs?['__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]]]
-/\ 'true.Bool ?= 'p['__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]],'_`,wp_['#19:WebProcInfoSet,'pi['#13:ConcWebProcId,'#14:Label]],'_`,np_['#18:NetProcInfoSet,'pi['#10:ConcNetProcId,'#11:Label,'#12:Label]],'#4:Message?]
-/\ 'true.Bool ?= 'render-consistent?['__['#16:NetWebProcConfig,'<_|_>['#10:ConcNetProcId,'_`,_['#17:AttributeSet,'fromKernel['_@_['msg['#13:ConcWebProcId,'#10:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#15:Label],'#20:MessageList]]]]]]
-/\ 'true.Bool ?= 'ui-consistent?['#8:MessageList,'_`,wp_['#19:WebProcInfoSet,'pi['#13:ConcWebProcId,'#14:Label]]]
-/\ '#11:Label != '#14:Label \/ '#12:Label != '#15:Label) .
----
-red renameAllVar(ibos,notFound,
-'false.Bool ?= 'netlabels-dupl?['_`,np_['#38:NetProcInfoSet,'pi['#31:ConcNetProcId,'#32:Label,'#33:Label]]]
-/\ 'false.Bool ?= 'weblabels-dupl?['_`,wp_['#39:WebProcInfoSet,'pi['#34:ConcWebProcId,'#35:Label]]]
-/\ 'true.Bool ?= '_~l_['weblabel-by-pid['#22:ConcWebProcId,'_`,wp_['#39:WebProcInfoSet,'pi['#34:ConcWebProcId,'#35:Label]]],'#24:Label]
-/\ 'true.Bool ?= 'conf-dupl?['<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]]]
-/\ 'true.Bool ?= 'currHandled2?['#25:Message?,'_`,wp_['#39:WebProcInfoSet,'pi['#34:ConcWebProcId,'#35:Label]]]
-/\ 'true.Bool ?= 'display-topbar-consistent?['#22:ConcWebProcId,'#23:Label,'#24:Label,'<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]]]
-/\ 'true.Bool ?= 'fresh-netlabel?['webapp['#26:Nat],'_`,np_['#38:NetProcInfoSet,'pi['#31:ConcNetProcId,'#32:Label,'#33:Label]]]
-/\ 'true.Bool ?= 'fresh-np-id?['webapp['#26:Nat],'<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]]]
-/\ 'true.Bool ?= 'fresh-weblabel?['webapp['#30:Nat],'_`,wp_['#39:WebProcInfoSet,'pi['#34:ConcWebProcId,'#35:Label]]]
-/\ 'true.Bool ?= 'fresh-wp-id?['webapp['#30:Nat],'<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]]]
-/\ 'true.Bool ?= 'nwp-reqattrs?['<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]]]
-/\ 'true.Bool ?= 'p['<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]],'_`,wp_['#39:WebProcInfoSet,'pi['#34:ConcWebProcId,'#35:Label]],'_`,np_['#38:NetProcInfoSet,'pi['#31:ConcNetProcId,'#32:Label,'#33:Label]],'#25:Message?]
-/\ 'true.Bool ?= 'render-consistent?['<_|_>['#31:ConcNetProcId,'_`,_['#37:AttributeSet,'fromKernel['_@_['msg['#34:ConcWebProcId,'#31:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'#36:Label],'#40:MessageList]]]]]
-/\ 'true.Bool ?= 'ui-consistent?['#29:MessageList,'_`,wp_['#39:WebProcInfoSet,'pi['#34:ConcWebProcId,'#35:Label]]]
-/\ '#32:Label != '#35:Label \/ '#33:Label != '#36:Label
-) .
----(
-'false.Bool ?= 'netlabels-dupl?['_`,np_['&0:NetProcInfoSet,'pi['&1:ConcNetProcId,'&2:Label,'&3:Label]]]
-'false.Bool ?= 'weblabels-dupl?['_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
-'true.Bool ?= '_~l_['weblabel-by-pid['&7:ConcWebProcId,'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]],'&8:Label]
-'true.Bool ?= 'conf-dupl?['__['&9:NetWebProcConfig,'<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]]]
-'true.Bool ?= 'currHandled2?['&13:Message?,'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
-'true.Bool ?= 'display-topbar-consistent?['&7:ConcWebProcId,'&14:Label,'&8:Label,'__['&9:NetWebProcConfig,'<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]]]
-'true.Bool ?= 'fresh-netlabel?['webapp['&15:Nat],'_`,np_['&0:NetProcInfoSet,'pi['&1:ConcNetProcId,'&2:Label,'&3:Label]]]
-'true.Bool ?= 'fresh-np-id?['webapp['&15:Nat],'__['&9:NetWebProcConfig,'<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]]]
-'true.Bool ?= 'fresh-weblabel?['webapp['&16:Nat],'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
-'true.Bool ?= 'fresh-wp-id?['webapp['&16:Nat],'__['&9:NetWebProcConfig,'<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]]]
-'true.Bool ?= 'nwp-reqattrs?['__['&9:NetWebProcConfig,'<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]]]
-'true.Bool ?= 'render-consistent?['__['&9:NetWebProcConfig,'<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]]]
-'true.Bool ?= 'ui-consistent?['&17:MessageList,'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
+--- set print conceal on .
+--- print conceal fmod_is_sorts_.____endfm . --- _/\_ .
+--- set break on .
+--- break select #varunif-simp .
+red defaultStrat(form1a) .
 
-'true.Bool ?=
-  'p['__['&9:NetWebProcConfig,
-    '<_|_>['&1:ConcNetProcId,'_`,_['&10:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&11:Label],'&12:MessageList]]]]],
-    '_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]],
-    '_`,np_['&0:NetProcInfoSet,'pi['&1:ConcNetProcId,'&2:Label,'&3:Label]],'&13:Message?]
-'&11:Label != '&3:Label \/ '&2:Label != '&6:Label
----
----
-'false.Bool ?= 'netlabels-dupl?['_`,np_['&0:NetProcInfoSet,'pi['&1:ConcNetProcId,'&2:Label,'&3:Label]]]
-'false.Bool ?= 'weblabels-dupl?['_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
-'true.Bool ?= '_~l_['weblabel-by-pid['&7:ConcWebProcId,'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]],'&8:Label]
-'true.Bool ?= 'conf-dupl?['<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]]]
-'true.Bool ?= 'currHandled2?['&12:Message?,'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
-'true.Bool ?= 'display-topbar-consistent?['&7:ConcWebProcId,'&13:Label,'&8:Label,'<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]]]
-'true.Bool ?= 'fresh-netlabel?['webapp['&14:Nat],'_`,np_['&0:NetProcInfoSet,'pi['&1:ConcNetProcId,'&2:Label,'&3:Label]]]
-'true.Bool ?= 'fresh-np-id?['webapp['&14:Nat],'<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]]]
-'true.Bool ?= 'fresh-weblabel?['webapp['&15:Nat],'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
-'true.Bool ?= 'fresh-wp-id?['webapp['&15:Nat],'<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]]]
-'true.Bool ?= 'nwp-reqattrs?['<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]]]
-'true.Bool ?= 'render-consistent?['<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]]]
-'true.Bool ?= 'ui-consistent?['&16:MessageList,'_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]]]
-
-'true.Bool ?= 'p[
-  '<_|_>['&1:ConcNetProcId,'_`,_['&9:AttributeSet,'fromKernel['_@_['msg['&5:ConcWebProcId,'&1:ConcNetProcId,'MSG-FETCH-URL.FetchMsgType,'&10:Label],'&11:MessageList]]]],
-  '_`,wp_['&4:WebProcInfoSet,'pi['&5:ConcWebProcId,'&6:Label]],'_`,np_['&0:NetProcInfoSet,'pi['&1:ConcNetProcId,'&2:Label,'&3:Label]],'&12:Message?]
-'&10:Label != '&3:Label \/ '&2:Label != '&6:Label
----)
-
-
---- red #disjIntersect(ibos,new-sop,sop2) .
---- red #disjIntersect(ibos,new-sop,sop3) .
---- red #disjIntersect(ibos,new-sop,sop4) .
-
-quit
+--- quit
