@@ -415,7 +415,7 @@ fmod CONSTRAINED-TERMSET-MATCH is
 
   var C C' : QFCTerm . var CS CS' : QFCTermSet .
   var U : Module . var T T' : Term .
-  var F G : QFForm? . var O S : Qid .
+  var F G : QFForm? . var FS GS : QFForm?Set . var O S : Qid .
   var V : Variable .
   var SUB : Substitution .
   var Safe? : Bool . var N : Nat .
@@ -470,6 +470,24 @@ fmod CONSTRAINED-TERMSET-MATCH is
   op getFormValue : Module Qid Substitution -> FOFormSubstPair .
   eq getFormValue(U,V,V <- T ; SUB) = (eqform-func-op(U,T),SUB) .
   eq getFormValue(U,V,SUB) = (mtForm,SUB) [owise] .
+
+  op maximalFormSet  : Module QFForm?Set -> QFForm?Set .
+  op maximalFormSet  : Module QFForm?Set QFForm?Set -> QFForm?Set .
+  op maximalFormSet1 : Module QFForm?Set QFForm? QFForm?Set -> QFForm?Set .
+  -------------------------------------------------------------------------
+  eq maximalFormSet(U,FS) = maximalFormSet(U,FS,mtFormSet) .
+
+  eq maximalFormSet(U,F | FS,   GS) = maximalFormSet(U,FS,maximalFormSet1(U,F,GS,mtFormSet)) .
+  eq maximalFormSet(U,mtFormSet,GS) = GS .
+
+  eq maximalFormSet1(U,F,G | GS,FS) =
+    if match#(U,false,F,G,0) :: Substitution
+      then maximalFormSet1(U,F,GS,FS)
+      else if match#(U,false,G,F,0) :: Substitution
+        then G | GS | FS
+	else maximalFormSet1(U,F,GS,FS | G)
+     fi fi .
+  eq maximalFormSet1(U,F,mtFormSet,FS) = F | FS .
 endfm
 
 --- This module defines a semantic pattern formula matcher that
