@@ -1130,14 +1130,14 @@ fmod IBOS-SOP-PRED is
        < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
               pi(WI,L),wp WIS,pi(NI,L,L),np NIS,M?)
    = p(NWC,WIS,NIS,consumeCurrHandled?(WI,NI,M?))
-  if on?(B) and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,WFK)
+  if on?(B) and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,NFK)
        and allEqLabel?(L,OL ; IL) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) = true .
 
  ceq p(< WI | URL(L), loading(B), toKernel(WTK), fromKernel(WFK), A >
        < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
               pi(WI,L),wp WIS,pi(NI,L,L),np NIS,M?)
    = false
-  if on?(B) and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,WFK)
+  if on?(B) and currHandled1?(WI,NI,L,M?) and fetchMsg1?(WI,B,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,NFK)
        and allEqLabel?(L,OL ; IL) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) = false .
 
   --- Group 1 - not loaded WebProc
