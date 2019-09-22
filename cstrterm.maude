@@ -508,12 +508,13 @@ fmod PATTERN-OPS is
   pr CONSTRAINED-TERM-SUBSTITUTIONSET .
   pr CONSTRAINED-TERM-DNF .
   pr RENAME-TERM .
+  pr VAR-UNIF-PARTIAL-FVP .
 
   var U : Module . var MS : [ModuleSubstPair] . var S S' : Substitution .
   var VS : VariableSet . var B : Bool .
   var C C' C'' C1 C2 : QFCTerm . var CS CS' CS1 CS2 : QFCTermSet .
   var N N' : Nat . var T T' : Term . var F F' : QFForm . var F? F'? : QFForm? .
-  var FS : QFForm?Set .
+  var FS : QFForm?Set . var FSS : FOFormSubstPairSet .
 
   ******************************************************************************
   *** NOTE:
@@ -601,6 +602,18 @@ fmod PATTERN-OPS is
 
   eq renameVars(N,C | CS,CS') = renameVars(N,CS,CS' | (C << freshifyVars(N,vars(C)))) .
   eq renameVars(N,noterm,CS') = CS' .
+
+  op varUnifSimp  : Module QFCTermSet -> QFCTermSet .
+  op varUnifSimp  : Module QFCTermSet QFCTermSet -> QFCTermSet .
+  op varUnifSimp1 : Module Term FOFormSubstPairSet QFCTermSet -> QFCTermSet .
+  ---------------------------------------------------------------------------
+  eq varUnifSimp(U,CS) = varUnifSimp(U,CS,noterm) .
+
+  eq varUnifSimp(U,C | CS,CS') = varUnifSimp(U,CS,CS' | varUnifSimp1(U,term(C),#varunif-simp(U,cond(C)),noterm)) .
+  eq varUnifSimp(U,noterm,CS') = CS' .
+
+  eq varUnifSimp1(U,T,(F,S) | FSS,CS) = varUnifSimp1(U,T,FSS,(T << S | F) | CS) .
+  eq varUnifSimp1(U,T,mtFSPS,     CS) = CS .
 endfm
 
 fmod CONSTRAINED-TERM-INVARIANT is
