@@ -1610,7 +1610,10 @@ endfm
 fmod RENAME-FORM is
   pr RENAME-METAVARS .
   pr FOFORMSET .
-  var M : Module . var F? : FOForm? . var CS : ConjSet .
+  pr RENAME-TERM .
+  pr FOFORM-OPERATIONS .
+  pr FOFORM-SUBSTITUTION .
+  var M : Module . var F? : FOForm? . var F?S F?S' : FOFormSet . var CS : ConjSet . var N : Nat .
 
   --- ### New
   op renameForm : Module ConjSet -> ConjSet .
@@ -1618,6 +1621,15 @@ fmod RENAME-FORM is
   op renameForm : Module Conj -> Conj .
   eq renameForm(M,F?) = downTerm(renameTmpVar(M,upTerm(F?)),ff) .
   eq renameForm(M,CS) = downTerm(renameTmpVar(M,upTerm(CS)),ff) .
+
+  op renameVars : FOForm?Set -> FOForm?Set .
+  op renameVars : Nat FOForm?Set -> FOForm?Set .
+  op renameVars : Nat FOForm?Set FOForm?Set -> FOForm?Set .
+  eq renameVars(F?S)   = renameVars(0,F?S) .
+  eq renameVars(N,F?S) = renameVars(N,F?S,mtFormSet) .
+
+  eq renameVars(N,F? | F?S, F?S') = renameVars(N,F?S,F?S' | (F? << freshifyVars(N,vars(F?)))) .
+  eq renameVars(N,mtFormSet,F?S') = F?S' .
 endfm
 
 --- Views for some of our formula datatypes
