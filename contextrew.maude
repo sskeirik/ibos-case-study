@@ -96,7 +96,7 @@ fmod CONTEXT-REW is
 
   var U UCC : Module . var ES : EquationSet . var E : Equation .
   var S : Substitution . var Sz : Nat .
-  var ND  : NegDisj? . var PD : PosDisj? . var D? : Disj? .
+  var ND  : NegDisj? . var PD PD' : PosDisj? . var D? : Disj? .
   var NND : NegDisj . var NPD : PosDisj . var D : Disj .
   var F   : QFForm . var F? : QFForm? . var FK : [QFForm?] .
   var CC  : CCState .
@@ -118,11 +118,11 @@ fmod CONTEXT-REW is
   eq context-rew1((UCC,S,ES),PD) =
     context-rew-debug-print(false,
       constsToVars(S,
-        if size(reduce(setEqs(UCC,ES),PD << S)) < size(PD)
+        if trueOrSmaller(reduce(setEqs(UCC,ES),PD << S),PD) == true
           then reduce(setEqs(UCC,ES),PD << S)
           else if truefalseContradict(addEqs(ES,UCC),false,ES - getTaggedIdEqs(ES))
 	    then mtForm
-	    else if size(debugBreak(reduce(addEqs(ES,UCC),PD << S))) < size(PD)
+	    else if trueOrSmaller(debugBreak(reduce(addEqs(ES,UCC),PD << S)),PD) == true
 	      then reduce(addEqs(ES,UCC),PD << S)
 	      --- TODO: check if equations need to be reoriented after interreduction
 	      --- TODO: double-check not reducing id equations is OK
@@ -130,6 +130,10 @@ fmod CONTEXT-REW is
             fi
           fi
         fi)) .
+
+  op trueOrSmaller : PosDisj? PosDisj? -> Bool .
+  eq trueOrSmaller(PD \/ tt,PD') = true .
+  eq trueOrSmaller(PD,      PD') = size(PD) < size(PD') [owise] .
 
   op debugBreak : FOForm? -> FOForm? [strat (0)] .
   eq debugBreak(FK) = FK .
