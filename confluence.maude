@@ -1079,6 +1079,7 @@ fmod TRANSFORM-CRITPAIR is
   var M    : Module .
   var SL   : SLCStrategyList .
   var SCS  : TermSLCCommandPairSet .
+  var XCS  : SubstitutionSLCCommandPairSet .
   var CP   : CritPair .
   var CPS  : CritPairSet .
   var CMD  : SLCCommand .
@@ -1103,12 +1104,19 @@ fmod TRANSFORM-CRITPAIR is
   sort SLCCommand .
   op skip : -> SLCCommand [ctor] .
   op split-cover : Term TermSLCCommandPairSet -> SLCCommand [ctor] .
+  op case : SubstitutionSLCCommandPairSet -> SLCCommand [ctor] .
 
   sort TermSLCCommandPair TermSLCCommandPairSet .
   subsort TermSLCCommandPair < TermSLCCommandPairSet .
   op (_:_) : Term SLCCommand -> TermSLCCommandPair [ctor] .
   op __    : TermSLCCommandPairSet TermSLCCommandPairSet -> TermSLCCommandPairSet [ctor assoc comm id: none] .
   op none  : -> TermSLCCommandPairSet .
+
+  sort SubstitutionSLCCommandPair SubstitutionSLCCommandPairSet .
+  subsort SubstitutionSLCCommandPair < SubstitutionSLCCommandPairSet .
+  op (_:_) : Substitution SLCCommand -> SubstitutionSLCCommandPair [ctor] .
+  op __    : SubstitutionSLCCommandPairSet SubstitutionSLCCommandPairSet -> SubstitutionSLCCommandPairSet [ctor assoc comm id: none] .
+  op none  : -> SubstitutionSLCCommandPairSet .
 
   op transform : CritPairSet SLCStrategyList -> CritPairSet .
   -----------------------------------------------------------
@@ -1119,8 +1127,12 @@ fmod TRANSFORM-CRITPAIR is
   op transform : CritPair SLCCommand -> CritPair .
   ------------------------------------------------
   eq transform(CP,skip)                         = CP .
+
   eq transform(CP,split-cover(U,(V : CMD) SCS)) = transform(split(CP,U,V),CMD) transform(CP,split-cover(U,SCS)) .
   eq transform(CP,split-cover(U,         none)) = none .
+
+  eq transform(CP,case((S : CMD) XCS)) = transform(CP << S,CMD) transform(CP,case(XCS)) .
+  eq transform(CP,case(         none)) = none .
 
   op simpCP : Module CritPairSet -> CritPairSet .
   -----------------------------------------------
