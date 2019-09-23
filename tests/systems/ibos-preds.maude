@@ -948,16 +948,18 @@ fmod IBOS-AUX-NONFVP is
 
   --- 33. Check that there are no duplicate ProcessIds in a Web/NetProcInfoSet
   op weblabels-dupl? : WebProcInfoSet -> Bool [metadata "126"] .
-  eq weblabels-dupl?(pi(WP,L) ,wp pi(WP,L') ,wp WIS) = true .
- ceq weblabels-dupl?(pi(WP,L)               ,wp WIS) = weblabels-dupl?(WIS) if pid-in-weblabels?(WP,WIS) = false .
-  eq weblabels-dupl?(pi(WP,L))                       = false .
-  eq weblabels-dupl?(mtWPIS)                         = false .
+  eq weblabels-dupl?(pi(WP,L) ,wp pi(WP, L') ,wp WIS) = true .
+  eq weblabels-dupl?(pi(WP,L) ,wp pi(WP',L ) ,wp WIS) = true .
+ ceq weblabels-dupl?(pi(WP,L)                ,wp WIS) = weblabels-dupl?(WIS) if pid-in-weblabels?(WP,WIS) and lbl-in-weblabels?(L,WIS) = false .
+  eq weblabels-dupl?(pi(WP,L))                        = false .
+  eq weblabels-dupl?(mtWPIS)                          = false .
 
   op netlabels-dupl? : NetProcInfoSet -> Bool [metadata "127"] .
-  eq netlabels-dupl?(pi(NP,L,L') ,np pi(NP,L1,L2) ,np NIS) = true .
- ceq netlabels-dupl?(pi(NP,L,L') ,np                  NIS) = netlabels-dupl?(NIS) if pid-in-netlabels?(NP,NIS) = false .
-  eq netlabels-dupl?(pi(NP,L,L'))                          = false .
-  eq netlabels-dupl?(mtNPIS)                               = false .
+  eq netlabels-dupl?(pi(NP,L,L') ,np pi(NP, L1,L2) ,np NIS) = true .
+  eq netlabels-dupl?(pi(NP,L,L') ,np pi(NP',L1,L') ,np NIS) = true .
+ ceq netlabels-dupl?(pi(NP,L,L') ,np                   NIS) = netlabels-dupl?(NIS) if pid-in-netlabels?(NP,NIS) and np-by-lbl?(L,NIS) = false .
+  eq netlabels-dupl?(pi(NP,L,L'))                           = false .
+  eq netlabels-dupl?(mtNPIS)                                = false .
 
   --- 41. Check that all Fetch messages in a given message list have unique labels
   op ui-consistent? : MessageList WebProcInfoSet -> Bool [metadata "200"] .
