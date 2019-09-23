@@ -102,24 +102,24 @@ loop rltl-init .
 
 (auto .)
 
---- change-display, nic1
+--- --- change-display, nic1
 --- (auto .)
 
---- new-url
+--- --- new-url
 --- (split ({ < webappmgr | nextWPN(NWP + 1), A > < kernel | weblabels(pi(webapp(NWP),U),wp WIS), A' > < webapp(NWP) | URL(U), A'' > C}) by
 ---   (lbl-in-weblabels?(U,WIS)) = (true) and (lbl-in-weblabels?(U,WIS)) = (false) .)
 --- (split ({ < webappmgr | nextWPN(NWP + 1), A > < kernel | weblabels(pi(webapp(NWP),U),wp WIS), netlabels(NIS), A' > < webapp(NWP) | URL(U), A'' > C}) by
 ---   (np-by-lbl?(U,NIS)) = (true) and (np-by-lbl?(U,NIS)) = (false) .)
 --- (auto .)
 
---- tab-change
+--- --- tab-change
 --- (split ({ < display | activeWebapp(WI), A' > C }) by (in-conf?(WI,C)) = (true) and (in-conf?(WI,C)) = (false) .)
 --- (split ({ < display | activeWebapp(WI), A' > < WI | A > C }) by (webproc-req-attrs(A)) = (true) and (webproc-req-attrs(A)) = (false) .)
 --- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
 --- (split ({ < WI | URL(U), A > < display | activeWebapp(WI), A' > < kernel | displayedTopBar(U'), A'' > C }) by (U ~l U') = (true) and (U ~l U') = (false) .)
 --- (auto .)
 
---- fetch
+--- --- fetch
 --- (split ({ < WI | loading(B), A > C }) by (webproc-req-attrs(loading(B), A)) = (true) and (webproc-req-attrs(loading(B), A)) = (false) .)
 --- (split ({ < WI | loading(B), URL(U), A > < kernel | weblabels(WIS), A' > C }) by (weblabel-by-pid(WI,WIS)) = (U) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
 --- (split ({ < WI | A > < WI' | A' > C }) by (WI ~p WI') = (true) and (WI ~p WI') = (false) .)
