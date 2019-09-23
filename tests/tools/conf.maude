@@ -99,6 +99,55 @@ mod TEST is
               { split-cover('&1:ConcWebProcId,
                 ('webapp['&99:Nat] : skip)) }
               nil))))) .
+
+  --- NOTE: these symbols CANNOT be solved with standard partial FVP simplification
+  ---       so we copy them here and solve them separately
+  op special1 : -> CritPairSet .
+  eq special1 =
+    pendingCPs(
+      crcContextJoinableAndUnfeasibleCPs(noid-ibos,
+        toStdCritPairs(
+          renameCPs(
+            subsume(ibos,
+              simplify(ibos,
+                getSimpleCritPairs(safe-ibos,empty,
+                  op 'fresh-np-id? : 'ConcNetProcId 'Configuration -> 'Bool [none] .
+                  op 'fresh-wp-id? : 'ConcWebProcId 'Configuration -> 'Bool [none] .
+                  op 'fresh-weblabel? : 'ConcWebProcId 'WebProcInfoSet -> 'Bool [none] .
+                  op 'fresh-netlabel? : 'ConcNetProcId 'NetProcInfoSet -> 'Bool [none] .
+                ))))))) .
+
+  op special2 : -> CritPairSet .
+  eq special2 =
+    pendingCPs(
+      crcContextJoinableAndUnfeasibleCPs(removeIds(ibos,non-handled),
+        simpCP(ibos,
+            transform(special1,
+              { case(
+                (('&2:Nat <- '&30:Nat                ; '&1:Nat <- '_+_['&30:Nat,'&31:NzNat]) : skip )
+                (('&2:Nat <- '_+_['&30:Nat,'&31:Nat] ; '&1:Nat <- '&30:Nat                 ) : skip )) }
+              { case(
+                (('&3:NzNat <- '&30:NzNat                ; '&2:NzNat <- '_+_['&30:NzNat,'&31:NzNat]) : skip )
+                (('&3:NzNat <- '_+_['&30:NzNat,'&31:Nat] ; '&2:NzNat <- '&30:NzNat                 ) : skip )) }
+              { split-cover('&0:Nat,
+                ('&0:NzNat : skip)
+                ('0.Nat    : skip)) }
+              { split-cover('&1:NzNat,
+                ('1.NzNat : skip)
+                ('_+_['1.NzNat,'&1:NzNat] : skip)) }
+              { case(
+                (('&0:Nat <- '&30:Nat                ; '&2:Nat <- '_+_['&30:Nat,'&31:NzNat]) : skip )
+                (('&0:Nat <- '_+_['&30:Nat,'&31:Nat] ; '&2:Nat <- '&30:Nat                 ) : skip )) }
+              { case(
+                (('&2:NzNat <- '&30:NzNat                ; '&3:NzNat <- '_+_['&30:NzNat,'&31:NzNat]) : skip )
+                (('&2:NzNat <- '_+_['&30:NzNat,'&31:Nat] ; '&3:NzNat <- '&30:NzNat                 ) : skip )) }
+              { split-cover('&0:Nat,
+                ('&0:NzNat : skip)
+                ('0.Nat    : skip)) }
+              { split-cover('&1:NzNat,
+                ('1.NzNat : skip)
+                ('_+_['1.NzNat,'&1:NzNat] : skip)) }
+              nil)))) .
 endm
 
 --- set print conceal on .
