@@ -957,7 +957,7 @@ fmod IBOS-AUX-NONFVP is
   op netlabels-dupl? : NetProcInfoSet -> Bool [metadata "127"] .
   eq netlabels-dupl?(pi(NP,L,L') ,np pi(NP, L1,L2) ,np NIS) = true .
   eq netlabels-dupl?(pi(NP,L,L') ,np pi(NP',L1,L') ,np NIS) = true .
- ceq netlabels-dupl?(pi(NP,L,L') ,np                   NIS) = netlabels-dupl?(NIS) if pid-in-netlabels?(NP,NIS) and np-by-lbl?(L,NIS) = false .
+ ceq netlabels-dupl?(pi(NP,L,L') ,np                   NIS) = netlabels-dupl?(NIS) if pid-in-netlabels?(NP,NIS) and np-by-lbl?(L',NIS) = false .
   eq netlabels-dupl?(pi(NP,L,L'))                           = false .
   eq netlabels-dupl?(mtNPIS)                                = false .
 
