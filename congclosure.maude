@@ -220,6 +220,7 @@ fmod CONG-CLOSURE-LIB is
   pr CONG-CLOSURE *
      (op `[_`,_`] to mr,
       op `{_`} to res) .
+  pr REMOVE-IDS .
 
   var U UCC CU : Module .
   var Q : Qid .
@@ -241,9 +242,11 @@ fmod CONG-CLOSURE-LIB is
   var OS : OpDeclSet .
   var AS : AttrSet .
   var CSK : [CCState] .
+  var TA : TruthAtom .
 
   op congClosure : Module Bool PosEqConj? -> CCResult .
   eq congClosure(U,B,mtForm) = (U,none,none) .
+  eq congClosure(U,B,TA)     = (U,none,none) .
   eq congClosure(U,B,PC) =
     if ccModData(U) :: QidSet and-then wellFormed(U,PC)
       then congClosure1(U,B,ccModData(U),PC)
