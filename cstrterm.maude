@@ -779,7 +779,7 @@ fmod CONSTRAINED-TERM-SPLIT is
   --------------------------------------------------------------------
   eq split-by-form(U,CT | CTS,PT,FS) =
     if matches#(U,PT,CT) :: SubstitutionSet
-      then split-by-form(CT,FS << freshifyVars(maxVar(vars(CT)),anySub(matches#(U,PT,CT)),vars(conj-join(FS))))
+      then split-by-form(CT,FS << (anySub(matches#(U,PT,CT)) ; freshifyVars(maxVar(vars(CT)),vars(conj-join(FS)) \ vars(PT))))
       else noterm
     fi | split-by-form(U,CTS,PT,FS) .
   eq split-by-form(U,noterm,PT,FS) = noterm .
@@ -789,8 +789,8 @@ fmod CONSTRAINED-TERM-SPLIT is
   ------------------------------------------------------------------------
   eq split-by-cover(U,CT | CTS,PT,T,TS) =
     if matches#(U,PT,CT) :: SubstitutionSet
-      then split-by-cover(CT,T  << freshifyVars(maxVar(vars(CT)),anySub(matches#(U,PT,CT)),vars(T | TS)),
-                             TS << freshifyVars(maxVar(vars(CT)),anySub(matches#(U,PT,CT)),vars(T | TS)))
+      then split-by-cover(CT,T  << (anySub(matches#(U,PT,CT)) ; freshifyVars(maxVar(vars(CT)),vars(T | TS) \ vars(PT))),
+                             TS << (anySub(matches#(U,PT,CT)) ; freshifyVars(maxVar(vars(CT)),vars(T | TS) \ vars(PT))))
       else noterm
     fi | split-by-cover(U,CTS,PT,T,TS) .
   eq split-by-cover(U,noterm,PT,T,TS) = noterm .
@@ -800,7 +800,7 @@ fmod CONSTRAINED-TERM-SPLIT is
   ----------------------------------------------------------------
   eq split-by-neg(U,CT | CTS,PT,F) =
     if matches#(U,PT,CT) :: SubstitutionSet
-      then split-by-neg(CT,F << freshifyVars(maxVar(vars(CT)),anySub(matches#(U,PT,CT)),vars(F)))
+      then split-by-neg(CT,F << (anySub(matches#(U,PT,CT)) ; freshifyVars(maxVar(vars(CT)),vars(F) \ vars(PT))))
       else noterm
     fi | split-by-neg(U,CTS,PT,F) .
   eq split-by-neg(U,noterm,PT,F) = noterm .
