@@ -93,7 +93,7 @@ loop rltl-init .
    (ui-consistent?(UIML,WIS))                                     = (true)  /\
    (currHandled2?(MSG?,WIS))                                      = (true)  /\
    ---
-   (weblabel-by-pid(WI,WIS) ~l CURR)                              = (true)  /\
+   (in-wis?(pi(WI,CURR),WIS))                                     = (true)  /\
    (display-topbar-consistent?(WI,DISP,CURR,NWC))                 = (true)  /\
    (render-consistent?(NWC))                                      = (true)
 .)
