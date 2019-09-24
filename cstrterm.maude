@@ -471,6 +471,24 @@ fmod CONSTRAINED-TERMSET-MATCH is
   eq getFormValue(U,V,V <- T ; SUB) = (eqform-func-op(U,T),SUB) .
   eq getFormValue(U,V,SUB) = (mtForm,SUB) [owise] .
 
+  op maximalTermSet  : Module QFCTermSet -> QFCTermSet .
+  op maximalTermSet  : Module QFCTermSet QFCTermSet -> QFCTermSet .
+  op maximalTermSet1 : Module QFCTermSet QFCTerm QFCTermSet -> QFCTermSet .
+  -------------------------------------------------------------------------
+  eq maximalTermSet(U,CS) = maximalTermSet(U,CS,noterm) .
+
+  eq maximalTermSet(U,C | CS,   CS') = maximalTermSet(U,CS,maximalTermSet1(U,C,CS',noterm)) .
+  eq maximalTermSet(U,noterm,CS') = CS' .
+
+  eq maximalTermSet1(U,C,C' | CS',CS) =
+    if match#(U,false,C,C',0) :: Substitution
+      then maximalTermSet1(U,C,CS',CS)
+      else if match#(U,false,C',C,0) :: Substitution
+        then C' | CS' | CS
+	else maximalTermSet1(U,C,CS',CS | C')
+     fi fi .
+  eq maximalTermSet1(U,C,noterm,CS) = C | CS .
+
   op maximalFormSet  : Module QFForm?Set -> QFForm?Set .
   op maximalFormSet  : Module QFForm?Set QFForm?Set -> QFForm?Set .
   op maximalFormSet1 : Module QFForm?Set QFForm? QFForm?Set -> QFForm?Set .
