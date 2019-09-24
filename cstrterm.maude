@@ -520,6 +520,7 @@ fmod PATTERN-OPS is
   pr FOFORMSET-OPERATIONS            . --- basic operations over FOFormSet
   pr FOFORMSUBSTITUTION-PAIRSET      . --- collect the intermediate results
   pr FOFORMSIMPLIFY                  . --- basic simplification operations
+  pr FOFORMREDUCE                    .
   pr VARIABLES-TO-CONSTANTS          . --- convert variables in a module to constants
   pr UNIFIERS                        . --- operations to generate all unifiers/matches
   pr RENAME-METAVARS                 . --- #renameAllVars
@@ -642,6 +643,18 @@ fmod PATTERN-OPS is
 
   eq varUnifSimp1(U,T,(F,S) | FSS,CS) = varUnifSimp1(U,T,FSS,(T << S | F) | CS) .
   eq varUnifSimp1(U,T,mtFSPS,     CS) = CS .
+
+  op basicSimplify : Module QFCTermSet -> QFCTermSet .
+  op basicSimplify : Module QFCTermSet QFCTermSet -> QFCTermSet .
+  ---------------------------------------------------------------
+  eq basicSimplify(U,CS) = basicSimplify(U,CS,noterm) .
+  eq basicSimplify(U,(T | F?) | CS,CS') = basicSimplify(U,CS,CS' | delUnsat((T | simplify(reduce(U,F?))))) .
+  eq basicSimplify(U,noterm,CS')        = CS' .
+
+  op delUnsat : QFCTerm -> QFCTerm? .
+  eq delUnsat((T | ff)) = noterm .
+  eq delUnsat((T | 'false.Bool ?= 'true.Bool /\ F?)) = noterm .
+  eq delUnsat((T | F?)) = (T | F?) [owise] .
 endfm
 
 fmod CONSTRAINED-TERM-INVARIANT is
