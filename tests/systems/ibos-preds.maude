@@ -799,7 +799,7 @@ fmod IBOS-AUX-FVP is
   eq goodCtxt?(NNWC,mtWPIS,NNIS  ) = false [variant] .
   eq goodCtxt?(NNWC,mtWPIS,mtNPIS) = false [variant] .
 
-  op on? : OnOffFlag -> Bool [metadata "200"] .
+  op on? : OnOffFlag -> Bool [metadata "199"] .
   eq on?(on)  = true  [variant] .
   eq on?(off) = false [variant] .
 endfm
