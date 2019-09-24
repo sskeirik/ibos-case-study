@@ -533,6 +533,7 @@ fmod PATTERN-OPS is
   var C C' C'' C1 C2 : QFCTerm . var CS CS' CS1 CS2 : QFCTermSet .
   var N N' : Nat . var T T' : Term . var F F' : QFForm . var F? F'? : QFForm? .
   var FS : QFForm?Set . var FSS : FOFormSubstPairSet .
+  var SPS : SubstitutionPairSet .
 
   ******************************************************************************
   *** NOTE:
@@ -583,6 +584,15 @@ fmod PATTERN-OPS is
   eq intersect(U,C | C' | CS,CS')  = intersect(U,C,CS' ) | intersect(U,C' | CS,CS') .
   eq intersect(U,C,C' | C'' | CS) = intersect(U,C,C') | intersect(U,C,C'' | CS) .
   eq intersect(U,(T | F?),(T' | F'?)) = (T | F? /\ F'?) << safeUnify(U,T,T') .
+
+  op disjIntersect : Module QFCTermSet QFCTermSet -> QFCTermSet .
+  eq disjIntersect(U,C | C' | CS,CS')  = disjIntersect(U,C,CS' ) | disjIntersect(U,C' | CS,CS') .
+  eq disjIntersect(U,C,C' | C'' | CS) = disjIntersect(U,C,C') | disjIntersect(U,C,C'' | CS) .
+  eq disjIntersect(U,(T | F?),(T' | F'?)) = disjIntersect(T,F?,F'?,disjUnifiers(U,false,T,T')) .
+
+  op disjIntersect : Term QFForm? QFForm? SubstitutionPairSet -> QFCTermSet .
+  eq disjIntersect(T,F?,F'?,(S,S') | SPS) = (T << S | (F? << S)  /\ (F'? << S')) | disjIntersect(T,F?,F'?,SPS) .
+  eq disjIntersect(T,F?,F'?,empty)        = noterm .
 
   --- PRE: QFCTerm and QFCTermSet have no shared variables
   --- OUT: Pairs of Formulas/Substitutions that represent the intersections of
