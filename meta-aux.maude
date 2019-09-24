@@ -1517,6 +1517,7 @@ fmod OPDECLSET-EXTRA is
   var QS : QidSet .
   var S : Sort .
   var U : Module .
+  var T : Term .
 
   --- INP: OpDecl OpDeclSet
   --- PRE: None
@@ -1643,12 +1644,17 @@ fmod OPDECLSET-EXTRA is
   op assocNotComm? : OpDeclSet -> Bool .
   op noComm? : AttrSet -> Bool .
   op assoc? : AttrSet -> Bool .
+  op id? : AttrSet -> Bool .
   ceq assocNotComm?(op Q : TYL -> TY [assoc AS]. OS) = true if noComm?(AS) .
   eq assocNotComm?(OS) = false [owise] .
   eq noComm?(comm AS) = false .
   eq noComm?(AS) = true [owise] .
   eq assoc?(assoc AS) = true .
   eq assoc?(AS) = false [owise] .
+  eq id?(id(T)       AS) = true .
+  eq id?(right-id(T) AS) = true .
+  eq id?(left-id(T)  AS) = true .
+  eq id?(            AS) = false [owise] .
 
   op removeComm : OpDeclSet -> OpDeclSet .
   eq removeComm(op Q : TYL -> TY [AS]. OS) =
@@ -1671,6 +1677,16 @@ fmod OPDECLSET-EXTRA is
   eq anyAttrOccurs?(AS,OD OS) =
     AS % attrSet(OD) =/= AS or-else anyAttrOccurs?(AS,OS) .
   eq anyAttrOccurs?(AS,none) = false .
+
+  op au-ops? : OpDeclSet -> Bool .
+  eq au-ops?(OD OS) =
+    (assoc?(attrSet(OD))  and
+     noComm?(attrSet(OD)) and
+     id?(attrSet(OD))) or-else au-ops?(OS) .
+  eq au-ops?(none) = false .
+
+  op id-ops? : OpDeclSet -> Bool .
+  eq id-ops?(OS) = anyAttrOccurs?(id-attr right-id-attr left-id-attr,OS) .
 endfm
 
 fmod OPDECL-TYPING is
@@ -4027,8 +4043,8 @@ fmod REMOVE-IDS is
   sort IdsToRemove .
   ops all non-handled : -> IdsToRemove .
 
-  op removeIds  : Module IdsToRemove ~> Module [memo] .
-  op removeIds  : Module Bool IdsToRemove ~> Module .
+  op removeIds  : Module IdsToRemove ~> Module .
+  op removeIds  : Module Bool IdsToRemove ~> Module [memo] .
   op $removeIds : Module Bool IdsToRemove ~> Module .
   op $removeIds : Module IdsToRemove ~> Module .
 
@@ -4041,7 +4057,12 @@ fmod REMOVE-IDS is
   op getEqVariants : Module Module VariantTripleSet Term Condition AttrSet EquationSet -> EquationSet .
 
   eq removeIds(M, Which) = removeIds(M, true, Which) .
- ceq removeIds(M, Subsumption?, Which) = $removeIds(M, Subsumption?, Which)
+ ceq removeIds(M, Subsumption?, Which) =
+   if (Which == all         and not id-ops?(getOps(M))) or-else
+      (Which == non-handled and not au-ops?(getOps(M)))
+     then M
+     else $removeIds(M, Subsumption?, Which)
+   fi
   if not (anyAttrOccurs?(owise idem,getOps(M)) or-else anyLhsIsVar?(getRls(M)) or-else anyLhsIsVar?(getEqs(M))) .
 
   eq $removeIds(M, true,  Which) = renameVars(moreGeneralRls(moreGeneralEqs($removeIds(M, Which)))) .
