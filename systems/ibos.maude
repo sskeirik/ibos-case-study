@@ -467,13 +467,14 @@ fmod KERNEL-POLICIES-FVP is
   **** Transformed into labeled conditional rules in module KERNEL
   ****
 
-  var L L' L'' : Label . var N N' : Nat .
+  var NI : ConcNetProcId .
+  var L L' L'' : Label .
   var NPIS : NetProcInfoSet .
 
   **** auxiliary function for checking that a network process links to a given label
   op np-by-lbl? : Label NetProcInfoSet -> Bool [metadata "84 true"] .
-  eq np-by-lbl?(L',(pi(network(N),L,L') ,np NPIS)) = true [variant] .
- ceq np-by-lbl?(L',(pi(network(N),L,L'') ,np NPIS)) = np-by-lbl?(L',NPIS) if L' ~l L'' = false .
+  eq np-by-lbl?(L',(pi(NI,L,L' ) ,np NPIS)) = true [variant] .
+ ceq np-by-lbl?(L',(pi(NI,L,L'') ,np NPIS)) = np-by-lbl?(L',NPIS) if L' ~l L'' = false .
   eq np-by-lbl?(L',mtNPIS) = false .
 endfm
 
