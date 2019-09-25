@@ -9,17 +9,25 @@ load ../../rltool-lib.maude
 
 mod DEPS is
   pr REMOVE-IDS .
+  pr CONSTRAINED-TERM-SPLIT .
+  pr PATTERN-OPS .
+  pr META-PARSE .
+  pr RENAME-TERM-AUX .
+  pr CONTEXT-REW .
   pr RLTOOL .
 endm
 
 mod SUBSUMPTION-PROOF is
   pr DEPS * (op metaMatch : Module Term Term Condition Nat -> Substitution? to metaMatchOrig,
              op filterPolicy : Module TermPairSet EqAtom -> Bool to filterPolicy#,
-             op _|_ : FOForm?Set FOForm?Set -> FOForm?Set to _|_ [format (d n n d)]
+             op _|_ : QFCTermSet QFCTermSet -> QFCTermSet to __ [format (d nn d)]
             ) .
 
   op ibos : -> Module .
   eq ibos = upModule('IBOS-PREDS,true) .
+
+  op ibos_ : String -> Term .
+  eq ibos S:String = stringToTerm(ibos,S:String) .
 
   op safe-ibos : -> Module [memo] .
   eq safe-ibos = removeIds(ibos,non-handled) .
@@ -29,7 +37,7 @@ mod SUBSUMPTION-PROOF is
 
   ops new-sop sop1a sop1b sop2 sop3 sop4 : -> CCTerm .
 
-  ops form1a form1b form2 form3 form4 : -> FOForm?Set .
+  ops form1a form1b form2 form3 form4 : -> QFCTermSet .
 
   ---@ (  NWC
   ---@    < ui | toKernel(UIML) >
@@ -90,11 +98,12 @@ mod SUBSUMPTION-PROOF is
                  /\ 'fresh-netlabel?['network['NNP:Nat],'NIS:NetProcInfoSet] ?= 'true.Bool
                  /\ 'ui-consistent?['UIML:MessageList,'WIS:WebProcInfoSet] ?= 'true.Bool
                  /\ 'currHandled2?['MSG?:Message?,'WIS:WebProcInfoSet] ?= 'true.Bool
-                 /\ '_~l_['weblabel-by-pid['WI:ConcWebProcId,'WIS:WebProcInfoSet],'CURR:Label] ?= 'true.Bool
+                 /\ 'in-wis?['pi['WI:ConcWebProcId,'CURR:Label],'WIS:WebProcInfoSet] ?= 'true.Bool
                  /\ 'display-topbar-consistent?['WI:ConcWebProcId,'DISP:Label,'CURR:Label,'NWC:NetWebProcConfig] ?= 'true.Bool
                  /\ 'render-consistent?['NWC:NetWebProcConfig] ?= 'true.Bool
                ) .
 
+  --- use strategy from request-from-webapp rule to guide splits
   --- < N      | fromKernel(msg(W, N, MSG-FETCH-URL, L1), ML),              A  >
   --- < kernel | weblabels(pi(W,L1'), WIS), netlabels(pi(N, L2', L2), NIS), A' >
   ---
@@ -197,16 +206,73 @@ mod SUBSUMPTION-PROOF is
                    'C:Configuration
                  ] | '_~l_['L1:Label,'L2:Label] ?= 'false.Bool ) .
 
-  var FS : FOForm?Set .
+  var U : Module .
+  var C C' : QFCTerm .
+  var CS CS' : QFCTermSet .
+  var T T' : Term .
+  var TS : TermSet .
+  var CL : CmdList .
+  var N : Nat .
+  var SG : String .
 
-  op defaultStrat : FOForm?Set ~> FOForm?Set .
-  eq defaultStrat(FS) = maximalFormSet(ibos,disjToSet(reduce(ibos,simplify(varunif-simp(fvp-ibos,maximalFormSet(ibos,FS)))))) .
+  op Intersect : QFCTerm QFCTerm -> QFCTermSet .
+  ----------------------------------------------
+  eq Intersect(C,C') = renameVars(maximalTermSet(ibos,disjIntersect(safe-ibos,C,C'))) .
 
-  eq form1a = renameVars(getForm(#disjIntersect(safe-ibos,new-sop,sop1a))) .
-  eq form1b = renameVars(getForm(#disjIntersect(safe-ibos,new-sop,sop1b))) .
-  eq form2  = renameVars(getForm(#disjIntersect(safe-ibos,new-sop,sop2))) .
-  eq form3  = renameVars(getForm(#disjIntersect(safe-ibos,new-sop,sop3))) .
-  eq form4  = renameVars(getForm(#disjIntersect(safe-ibos,new-sop,sop4))) .
+  op vu : QFCTermSet -> QFCTermSet .
+  ----------------------------------
+  eq vu(CS) = renameVars(maximalTermSet(ibos,toCCTermSet(basicSimplify(ibos,varUnifSimp(fvp-ibos,CS))))) .
+
+  op cu : QFCTermSet -> QFCTermSet .
+  op cu : QFCTermSet QFCTermSet -> QFCTermSet .
+  eq cu(CS) = cu(CS,noterm) .
+  eq cu(C CS,  CS') = cu(CS,CS' if cr-unsat(ibos,cond(C)) == true then noterm else C fi) .
+  eq cu(noterm,CS') = CS' .
+
+  op saf : QFCTermSet Term Term TermSet -> QFCTermSet .
+  op saf : QFCTermSet QFCTerm Term TermSet -> QFCTermSet .
+  --------------------------------------------------------
+  eq saf(CS,T,T',TS) = saf(CS,(T | mtForm),T',TS) .
+  eq saf(CS,C,T',TS) = split-by-cover(ibos,CS,C,T',TS) .
+
+  op sbf : QFCTermSet Term Term -> QFCTermSet .
+  op sbf : QFCTermSet QFCTerm Term -> QFCTermSet .
+  ------------------------------------------------
+  eq sbf(CS,T,T') = sbf(CS,(T | mtForm),T') .
+  eq sbf(CS,C,T') = split-by-cover(ibos,CS,C,T','true.Bool | 'false.Bool) .
+
+  sort Cmd CmdList .
+  subsort Cmd < CmdList .
+  op sbf : Term    Term         -> Cmd [ctor] .
+  op sbf : QFCTerm Term         -> Cmd [ctor] .
+  op saf : Term    Term TermSet -> Cmd [ctor] .
+  op saf : QFCTerm Term TermSet -> Cmd [ctor] .
+  op vu  :                      -> Cmd [ctor] .
+  op cu  :                      -> Cmd [ctor] .
+  op __ : CmdList CmdList -> CmdList [ctor assoc id: nil] .
+  op nil : -> CmdList [ctor] .
+
+  op transform : QFCTermSet CmdList -> QFCTermSet .
+  -------------------------------------------------
+  eq transform(noterm,         CL) = noterm [print "Finished with CL: " CL] .
+  eq transform(CS,sbf(T,T')    CL) = transform(debugPrintSize("SBF",sbf(CS,T,T')),CL) .
+  eq transform(CS,sbf(C,T')    CL) = transform(debugPrintSize("SBF",sbf(CS,C,T')),CL) .
+  eq transform(CS,saf(T,T',TS) CL) = transform(saf(CS,T,T',TS),CL) .
+  eq transform(CS,saf(C,T',TS) CL) = transform(saf(CS,C,T',TS),CL) .
+  eq transform(CS,vu           CL) = transform(debugPrintSize("VU",vu(CS)),CL) .
+  eq transform(CS,cu           CL) = transform(debugPrintSize("CU",cu(CS)),CL) .
+  eq transform(CS,            nil) = CS .
+
+  op debugPrintSize : String QFCTermSet -> QFCTermSet .
+  op debugPrintSize : String QFCTermSet Nat -> QFCTermSet .
+  eq debugPrintSize(SG,CS) = debugPrintSize(SG,CS,size(CS)) .
+  eq debugPrintSize(SG,CS,N) = CS [print "After Op " SG " Size: " N] .
+
+  eq form1a = Intersect(new-sop,sop1a) .
+  eq form1b = Intersect(new-sop,sop1b) .
+  eq form2  = Intersect(new-sop,sop2) .
+  eq form3  = Intersect(new-sop,sop3) .
+  eq form4  = Intersect(new-sop,sop4) .
 endm
 
 ---@ red wellFormed(ibos,new-sop) .
@@ -216,10 +282,57 @@ endm
 ---@ red wellFormed(ibos,sop3) .
 ---@ red wellFormed(ibos,sop4) .
 
---- set print conceal on .
---- print conceal fmod_is_sorts_.____endfm . --- _/\_ .
---- set break on .
---- break select #varunif-simp .
-red defaultStrat(form1a) .
+set show advisories off .
+set print conceal on .
+print conceal fmod_is_sorts_.____endfm . --- _/\_ .
+--- set print attribute on .
 
---- quit
+red transform(form1a,
+vu
+sbf(ibos "< kernel | netlabels(pi(N:ConcNetProcId,L1:Label,L2:Label),np NIS:NetProcInfoSet), A:AttributeSet > C:Configuration",ibos "L1:Label ~l L2:Label")
+vu
+sbf(ibos "< N:ConcNetProcId | A:AttributeSet > C:Configuration",ibos "netproc-req-attrs(A:AttributeSet)")
+vu
+sbf(ibos "< kernel | netlabels(pi(N:ConcNetProcId,L:Label,L:Label),np NIS:NetProcInfoSet), weblabels(WIS:WebProcInfoSet), A:AttributeSet > C:Configuration",
+   ibos "lbl-in-weblabels?(L:Label,WIS:WebProcInfoSet)")
+vu
+cu
+sbf(ibos "< kernel | weblabels(pi(W:ConcWebProcId,L1:Label),wp pi(W':ConcWebProcId,L2:Label),wp WIS:WebProcInfoSet), A:AttributeSet > C:Configuration",
+  ibos "W:ConcWebProcId ~p W':ConcWebProcId")
+vu
+saf(ibos "< kernel | weblabels(WIS:WebProcInfoSet), A:AttributeSet > < N:ConcNetProcId | returnTo(PP:ConcPipeId), A2:AttributeSet > C:Configuration",
+  ibos "weblabel-by-pid(PP:ConcPipeId,WIS:WebProcInfoSet)", 'L:Label | 'nolabel.MaybeLabel)
+vu
+cu
+sbf(ibos "< N1:ConcNetProcId | returnTo(W3:ConcWebProcId), A1:AttributeSet > \
+          < kernel | \
+            weblabels(pi(W3:ConcWebProcId,L3:Label),wp pi(W2:ConcWebProcId,L2:Label),wp pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), \
+            netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), \
+            A2:AttributeSet > \
+          C:Configuration",
+  ibos "W3:ConcWebProcId ~p W1:ConcWebProcId")
+vu
+sbf(ibos "< kernel | weblabels(pi(W:ConcWebProcId,L1:Label),wp pi(W':ConcWebProcId,L2:Label),wp WIS:WebProcInfoSet), A:AttributeSet > C:Configuration",
+  ibos "W:ConcWebProcId ~p W':ConcWebProcId")
+vu
+sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
+          C:Configuration",
+  ibos "in-conf?(W1:ConcWebProcId,C:Configuration)")
+vu
+cu
+sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
+          < W1:ConcWebProcId | A:AttributeSet > C:Configuration",
+  ibos "webproc-req-attrs(A:AttributeSet)")
+vu
+cu
+sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
+          < W1:ConcWebProcId | URL(L2:Label), A:AttributeSet > C:Configuration",
+  ibos "L1:Label ~l L2:Label")
+vu
+sbf(ibos "< N1:ConcNetProcId | returnTo(PP:ConcPipeId), A1:AttributeSet > \
+          < kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > C:Configuration",
+  ibos "PP:ConcPipeId ~p W1:ConcWebProcId")
+vu
+) .
+
+quit
