@@ -789,15 +789,20 @@ fmod CONSTRAINED-TERM-SPLIT is
   var CT PT : CTerm .
   var T : Term .
   var TS : TermSet .
-  var CTS : CTermSet .
+  var CTS CTS' : CTermSet .
   var U : Module .
+  var VS : VariableSet .
 
   --- split an individual constrained term
   op join : Term FOFormSet -> CTermSet .
   op join : Term QFFormSet -> QFCTermSet .
-  ----------------------------------------
-  eq join(T,F | FS)    = (T | F) | join(T,FS) .
-  eq join(T,mtFormSet) = noterm .
+  op join : Term FOFormSet CTermSet -> CTermSet .
+  op join : Term QFFormSet QFCTermSet -> QFCTermSet .
+  ---------------------------------------------------
+  eq join(T,FS) = join(T,FS,noterm) .
+
+  eq join(T,F | FS,   CTS) = join(T,FS,CTS | (T | F)) .
+  eq join(T,mtFormSet,CTS) = CTS .
 
   op split-by-form : CTerm FOFormSet -> CTermSet .
   op split-by-form : QFCTerm QFFormSet -> QFCTermSet .
@@ -817,32 +822,47 @@ fmod CONSTRAINED-TERM-SPLIT is
   --- lift individual operations to sets
   op split-by-form : Module CTermSet CTerm FOFormSet -> CTermSet .
   op split-by-form : Module QFCTermSet CTerm QFFormSet -> QFCTermSet .
-  --------------------------------------------------------------------
-  eq split-by-form(U,CT | CTS,PT,FS) =
-    if matches#(U,PT,CT) :: SubstitutionSet
-      then split-by-form(CT,FS << (anySub(matches#(U,PT,CT)) ; freshifyVars(maxVar(vars(CT)),vars(conj-join(FS)) \ vars(PT))))
-      else noterm
-    fi | split-by-form(U,CTS,PT,FS) .
-  eq split-by-form(U,noterm,PT,FS) = noterm .
+  op split-by-form : Module CTermSet CTerm FOFormSet VariableSet CTermSet -> CTermSet .
+  op split-by-form : Module QFCTermSet CTerm QFFormSet VariableSet QFCTermSet -> QFCTermSet .
+  -------------------------------------------------------------------------------------------
+  eq split-by-form(U,CTS,PT,FS) = split-by-form(U,CTS,PT,FS,vars(conj-join(FS)) \ vars(PT),noterm) .
+
+  eq split-by-form(U,CT | CTS,PT,FS,VS,CTS') = split-by-form(U,CTS,PT,FS,VS,CTS' |
+    if match#(U,false,PT,CT,0) :: Substitution
+      then split-by-form(CT,FS << (match#(U,false,PT,CT,0) ; freshifyVars(maxVar(vars(CT)),VS)))
+      else CT
+    fi) .
+  eq split-by-form(U,noterm,PT,FS,VS,CTS') = CTS' .
 
   op split-by-cover : Module CTermSet CTerm Term TermSet -> CTermSet .
   op split-by-cover : Module QFCTermSet CTerm Term TermSet -> QFCTermSet .
-  ------------------------------------------------------------------------
-  eq split-by-cover(U,CT | CTS,PT,T,TS) =
-    if matches#(U,PT,CT) :: SubstitutionSet
-      then split-by-cover(CT,T  << (anySub(matches#(U,PT,CT)) ; freshifyVars(maxVar(vars(CT)),vars(T | TS) \ vars(PT))),
-                             TS << (anySub(matches#(U,PT,CT)) ; freshifyVars(maxVar(vars(CT)),vars(T | TS) \ vars(PT))))
-      else noterm
-    fi | split-by-cover(U,CTS,PT,T,TS) .
-  eq split-by-cover(U,noterm,PT,T,TS) = noterm .
+  op split-by-cover : Module CTermSet CTerm Term TermSet VariableSet CTermSet -> CTermSet .
+  op split-by-cover : Module QFCTermSet CTerm Term TermSet VariableSet QFCTermSet -> QFCTermSet .
+  -----------------------------------------------------------------------------------------------
+  eq split-by-cover(U,CTS,PT,T,TS) = split-by-cover(U,CTS,PT,T,TS,vars(T | TS) \ vars(PT),noterm) .
+
+  eq split-by-cover(U,CT | CTS,PT,T,TS,VS,CTS') = split-by-cover(U,CTS,PT,T,TS,VS,CTS' |
+    if debugPrintBool(match#(U,false,PT,CT,0) :: Substitution)
+      then split-by-cover(CT,T  << (match#(U,false,PT,CT,0) ; freshifyVars(maxVar(vars(CT)),VS)),
+                             TS << (match#(U,false,PT,CT,0) ; freshifyVars(maxVar(vars(CT)),VS)))
+      else CT
+    fi) .
+  eq split-by-cover(U,noterm,PT,T,TS,VS,CTS') = CTS' .
 
   op split-by-neg : Module CTermSet CTerm FOForm -> CTermSet .
   op split-by-neg : Module QFCTermSet CTerm QFForm -> QFCTermSet .
-  ----------------------------------------------------------------
-  eq split-by-neg(U,CT | CTS,PT,F) =
-    if matches#(U,PT,CT) :: SubstitutionSet
-      then split-by-neg(CT,F << (anySub(matches#(U,PT,CT)) ; freshifyVars(maxVar(vars(CT)),vars(F) \ vars(PT))))
-      else noterm
-    fi | split-by-neg(U,CTS,PT,F) .
-  eq split-by-neg(U,noterm,PT,F) = noterm .
+  op split-by-neg : Module CTermSet CTerm FOForm VariableSet CTermSet -> CTermSet .
+  op split-by-neg : Module QFCTermSet CTerm QFForm VariableSet QFCTermSet -> QFCTermSet .
+  ---------------------------------------------------------------------------------------
+  eq split-by-neg(U,CTS,PT,F) = split-by-neg(U,CTS,PT,F,vars(F) \ vars(PT),noterm) .
+
+  eq split-by-neg(U,CT | CTS,PT,F,VS,CTS') = split-by-neg(U,CTS,PT,F,VS,CTS' |
+    if match#(U,false,PT,CT,0) :: Substitution
+      then split-by-neg(CT,F << (match#(U,false,PT,CT,0) ; freshifyVars(maxVar(vars(CT)),VS)))
+      else CT
+    fi) .
+  eq split-by-neg(U,noterm,PT,F,VS,CTS') = CTS' .
+
+  op debugPrintBool : Bool -> Bool .
+  eq debugPrintBool(B:Bool) = B:Bool [print "Match result: " B:Bool] .
 endfm
