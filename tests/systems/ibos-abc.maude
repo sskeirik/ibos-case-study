@@ -249,7 +249,7 @@ loop rltl-init .
 ---   by  (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (true)
 ---   and (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (false)
 --- .)
---- (split ({ < NI | fromKernel(NFK), A > < kernel | netlabels(pi(NI,L,L),np NIS), A' > C }) by (fetchMsg2?(WI,NI,L,NFK)) = (true) and (fetchMsg2?(WI,NI,L,NFK)) = (false) .)
+--- (split ({ < NI | fromKernel(NFK), A > < kernel | netlabels(pi(NI,L,L),np NIS), weblabels(pi(WI,L),wp WIS), A' > C }) by (fetchMsg2?(WI,NI,L,NFK)) = (true) and (fetchMsg2?(WI,NI,L,NFK)) = (false) .)
 --- --- finish things up
 --- (auto .)
 
@@ -317,8 +317,8 @@ loop rltl-init .
 --- (split ({ < NI | out(OL), A'' > C }) | (p(< WI | URL(L), loading(O), toKernel(WTK), fromKernel(WFK), A >
 ---                     < NI | returnTo(WI), fromKernel(NFK), out(LL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
 ---                     pi(WI,L),wp WIS,pi(NI,L,L),np NIS,MSG?)) = (true)
----   by  (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (true)
----   and (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (false)
+---   by  (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,NFK) and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (true)
+---   and (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,NFK) and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (false)
 --- .)
 --- --- split netproc original attrs for conf-attr-dupl
 --- (split ({ < NI | out(LL), A > C }) by (LL) = (mtLL) and (LL) = (N:NeLabelList) .)
@@ -395,8 +395,8 @@ loop rltl-init .
 --- (split ({ C }) | (p(< WI | URL(L), loading(O), toKernel(WTK), fromKernel(WFK), A >
 ---                     < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
 ---                     pi(WI,L),wp WIS,pi(NI,L,L),np NIS,MSG?)) = (true)
----   by  (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (true)
----   and (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (false)
+---   by  (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,NFK) and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (true)
+---   and (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,NFK) and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (false)
 --- .)
 --- --- finish things here
 --- (auto .)
@@ -428,14 +428,8 @@ loop rltl-init .
 --- (split ({ C }) | (p(< WI | URL(L), loading(O), toKernel(WTK), fromKernel(WFK), A >
 ---                     < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
 ---                     pi(WI,L),wp WIS,pi(NI,L,L),np NIS,MSG?)) = (true)
----   by  (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (true)
----   and (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (false)
---- .)
---- (split ({ C }) | (p(< WI | URL(L), loading(O), toKernel(WTK), fromKernel(WFK), A >
----                     < NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
----                     pi(WI,L),wp WIS,pi(NI,L,L),np NIS,MSG?)) = (true)
----   by  (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and MO undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (true)
----   and (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and MO undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (false)
+---   by  (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,NFK) and MO undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (true)
+---   and (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,NFK) and MO undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK) and allEqLabel?(L,OL ; IL)) = (false)
 --- .)
 --- --- finish things here
 --- (auto .)
