@@ -1431,19 +1431,25 @@ fmod FOFORM-SPLIT is
   pr TERMSET-FM .
 
   var F F' : FOForm .
-  var FS : FOFormSet .
+  var FS FS' : FOFormSet .
   var T T' : Term .
   var TS : TermSet .
 
   op split-by-form : FOForm FOFormSet -> FOFormSet .
-  --------------------------------------------------
-  eq split-by-form(F, F' | FS)   = (F /\ F') | split-by-form(F,FS) .
-  eq split-by-form(F, mtFormSet) = mtFormSet .
+  op split-by-form : FOForm FOFormSet FOFormSet -> FOFormSet .
+  ------------------------------------------------------------
+  eq split-by-form(F, FS) = split-by-form(F, FS, mtFormSet) .
+
+  eq split-by-form(F, F' | FS,  FS') = split-by-form(F,FS,FS' | (F /\ F')) .
+  eq split-by-form(F, mtFormSet,FS') = FS' .
 
   op split-by-cover : FOForm Term TermSet -> FOFormSet .
-  ------------------------------------------------------
-  eq split-by-cover(F,T',T | TS)       = (F /\ T' ?= T) | split-by-cover(F,T',TS) .
-  eq split-by-cover(F,T',emptyTermSet) = mtFormSet .
+  op split-by-cover : FOForm Term TermSet FOFormSet -> FOFormSet .
+  ----------------------------------------------------------------
+  eq split-by-cover(F,T',TS) = split-by-cover(F,T',TS,mtFormSet) .
+
+  eq split-by-cover(F,T',T | TS,FS)       = split-by-cover(F,T',TS,FS | (F /\ T' ?= T)) .
+  eq split-by-cover(F,T',emptyTermSet,FS) = FS .
 
   op split-by-neg : FOForm FOForm -> FOFormSet .
   ----------------------------------------------
