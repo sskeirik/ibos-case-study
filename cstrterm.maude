@@ -180,7 +180,7 @@ fmod CONSTRAINED-TERMSET-OPERATIONS is
   pr CONSTRAINED-TERM-NNF . --- needed for nnf conversion
 
   var M : Module . var CT CT' : CTerm . var CTS CTS' : CTermSet . var Y : Type .
-  var T : Term . var F : FOForm . var QS : QidSet .
+  var T : Term . var F : FOForm . var QS : QidSet . var N : Nat .
 
   --- OUT: true iff this constrained term set is wellformed
   op wellFormed : Module CTermSet -> Bool .
@@ -226,6 +226,12 @@ fmod CONSTRAINED-TERMSET-OPERATIONS is
   --- OUT: shared variables of two constrained term sets
   op sharedVars : CTermSet CTermSet -> QidSet .
   eq sharedVars(CTS,CTS') = intersection(vars(CTS),vars(CTS')) .
+
+  op size : CTermSet -> Nat .
+  op size : CTermSet Nat -> Nat .
+  eq size(CTS)        = size(CTS,0) .
+  eq size(CT | CTS,N) = size(CTS,s(N)) .
+  eq size(noterm,  N) = N .
 endfm
 
 fmod CONSTRAINED-TERM-SUBSTITUTION is
