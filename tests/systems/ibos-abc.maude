@@ -527,7 +527,7 @@ loop rltl-init .
 --- (auto .)
 
 --- --- pa8
---- (split ({ < kernel | handledCurrently(msg(ui,WI,MSG-SWITCH-TAB,OUT)), weblabels(WIS), A > C }) by (weblabel-by-pid(WI,WIS)) = (IN) and (weblabel-by-pid(WI,WIS)) = (nolabel) .)
+--- (split ({ < kernel | handledCurrently(msg(ui,WI,MSG-SWITCH-TAB,OUT)), weblabels(WIS), A > C }) by (pid-in-weblabels?(WI,WIS)) = (true) and (pid-in-weblabels?(WI,WIS)) = (false) .)
 --- (auto .)
 
 --- --- pa9
