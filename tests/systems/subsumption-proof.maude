@@ -273,66 +273,104 @@ mod SUBSUMPTION-PROOF is
   eq form2  = Intersect(new-sop,sop2) .
   eq form3  = Intersect(new-sop,sop3) .
   eq form4  = Intersect(new-sop,sop4) .
-endm
 
----@ red wellFormed(ibos,new-sop) .
----@ red wellFormed(ibos,sop1a) .
----@ red wellFormed(ibos,sop1b) .
----@ red wellFormed(ibos,sop2) .
----@ red wellFormed(ibos,sop3) .
----@ red wellFormed(ibos,sop4) .
+  ops strat1 strat2 : -> CmdList .
+  eq strat1 =
+   (vu
+    sbf(ibos "< kernel | netlabels(pi(N:ConcNetProcId,L1:Label,L2:Label),np NIS:NetProcInfoSet), A:AttributeSet > C:Configuration",ibos "L1:Label ~l L2:Label")
+    vu
+    sbf(ibos "< N:ConcNetProcId | A:AttributeSet > C:Configuration",ibos "netproc-req-attrs(A:AttributeSet)")
+    vu
+    sbf(ibos "< kernel | netlabels(pi(N:ConcNetProcId,L:Label,L:Label),np NIS:NetProcInfoSet), weblabels(WIS:WebProcInfoSet), A:AttributeSet > C:Configuration",
+       ibos "lbl-in-weblabels?(L:Label,WIS:WebProcInfoSet)")
+    vu
+    cu
+    sbf(ibos "< kernel | weblabels(pi(W:ConcWebProcId,L1:Label),wp pi(W':ConcWebProcId,L2:Label),wp WIS:WebProcInfoSet), A:AttributeSet > C:Configuration",
+      ibos "W:ConcWebProcId ~p W':ConcWebProcId")
+    vu
+    saf(ibos "< kernel | weblabels(WIS:WebProcInfoSet), A:AttributeSet > < N:ConcNetProcId | returnTo(PP:ConcPipeId), A2:AttributeSet > C:Configuration",
+      ibos "weblabel-by-pid(PP:ConcPipeId,WIS:WebProcInfoSet)", 'L:Label | 'nolabel.MaybeLabel)
+    vu
+    cu
+    sbf(ibos "< N1:ConcNetProcId | returnTo(W3:ConcWebProcId), A1:AttributeSet > \
+              < kernel | \
+                weblabels(pi(W3:ConcWebProcId,L3:Label),wp pi(W2:ConcWebProcId,L2:Label),wp pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), \
+                netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), \
+                A2:AttributeSet > \
+              C:Configuration",
+      ibos "W3:ConcWebProcId ~p W1:ConcWebProcId")
+    vu
+    sbf(ibos "< kernel | weblabels(pi(W:ConcWebProcId,L1:Label),wp pi(W':ConcWebProcId,L2:Label),wp WIS:WebProcInfoSet), A:AttributeSet > C:Configuration",
+      ibos "W:ConcWebProcId ~p W':ConcWebProcId")
+    vu
+    sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
+              C:Configuration",
+      ibos "in-conf?(W1:ConcWebProcId,C:Configuration)")
+    vu
+    cu
+    sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
+              < W1:ConcWebProcId | A:AttributeSet > C:Configuration",
+      ibos "webproc-req-attrs(A:AttributeSet)")
+    vu
+    cu
+    sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
+              < W1:ConcWebProcId | URL(L2:Label), A:AttributeSet > C:Configuration",
+      ibos "L1:Label ~l L2:Label")
+    vu) .
+
+  eq strat2 =
+   (vu
+    sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L2:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
+              < W1:ConcWebProcId | A1:AttributeSet > \
+              C:Configuration",
+       ibos "webproc-req-attrs(A1:AttributeSet)")
+    vu
+    cu
+    sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L2:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
+              < W1:ConcWebProcId | URL(L3:Label), A1:AttributeSet > \
+              C:Configuration",
+       ibos "L1:Label ~l L3:Label")
+    vu
+    sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L2:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
+              C:Configuration",
+       ibos "L1:Label ~l L2:Label")
+    vu
+    sbf(ibos "< kernel | netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
+              < ui | A3:AttributeSet >        \
+              < display | A4:AttributeSet >   \
+              < nic | A5:AttributeSet >       \
+              < webappmgr | A6:AttributeSet > \
+              NWC:NetWebProcConfig",
+      ibos "in-conf?(N1:ConcNetProcId,NWC:NetWebProcConfig)")
+    vu
+    cu
+    sbf(ibos "< N1:ConcNetProcId | A1:AttributeSet > C:Configuration",
+      ibos "netproc-req-attrs(A1:AttributeSet)")
+    vu
+    cu
+    sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
+              < N1:ConcNetProcId | returnTo(PP:ConcPipeId), A1:AttributeSet > \
+              C:Configuration",
+      ibos "PP:ConcPipeId ~p W1:ConcWebProcId")
+    vu) .
+endm
 
 set show advisories off .
 set print conceal on .
-print conceal fmod_is_sorts_.____endfm . --- _/\_ .
+print conceal fmod_is_sorts_.____endfm .
 --- set print attribute on .
 
-red transform(form1a,
-vu
-sbf(ibos "< kernel | netlabels(pi(N:ConcNetProcId,L1:Label,L2:Label),np NIS:NetProcInfoSet), A:AttributeSet > C:Configuration",ibos "L1:Label ~l L2:Label")
-vu
-sbf(ibos "< N:ConcNetProcId | A:AttributeSet > C:Configuration",ibos "netproc-req-attrs(A:AttributeSet)")
-vu
-sbf(ibos "< kernel | netlabels(pi(N:ConcNetProcId,L:Label,L:Label),np NIS:NetProcInfoSet), weblabels(WIS:WebProcInfoSet), A:AttributeSet > C:Configuration",
-   ibos "lbl-in-weblabels?(L:Label,WIS:WebProcInfoSet)")
-vu
-cu
-sbf(ibos "< kernel | weblabels(pi(W:ConcWebProcId,L1:Label),wp pi(W':ConcWebProcId,L2:Label),wp WIS:WebProcInfoSet), A:AttributeSet > C:Configuration",
-  ibos "W:ConcWebProcId ~p W':ConcWebProcId")
-vu
-saf(ibos "< kernel | weblabels(WIS:WebProcInfoSet), A:AttributeSet > < N:ConcNetProcId | returnTo(PP:ConcPipeId), A2:AttributeSet > C:Configuration",
-  ibos "weblabel-by-pid(PP:ConcPipeId,WIS:WebProcInfoSet)", 'L:Label | 'nolabel.MaybeLabel)
-vu
-cu
-sbf(ibos "< N1:ConcNetProcId | returnTo(W3:ConcWebProcId), A1:AttributeSet > \
-          < kernel | \
-            weblabels(pi(W3:ConcWebProcId,L3:Label),wp pi(W2:ConcWebProcId,L2:Label),wp pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), \
-            netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), \
-            A2:AttributeSet > \
-          C:Configuration",
-  ibos "W3:ConcWebProcId ~p W1:ConcWebProcId")
-vu
-sbf(ibos "< kernel | weblabels(pi(W:ConcWebProcId,L1:Label),wp pi(W':ConcWebProcId,L2:Label),wp WIS:WebProcInfoSet), A:AttributeSet > C:Configuration",
-  ibos "W:ConcWebProcId ~p W':ConcWebProcId")
-vu
-sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
-          C:Configuration",
-  ibos "in-conf?(W1:ConcWebProcId,C:Configuration)")
-vu
-cu
-sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
-          < W1:ConcWebProcId | A:AttributeSet > C:Configuration",
-  ibos "webproc-req-attrs(A:AttributeSet)")
-vu
-cu
-sbf(ibos "< kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > \
-          < W1:ConcWebProcId | URL(L2:Label), A:AttributeSet > C:Configuration",
-  ibos "L1:Label ~l L2:Label")
-vu
-sbf(ibos "< N1:ConcNetProcId | returnTo(PP:ConcPipeId), A1:AttributeSet > \
-          < kernel | weblabels(pi(W1:ConcWebProcId,L1:Label),wp WIS:WebProcInfoSet), netlabels(pi(N1:ConcNetProcId,L1:Label,L1:Label),np NIS:NetProcInfoSet), A2:AttributeSet > C:Configuration",
-  ibos "PP:ConcPipeId ~p W1:ConcWebProcId")
-vu
-) .
+red wellFormed(ibos,new-sop) .
+red wellFormed(ibos,sop1a) .
+red wellFormed(ibos,sop1b) .
+red wellFormed(ibos,sop2) .
+red wellFormed(ibos,sop3) .
+red wellFormed(ibos,sop4) .
+
+red transform(form1a,strat1) == noterm .
+red transform(form1b,strat1) == noterm .
+red transform(form2, strat1) == noterm .
+red transform(form3, strat1) == noterm .
+red transform(form4, strat2) == noterm .
 
 quit
