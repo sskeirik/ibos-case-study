@@ -231,7 +231,7 @@ loop rltl-init .
 --- --- check that webproc's URL matches its metadata
 --- (split ({ < WI | URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
 --- --- check that webproc is loaded
---- (split ({ < WI | loading(O), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (O) = (true) and (O) = (false) .)
+--- (split ({ < WI | loading(O), A > < kernel | weblabels(pi(WI,IN),wp WIS), netlabels(pi(NI,IN,IN),np NIS), A' > C }) by (O) = (on) and (O) = (off) .)
 --- --- split netproc original attrs for conf-attr-dupl
 --- (split ({ < NI | out(LL ; U),     A > C }) by (LL)  = (mtLL) and (LL)  = (N:NeLabelList)   .)
 --- (split ({ < NI | fromKernel(NFK), A > C }) by (NFK) = (mt)   and (NFK) = (N:NeMessageList) .)
@@ -353,8 +353,8 @@ loop rltl-init .
 --- (split ({ C }) | (p(< WI | URL(L), loading(O), toKernel(WTK), fromKernel(WFK), A >
 ---                     < NI | returnTo(WI), fromKernel(NFK), out(LL), mem-out(MO), mem-in(MI), in(IL), toKernel(NTK), A' > NWC,
 ---                     pi(WI,L),wp WIS,pi(NI,L,L),np NIS,MSG?)) = (true)
----   by  (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK)) = (true)
----   and (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK)) = (false)
+---   by  (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,NFK) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK)) = (true)
+---   and (currHandled1?(WI,NI,L,MSG?) and fetchMsg1?(WI,O,L,WTK,pi(NI,L,L),np NIS) and fetchMsg2?(WI,NI,L,NFK) and MO undef-or-equal L and MI undef-or-equal L and retMsg?(WI,NI,L,NTK @ WFK)) = (false)
 --- .)
 --- (split ({ C }) | (p(< NI | returnTo(WI), fromKernel(NFK), out(OL), mem-out(MO), mem-in(MI), in(L ; IL), toKernel(NTK), A' > NWC, pi(WI,L),wp WIS,pi(NI,L,L),np NIS,MSG?)) = (true)
 ---   by (allEqLabel?(L,OL ; IL)) = (true) and (allEqLabel?(L,OL ; IL)) = (false)
@@ -727,7 +727,7 @@ loop rltl-init .
 --- (split ({ < WI | URL(L), fromKernel(F), A > < kernel | weblabels(WIS), A' > C }) by (in-wis?(pi(WI,L),WIS)) = (true) and (in-wis?(pi(WI,L),WIS)) = (false) .)
 --- --- check that webproc's URL matches its metadata and is loaded
 --- (split ({ < WI | loading(O), URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (U ~l IN) = (true) and (U ~l IN) = (false) .)
---- (split ({ < WI | loading(O), URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (O)       = (true) and (O)       = (false) .)
+--- (split ({ < WI | loading(O), URL(U), A > < kernel | weblabels(pi(WI,IN),wp WIS), A' > C }) by (O)       = (on)   and (O)       = (off)   .)
 --- --- split on netproc
 --- (split ({ < WI | URL(L), loading(O), toKernel(WTK), fromKernel(WFK), A > < kernel | netlabels(NIS), A' > C })
 ---   by  (np-by-lbl?(L,NIS)) = (true)
