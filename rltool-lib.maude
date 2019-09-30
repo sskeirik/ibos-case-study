@@ -191,34 +191,42 @@ fmod META-RLTL-COMMAND is
    op _:_       : @Token@ @ReachFormEx@         -> @LabelReachFormEx@ [prec 63 ctor] .
 
    sort MetaRLTLCommand .
+   --- module/var/backend setup
+   op select_.               : @Token@ -> MetaRLTLCommand [ctor] .
+   op select-rls_.           : @NeTokenList@ -> MetaRLTLCommand [ctor] .
+   op declare-vars_.         : @TermSet@ -> MetaRLTLCommand [ctor] .
    op use`tool_for_on_.      : @Token@ @Token@ @Token@ -> MetaRLTLCommand [ctor] .
    op use`tool_for_on_with_. : @Token@ @Token@ @Token@ @NeTokenList@ -> MetaRLTLCommand [ctor] .
+
+   --- goal/term state setup
+   op def-term-set_.         : @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
+   op add-goal_.             : @LabelReachFormEx@ -> MetaRLTLCommand [ctor] . --- add as goal and axiom
+   op add-goal!_.            : @LabelReachFormEx@ -> MetaRLTLCommand [ctor] . --- add as goal
+   op add-axiom_.            : @LabelReachFormEx@ -> MetaRLTLCommand [ctor] . --- add as axiom TODO: revisit this command
+   op inv_to_with_on_.       : @Token@ Qid @TermSet@ @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
+   op inv_to_on_.            : @Token@ Qid @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
+
+   --- finish setup
    op start-proof`.          : -> MetaRLTLCommand [ctor] .
+
+   --- proof manipulation
+   --- apply basic proof strategy
+   op auto_.                 : Nat -> MetaRLTLCommand [ctor] .
+   op auto*`.                : -> MetaRLTLCommand [ctor] .
+   op auto`.                 : -> MetaRLTLCommand [ctor] .
+   --- delete unwanted goals
    op focus_.                : NeSet{Nat} -> MetaRLTLCommand [ctor] .
    op focus_.                : @Term@ -> MetaRLTLCommand [ctor] .
    op focus_.                : @QFCTerm@ -> MetaRLTLCommand [ctor] .
    op focus_/_.              : @QFCTerm@ @QFCTerm@ -> MetaRLTLCommand [ctor] .
-   op subsumed_=<_.          : @QFCTerm@ @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
-   op intersect_=_.          : @QFCTerm@ @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
-   op add-goal_.             : @LabelReachFormEx@ -> MetaRLTLCommand [ctor] . --- add as goal and axiom
-   op add-goal!_.            : @LabelReachFormEx@ -> MetaRLTLCommand [ctor] . --- add as goal
-   op add-axiom_.            : @LabelReachFormEx@ -> MetaRLTLCommand [ctor] . --- add as axiom
-   --- NB: currently, this just sets axiosm, later should be extended
+   --- change axioms used
    op on_use`strat_.         : Nat @NeTokenList@ -> MetaRLTLCommand  [ctor] .               --- modify goal to use circularities
    op on_use`strat_._.       : Nat @NeTokenList@ @NeTokenList@ -> MetaRLTLCommand  [ctor] . --- modify goal to use axioms/circularities
-   op declare-vars_.         : @TermSet@ -> MetaRLTLCommand [ctor] .
-   op inv_to_with_on_.       : @Token@ Qid @TermSet@ @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
-   op inv_to_on_.            : @Token@ Qid @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
-   op def-term-set_.         : @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
-   op auto_.                 : Nat -> MetaRLTLCommand [ctor] .
-   op auto*`.                : -> MetaRLTLCommand [ctor] .
-   op auto`.                 : -> MetaRLTLCommand [ctor] .
-   op try-finish_.           : NeSet{Nat} -> MetaRLTLCommand [ctor] .
-   op try-finish_.           : @QFCTerm@ -> MetaRLTLCommand [ctor] .
-   op try-finish_/_.         : @QFCTerm@ @QFCTerm@ -> MetaRLTLCommand [ctor] .
+   --- do case analysis a variable
    op case_on_by_.           : Nat @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
    op case_on_by_.           : @Term@ @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
    op case_on_by_.           : @QFCTerm@ @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
+   --- split on a formula
    op split_by_.             : Nat @QFForm@ -> MetaRLTLCommand [ctor] .
    op split_by_.             : @Term@ @QFForm@ -> MetaRLTLCommand [ctor] .
    op split_by_.             : @QFCTerm@ @QFForm@ -> MetaRLTLCommand [ctor] .
@@ -228,11 +236,19 @@ fmod META-RLTL-COMMAND is
    op split_by_and_.         : Nat @QFForm@ @QFForm@ -> MetaRLTLCommand [ctor] .
    op split_by_and_.         : @Term@ @QFForm@ @QFForm@ -> MetaRLTLCommand [ctor] .
    op split_by_and_.         : @QFCTerm@ @QFForm@ @QFForm@ -> MetaRLTLCommand [ctor] .
+   --- try to close a set of goals with default strategy---but do nothing if this process fails
+   op try-finish_.           : NeSet{Nat} -> MetaRLTLCommand [ctor] .
+   op try-finish_.           : @QFCTerm@ -> MetaRLTLCommand [ctor] .
+   op try-finish_/_.         : @QFCTerm@ @QFCTerm@ -> MetaRLTLCommand [ctor] .
+   --- try to subsume a goal by another
    op subsume_by_.           : Nat Nat -> MetaRLTLCommand [ctor] .
-   op select-rls_.           : @NeTokenList@ -> MetaRLTLCommand [ctor] .
-   op select_.               : @Token@ -> MetaRLTLCommand [ctor] .
+   --- resume from a debugging output pause
    op continue`.             : -> MetaRLTLCommand [ctor] .
+   --- delete inactive goals
    op deleteInactive`.       : -> MetaRLTLCommand [ctor] .
+   --- perform a semantic subsumption
+   op do`subsume_/_.         : @QFCTerm@ @QFCTerm@ -> MetaRLTLCommand [ctor] .
+
    --- output commands
    op show-goal-table`.           : -> MetaRLTLCommand [ctor] .
    op show-goal-ids`.             : -> MetaRLTLCommand [ctor] .
@@ -244,6 +260,10 @@ fmod META-RLTL-COMMAND is
    op show-ancestors_generation_. : NeSet{Nat} Bound -> MetaRLTLCommand [ctor] .
    op show-narrowings_.           : Nat -> MetaRLTLCommand [ctor] .
    op show-maude-cmd_on_.         : @Token@ Nat -> MetaRLTLCommand [ctor] .
+
+   --- subsumption and intersection tests
+   op subsumed_=<_.          : @QFCTerm@ @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
+   op intersect_=_.          : @QFCTerm@ @NeQFCTermSet@ -> MetaRLTLCommand [ctor] .
 endfm
 
 fmod RLTL-COMMAND is
