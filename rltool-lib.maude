@@ -221,8 +221,8 @@ fmod META-RLTL-COMMAND is
    op try-finish_.           : @QFCTerm@ -> MetaRLTLCommand [ctor] .
    op try-finish_/_.         : @QFCTerm@ @QFCTerm@ -> MetaRLTLCommand [ctor] .
    op case_on_by_.           : Nat @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
-   op cases_on_by_.          : @Term@ @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
-   op cases+_on_by_.         : @QFCTerm@ @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
+   op case_on_by_.           : @Term@ @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
+   op case_on_by_.           : @QFCTerm@ @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
    op split_by_.             : Nat @QFForm@ -> MetaRLTLCommand [ctor] .
    op split_by_.             : @Term@ @QFForm@ -> MetaRLTLCommand [ctor] .
    op split_by_.             : @QFCTerm@ @QFForm@ -> MetaRLTLCommand [ctor] .
@@ -270,7 +270,7 @@ fmod RLTL-COMMAND is
    op try-finish        : QFCTerm -> RLTLCommand [ctor] .
    op try-finish        : QFCTerm QFCTerm -> RLTLCommand [ctor] .
    op case              : Nat Variable TermSet -> RLTLCommand  [ctor] .
-   op cases             : QFCTerm Variable TermSet -> RLTLCommand [ctor] .
+   op case              : QFCTerm Variable TermSet -> RLTLCommand [ctor] .
    op split             : Nat Bool EqQFForm? QFForm? -> RLTLCommand [ctor] .
    op split             : QFCTerm Bool EqQFForm? QFForm? -> RLTLCommand [ctor] .
    op subsumeby         : Nat Nat -> RLTLCommand [ctor] .
@@ -324,9 +324,9 @@ fmod PARSE-RLTLCOMMAND is
    eq rltl-parse((M,S),'try-finish_/_.[T1,T2])         = try-finish(parse-qfcterm((M,S),true,T1),parse-qfcterm((M,S),true,T2)) .
 
    --- run in ON mode
-   eq rltl-parse((M,S),'case_on_by_.[T1,T2,T3])          = case(downNat(T1),parse-token(T2),parse-termset((M,S),true,T3)) .
-   eq rltl-parse((M,S),'cases_on_by_.[T1,T2,T3])         = cases((parse-pattern((M,S),false,T1) | mtForm),parse-token(T2),parse-termset((M,S),true,T3)) .
-   eq rltl-parse((M,S),'cases+_on_by_.[T1,T2,T3])        = cases(parse-qfcterm((M,S),false,T1),parse-token(T2),parse-termset((M,S),true,T3)) .
+  ceq rltl-parse((M,S),'case_on_by_.[T1,T2,T3])          = case(downNat(T1),parse-token(T2),parse-termset((M,S),true,T3)) if downNat(T1) :: Nat .
+  ceq rltl-parse((M,S),'case_on_by_.[T1,T2,T3])          = case((parse-pattern((M,S),false,T1) | mtForm),parse-token(T2),parse-termset((M,S),true,T3)) if parse-pattern((M,S),false,T1) :: Term .
+  ceq rltl-parse((M,S),'case_on_by_.[T1,T2,T3])          = case( parse-qfcterm((M,S),false,T1),          parse-token(T2),parse-termset((M,S),true,T3)) if parse-qfcterm((M,S),false,T1) :: QFCTerm .
   ceq rltl-parse((M,S),'split_by_.[T1,T2])               = split(downNat(T1),true,parse-qfform((M,S),true,T2),toNNF(~ parse-qfform((M,S),true,T2))) if downNat(T1) :: Nat .
   ceq rltl-parse((M,S),'replace_by_.[T1,T2])             = split(downNat(T1),false,parse-qfform((M,S),true,T2),ff)                                  if downNat(T1) :: Nat .
   ceq rltl-parse((M,S),'split_by_and_.[T1,T2,T3])        = split(downNat(T1),false,parse-qfform((M,S),true,T2),parse-qfform((M,S),true,T3))         if downNat(T1) :: Nat .
@@ -654,15 +654,15 @@ mod RLTL-PROC-CMD is
                                     (write('Case 'rule 'generated: '\n printSpaces(8)) ; write-branch(size(readyGoals(get-prf(R))),1,N))
                                   else write('Goal: qid(string(N,10)) 'not 'found)
                                 fi .
-  eq proc(cases((T | QF),V,TS),R) = if checkType(get-mod(R),getRuleType(get-mod(R)),T) :: Term
-                                  then if goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))) :: NeProofGoalSet
-                                    then atomic-run(R,$cases(get-mod(R),(T | QF),V,TS,goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))))) &
-				      (write('Cases 'rule 'generated: '\n printSpaces(8)) ;
-				        write-branch(size(readyGoals(get-prf(R))),size(goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R)))),
+  eq proc(case((T | QF),V,TS),R) = if checkType(get-mod(R),getRuleType(get-mod(R)),T) :: Term
+                                     then if goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))) :: NeProofGoalSet
+                                       then atomic-run(R,$cases(get-mod(R),(T | QF),V,TS,goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R))))) &
+				         (write('Cases 'rule 'generated: '\n printSpaces(8)) ;
+				          write-branch(size(readyGoals(get-prf(R))),size(goalsByMatch(get-mod(R),(T | QF),readyGoals(get-prf(R)))),
 					  getid(goalsByMatch(get-mod(R),(T |  QF),readyGoals(get-prf(R))))))
-				    else write('Error: 'case 'pattern 'failed 'to 'match 'any 'goals)
-				  fi else write('Error: 'case 'pattern 'has 'wrong 'type)
-				fi .
+				       else write('Error: 'case 'pattern 'failed 'to 'match 'any 'goals)
+				     fi else write('Error: 'case 'pattern 'has 'wrong 'type)
+				   fi .
   eq proc(split(N,B,QF,QF'), R) = if getgl!(R,N) :: ProofGoal
                                   then merge(delgl(R,getgl!(R,N)),apply-proof-strat(R,prestrat(getgl!(R,N),split(B,QF,QF') ;; simplify(true) ;; subsume ;; termcheck ;; pause))) &
                                     (write('Split 'rule 'generated: '\n printSpaces(8)) ; write-branch(size(readyGoals(get-prf(R))),1,N))
