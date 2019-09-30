@@ -220,8 +220,8 @@ fmod META-RLTL-COMMAND is
    op focus_.                : @QFCTerm@ -> MetaRLTLCommand [ctor] .
    op focus_/_.              : @QFCTerm@ @QFCTerm@ -> MetaRLTLCommand [ctor] .
    --- change axioms used
-   op on_use`strat_.         : Nat @NeTokenList@ -> MetaRLTLCommand  [ctor] .               --- modify goal to use circularities
-   op on_use`strat_._.       : Nat @NeTokenList@ @NeTokenList@ -> MetaRLTLCommand  [ctor] . --- modify goal to use axioms/circularities
+   op use-strat_on_.         : @NeTokenList@ Nat -> MetaRLTLCommand  [ctor] .               --- modify goal to use circularities
+   op use-strat_and_on_.     : @NeTokenList@ @NeTokenList@ Nat -> MetaRLTLCommand  [ctor] . --- modify goal to use axioms/circularities
    --- do case analysis a variable
    op case_on_by_.           : Nat @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
    op case_on_by_.           : @Term@ @Token@ @TermSet@ -> MetaRLTLCommand [ctor] .
@@ -361,8 +361,8 @@ fmod PARSE-RLTLCOMMAND is
    eq rltl-parse((M,S),'continue`..MetaRLTLCommand)      = continue .
 
    --- can be run any time
-   eq rltl-parse((M,S),'on_use`strat_.[T1,T2])             = use-strat(downNat(T1),parse-tokenlist(T2),nil) .
-   eq rltl-parse((M,S),'on_use`strat_._.[T1,T2,T3])        = use-strat(downNat(T1),parse-tokenlist(T2),parse-tokenlist(T3)) .
+   eq rltl-parse((M,S),'use-strat_on_.[T1,T2])             = use-strat(downNat(T2),parse-tokenlist(T1),nil) .
+   eq rltl-parse((M,S),'use-strat_and_on_.[T1,T2,T3])      = use-strat(downNat(T3),parse-tokenlist(T1),parse-tokenlist(T2)) .
    eq rltl-parse((M,S),'subsume_by_.[T1,T2])               = subsumeby(downNat(T1),downNat(T2)) .
    eq rltl-parse((M,S),'subsumed_=<_.[T1,T2])              = subsumed(parse-matchform((M,S),true,T1),parse-matchform((M,S),true,T2)) .
    eq rltl-parse((M,S),'intersect_=_.[T1,T2])              = intersect(parse-matchform((M,S),true,T1),parse-matchform((M,S),true,T2)) .
