@@ -191,8 +191,6 @@ fmod META-RLTL-COMMAND is
    op _:_       : @Token@ @ReachFormEx@         -> @LabelReachFormEx@ [prec 63 ctor] .
 
    sort MetaRLTLCommand .
-   op set`echo`on`.          : -> MetaRLTLCommand [ctor] .
-   op set`echo`off`.         : -> MetaRLTLCommand [ctor] .
    op use`tool_for_on_.      : @Token@ @Token@ @Token@ -> MetaRLTLCommand [ctor] .
    op use`tool_for_on_with_. : @Token@ @Token@ @Token@ @NeTokenList@ -> MetaRLTLCommand [ctor] .
    op start-proof`.          : -> MetaRLTLCommand [ctor] .
@@ -251,7 +249,6 @@ endfm
 fmod RLTL-COMMAND is
    pr REACH-PROOF-STATE .
    sort RLTLCommand .
-   op set-echo          : Bool -> RLTLCommand [ctor] .
    op usetool           : Qid Qid Module ModuleList -> RLTLCommand [ctor] .
    op start             : -> RLTLCommand [ctor] .
    op quit              : -> RLTLCommand [ctor] .
@@ -353,8 +350,6 @@ fmod PARSE-RLTLCOMMAND is
    eq rltl-parse((M,S),'on_use`strat_.[T1,T2])          = use-strat(downNat(T1),parse-tokenlist(T2),nil) .
    eq rltl-parse((M,S),'on_use`strat_._.[T1,T2,T3])     = use-strat(downNat(T1),parse-tokenlist(T2),parse-tokenlist(T3)) .
    eq rltl-parse((M,S),'quit`..MetaRLTLCommand)         = quit .
-   eq rltl-parse((M,S),'set`echo`on`..MetaRLTLCommand)  = set-echo(true) .
-   eq rltl-parse((M,S),'set`echo`off`..MetaRLTLCommand) = set-echo(false) .
    eq rltl-parse((M,S),'subsume_by_.[T1,T2])            = subsumeby(downNat(T1),downNat(T2)) .
    eq rltl-parse((M,S),'subsumed_=<_.[T1,T2])           = subsumed(parse-matchform((M,S),true,T1),parse-matchform((M,S),true,T2)) .
    eq rltl-parse((M,S),'intersect_=_.[T1,T2])           = intersect(parse-matchform((M,S),true,T1),parse-matchform((M,S),true,T2)) .
@@ -407,7 +402,6 @@ mod RLTL-ATTRIBUTES is
   --- NB: for compatibility with FULL-MAUDE, do not set first two as ctor
   op input :_  : TermList -> Attribute .
   op output :_ : QidList -> Attribute .
-  op echo :_   : Bool -> Attribute [ctor] .
   op proof :_  : Proof -> Attribute [ctor format (nr o d n)] .
   op mode :_   : RLTLMode -> Attribute [ctor] .
 endm
@@ -780,7 +774,7 @@ mod RLTL-UI is
   op welcome   : -> QidList .
 
   eq rltl-init =
-    [nil,< rltl-o : rltl-c | proof : [emptyData], output : nil, echo : false, mode : off >,welcome] .
+    [nil,< rltl-o : rltl-c | proof : [emptyData], output : nil, mode : off >,welcome] .
 
   eq welcome =
     ('\n '\t '\s '\s '\s '\s 'Maude 'Reachability 'Logic
