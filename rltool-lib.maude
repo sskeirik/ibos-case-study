@@ -245,9 +245,7 @@ fmod META-RLTL-COMMAND is
    --- resume from a debugging output pause
    op continue`.             : -> MetaRLTLCommand [ctor] .
    --- delete inactive goals
-   op deleteInactive`.       : -> MetaRLTLCommand [ctor] .
-   --- perform a semantic subsumption
-   op do`subsume_/_.         : @QFCTerm@ @QFCTerm@ -> MetaRLTLCommand [ctor] .
+   op delete-inactive`.      : -> MetaRLTLCommand [ctor] .
 
    --- output commands
    op show-goal-table`.           : -> MetaRLTLCommand [ctor] .
@@ -361,15 +359,14 @@ fmod PARSE-RLTLCOMMAND is
   ceq rltl-parse((M,S),'focus_.[T1])                     = focus(parse-qfcterm((M,S),true,T1)) if parse-qfcterm((M,S),true,T1) :: QFCTerm .
    eq rltl-parse((M,S),'focus_/_.[T1,T2])                = focus(parse-qfcterm((M,S),true,T1),parse-qfcterm((M,S),true,T2)) .
    eq rltl-parse((M,S),'continue`..MetaRLTLCommand)      = continue .
-   eq rltl-parse((M,S),'do`step_.[T1])                   = dostep(downNat(T1)) .
 
    --- can be run any time
-   eq rltl-parse((M,S),'on_use`strat_.[T1,T2])            = use-strat(downNat(T1),parse-tokenlist(T2),nil) .
-   eq rltl-parse((M,S),'on_use`strat_._.[T1,T2,T3])       = use-strat(downNat(T1),parse-tokenlist(T2),parse-tokenlist(T3)) .
-   eq rltl-parse((M,S),'subsume_by_.[T1,T2])              = subsumeby(downNat(T1),downNat(T2)) .
-   eq rltl-parse((M,S),'subsumed_=<_.[T1,T2])             = subsumed(parse-matchform((M,S),true,T1),parse-matchform((M,S),true,T2)) .
-   eq rltl-parse((M,S),'intersect_=_.[T1,T2])             = intersect(parse-matchform((M,S),true,T1),parse-matchform((M,S),true,T2)) .
-   eq rltl-parse((M,S),'deleteInactive`..MetaRLTLCommand) = delete .
+   eq rltl-parse((M,S),'on_use`strat_.[T1,T2])             = use-strat(downNat(T1),parse-tokenlist(T2),nil) .
+   eq rltl-parse((M,S),'on_use`strat_._.[T1,T2,T3])        = use-strat(downNat(T1),parse-tokenlist(T2),parse-tokenlist(T3)) .
+   eq rltl-parse((M,S),'subsume_by_.[T1,T2])               = subsumeby(downNat(T1),downNat(T2)) .
+   eq rltl-parse((M,S),'subsumed_=<_.[T1,T2])              = subsumed(parse-matchform((M,S),true,T1),parse-matchform((M,S),true,T2)) .
+   eq rltl-parse((M,S),'intersect_=_.[T1,T2])              = intersect(parse-matchform((M,S),true,T1),parse-matchform((M,S),true,T2)) .
+   eq rltl-parse((M,S),'delete-inactive`..MetaRLTLCommand) = delete .
 
    --- output commands
    eq rltl-parse((M,S),'show-goal-table`..MetaRLTLCommand)   = ls(true) .
