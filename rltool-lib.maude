@@ -194,7 +194,6 @@ fmod META-RLTL-COMMAND is
    op use`tool_for_on_.      : @Token@ @Token@ @Token@ -> MetaRLTLCommand [ctor] .
    op use`tool_for_on_with_. : @Token@ @Token@ @Token@ @NeTokenList@ -> MetaRLTLCommand [ctor] .
    op start-proof`.          : -> MetaRLTLCommand [ctor] .
-   op quit`.                 : -> MetaRLTLCommand [ctor] .
    op focus_.                : NeSet{Nat} -> MetaRLTLCommand [ctor] .
    op focus_.                : @Term@ -> MetaRLTLCommand [ctor] .
    op focus_.                : @QFCTerm@ -> MetaRLTLCommand [ctor] .
@@ -252,7 +251,6 @@ fmod RLTL-COMMAND is
    sort RLTLCommand .
    op usetool           : Qid Qid Module ModuleList -> RLTLCommand [ctor] .
    op start             : -> RLTLCommand [ctor] .
-   op quit              : -> RLTLCommand [ctor] .
    op focus             : NeSet{Nat} -> RLTLCommand [ctor] .
    op focus             : QFCTerm -> RLTLCommand [ctor] .
    op focus             : QFCTerm QFCTerm -> RLTLCommand [ctor] .
@@ -348,7 +346,6 @@ fmod PARSE-RLTLCOMMAND is
    --- can be run any time
    eq rltl-parse((M,S),'on_use`strat_.[T1,T2])            = use-strat(downNat(T1),parse-tokenlist(T2),nil) .
    eq rltl-parse((M,S),'on_use`strat_._.[T1,T2,T3])       = use-strat(downNat(T1),parse-tokenlist(T2),parse-tokenlist(T3)) .
-   eq rltl-parse((M,S),'quit`..MetaRLTLCommand)           = quit .
    eq rltl-parse((M,S),'subsume_by_.[T1,T2])              = subsumeby(downNat(T1),downNat(T2)) .
    eq rltl-parse((M,S),'subsumed_=<_.[T1,T2])             = subsumed(parse-matchform((M,S),true,T1),parse-matchform((M,S),true,T2)) .
    eq rltl-parse((M,S),'intersect_=_.[T1,T2])             = intersect(parse-matchform((M,S),true,T1),parse-matchform((M,S),true,T2)) .
