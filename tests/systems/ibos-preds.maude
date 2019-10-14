@@ -783,11 +783,6 @@ fmod IBOS-AUX-FVP is
  ceq in-wis?(pi(WP,IN),pi(WP',IN'),wp WIS) = in-wis?(pi(WP,IN),WIS) if WP ~p WP' and IN ~l IN' = false .
   eq in-wis?(pi(WP,IN),mtWPIS) = false .
 
-  op in-nis? : NetProcInfo NetProcInfoSet -> Bool [metadata "131 true"] .
-  eq in-nis?(pi(NP,IN,OUT),pi(NP ,IN ,OUT ),np NIS) = true [variant] .
- ceq in-nis?(pi(NP,IN,OUT),pi(NP',IN',OUT'),np NIS) = in-nis?(pi(NP,IN,OUT),NIS) if NP ~p NP' and IN ~l IN'  and OUT ~l OUT' = false .
-  eq in-nis?(pi(NP,IN,OUT),mtNPIS) = false .
-
   op goodCtxt? : NetWebProcConfig WebProcInfoSet NetProcInfoSet -> Bool [metadata "132"] .
   eq goodCtxt?(NNWC,NWIS,  NNIS  ) = true [variant] .
   eq goodCtxt?(NNWC,NWIS,  mtNPIS) = true [variant] .
@@ -943,9 +938,6 @@ fmod IBOS-AUX-NONFVP is
  ceq pid-in-weblabels?(P?,WIS) = true  if (weblabel-by-pid(P?,WIS) ~l nolabel) = false .
  ceq pid-in-weblabels?(P?,WIS) = false if (weblabel-by-pid(P?,WIS) ~l nolabel) = true  .
 
-  op out-netlabel-by-pid : ProcessId NetProcInfoSet -> MaybeLabel [metadata "125"] .
-  eq out-netlabel-by-pid(P?,NIS) = outlbl(netlabelpair-by-pid(P?,NIS)) .
-
   --- 33. Check that there are no duplicate ProcessIds in a Web/NetProcInfoSet
   op weblabels-dupl? : WebProcInfoSet -> Bool [metadata "126"] .
   eq weblabels-dupl?(pi(WP,L) ,wp pi(WP, L') ,wp WIS) = true .
@@ -982,10 +974,6 @@ fmod IBOS-AUX-NONFVP is
   eq allEqLabel?(L,mtLL)          = true .
  ceq allEqLabel?(L,N:NeLabelList ; LL' ; LL'') = false if allEqLabel?(L,LL') = false .
  ceq allEqLabel?(L,LL'' ; LL' ; N:NeLabelList) = false if allEqLabel?(L,LL') = false .
-
-  op def-eq : MaybeLabel Label -> Bool [metadata "142"] .
-  eq def-eq(nolabel,L) = true .
-  eq def-eq(L,L')      = L ~l L' .
 endfm
 
 ---
