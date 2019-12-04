@@ -1,5 +1,5 @@
 load ../systems/ibos-preds.maude
-load ~/work/mta/mta.maude
+load ../../mta/mta.maude
 (check-AvCrpo IBOS-PREDS assuming
     ('NA:NeAttributeSet : 'none.AttributeSet)
   | ('L:Label           : 'nolabel.MaybeLabel)

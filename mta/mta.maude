@@ -1,0 +1,190 @@
+load full-maude.maude
+load substitution.maude
+load prelude-aux.maude
+load poly.maude
+load acrpo.maude
+
+fmod MTA-GRAMMAR is
+  pr FULL-MAUDE-SIGN .
+  pr TERMPAIRSET .
+  op check-AvCrpo_assuming_. : @ModExp@ TermPairSet -> @Command@ [ctor] .
+  op check-AvCrpo_. : @ModExp@ -> @Command@ [ctor] .
+  op check-poly_.   : @ModExp@ -> @Command@ [ctor] .
+endfm
+
+fmod GET-MODULE is
+  pr DATABASE .        --- extract modules from FULL-MAUDE database
+  pr MOD-EXP-PARSING . --- parse module expression
+  op flat-module : Database ModuleExpression        -> [Module] .
+  op flat-module : Tuple{Database,ModuleExpression} -> [Module] .
+  op user-module : Database ModuleExpression        -> [Module] .
+  op user-module : Tuple{Database,ModuleExpression} -> [Module] .
+  var DB : Database . var ME : ModuleExpression .
+  eq flat-module(DB,ME)       = flat-module(evalModExp(ME,DB)) .
+  eq flat-module(< DB ; ME >) = getFlatModule(ME,DB) .
+  eq user-module(DB,ME)       = user-module(evalModExp(ME,DB)) .
+  eq user-module(< DB ; ME >) = getTopModule(ME,DB) .
+endfm
+
+mod MTA-UI-AUX is
+  pr DATABASE-HANDLING .
+  pr GET-MODULE .
+
+  op getmod       : Database Term -> [Module] .
+  op parse        : NeQidList     -> [Term]   .
+  op TOOL-GRAMMAR :               -> Module   .
+  op welcome-msg  :               -> QidList  .
+  op syntax-err   : QidList       -> QidList  .
+
+  var NL : NeQidList . var T : Term . var DB : Database .
+
+  eq getmod(DB,T) = flat-module(DB,parseModExp(T)) .
+
+  eq TOOL-GRAMMAR = addImports((including 'MTA-GRAMMAR .),BUBBLES) .
+
+ ceq parse(NL) = getTerm(metaParse(TOOL-GRAMMAR,NL,'@Input@))
+  if metaParse(TOOL-GRAMMAR,NL,'@Input@) :: ResultPair .
+
+  eq welcome-msg =
+      ('\n '\t '\s '\s '\s '\s 'Maude 'Polynomial 'AvC-RPO 'Termination 'Assistant
+       'v0.2 '-- 'Feb. '21st '2018 '\n) .
+
+  eq syntax-err(NL) =
+      ('\r 'Warning: printSyntaxError(metaParse(TOOL-GRAMMAR,NL,'@Input@), NL)
+       '\n '\r 'Error: '\o 'No 'parse 'for 'input. '\n) .
+endm
+
+fmod PROCESS-EQUATIONS is
+  pr META-LEVEL .
+
+  var M : Module .
+  var T T' : Term .
+  var E : Equation .
+  var ES ES' : EquationSet .
+  var S : Sort .
+  var EC : EqCondition .
+  var AS : AttrSet .
+  var ST : String .
+
+  op metadata : Equation ~> String .
+  eq metadata(eq T = T' [metadata(ST) AS].) = ST .
+
+  op getIdEqs : EquationSet -> EquationSet .
+  eq getIdEqs(E ES) = if substr(metadata(E),0,3) == "id" then E else none fi getIdEqs(ES) .
+  eq getIdEqs(none) = none .
+
+  op getIdEqs : Module -> EquationSet .
+  eq getIdEqs(M) = getIdEqs(getEqs(M)) .
+
+  op _-_ : EquationSet EquationSet -> EquationSet .
+  eq (E ES) - (E ES') = ES - (E ES') .
+  eq ES - ES'         = ES [owise] .
+
+  op metaReduce2 : Module Term -> [Term] .
+  eq metaReduce2(M,T) = getTerm(metaReduce(M,T)) .
+
+  op reduceEqs : Module EquationSet -> EquationSet .
+  op reduceEqs : Module EqCondition -> EqCondition .
+  eq reduceEqs(M, eq T = T'       [AS]. ES) =  eq metaReduce2(M,T) = metaReduce2(M,T')                    [AS]. reduceEqs(M,ES) .
+  eq reduceEqs(M,ceq T = T' if EC [AS]. ES) = ceq metaReduce2(M,T) = metaReduce2(M,T') if reduceEqs(M,EC) [AS]. reduceEqs(M,ES) .
+  eq reduceEqs(M,                        none) = none .
+  eq reduceEqs(M,T  = T' /\ EC) = metaReduce2(M,T)  = metaReduce2(M,T') /\ reduceEqs(M,EC) .
+  eq reduceEqs(M,T := T' /\ EC) = metaReduce2(M,T) := metaReduce2(M,T') /\ reduceEqs(M,EC) .
+  eq reduceEqs(M,T :  S  /\ EC) = metaReduce2(M,T) :  S                 /\ reduceEqs(M,EC) .
+  eq reduceEqs(M,          nil) = nil .
+endfm
+
+mod MTA-UI is
+  inc LOOP-MODE   .
+  pr DATABASE-HANDLING .
+  pr MTA-UI-AUX .
+  pr POLYNOMIAL-CHECK .
+  pr ACRPO-CHECK .
+  pr UNSOLVEABLE-EQ-PRINTER .
+  pr PROCESS-EQUATIONS .
+  pr UNSORTIFY .
+  pr TERMPAIRSET .
+
+  subsort Object < State .
+
+  op o        : -> Oid    [ctor] .
+  op MTA-init : -> System .
+
+  var NL : NeQidList     . var O    : Oid     . var AS : AttributeSet  .
+  var X  : DatabaseClass . var L L' : QidList . var DB : Database .
+  var T T' : Term . var TPS : TermPairSet . var M IdM : Module .
+
+  eq MTA-init = [nil, < o : Database | db : initialDatabase,
+                 input : nilTermList, output : nil,
+                 default : 'CONVERSION >, welcome-msg] .
+
+  rl [debug] :
+     ['debug,S:[State],L:[Qid]]
+  =>
+     [nil,S:[State],L:[Qid]] .
+
+  rl [input] :
+     [NL, < O : X | db : DB, input : nilTermList, output : nil, AS >, L']
+  =>
+     if parse(NL) :: Term then
+       [nil, < O : X | db : DB, input : parse(NL), output : nil, AS >, L']
+     else
+       [nil, < O : X | db : DB, input : nilTermList, output : syntax-err(NL), AS >, L']
+     fi .
+
+  rl [output] :
+     [L, < O : X | output : (NL), AS >, L']
+  =>
+     [L, < O : X | output : nil,  AS >, (L' NL)] .
+
+  rl [check-poly-term] :
+     [L, < O : X | db : DB , input : ('check-poly_.[T]), output : nil, AS >, L']
+  =>
+     if polyMetadata(removeIds(getmod(DB,T),all)) :: Map{QidTypeListPair,NeNatList} then
+       if poly-check-eqs(removeIds(getmod(DB,T),all)) == none then
+         [L, < O : X | db : DB , input : nilTermList, output : ('Module 'is 'terminating 'by 'polynomial 'order), AS >, L']
+       else
+         [L, < O : X | db : DB , input : nilTermList,
+            output : ('The 'following 'equations 'could 'not 'be 'proved 'terminating: '\n
+                       ---(eMetaPrettyPrint(getmod(DB,T),poly-check-eqs(removeIds(getmod(DB,T),all))))
+		       print-unsolveable-eqs(getmod(DB,T))), AS >, L']
+       fi
+     else
+       [L, < O : X | db : DB , input : nilTermList, output : ('Polynomial 'Metadata 'Invalid 'Or 'Module 'Not 'Found), AS >, L']
+     fi .
+
+  op acrpo-check-eqs  : Module TermPairSet -> [EquationSet] .
+  op acrpo-check-eqs1 : Module Module TermPairSet -> [EquationSet] .
+  eq acrpo-check-eqs (M,TPS) = acrpo-check-eqs1(removeIds(reallocateArgs(cleanMetadata(M)),all),makeIdsModule(M,all),TPS) .
+  eq acrpo-check-eqs1(M,IdM,TPS) = acrpo-check-eqs(eraseRls(eraseEqs(M)),getIdEqs(M) reduceEqs(IdM,getEqs(M) - getIdEqs(M)),TPS) .
+
+  rl [check-acrpo-term] :
+     [L, < O : X | db : DB , input : ('check-AvCrpo_.[T]), output : nil, AS >, L']
+  =>
+     [L, < O : X | db : DB , input : ('check-AvCrpo_assuming_.[T,'.TermPairSet.TermPairSet]), output : nil, AS >, L'] .
+
+  rl [check-acrpo-term] :
+     [L, < O : X | db : DB , input : ('check-AvCrpo_assuming_.[T,T']), output : nil, AS >, L']
+  =>
+     if getmod(DB,T) :: FModule then
+       if aac-compWithOrd(unsortify(removeIds(reallocateArgs(cleanMetadata(eraseRls(eraseEqs(getmod(DB,T))))),all))) :: FModule then
+         if wellFormedSet(getmod(DB,T),toTermSet(downTerm(T',.TermPairSet))) then
+           if acrpo-check-eqs(getmod(DB,T),downTerm(T',.TermPairSet)) == none then
+             [L, < O : X | db : DB , input : nilTermList, output : ('Module 'is 'terminating 'by 'AvC-RPO 'order), AS >, L']
+           else
+             [L, < O : X | db : DB , input : nilTermList,
+                output : ('The 'following 'equations 'could 'not 'be 'proved 'terminating: '\n
+                           eMetaPrettyPrint(getmod(DB,T),acrpo-check-eqs(getmod(DB,T),downTerm(T',.TermPairSet)))), AS >, L']
+           fi
+	 else
+           [L, < O : X | db : DB , input : nilTermList, output : ('AvC-RPO 'Assumptions 'Ill-formed), AS >, L']
+	 fi
+       else
+         [L, < O : X | db : DB , input : nilTermList, output : ('AvC-RPO 'Metadata 'Invalid), AS >, L']
+       fi
+     else
+         [L, < O : X | db : DB , input : nilTermList, output : ('Module 'not 'loaded), AS >, L']
+     fi .
+endm
+
+loop MTA-init .

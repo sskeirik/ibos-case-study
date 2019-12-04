@@ -1,5 +1,0 @@
-load ../../rltool-lib.maude
-load ../../systems/ibos.maude
-load ../../suffcomp.maude
-
-red csa(upModule('NAT-NO-BUILTIN,true),'Nat 'Nat,{'N:Nat,'M:Nat}) .

@@ -1,0 +1,457 @@
+set include BOOL off .
+
+fmod NZNAT-AC is
+  sort Bool NzNat .
+  op true  :             -> Bool  [ctor] .
+  op false :             -> Bool  [ctor] .
+  op 1     :             -> NzNat [ctor] .
+  op _+_   : NzNat NzNat -> NzNat [assoc comm ctor] .
+  op _>_   : NzNat NzNat -> Bool  [ctor] .
+
+  var x y z : NzNat .
+
+  eq x + y > x + z = y > z  .
+  eq x + y > x     = true   .
+  eq x     > x     = false  .
+  eq x >    x + y  = false  .
+endfm
+
+fmod SIMPLE-POLYNOMIAL is
+  pr META-TERM .
+  sort PolyTerm NePolynomial Polynomial .
+  subsort Nat < PolyTerm < NePolynomial < Polynomial .
+  op _+._   : Polynomial Polynomial   -> Polynomial   [prec 70 ctor assoc comm id: noPoly] .
+  op _+._   : NePolynomial Polynomial -> NePolynomial [prec 70 ctor assoc comm id: noPoly] .
+  op noPoly :                         -> Polynomial   [ctor] .
+  op _[_]   : Nat Variable            -> PolyTerm     [ctor] .
+endfm
+
+fmod POLYSET is
+  pr SIMPLE-POLYNOMIAL .
+  sort PolySet NePolySet .
+  subsort Polynomial < NePolySet < PolySet .
+  op _@_       : PolySet   PolySet -> PolySet [ctor assoc comm id: mtPolySet] .
+  op _@_       : NePolySet PolySet -> PolySet [ctor ditto] .
+  op mtPolySet :                   -> PolySet [ctor] .
+endfm
+
+fmod POLYSETPAIR is
+  pr POLYSET .
+  sort PolySetPair .
+  op ((_,_)) : PolySet PolySet -> PolySetPair .
+endfm
+
+fmod MAYBEPOLYSETPAIR is
+  pr POLYSETPAIR .
+  sort MaybePolySetPair .
+  subsort PolySetPair < MaybePolySetPair .
+  op noPolySetPair : -> MaybePolySetPair .
+endfm
+
+fmod MAYBEPOLYSETPAIR-PRINTER is
+  pr MAYBEPOLYSETPAIR .
+  pr DECL-META-PRETTY-PRINT .
+  op eMetaPrettyPrintComp : Module PolySetPair -> QidList .
+  op eMetaPrettyPrint     : Module PolySet     -> QidList .
+
+  var PS QS : PolySet   . var NPS : NePolySet . var N : Nat . var PT : PolyTerm .
+  var NP : NePolynomial . var M : Module . var V : Variable .
+
+  eq eMetaPrettyPrintComp(M,(PS,QS))       = eMetaPrettyPrint(M,PS) '> eMetaPrettyPrint(M,QS) .
+  eq eMetaPrettyPrintComp(M,noPolySetPair) = nil .
+
+  eq eMetaPrettyPrint(M,NP @ NPS)    = eMetaPrettyPrint(M,NP) ', eMetaPrettyPrint(M,NPS) .
+  eq eMetaPrettyPrint(M,mtPolySet)   = nil .
+  eq eMetaPrettyPrint(M,PT +. NP)    = eMetaPrettyPrint(M,PT) '+ eMetaPrettyPrint(M,NP) .
+  eq eMetaPrettyPrint(M,N)           = eMetaPrettyPrint(N) .
+  eq eMetaPrettyPrint(M,N[V])        = eMetaPrettyPrint(N) '`[ getName(V) '`] qid(" ") .
+  eq eMetaPrettyPrint(M,noPoly)      = nil .
+endfm
+
+fmod NZNAT-AC-CONVERSION is
+  pr META-LEVEL .
+  pr TERM-MSET .
+  pr SIMPLE-POLYNOMIAL .
+
+  op AC-Nat  : NzNat               -> Term .
+  op AC-Nat' : Nat                 -> TermList .
+  op toPoly  : Term                -> Polynomial .
+  op toPoly' : Polynomial TermMSet -> Polynomial .
+
+  var Z : NzNat . var N  : Nat      . var NTL : NeTermList . var P : Polynomial .
+  var T : Term  . var TL : TermList . var TS  : TermMSet   . var V : Variable   .
+
+  --- INP: NzNat
+  --- PRE: None
+  --- OUT: Metaterm in NZNAT-AC
+  eq AC-Nat (1)    = '1.NzNat .
+  eq AC-Nat (s(Z)) = '_+_[AC-Nat'(s(Z))] .
+  eq AC-Nat'(s(N)) = '1.NzNat,AC-Nat'(N) .
+  eq AC-Nat'(0)    = empty .
+
+  --- INP: Term
+  --- PRE: well-sorted in NZNAT-AC with sort NzNat
+  --- OUT: A standard Maude NzNat equal to the NZNAT-AC NzNat
+  eq toPoly('_+_[NTL])              = toPoly'(0,termListToMSet(NTL)) .
+  eq toPoly(T)                      = toPoly'(0,T) [owise] .
+  eq toPoly'(N +. P,'1.NzNat || TS) = toPoly'(s(N) +. P,TS) .
+  eq toPoly'(N[V] +. P,V || TS)     = toPoly'(s(N)[V] +. P,TS) .
+  eq toPoly'(P,V || TS)             = toPoly'(1[V] +. P,TS) [owise] .
+  eq toPoly'(P,emptyTermMSet)       = P .
+endfm
+
+fmod NATLIST-PARSER is
+  pr META-LEVEL .
+  pr STRING-PAIR .
+  pr STRING-EXTRA .
+  pr CONVERSION .
+  op parseNatList  : String -> NatList .
+  op parseNatList  : String NatList -> NatList .
+  op parseNatList  : StringPair NatList -> NatList .
+  op parseNatList  : [Nat] String NatList -> NatList .
+
+  var S S' : String . var NL : NatList .
+  var N    : Nat    . var NK : [Nat]   .
+
+  eq parseNatList(S)          = parseNatList(S,nil) .
+  eq parseNatList(S,NL)       = if find(S," ",0) == notFound then rat(S,10) else parseNatList(split(stripL(S)," "),NL) fi .
+  eq parseNatList(("",""),NL) = NL .
+  eq parseNatList((S,S'),NL)  = parseNatList(rat(S,10),S',NL) [owise] .
+  eq parseNatList(N,S',NL)    = if find(S'," ",0) == notFound then NL N rat(S',10) else parseNatList(split(stripL(S')," "),NL N) fi .
+endfm
+
+fmod NZNAT-LIST is
+  pr NAT-LIST .
+  sort NzNatList NeNzNatList .
+  subsort NzNat < NeNzNatList < NzNatList .
+  subsort NzNatList   < NatList   .
+  subsort NeNzNatList < NeNatList .
+  op __  : NzNatList NzNatList   -> NzNatList   [ctor ditto] .
+  op __  : NeNzNatList NzNatList -> NeNzNatList [ctor ditto] .
+  op __  : NzNatList NeNzNatList -> NeNzNatList [ctor ditto] .
+  op nil :                       -> NzNatList   [ctor ditto] .
+endfm
+
+fmod ASSOCIATE is
+  pr META-LEVEL .
+  pr QID-TYPELIST-PAIR .
+  pr TYPE-EXTRA    .
+  pr ATTR-EXTRA    .
+  pr TERM-EXTRA    .
+  pr OPDECL-TYPING .
+
+  op assocdata     : Module                             -> [QidTypeListPairSet] [memo] .
+  op assocdata     : Module OpDeclSet                   -> [QidTypeListPairSet] .
+  op associative?  : Module QidTypeListPairSet Term     -> [Bool] .
+
+  op associate     : Module Term                        -> [Term].
+  op associate     : Module QidTypeListPairSet Term     -> [Term].
+  op associate     : Qid TermList                       -> [Term].
+  op sub-associate : Module QidTypeListPairSet TermList -> TermList .
+
+  var M : Module . var Q : Qid . var T T1 T2 : Type . var OS : OpDeclSet . var QTLS : QidTypeListPairSet .
+  var TL : TypeList . var NTL : NeTypeList . var AS : AttrSet . var X X' : Term . var XL : TermList . var NXL : NeTermList .
+
+  eq assocdata(M)                                  = assocdata(M,getOps(M)) .
+ ceq assocdata(M,op Q : T1 T2 -> T [assoc AS]. OS) = (Q,getKind(M,T)) | assocdata(M,OS) if getKind(M,T1) == getKind(M,T2) .
+  eq assocdata(M,op Q : TL    -> T [AS]. OS)       = assocdata(M,OS) [owise] .
+  eq assocdata(M,none)                             = mt .
+
+  --- check if the root operator of a term is associative
+  eq associative?(M,(Q,T) | QTLS,Q[X,NXL]) = typeListToSet(toKindList(M,termListSorts(M,(X,NXL,Q[X,NXL])))) == T .
+  eq associative?(M,QTLS,X)                = false [owise] .
+
+  --- associate all associative operators in a term
+  eq associate(M,X)               = associate(M,assocdata(M),X) .
+  eq associate(M,QTLS,Q[X,NXL])   = if associative?(M,QTLS,Q[X,NXL]) then associate(Q,sub-associate(M,QTLS,(X,NXL))) else Q[sub-associate(M,QTLS,(X,NXL))] fi .
+  eq associate(M,QTLS,X)          = X [owise] .
+  --- apply the associate operation recursively to subterms
+  eq sub-associate(M,QTLS,(X,XL)) = associate(M,QTLS,X),sub-associate(M,QTLS,XL) .
+  eq sub-associate(M,QTLS,empty)  = empty .
+
+  --- associate a termlist using an operator
+  eq associate(Q,(X,NXL))         = Q[X,associate(Q,NXL)] .
+  eq associate(Q,X)               = X .
+endfm
+
+view QidTypeListPair from TRIV to QID-TYPELIST-PAIR is sort Elt to QidTypeListPair . endv
+view NeNatList       from TRIV to META-LEVEL        is sort Elt to NeNatList       . endv
+
+--- polynomial metadata extraction and representation
+fmod POLYNOMIAL-ORDERING-METADATA-PARSING is
+  pr  NATLIST-PARSER .
+  inc MAP{QidTypeListPair,NeNatList} .
+  pr QID-JOIN .
+  op parsePolyMetadata : AttrSet -> NatList .
+  op minimalConstant   : Map{QidTypeListPair,NeNatList}              -> [Bound] .
+  op minimalConstant   : Map{QidTypeListPair,NeNatList} Constant Nat -> [Bound] .
+  var S : String . var AS : AttrSet . var Q : Qid . var C : Constant .
+  var T : Type . var Z Z' : NzNat . var M : Map{QidTypeListPair,NeNatList} .
+  --- parse the metadata from an operator
+  eq parsePolyMetadata(metadata(S) AS) = parseNatList(S) .
+  eq parsePolyMetadata(AS)             = nil [owise] .
+  ---
+  eq minimalConstant(((Q,T) |-> s(Z), M))    = minimalConstant(M,join(Q '. T),s(Z)) .
+  eq minimalConstant(M)                      = unbounded [owise] .
+  eq minimalConstant(((Q,T) |-> s(Z'), M),C,s(Z)) =
+    if Z' < Z then minimalConstant(M,join(Q '. T),s(Z')) else
+                   minimalConstant(M,C,s(Z)) fi .
+  eq minimalConstant(M,C,s(Z)) = s(Z) .
+endfm
+
+--- polynomial metadata validation
+fmod POLYNOMIAL-ORDERING-METADATA-VALIDATION is
+  pr META-LEVEL .
+  pr NZNAT-LIST . --- NzNatList
+  pr ATTR-EXTRA . --- anyIn()
+  pr TYPE-EXTRA . --- len()
+  pr OP-FAMILY  . --- subsorted overloaded operator families
+  pr POLYNOMIAL-ORDERING-METADATA-PARSING . --- parsing polynomial metadata
+
+  op hasCondEqs?   : EquationSet                    -> Bool .
+  op onlyEqConds?  : EquationSet                    -> Bool .
+  op polyMetadata  : Module                         -> [Map{QidTypeListPair,NeNatList}]   [memo] .
+  op polyMetadata  : Module OpFamilyMap EquationSet -> [Map{QidTypeListPair,NeNatList}]   .
+  op polyMetadata  : Module OpFamilyMap Bool        -> [Map{QidTypeListPair,NeNatList}]   .
+  op polyMetadata1 : Module OpDecl Bool NatList     -> [Entry{QidTypeListPair,NeNatList}] .
+
+  var M   : Module        . var C C' : EqCondition . var B   : Bool       .
+  var ES  : EquationSet   . var T T' : Term        . var X   : Nat        .
+  var TYL TYL' : TypeList . var OFM  : OpFamilyMap . var P   : NzNat      .
+  var ODS : OpDeclSet     . var Q    : Qid         . var NZL : NzNatList  .
+  var TY TY1 TY2 : Type   . var AS   : AttrSet     . var NTL : NeTypeList .
+  var D D' : Term . var S : Sort .
+
+  --- begin polynomial metadata extraction
+  --- check attributes are shared and there is no id attributes
+  eq polyMetadata(M)        = polyMetadata(M,getOpFamilies(M,false),getEqs(M)) .
+ ceq polyMetadata(M,OFM,ES) = polyMetadata(M,OFM,hasCondEqs?(ES))
+  if onlyEqConds?(ES) and-then sharedAttrs(OFM,eq-attrs metadata-attr) and-then noId(OFM) .
+
+  --- recursively handle each operator family
+  eq polyMetadata(M,((Q,TYL) |-> op Q : TYL' -> TY [AS]. ODS) OFM,B) =
+     polyMetadata1(M,op Q : TYL -> TY [AS].,B,parsePolyMetadata(AS)), polyMetadata(M,OFM,B) .
+  eq polyMetadata(M,nil,B) = empty .
+
+  --- rules for operators with more than two arguments
+  eq polyMetadata1(M,op Q : TY1 TY2 -> TY [assoc AS].,     B, 1 1 X  ) = (Q,toKindList(M,TY1 TY2 TY)) |-> 1 1 X  .
+
+  eq polyMetadata1(M,op Q : TY1 TY2 -> TY [comm AS].,      B, P P X  ) = (Q,toKindList(M,TY1 TY2 TY)) |-> P P X,
+                                                                         (Q,toKindList(M,TY2 TY1 TY)) |-> P P X   [owise] .
+
+ ceq polyMetadata1(M,op Q : TY1 NTL -> TY [AS].,           B, NZL P X) = (Q,toKindList(M,TY1 NTL TY)) |-> NZL P X
+    if len(TY1 NTL TY) == size(NZL P X) and-then not anyIn(assoc comm,AS) .
+
+  --- unary operator rules
+  eq polyMetadata1(M,op Q : TY1 -> TY [AS]., false, P    X ) = (Q,toKindList(M,TY1 TY)) |-> P X     .
+  eq polyMetadata1(M,op Q : TY1 -> TY [AS]., true,  1    P ) = (Q,toKindList(M,TY1 TY)) |-> 1 P     .
+  eq polyMetadata1(M,op Q : TY1 -> TY [AS]., true,  s(P) X ) = (Q,toKindList(M,TY1 TY)) |-> s(P) X  .
+  --- constant rules
+  eq polyMetadata1(M,op Q : nil -> TY [AS]., B,     s(P)   ) = (Q,toKindList(M,nil TY)) |-> s(P)    .
+
+  --- helper functions for conditional eqs
+  eq hasCondEqs?(ceq T = T' if C [AS]. ES) = true .
+  eq hasCondEqs?(ES) = false [owise] .
+
+  eq onlyEqConds?(ceq T = T' if C /\ D := D' /\ C [AS]. ES) = false .
+  eq onlyEqConds?(ceq T = T' if C /\ D :  S  /\ C [AS]. ES) = false .
+  eq onlyEqConds?(ES) = true [owise] .
+endfm
+
+fmod TERM-MULT is
+  pr META-LEVEL .
+  pr NZNAT-LIST .
+  op @            : TermList           -> Term     [ctor] .
+  op unwrap       : TermList           -> TermList .
+  op unwrap1      : TermList           -> TermList .
+  op mul+         : NzNatList TermList -> TermList .
+  op mul1         : Nat TermList       -> TermList .
+  op wrapACTerm   : Qid NeTermList     -> Term     .
+  op unwrapACTerm : Qid Term           -> TermList .
+
+  var T : Term . var TL : TermList . var NTL : NeTermList . var TQ : TermQid .
+  var ZL : NzNatList . var Z : NzNat . var N : Nat . var Q : Qid .
+
+  --- INP: TermList
+  --- PRE: None
+  --- OUT: Unwraps the TermList constructor
+  eq unwrap((T,TL)) = unwrap1(T), unwrap(TL) .
+  eq unwrap(empty)  = empty .
+  eq unwrap1(@(TL)) = unwrap(TL) .
+  eq unwrap1(TQ)    = TQ .
+  eq unwrap1(Q[TL]) = Q[unwrap(TL)] .
+
+  --- INP: NzNatList TermList
+  --- PRE: None
+  --- OUT: Copies each Term in the TermList NzNat times
+  eq mul+(Z ZL,(T,TL)) = mul1(Z,T), mul+(ZL,TL) .
+  eq mul+(nil,empty)   = empty .
+  eq mul1(s(N),TL)     = TL,mul1(N,TL) .
+  eq mul1(0,T)         = empty .
+
+  --- INP: Qid NeTermList
+  --- PRE: None
+  --- OUT: Wraps/unwrap NeTermList using AC term operator Q
+  eq wrapACTerm(Q,T)        = T .
+  eq wrapACTerm(Q,(T,NTL))  = Q[(T,NTL)] .
+  eq unwrapACTerm(Q,Q[NTL]) = NTL .
+  eq unwrapACTerm(Q,T)      = T [owise] .
+endfm
+
+--- maps term in module with polynomial ordering to a polynomial term in NZNAT-AC
+fmod POLYNOMIAL-MAP is
+  pr POLYNOMIAL-ORDERING-METADATA-VALIDATION .
+  pr TERM-EXTRA .
+  pr TERM-MULT  .
+  pr NZNAT-AC-CONVERSION .
+  pr ASSOCIATE .
+
+  op p     : Module Term -> Term .
+  op p1    : Module Map{QidTypeListPair,NeNatList} Term -> Term .
+  op p2    : Module Map{QidTypeListPair,NeNatList} Term -> TermList .
+  op rec-p : Module Map{QidTypeListPair,NeNatList} TermList -> TermList .
+
+  var Q : Qid  . var TYL : TypeList . var ZL : NzNatList .
+  var T : Term . var TL  : TermList . var V  : Variable  .
+  var N : Nat  . var M   : Module   . var Z  : NzNat .
+  var PM : Map{QidTypeListPair,NeNatList} .
+
+  --- INP: Module Term
+  --- PRE: Term is well-defined in Module
+  --- OUT: Term converted to Nat
+  eq p (M,T)    = p1(M,polyMetadata(M),associate(M,T)) .
+  eq p1(M,PM,T) = getTerm(metaNormalize(upModule('NZNAT-AC,true),wrapACTerm('_+_,unwrap(p2(M,PM,T))))) .
+
+  --- INP: Module Map{QidTypeListPair,NeNatList} Term
+  --- PRE: Term is well-defined in Module
+  --- OUT: Convert term to Nat
+ ceq p2(M,((Q,TYL) |-> (ZL N),PM),T) =
+     mul+(ZL,rec-p(M,((Q,TYL) |-> (ZL N),PM),subterms(T))),
+       if N =/= 0 then AC-Nat(N) else empty fi
+  if not T :: Variable /\ headName(T) == Q /\ termListToKinds(M,(subterms(T),T)) == TYL /\ len(subterms(T)) == size(ZL) .
+  eq p2(M,PM,V) = join(getName(V) ':NzNat) .
+
+  --- INP: Module Map{QidTypeListPair,NeNatList} Term
+  --- PRE: Term is well-defined in Module
+  --- OUT: Recursively apply p()
+  eq rec-p(M,PM,(T,TL)) = @(p2(M,PM,T)),rec-p(M,PM,TL) .
+  eq rec-p(M,PM,empty)  = empty .
+endfm
+
+fmod NZNAT-AC-COMPARE is
+  pr SUBSTITUTION-HANDLING .
+  pr TERMSET .
+  pr POLYNOMIAL-MAP .
+
+  op _>p(_)_    : Term Module TermSet     -> [Bool] .
+  op proc-cmp1  : Module Term             -> [Bool] .
+  op proc-cmp2  : Bound TermList TermList -> [Bool] .
+
+  op _>NzNat_   : Term Term               -> Term .
+  op _>NzNat!_  : TermList TermList       -> Term .
+
+  op downBool   : Term                    -> [Bool] .
+  op sub-all    : TermList Term           -> Term .
+
+  var M : Module . var X : Variable . var T T' : Term . var TS : TermSet .
+  var L L' L'' : TermList . var B : Bound . var Z : NzNat .
+
+  --- Step 1: Apply polynomial mapping and compare in NZNAT-AC
+  eq T >p(M) (T' | TS)    = proc-cmp1(M,p(M,T) >NzNat p(M,T'))
+                            and-then T >p(M) TS .
+  eq T >p(M) emptyTermSet = true .
+
+  --- Step 2: If comparison in step 1 reduces to true/false, return
+  ---         Otherwise, continue to step 3
+  eq proc-cmp1(M,'true.Bool ) = true  .
+  eq proc-cmp1(M,'false.Bool) = false .
+  eq proc-cmp1(M,'_>_[T,T'] ) = proc-cmp2(minimalConstant(polyMetadata(M)),
+                                          unwrapACTerm('_+_,T ),
+                                          unwrapACTerm('_+_,T')) .
+
+  --- Step 3: if variable on RHS, invalid
+  ---         otherwise, if no constant exists, valid
+  ---         otherwise, replace LHS variables with minimally valued constant's value
+  eq proc-cmp2(B,L,(L',X,L'')) = false .
+ ceq proc-cmp2(B,L,L')         = true if not B :: Nat .
+  eq proc-cmp2(Z,L,L')         = downBool(sub-all(L,AC-Nat(Z)) >NzNat! L') .
+
+  --- These functions perform real comparison in NZNAT-AC module on
+  --- wrapped or unwrapped NzNats (represented as multisets)
+  eq L >NzNat! L' = wrapACTerm('_+_,L) >NzNat wrapACTerm('_+_,L') .
+  eq T >NzNat  T' = getTerm(metaReduce(upModule('NZNAT-AC,true),'_>_[T,T'])) .
+
+  --- Auxiliary functions
+  eq downBool('true.Bool)  = true  .
+  eq downBool('false.Bool) = false .
+  eq sub-all((X,L),T)      = T,sub-all(L,T) .
+  eq sub-all(empty,T)      = empty .
+endfm
+
+fmod NZNAT-AC-COMPARE-AUX is
+  pr NZNAT-AC-COMPARE .
+  pr MAYBEPOLYSETPAIR .
+
+  op _>p+(_)_  : Term Module TermSet                  -> [MaybePolySetPair] .
+  op proc-comp : Module MaybePolySetPair Term TermSet -> [MaybePolySetPair] .
+
+  var T T' : Term . var TS : TermSet . var P : Polynomial . var PS : PolySet . var M : Module .
+
+  eq T >p+(M) TS                          = proc-comp(M,noPolySetPair,T,TS) .
+  eq proc-comp(M,noPolySetPair,T,T' | TS) =
+    if T >p(M) T' then proc-comp(M,noPolySetPair,T,TS)
+      else proc-comp(M,(toPoly(p(M,T)),toPoly(p(M,T'))),T,TS) fi .
+  eq proc-comp(M,noPolySetPair,T,emptyTermSet) = noPolySetPair .
+  eq proc-comp(M,(P,PS),T,T' | TS) =
+    if T >p(M) T' then proc-comp(M,(P,PS),T,TS)
+      else proc-comp(M,(P,PS @ toPoly(p(M,T'))),T,TS) fi .
+  eq proc-comp(M,(P,PS),T,emptyTermSet) = (P,PS) .
+endfm
+
+fmod POLYNOMIAL-CHECK is
+  pr NZNAT-AC-COMPARE .
+  pr TERMSET-AUX      .
+  pr EXT-DECL         .
+  op poly-check-eqs  : Module             -> [EquationSet] .
+  op poly-check-eqs  : Module EquationSet -> [EquationSet] .
+  op poly-check-eq   : Module Equation    -> [Bool]        .
+
+  var M : Module . var TS : TermSet . var T T' : Term . var ES : EquationSet .
+  var C : EqCondition . var A : AttrSet . var E : Equation .
+
+ ceq poly-check-eqs(M) = poly-check-eqs(M,getEqs(M))
+    if polyMetadata(M) :: Map{QidTypeListPair,NeNatList} .
+
+  eq poly-check-eqs(M,E ES) = if poly-check-eq(M,E) then none else E fi poly-check-eqs(M,ES) .
+  eq poly-check-eqs(M,none) = none .
+
+  eq poly-check-eq(M, eq T = T'      [A].) = T >p(M) T' .
+  eq poly-check-eq(M,ceq T = T' if C [A].) = T >p(M) (T' | getECTerms(C)) .
+endfm
+
+fmod UNSOLVEABLE-EQ-PRINTER is
+  pr NZNAT-AC-COMPARE-AUX .
+  pr MAYBEPOLYSETPAIR-PRINTER .
+  pr POLYNOMIAL-CHECK .
+  op print-unsolveable-eqs : Module             -> [QidList] .
+  op print-unsolveable-eqs : Module EquationSet -> [QidList] .
+  op print-unsolveable-eq  : Module Equation    -> [QidList] .
+
+  var M : Module . var TS : TermSet . var T T' : Term . var ES : EquationSet .
+  var C : EqCondition . var A : AttrSet . var E : Equation .
+
+ ceq print-unsolveable-eqs(M) = print-unsolveable-eqs(M,getEqs(M))
+    if polyMetadata(M) :: Map{QidTypeListPair,NeNatList} .
+
+  eq print-unsolveable-eqs(M,E ES) = print-unsolveable-eq(M,E) print-unsolveable-eqs(M,ES) .
+  eq print-unsolveable-eqs(M,none) = nil .
+
+  eq print-unsolveable-eq(M, eq T = T' [A].) =
+    if poly-check-eq(M,eq T = T' [A].) then nil else
+      eMetaPrettyPrint(M,eq T = T' [A].) qid(" ") qid(" ") 'Polynomial:
+      eMetaPrettyPrintComp(M,T >p+(M) T') '\n fi .
+  eq print-unsolveable-eq(M,ceq T = T' if C [A].) =
+    if poly-check-eq(M,ceq T = T' if C [A].) then nil else
+      eMetaPrettyPrint(M,ceq T = T' if C [A].) qid(" ") qid(" ") 'Polynomial:
+      eMetaPrettyPrintComp(M,T >p+(M) (T' | getECTerms(C))) '\n fi .
+endfm

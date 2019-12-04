@@ -1,0 +1,192 @@
+fmod GTERMLIST-REFINEMENT is
+  pr META-TERM .
+  sort GTerm NeGTermList .
+  subsort Term Context < GTerm   < NeGTermList < GTermList .
+  subsort NeTermList NeCTermList < NeGTermList .
+  op _,_ : NeGTermList GTermList -> NeGTermList [ctor ditto] .
+  op _,_ : GTermList NeGTermList -> NeGTermList [ctor ditto] .
+endfm
+
+fmod QIDSET-REFINEMENT is
+  pr META-MODULE .
+  ---
+  sort VariableSet   ConstantSet   TermQidSet    .
+  sort NeVariableSet NeConstantSet NeTermQidSet  .
+  ---
+  subsort Variable < NeVariableSet < VariableSet .
+  subsort Constant < NeConstantSet < ConstantSet .
+  subsort TermQid  < NeTermQidSet  < TermQidSet  .
+  ---
+  subsort EmptyTypeSet < ConstantSet VariableSet     .
+  subsort VariableSet   ConstantSet   < TermQidSet   .
+  subsort NeVariableSet NeConstantSet < NeTermQidSet .
+  ---
+  subsort TermQidSet   < QidSet   .
+  subsort NeTermQidSet < NeQidSet .
+  ---
+  op _;_ : TermQidSet TermQidSet     -> TermQidSet    [ctor ditto] .
+  op _;_ : NeTermQidSet TermQidSet   -> NeTermQidSet  [ctor ditto] .
+  op _;_ : ConstantSet ConstantSet   -> ConstantSet   [ctor ditto] .
+  op _;_ : NeConstantSet ConstantSet -> NeConstantSet [ctor ditto] .
+  op _;_ : VariableSet VariableSet   -> VariableSet   [ctor ditto] .
+  op _;_ : NeVariableSet VariableSet -> NeVariableSet [ctor ditto] .
+endfm
+
+fmod SUBSTITUTION-REFINEMENT is
+  pr QIDSET-REFINEMENT    .
+  pr GTERMLIST-REFINEMENT .
+  sort VarAssignment ConstAssignment GroundAssignment .
+  sort EmptySubstitution VarSubstitution ConstSubstitution GroundSubstitution .
+  subsort ConstAssignment < GroundAssignment .
+  subsort VarAssignment   ConstAssignment   GroundAssignment   < Assignment .
+  subsort EmptySubstitution < VarSubstitution ConstSubstitution GroundSubstitution < Substitution .
+  subsort ConstSubstitution < GroundSubstitution .
+  subsort VarAssignment     < VarSubstitution .
+  subsort ConstAssignment   < ConstSubstitution .
+  subsort GroundAssignment  < GroundSubstitution .
+  op _<-_ : Variable Variable                     -> VarAssignment       [ctor ditto] .
+  op _<-_ : Variable Constant                     -> ConstAssignment     [ctor ditto] .
+  op _<-_ : Variable GroundTerm                   -> GroundAssignment    [ctor ditto] .
+  op none :                                       -> EmptySubstitution   [ctor ditto] .
+  op _;_  : EmptySubstitution  EmptySubstitution  -> EmptySubstitution   [ctor ditto] .
+  op _;_  : VarSubstitution    VarSubstitution    -> VarSubstitution     [ctor ditto] .
+  op _;_  : ConstSubstitution  ConstSubstitution  -> ConstSubstitution   [ctor ditto] .
+  op _;_  : GroundSubstitution GroundSubstitution -> GroundSubstitution  [ctor ditto] .
+endfm
+
+fmod SUBSTITUTIONPAIR is
+  pr SUBSTITUTION-REFINEMENT .
+  sort SubstitutionPair .
+  op ((_,_)) : Substitution Substitution -> SubstitutionPair .
+  ops p1 p2 : SubstitutionPair -> Substitution .
+  var S1 S2 : Substitution .
+  eq p1((S1,S2)) = S1 .
+  eq p2((S1,S2)) = S2 .
+endfm
+
+fmod SUBSTITUTIONPAIRSET is
+  pr SUBSTITUTIONPAIR .
+  sort SubstitutionPairSet NeSubstitutionPairSet .
+  subsort SubstitutionPair < NeSubstitutionPairSet < SubstitutionPairSet .
+  op empty : -> SubstitutionPairSet [ctor] .
+  op _|_ : SubstitutionPairSet SubstitutionPairSet -> SubstitutionPairSet
+    [ctor assoc comm id: empty format (d n d d)] .
+  op _|_ : NeSubstitutionPairSet SubstitutionPairSet -> NeSubstitutionPairSet
+    [ctor ditto] .
+  eq X:SubstitutionPair | X:SubstitutionPair = X:SubstitutionPair .
+endfm
+
+fmod SUBSTITUTION-AUX is
+  pr SUBSTITUTION-REFINEMENT .
+  pr EXT-TERM                . --- defines vars()
+  op idsub       : VariableSet               -> VarSubstitution .
+  op domain      : Substitution              -> VariableSet .
+  op range       : Substitution              -> VariableSet .
+  op filterNotIn : Substitution VariableSet  -> Substitution .
+  op bound       : Variable Substitution     -> Bool .
+  op remove      : Substitution Substitution -> Substitution .
+
+  var V : Variable . var T : Term . var S S' : Substitution . var VS : VariableSet . var A : Assignment .
+
+  --- INP: QidSet
+  --- PRE: None
+  --- OUT: Identity substitution over VariableSet
+  eq idsub(V ; VS) = V <- V ; idsub(VS) .
+  eq idsub(none)   = none .
+
+  --- INP: Substitution
+  --- PRE: None
+  --- OUT: VariableSet composed of variables mapped to other values
+  eq domain(V <- T ; S) = V ; domain(S) .
+  eq domain(none)       = none .
+
+  --- INP: Substitution
+  --- PRE: None
+  --- OUT: VariableSet containing all variables in codomain of substitution
+  eq range(V <- T ; S) = vars(T) ; range(S) .
+  eq range(none)       = none .
+
+  --- INP: Subsitution VS:QidSet
+  --- PRE: None
+  --- OUT: Substitution where each binding V <- T is
+  ---      filtered out if V occurs in VS
+  eq filterNotIn(V <- T ; S,VS) = if V in VS then none else V <- T fi ; filterNotIn(S,VS) .
+  eq filterNotIn(none,VS)       = none .
+
+  --- INP: Variable Substitution
+  --- PRE: None
+  --- OUT: True iff variable is bound by substitution
+  eq bound(V,V <- T ; S) = true          .
+  eq bound(V,S)          = false [owise] .
+
+  --- INP: Substitution1 Substitution2
+  --- PRE: None
+  --- OUT: a new Substitution identical to Substiution1 but where any assignment in Substitution2 has been removed
+  eq remove(S ; A,A ; S') = remove(S,A ; S') .
+  eq remove(S,S')         = S [owise] .
+endfm
+
+fmod SUBSTITUTIONSET-AUX is
+  pr SUBSTITUTION-REFINEMENT .
+  pr SUBSTITUTIONSET .
+  pr TERMSET .
+  op domain      : SubstitutionSet              -> VariableSet .
+  op filterNotIn : SubstitutionSet VariableSet  -> SubstitutionSet .
+  op _<<_        : Term SubstitutionSet         -> TermSet .
+  op remove      : SubstitutionSet Substitution -> SubstitutionSet .
+
+  var S S' S2 : Substitution . var SS : SubstitutionSet .
+  var T : Term . var V : Variable . var QS : VariableSet .
+
+  --- INP: SubstitutionSet
+  --- PRE: None
+  --- OUT: QidSet composed of domain() of each substitution
+  eq domain(S | S' | SS) = domain(S) ; domain(S' | SS) .
+  eq domain(empty)       = none .
+
+  --- INP: SubstitutionSet QS:QidSet
+  --- PRE: None
+  --- OUT: SubstitutionSet where each substitution binding V <- T is
+  ---      filtered out if V occurs in QS
+  eq filterNotIn(S | S' | SS,QS) = filterNotIn(S,QS) | filterNotIn(S' | SS,QS) .
+  eq filterNotIn(empty,QS)       = empty .
+
+  --- INP: Term SubstitutionSet
+  --- PRE: None
+  --- OUT: A TermSet of instances of Term by application with each Substitution in SubstitutionSet
+  eq T << (S | S' | SS) = (T << S) | (T << (S' | SS)) .
+  eq T << empty         = emptyTermSet .
+
+
+  --- INP: SubstitutionSet Substitution
+  --- PRE: None
+  --- OUT: A SubstitutionSet identical to input but where each assignment in Substitution is removed
+  eq remove(S | S' | SS,S2) = remove(S,S2) | remove(S | S' | SS,S2) .
+  eq remove(empty,S2)       = empty .
+endfm
+
+--- operations like metaUnify, metaDisjointUnify, etc... generate fresh variable
+--- names for all terms invovled---however, sometimes, it is desirable to preserve
+--- the variable names originally chosen by the user---this module implemnts a
+--- function which will ``reuse'' user-provided variables as often as possible
+fmod RECLAIM-VARS is
+  pr SUBSTITUTION-REFINEMENT .
+  pr SUBSTITUTIONSET .
+  pr SUBSTITUTION-AUX .
+  op reclaim  : VariableSet SubstitutionSet           -> SubstitutionSet .
+  op reclaim' : VariableSet Substitution              -> [Substitution] .
+  op reclaim' : VariableSet Substitution Substitution -> Substitution .
+
+  var V : Variable . var T : Term . var S S' : Substitution . var SS : SubstitutionSet . var VS : VariableSet .
+
+  --- INP: VariableSet SubstitutionSet:SS
+  --- PRE: domain(SS) intersected with range(SS) is empty
+  --- OUT:
+ ceq reclaim'(VS,S)             = reclaim'(VS,S,none) if intersection(domain(S),range(S)) == none .
+  eq reclaim'(VS,V <- T ; S,S') = if T :: Variable and-then V in VS and-then not T in VS
+                                   then reclaim'(VS,S << (T <- V),(S' << (T <- V)) ; V <- V) else reclaim'(VS,S,S' ; V <- T) fi .
+  eq reclaim'(VS,none,S')       = S' .
+
+  eq reclaim(VS,S | SS) = reclaim'(VS,S) | reclaim(VS,SS) .
+  eq reclaim(VS,empty)  = empty .
+endfm
