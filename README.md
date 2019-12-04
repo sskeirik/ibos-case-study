@@ -1,10 +1,14 @@
 # Illinois Browser Operating System Case Study
 
+## Introduction
+
 This repository contains our Illinois Browser Operating System (IBOS) Case Study.
 This study focuses on verifying that two properties hold for IBOS:
 
 - the same-origin policy (SOP)
 - address bar correctnesss (ABC)
+
+## Components
 
 The reposistory also contains the complete source code of the IBOS specification
 itself as well as our associated analysis tools and supporting proofs.
@@ -28,7 +32,7 @@ Pen-and-Paper Analysis Tool:
 
 1. Hierarchical Sufficient Completeness Checker - documented in Stephen Skeirik's thesis
 
-Automated Proofs:
+Automated Proofscripts:
 
 1. Reachability Proof of the SOP/ABC for IBOS (these were encoded together in a single proof) - `tests/systems/ibos-abc.maude`
 2. Proof of termination of IBOS via MTA - `tests/tools/ibos-preds-term.maude`
@@ -38,3 +42,14 @@ Automated Proofs:
 Pen-and-Paper Proofs:
 
 1. Proof of sufficient completeness of IBOS via the sufficient completness checker - documented in Stephen Skeirik's thesis
+
+## Setup
+
+To Run the Tools/Proofs, two steps are needed:
+
+1. A working Maude installation is needed on your system PATH. To install Maude, see the [Maude website](http://maude.cs.illinois.edu).
+2. The proof setup shell script should be run: `tests/systems/init-ibos`
+
+Then to run the automated proofs, do the following:
+
+`maude /path/to/proofscript`
